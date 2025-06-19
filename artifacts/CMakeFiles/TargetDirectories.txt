@@ -1,0 +1,3 @@
+/home/hekapoo/Documents/probe/move_stuff/artifacts/CMakeFiles/toying.dir
+/home/hekapoo/Documents/probe/move_stuff/artifacts/CMakeFiles/edit_cache.dir
+/home/hekapoo/Documents/probe/move_stuff/artifacts/CMakeFiles/rebuild_cache.dir

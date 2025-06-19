@@ -1,0 +1,52 @@
+- simple
+- can be constructed from template files
+- runtime reloadable UI via template files
+- doesnt need to support all webdev bullshit
+- elements need to be composable into bigger elements
+- tree structured ui
+- support for multiple windows
+- docking & extrating panes to another window
+- main window has all the resources to be used in another windows (vaos/shaders/textures)
+- support for borders, padding, margins, rounded corners
+- support for: Simple Button, Radio Button, Radio Button Group, Images, Containers, SplitContainer,
+    Sliders, Dropdowns, Context Menus, TreeViews, RecycleLists, GfxContext
+
+<app>
+<topbar>
+</topbar>
+<body>
+
+</body>
+</app>
+
+-- what went wrong last time?
+- convoluted layout calculation, too much code and hard to read
+
+- Sliders couldn't be used day-one in Dividers -> dupped code
+
+- RecycleLists/TreeViews too complicated and needed jumps between the node class and the layout calc class
+
+- Common data like color and setting the color was distributed in all UI classes instead of living in the abstract class -> dupped code
+
+- text was added too late & it clashed with the layout calculations (needed to at FIT scale type just to accomodate text)
+
+- text was badly implemented, each string needing a buffer in a very convoluted way
+
+- all the tree nodes were flattened into a linear list in order to render things front to back for limiting overddraw but this
+    was then found to be useless since doing it like this eliminates the pro of having alpha blending
+
+- UI elements were too rigid to compose together, for example a button that could have an image to the left/right became an integral part
+    of the Button class intead of some new class, maybe ButtonWithImage.
+
+- Text didnt have a predetermined size which made it hard for Labels to fit their size when needed and to calculate other things that would
+    require text size to be known
+
+- Layout data was separated into its own class with a to of getters/setters while also leaving the members public, thus introducing two ways
+    of doing things. The method based one was only there to help with layout/render autoreloading.
+
+- The Transform class retained viewable area and the transform to be sent to the gpu, but in many cases we needed the whole area of the node,
+    otherwise we eneded up summing borders and margins and the scale each time manually
+- only one layer of drawing aka no way to show debug lines for example
+- convoluted event system where the user could override some internal callbacks and thus break functionality, especially on composed ui nodes
+- the event callbacks that needed the object the callback was on, always needed to capture that object by weak_ptr ref making it pretty verbose
+    instead of just passing the element as a parameter

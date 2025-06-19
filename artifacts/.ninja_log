@@ -1,0 +1,20 @@
+# ninja log v5
+9	584	1750064838877071590	CMakeFiles/toying.dir/src/WindowManagement/Input.cpp.o	1572e908c4f5870f
+12	9197	1750187007186702918	CMakeFiles/toying.dir/src/ResourceLoaders/Shader.cpp.o	263834e5233ff232
+5	860	1750105872475988837	CMakeFiles/toying.dir/src/UIElements/LayoutAttribs.cpp.o	ef4a15c038829ce8
+8	4316	1749756607722251909	CMakeFiles/toying.dir/src/windowManagement/Window.cpp.o	8a3f29e3da00157f
+14	9545	1750187007534707059	CMakeFiles/toying.dir/src/WindowManagement/NativeWindow.cpp.o	ef7ba23e0143f71
+12	8932	1750187006919699741	CMakeFiles/toying.dir/src/ResourceLoaders/MeshLoader.cpp.o	b2b57d30c6176e91
+5	4185	1750341769795379469	CMakeFiles/toying.dir/main.cpp.o	2d284d5eb96acb63
+5	590	1750009298685584245	CMakeFiles/toying.dir/src/UIElements/VisualAttribs.cpp.o	3a90e127bea2c69d
+4172	4443	1750350956171383453	/home/hekapoo/Documents/probe/move_stuff/debug/toying	3b82a6c263dd969d
+4	4744	1750339745755190036	CMakeFiles/toying.dir/src/UIElements/UIFrame.cpp.o	ada7851f93d342af
+4	4172	1750350955900379409	CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o	9efe66cb7a471370
+13	8822	1750187006811698456	CMakeFiles/toying.dir/src/ResourceLoaders/ShaderLoader.cpp.o	c46f11df96efc31f
+4	425	1749980640601321999	CMakeFiles/toying.dir/src/UIElements/Layout.cpp.o	72d426d0d7700db6
+3	3642	1750339744656172827	CMakeFiles/toying.dir/src/App.cpp.o	4674a5dec31f9391
+14	5215	1750187003202655519	CMakeFiles/toying.dir/src/Utils/Logger.cpp.o	4fd4592ab28500cc
+8	605	1749756604016210444	CMakeFiles/toying.dir/src/windowManagement/Input.cpp.o	ffa18b0dc7de20b4
+4	145	1749892594449420115	CMakeFiles/toying.dir/src/ResourceLoaders/Mesh.cpp.o	55833007c292f14d
+3	4201	1750350969863587345	CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o	9efe66cb7a471370
+4201	4474	1750350970136591402	/home/hekapoo/Documents/probe/move_stuff/debug/toying	3b82a6c263dd969d

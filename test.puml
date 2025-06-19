@@ -1,0 +1,14 @@
+@startuml test
+    class Application
+    class NativeWindow
+    class Input
+    class UIFrame
+
+    abstract UIBase <<abstract>>
+
+    Application "1" *-r- "*" UIFrame
+    NativeWindow "1" <-u- UIFrame : < has
+    UIFrame <|-u- UIBase
+    NativeWindow -- Input : > has
+@enduml
+
