@@ -3,8 +3,9 @@
 #include <cstdint>
 #include <format>
 #include <functional>
+#include <memory>
 #include <type_traits>
-#include <concepts>
+#include <typeindex>
 
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
@@ -23,10 +24,10 @@ concept UIBaseDerived =
 using UIBasePtr = std::shared_ptr<UIBase>;
 using UIBaseWPtr = std::weak_ptr<UIBase>;
 using UIBasePtrVec = std::vector<UIBasePtr>;
-class UIBase
+class UIBase : public std::enable_shared_from_this<UIBase>
 {
 public:
-    UIBase(const std::string& name);
+    UIBase(const std::string& name, const std::type_index type);
     virtual ~UIBase() = default;
     UIBase(const UIBase&) = delete;
     UIBase(UIBase&&) = delete;
@@ -44,10 +45,12 @@ public:
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
     auto getName() -> std::string;
-    auto getId() -> uint64_t;
+    auto getId() -> uint32_t;
+    auto getTypeId() -> uint32_t;
 
 protected:
-    virtual auto render(const glm::mat4& projection) -> void;
+    virtual auto render(const glm::mat4& projection) -> void = 0;
+    virtual auto layout() -> void = 0;
 
 private:
     template<UIBaseDerived T>
@@ -57,7 +60,9 @@ private:
     auto removeInternal(T&& element) -> bool;
 
 protected:
-    uint64_t id_;
+    uint32_t id_;
+    uint32_t typeId_;
+    std::type_index typeInfo_;
     std::string name_;
     utils::Logger log_;
     resourceloaders::Mesh mesh_;
@@ -72,9 +77,9 @@ protected:
 };
 } // namespace src::uielements
 
-
-template<>
-struct std::formatter<src::uielements::UIBasePtr> : std::formatter<std::string_view>
+template<typename T>
+requires std::is_base_of_v<src::uielements::UIBase, T>
+struct std::formatter<std::shared_ptr<T>> : std::formatter<std::string_view>
 {
     auto format(const src::uielements::UIBasePtr& obj, format_context& ctx) const
     {

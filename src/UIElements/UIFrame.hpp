@@ -21,6 +21,7 @@ public:
 
 private:
     auto render(const glm::mat4& projection) -> void override;
+    auto layout() -> void override;
     auto updateProjection() -> void;
 
 private:

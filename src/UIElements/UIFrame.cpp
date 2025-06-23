@@ -10,7 +10,7 @@ using namespace windowmanagement;
 bool UIFrame::isFirstFrame_ = true;
 
 UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
-    : UIBase("UIFrame")
+    : UIBase("UIFrame", typeid(UIFrame))
     , window_(title, size)
     , forcedQuit_(false)
     , isMainFrame_(isFirstFrame_)
@@ -83,6 +83,10 @@ auto UIFrame::render(const glm::mat4& projection) -> void
     shader_.uploadMat4("uMatrixTransform", layout_.getTransform());
     // shader_.uploadVec4f("uColor", vAttribs_.color);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+auto UIFrame::layout() -> void
+{
 }
 
 auto UIFrame::updateProjection() -> void

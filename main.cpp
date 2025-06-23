@@ -6,7 +6,9 @@
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/UIElements/UIBase.hpp"
+#include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIFrame.hpp"
+#include "src/UIElements/UIImage.hpp"
 #include "src/Utils/Logger.hpp"
 
 #include "src/Utils/Misc.hpp"
@@ -30,19 +32,23 @@ int main()
     uielements::UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    uielements::UIBasePtr a = utils::make<uielements::UIBase>("a");
-    uielements::UIBasePtr b = utils::make<uielements::UIBase>("b");
-    uielements::UIBasePtr c = utils::make<uielements::UIBase>("c");
-    uielements::UIBasePtr d = utils::make<uielements::UIBase>("d");
-    uielements::UIBasePtr e = utils::make<uielements::UIBase>("e");
-    uielements::UIBasePtr f = utils::make<uielements::UIBase>("f");
-    // a->add(std::move(b));
+    uielements::UIBasePtr a = utils::make<uielements::UIButton>("a");
+    uielements::UIButtonPtr b = utils::make<uielements::UIButton>("a");
+    uielements::UIButtonPtr c = utils::make<uielements::UIButton>("c");
+    uielements::UIButtonPtr d = utils::make<uielements::UIButton>("d");
+    uielements::UIButtonPtr e = utils::make<uielements::UIButton>("e");
+    uielements::UIButtonPtr f = utils::make<uielements::UIButton>("f");
+    uielements::UIButtonPtr g = utils::make<uielements::UIButton>("g");
+    uielements::UIImagePtr h = utils::make<uielements::UIImage>("g");
 
-    uielements::UIBasePtrVec x = {a, b, c, d, e, f};
+    uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
 
-    // a->add(b);
-    // b->add(c);
-    // a->add(d);
+    a->add(b);
+    b->add(c);
+    c->add(d);
+    d->add(e);
+    e->add(f);
+    e->add(g);
     a->add(x);
     /*
         -- a
@@ -51,13 +57,16 @@ int main()
             -- d
     
     */
-    a->remove(b);
+    // a->remove(b);
     // a->remove(std::move(x));
     // a->remove(std::move(x));
     // a->remove(b);
     // std::cout << *a << "\n";
     // std::cout << a << "\n";
     std::println("{}", a);
+    // std::println("{}", a->getTypeId());
+    // std::println("{}", frame.lock()->getTypeId());
+    // std::println("{}", b->getTypeId());
     // a->add(uielements::UIBasePtrVec{});
     // a->add(x);
     // a->add(std::move(x));

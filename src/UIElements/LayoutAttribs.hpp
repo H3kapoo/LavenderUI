@@ -7,6 +7,13 @@ namespace src::uielements
 class LayoutAttribs
 {
 public:
+    struct BoundingBox
+    {
+        glm::vec2 start;
+        glm::vec2 end;
+    };
+
+public:
     LayoutAttribs() = default;
     ~LayoutAttribs() = default;
     LayoutAttribs(const LayoutAttribs&) = delete;
@@ -14,6 +21,9 @@ public:
     LayoutAttribs& operator=(const LayoutAttribs&) = delete;
     LayoutAttribs& operator=(LayoutAttribs&&) = delete;
 
+    // contains size of the drawable as sent to the shader: includes border, padding, content are
+    auto getDrawableBox() -> BoundingBox;
+    // auto getFullBox() -> BoundingBox;
     auto getTransform() -> const glm::mat4&;
 
 public:
