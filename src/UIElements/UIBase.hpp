@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <typeindex>
 
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/UIElements/LayoutAttribs.hpp"
@@ -47,10 +48,16 @@ public:
     auto getName() -> std::string;
     auto getId() -> uint32_t;
     auto getTypeId() -> uint32_t;
+    auto getLayoutRef() -> LayoutAttribs&;
+    auto getVisualRef() -> VisualAttribs&;
 
 protected:
-    virtual auto render(const glm::mat4& projection) -> void = 0;
-    virtual auto layout() -> void = 0;
+    auto renderNext(const glm::mat4& projection) -> void;
+    auto layoutNext() -> void;
+    auto eventNext(const elementcomposable::IEvent& evt) -> void;
+    virtual auto render(const glm::mat4& projection) -> void;
+    virtual auto layout() -> void;
+    virtual auto event(const elementcomposable::IEvent& evt) -> void;
 
 private:
     template<UIBaseDerived T>
@@ -58,6 +65,8 @@ private:
 
     template<UIBaseDerived T>
     auto removeInternal(T&& element) -> bool;
+
+    static auto demangleName(const char* name) -> std::string;
 
 protected:
     uint32_t id_;
@@ -67,11 +76,11 @@ protected:
     utils::Logger log_;
     resourceloaders::Mesh mesh_;
     resourceloaders::Shader shader_;
-    LayoutAttribs layout_;
-    VisualAttribs vAttribs_;
+    LayoutAttribs layoutAttr_;
+    VisualAttribs visualAttr_;
 
     bool isParented_;
-    uint32_t level_;
+    uint32_t depth_{0};
     UIBaseWPtr parent_;
     UIBasePtrVec elements_;
 };

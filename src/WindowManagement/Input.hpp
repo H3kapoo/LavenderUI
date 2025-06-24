@@ -7,6 +7,8 @@
 namespace src::windowmanagement
 {
 using KeyCallback = std::function<void(int32_t key, int32_t scanCode, int32_t action, int32_t mods)>;
+using MouseButtonCallback = std::function<void(int32_t btn, int32_t action)>;
+using MouseMoveCallback = std::function<void(int32_t x, int32_t y)>;
 using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
 
 class NativeWindow;
@@ -21,6 +23,8 @@ public:
     Input& operator=(Input&&) = delete;
 
     auto setKeyCallback(const KeyCallback& callback) -> void;
+    auto setMouseMoveCallback(const MouseMoveCallback& callback) -> void;
+    auto setMouseBtnCallback(const MouseButtonCallback& callback) -> void;
     auto setWindowSizeCallback(const WindowSizeCallback& callback) -> void;
 
 private:
@@ -29,6 +33,8 @@ private:
 
 private:
     KeyCallback keyCallback_{[](auto, auto, auto, auto){}};
+    MouseMoveCallback mouseMoveCallback_{[](auto, auto){}};
+    MouseButtonCallback mouseBtnCallback_{[](auto, auto){}};
     WindowSizeCallback windowSizeCallback_{[](auto, auto){}};
 };
 } // namespace src::windowmanagement

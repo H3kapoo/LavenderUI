@@ -22,6 +22,8 @@ public:
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
+    auto event(const elementcomposable::IEvent& e) -> void override;
+
     auto updateProjection() -> void;
 
 private:

@@ -17,6 +17,7 @@ public:
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
+    auto event(const elementcomposable::IEvent& e) -> void override;
 };
 using UIButtonPtr = std::shared_ptr<UIButton>;
 using UIButtonWPtr = std::weak_ptr<UIButton>;

@@ -7,8 +7,10 @@
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
+#include "src/UIElements/VisualAttribs.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
+#include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
@@ -17,12 +19,11 @@ UIBase::UIBase(const std::string& name, const std::type_index type)
     , typeId_(type.hash_code())
     , typeInfo_(type)
     , name_(name)
-    , log_("UIBase/{}", name, id_)
+    , log_("{}/{}", demangleName(typeInfo_.name()), id_)
     , mesh_(resourceloaders::MeshLoader::get().loadQuad())
     , shader_(resourceloaders::ShaderLoader::get().load(
         "assets/shaders/basicVert.glsl", "assets/shaders/basicFrag.glsl"))
     , isParented_(false)
-    , level_(0)
 {}
 
 template<UIBaseDerived T>
@@ -47,7 +48,6 @@ auto UIBase::addInternal(T&& element) -> bool
     }
     element->isParented_ = true;
     element->parent_ = shared_from_this();
-    element->level_ = level_ + 1;
     elements_.emplace_back(std::forward<T>(element));
     return true;
 }
@@ -105,32 +105,101 @@ auto UIBase::remove(UIBasePtrVec&& elements) -> void
     std::ranges::for_each(elements, [this](UIBasePtr& e){ removeInternal(std::move(e)); });
 }
 
+auto UIBase::renderNext(const glm::mat4& projection) -> void
+{
+    std::ranges::for_each(elements_, [&projection](const auto& e)
+    {
+        windowmanagement::NativeWindow::updateScissors(
+        {
+            e->layoutAttr_.viewPos.x,
+            std::floor((-2.0f / projection[1][1])) - e->layoutAttr_.viewPos.y - e->layoutAttr_.viewScale.y,
+            e->layoutAttr_.viewScale.x,
+            e->layoutAttr_.viewScale.y
+        });
+        e->render(projection);
+    });
+}
+
+auto UIBase::layoutNext() -> void
+{
+    /* If is the root element, scissor area is the whole object area. */
+    if (layoutAttr_.index == 1)
+    {
+        layoutAttr_.viewPos = layoutAttr_.pos;
+        layoutAttr_.viewScale = layoutAttr_.scale;
+    }
+
+    // compute view pos/scale here for this node then call layout for the children
+    std::ranges::for_each(elements_,
+        [this](const auto& e)
+        {
+            e->layoutAttr_.computeViewBox(layoutAttr_);
+            /* Index is used for layer rendering order. Can be custom. */
+            if (!e->layoutAttr_.isCustomLevel)
+            {
+                e->layoutAttr_.index = layoutAttr_.index + 1;
+            }
+
+            /* Depth is used mostly for printing. */
+            e->depth_ = depth_ + 1;
+            e->layout();
+        });
+}
+
+auto UIBase::eventNext(const elementcomposable::IEvent& evt) -> void
+{
+    std::ranges::for_each(elements_, [&evt](const auto& e){ e->event(evt); });
+}
+
+auto UIBase::render(const glm::mat4& projection) -> void
+{
+    mesh_.bind();
+    shader_.bind();
+    shader_.uploadMat4("uMatrixProjection", projection);
+    shader_.uploadMat4("uMatrixTransform", layoutAttr_.getTransform());
+    shader_.uploadVec4f("uColor", visualAttr_.color);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+auto UIBase::layout() -> void
+{
+    // do default layout stuff
+}
+
+auto UIBase::event(const elementcomposable::IEvent& evt) -> void
+{
+    // do default event handling stuff
+}
+
 auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
 {
-    /* Works on linux for now, not sure about windows. */
-    static auto demangle = [](const char* name) -> std::string {
-        int status = 0;
-        std::unique_ptr<char, void(*)(void*)> res {
-            abi::__cxa_demangle(name, nullptr, nullptr, &status),
-            std::free
-        };
-        if (status == 0)
-        {
-            std::string s{res.get()};
-            return s.substr(s.find_last_of(":") + 1);
-        }
-        return (status == 0) ? res.get() : name;
-    };
-
     using namespace std::chrono;
     zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
     out << std::format("[{:%F %T}]{}[DBG] ", nowLocal, "\033[38;2;150;150;150m");
     out << std::format("{:{}}|-- {}[Id:{} L:{}]({})",
-        "", obj->level_*2, demangle(obj->typeInfo_.name()), obj->id_, obj->level_, obj->name_);
+        "", obj->depth_ * 2, UIBase::demangleName(obj->typeInfo_.name()),
+        obj->id_, obj->layoutAttr_.index, obj->name_);
     out << "\033[m";
     std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
     return out;
+}
+
+auto UIBase::demangleName(const char* name) -> std::string
+{
+    /* Works on linux for now, not sure about windows. */
+
+    int status = 0;
+    std::unique_ptr<char, void(*)(void*)> res {
+        abi::__cxa_demangle(name, nullptr, nullptr, &status),
+        std::free
+    };
+    if (status == 0)
+    {
+        std::string s{res.get()};
+        return s.substr(s.find_last_of(":") + 1);
+    }
+    return (status == 0) ? res.get() : name;
 }
 
 auto UIBase::getName() -> std::string { return name_; }
@@ -138,4 +207,8 @@ auto UIBase::getName() -> std::string { return name_; }
 auto UIBase::getId() -> uint32_t { return id_; }
 
 auto UIBase::getTypeId() -> uint32_t { return typeId_; }
+
+auto UIBase::getLayoutRef() -> LayoutAttribs& { return layoutAttr_; }
+
+auto UIBase::getVisualRef() -> VisualAttribs& { return visualAttr_; }
 } // namespace src::uielements

@@ -4,15 +4,16 @@
 
 namespace src::windowmanagement
 {
-auto Input::setKeyCallback(const KeyCallback& callback) -> void
-{
-    keyCallback_ = callback;
-}
+#define SETUP_CALLBACK(cbName, cbType_, cbVarName_)\
+auto Input::cbName(const cbType_& callback) -> void\
+{\
+    cbVarName_ = callback;\
+}\
 
-auto Input::setWindowSizeCallback(const WindowSizeCallback& callback) -> void
-{
-    windowSizeCallback_ = callback;
-}
+SETUP_CALLBACK(setKeyCallback, KeyCallback, keyCallback_);
+SETUP_CALLBACK(setMouseMoveCallback, MouseMoveCallback, mouseMoveCallback_);
+SETUP_CALLBACK(setMouseBtnCallback, MouseButtonCallback, mouseBtnCallback_);
+SETUP_CALLBACK(setWindowSizeCallback, WindowSizeCallback, windowSizeCallback_);
 
 auto Input::bindWindow(GLFWwindow* windowHandle) -> void
 {
@@ -31,5 +32,21 @@ auto Input::bindWindow(GLFWwindow* windowHandle) -> void
             const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
             input->windowSizeCallback_(x, y);
         });
+    
+    glfwSetCursorPosCallback(windowHandle,
+        [](GLFWwindow* win, double x, double y)
+        {
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->mouseMoveCallback_(x, y);
+        });
+    
+    glfwSetMouseButtonCallback(windowHandle,
+        [](GLFWwindow* win, int32_t btn, int32_t action, int32_t)
+        {
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->mouseBtnCallback_(btn, action);
+        });
 }
+
+#undef SETUP_CALLBACK
 } // namespace src::windowmanagement

@@ -29,27 +29,42 @@ int main()
     if (!app.init()) { return 1; }
 
     // uielements::UIFrameWPtr win = app.createFrame("myWindow", glm::ivec2{1280, 720});
-    uielements::UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
+    UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    uielements::UIBasePtr a = utils::make<uielements::UIButton>("a");
-    uielements::UIButtonPtr b = utils::make<uielements::UIButton>("a");
+    UIBasePtr a = utils::make<UIButton>("a");
+    UIButtonPtr b = utils::make<UIButton>("a");
     uielements::UIButtonPtr c = utils::make<uielements::UIButton>("c");
     uielements::UIButtonPtr d = utils::make<uielements::UIButton>("d");
-    uielements::UIButtonPtr e = utils::make<uielements::UIButton>("e");
-    uielements::UIButtonPtr f = utils::make<uielements::UIButton>("f");
-    uielements::UIButtonPtr g = utils::make<uielements::UIButton>("g");
-    uielements::UIImagePtr h = utils::make<uielements::UIImage>("g");
+    // uielements::UIButtonPtr e = utils::make<uielements::UIButton>("e");
+    // uielements::UIButtonPtr f = utils::make<uielements::UIButton>("f");
+    // uielements::UIButtonPtr g = utils::make<uielements::UIButton>("g");
+    // uielements::UIImagePtr h = utils::make<uielements::UIImage>("g");
 
-    uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
+    // uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
+
+    // a->render({});
+    frame.lock()->add({a});
+    a->getLayoutRef().pos = {150, 100};
+    a->getLayoutRef().scale = {300, 300};
+    a->getVisualRef().color = {0, 0, 0, 1};
+    b->getLayoutRef().pos = {390, 140};
+    // a->getEventsRef().onMouseClick = [](weak_ref me)
+    // {
+
+    // };
 
     a->add(b);
-    b->add(c);
-    c->add(d);
-    d->add(e);
-    e->add(f);
-    e->add(g);
-    a->add(x);
+    b->add(d);
+
+    // a->add(c);
+
+    // b->add(c);
+    // c->add(d);
+    // d->add(e);
+    // e->add(f);
+    // e->add(g);
+    // a->add(x);
     /*
         -- a
             -- b
@@ -63,7 +78,7 @@ int main()
     // a->remove(b);
     // std::cout << *a << "\n";
     // std::cout << a << "\n";
-    std::println("{}", a);
+    std::println("{}", frame.lock());
     // std::println("{}", a->getTypeId());
     // std::println("{}", frame.lock()->getTypeId());
     // std::println("{}", b->getTypeId());

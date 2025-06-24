@@ -14,8 +14,6 @@ public:
     VisualAttribs& operator=(const VisualAttribs&) = delete;
     VisualAttribs& operator=(VisualAttribs&&) = delete;
 
-    auto randomColor();
-
 public:
     glm::vec4 color{1.0f};
 };
