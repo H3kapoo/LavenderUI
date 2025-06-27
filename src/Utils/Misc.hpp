@@ -5,11 +5,12 @@
 #include <memory>
 #include <random>
 
+
 namespace src::utils
 {
 inline auto genId() -> uint64_t
 {
-    static uint64_t id{0};
+    static uint64_t id{1};
     return id++;
 }
 

@@ -2,8 +2,8 @@
 
 namespace src::uielements
 {
-UIImage::UIImage(const std::string& name)
-    : UIBase(name, typeid(UIImage))
+UIImage::UIImage()
+    : UIBase(typeid(UIImage))
 {}
 
 auto UIImage::render(const glm::mat4& projection) -> void

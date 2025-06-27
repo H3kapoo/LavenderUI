@@ -1,10 +1,8 @@
-#include "src/UIElements/UIFrame.hpp"
-
-#include <algorithm>
-#include <print>
+#include "UIFrame.hpp"
 
 #include "src/App.hpp"
-#include "src/ElementComposable/IEvent.hpp"
+#include "src/FrameState/FrameState.hpp"
+#include "src/ElementEvents/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
@@ -16,8 +14,8 @@ using namespace windowmanagement;
 bool UIFrame::isFirstFrame_ = true;
 
 UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
-    : UIBase("UIFrame", typeid(UIFrame))
-    , window_(title, size)
+    : window_(title, size)
+    , frameState_(utils::make<framestate::FrameState>())
     , forcedQuit_(false)
     , isMainFrame_(isFirstFrame_)
 {
@@ -52,7 +50,33 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
 
     window_.getInput().setMouseMoveCallback([this](int32_t x, int32_t y)
     {
-        event(elementcomposable::MouseMoveEvt{x, y});
+        using namespace elementevents;
+        frameState_->mousePos = {x, y};
+
+        uint32_t prevHoveredId = frameState_->hoveredId;
+        event(frameState_, MouseMoveScanEvt{});
+        uint32_t currentHoveredId = frameState_->hoveredId;
+
+        if (prevHoveredId == framestate::NOTHING)
+        {
+            event(frameState_, MouseEnterEvt{});
+        }
+        else if (prevHoveredId != 0 && currentHoveredId != 0 && prevHoveredId != currentHoveredId)
+        {
+            frameState_->prevHoveredId = prevHoveredId;
+            event(frameState_, MouseEnterEvt{});
+            event(frameState_, MouseExitEvt{});
+        }
+
+        event(frameState_, MouseMoveEvt{});
+    });
+
+    window_.getInput().setMouseBtnCallback([this](uint8_t btn, uint8_t action)
+    {
+        using namespace elementevents;
+        frameState_->mouseButton = btn;
+        frameState_->mouseAction = action;
+        event(frameState_, MouseButtonEvt{});
     });
 }
 
@@ -67,6 +91,7 @@ auto UIFrame::run() -> bool
     NativeWindow::clearColor(utils::hexToVec4("#3d3d3dff"));
     NativeWindow::clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     layoutAttr_.scale = size;
+
     layout();
     render(projection_);
 
@@ -87,21 +112,18 @@ auto UIFrame::layout() -> void
     layoutNext();
 }
 
-auto UIFrame::event(const elementcomposable::IEvent& e) -> void
+auto UIFrame::event(framestate::FrameStatePtr& state, const elementevents::IEvent& e) -> void
 {
-    const auto type = e.getType();
-    if (type == elementcomposable::EventType::MOUSE_MOVE)
-    {
-        const auto mme = static_cast<const elementcomposable::MouseMoveEvt*>(&e);
-        // std::println("x: {}, y: {}", mme->x, mme->y);
-    }
+    /* Do default handling of events. */
+    UIBase::event(state, e);
 
-    eventNext(e); // bubble event down to next elem OR you can block it here if need be
+    /* Bubble event down the tree to the leafs. */
+    eventNext(state, e);
 }
 
 auto UIFrame::updateProjection() -> void
 {
-    /* Camera is looking into -Z by default */
+    /* Camera is looking into -Z by default. Here, higher Z means closer to the camera. */
     const glm::ivec2 size = window_.getSize();
     projection_ = glm::ortho(0.0f, (float)size.x, (float)size.y, 0.0f, -1000.0f, 0.0f);
 }

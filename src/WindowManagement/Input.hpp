@@ -7,7 +7,7 @@
 namespace src::windowmanagement
 {
 using KeyCallback = std::function<void(int32_t key, int32_t scanCode, int32_t action, int32_t mods)>;
-using MouseButtonCallback = std::function<void(int32_t btn, int32_t action)>;
+using MouseButtonCallback = std::function<void(uint8_t btn, uint8_t action)>;
 using MouseMoveCallback = std::function<void(int32_t x, int32_t y)>;
 using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
 

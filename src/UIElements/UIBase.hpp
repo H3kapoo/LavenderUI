@@ -7,11 +7,15 @@
 #include <type_traits>
 #include <typeindex>
 
-#include "src/ElementComposable/IEvent.hpp"
+#include "src/ElementEvents/IEvent.hpp"
+#include "src/ElementComposable/LayoutAttribs.hpp"
+#include "src/ElementComposable/VisualAttribs.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
-#include "src/UIElements/LayoutAttribs.hpp"
-#include "src/UIElements/VisualAttribs.hpp"
+#include "src/ElementComposable/LayoutAttribs.hpp"
+#include "src/ElementComposable/VisualAttribs.hpp"
+#include "src/ElementEvents/EventManager.hpp"
+#include "src/FrameState/FrameState.hpp"
 #include "src/Utils/Logger.hpp"
 
 namespace src::uielements
@@ -28,7 +32,7 @@ using UIBasePtrVec = std::vector<UIBasePtr>;
 class UIBase : public std::enable_shared_from_this<UIBase>
 {
 public:
-    UIBase(const std::string& name, const std::type_index type);
+    UIBase(const std::type_index type);
     virtual ~UIBase() = default;
     UIBase(const UIBase&) = delete;
     UIBase(UIBase&&) = delete;
@@ -45,19 +49,21 @@ public:
     auto remove(UIBasePtrVec&& elements) -> void;
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
-    auto getName() -> std::string;
     auto getId() -> uint32_t;
-    auto getTypeId() -> uint32_t;
-    auto getLayoutRef() -> LayoutAttribs&;
-    auto getVisualRef() -> VisualAttribs&;
+    auto getLayout() -> elementcomposable::LayoutAttribs&;
+    auto getVisual() -> elementcomposable::VisualAttribs&;
+    auto getEvents() -> elementevents::EventManager&;
+
+    virtual auto getTypeId() const -> uint32_t = 0;
+    virtual auto getTypeInfo() const -> std::type_index = 0;
 
 protected:
     auto renderNext(const glm::mat4& projection) -> void;
     auto layoutNext() -> void;
-    auto eventNext(const elementcomposable::IEvent& evt) -> void;
+    auto eventNext(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void;
     virtual auto render(const glm::mat4& projection) -> void;
     virtual auto layout() -> void;
-    virtual auto event(const elementcomposable::IEvent& evt) -> void;
+    virtual auto event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void;
 
 private:
     template<UIBaseDerived T>
@@ -70,20 +76,33 @@ private:
 
 protected:
     uint32_t id_;
-    uint32_t typeId_;
-    std::type_index typeInfo_;
-    std::string name_;
     utils::Logger log_;
     resourceloaders::Mesh mesh_;
     resourceloaders::Shader shader_;
-    LayoutAttribs layoutAttr_;
-    VisualAttribs visualAttr_;
-
+    elementcomposable::LayoutAttribs layoutAttr_;
+    elementcomposable::VisualAttribs visualAttr_;
+    elementevents::EventManager eventManager_;
     bool isParented_;
     uint32_t depth_{0};
     UIBaseWPtr parent_;
     UIBasePtrVec elements_;
 };
+
+template<typename Derived>
+struct UIBaseCPRT : public UIBase
+{
+public:
+    UIBaseCPRT() : UIBase(typeid(Derived)) {}
+    virtual ~UIBaseCPRT() = default;
+    auto getTypeId() const -> uint32_t override { return Derived::typeId; };
+    auto getTypeInfo() const -> std::type_index override { return typeid(Derived); };
+
+    static const uint32_t typeId;
+};
+
+template<typename Derived>
+const uint32_t UIBaseCPRT<Derived>::typeId = utils::genId();
+
 } // namespace src::uielements
 
 template<typename T>

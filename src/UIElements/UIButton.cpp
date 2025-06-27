@@ -1,18 +1,17 @@
 #include "UIButton.hpp"
 
+#include "src/ElementEvents/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
-UIButton::UIButton(const std::string& name)
-    : UIBase(name, typeid(UIButton))
+UIButton::UIButton()
+    // : UIBase(typeid(UIButton))
 {}
 
 auto UIButton::render(const glm::mat4& projection) -> void
 {
-    // log_.debug("rendering..");
-
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
@@ -25,25 +24,41 @@ auto UIButton::render(const glm::mat4& projection) -> void
 
 auto UIButton::layout() -> void
 {
-    // log_.debug("layouting..");
-    // layoutAttr_.pos.z = 1;
-    // layoutAttr_.pos.x = 100;
-    // layoutAttr_.pos.y = 100;
-
-    // compute scale and pos based on layout params
-    // compute view pos/scale
     layoutNext();
 }
 
-auto UIButton::event(const elementcomposable::IEvent& e) -> void
+auto UIButton::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
 {
-    const auto type = e.getType();
-    if (type == elementcomposable::EventType::MOUSE_MOVE)
-    {
-        const auto mme = static_cast<const elementcomposable::MouseMoveEvt*>(&e);
-        std::println("from button: x: {}, y: {}", mme->x, mme->y);
-    }
-    eventNext(e);
-}
+    using namespace elementevents;
+    /* Let the base do the generic stuff */
+    UIBase::event(state, evt);
 
+    const auto type = evt.getType();
+    if (type == MouseMoveEvt::eventId)
+    {
+        // do something
+    }
+    else if (type == MouseButtonEvt::eventId && state->hoveredId == id_)
+    {
+        MouseButtonEvt e{state->mouseButton, state->mouseAction};
+        /* We can safely ignore bubbling down the tree as we found the clicked element. */
+        return eventManager_.emit<MouseButtonEvt>(e);
+    }
+    else if (type == MouseEnterEvt::eventId && state->hoveredId == id_)
+    {
+        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        /* We can safely ignore bubbling down the tree as we found the entered element. */
+        return eventManager_.emit<MouseEnterEvt>(e);
+        // log_.debug("Mouse entered me {} ev id{}", id_, MouseEnterEvt::eventId);
+    }
+    else if (type == MouseExitEvt::eventId && state->prevHoveredId == id_)
+    {
+        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        /* We can safely ignore bubbling down the tree as we found the entered element. */
+        return eventManager_.emit<MouseExitEvt>(e);
+        // log_.debug("Mouse EXIT me {} ev id{}", id_, MouseExitEvt::eventId);
+    }
+
+    eventNext(state, evt);
+}
 } // namespace src::uielements

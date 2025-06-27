@@ -2,6 +2,7 @@
 #include <type_traits>
 
 #include "src/App.hpp"
+#include "src/ElementEvents/IEvent.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
@@ -16,6 +17,7 @@
 
 using namespace src::windowmanagement;
 using namespace src::uielements;
+using namespace src::elementevents;
 using namespace src;
 
 int main()
@@ -32,52 +34,59 @@ int main()
     UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    UIBasePtr a = utils::make<UIButton>("a");
-    UIButtonPtr b = utils::make<UIButton>("a");
-    uielements::UIButtonPtr c = utils::make<uielements::UIButton>("c");
-    uielements::UIButtonPtr d = utils::make<uielements::UIButton>("d");
-    // uielements::UIButtonPtr e = utils::make<uielements::UIButton>("e");
-    // uielements::UIButtonPtr f = utils::make<uielements::UIButton>("f");
-    // uielements::UIButtonPtr g = utils::make<uielements::UIButton>("g");
-    // uielements::UIImagePtr h = utils::make<uielements::UIImage>("g");
+    // UIButton::type();
+    // UIButton::typeId;
+    UIBasePtr a = utils::make<UIButton>();
+    UIButtonPtr b = utils::make<UIButton>();
+    UIButtonPtr c = utils::make<UIButton>();
+    UIButtonPtr d = utils::make<UIButton>();
 
     // uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
 
     // a->render({});
     frame.lock()->add({a});
-    a->getLayoutRef().pos = {150, 100};
-    a->getLayoutRef().scale = {300, 300};
-    a->getVisualRef().color = {0, 0, 0, 1};
-    b->getLayoutRef().pos = {390, 140};
-    // a->getEventsRef().onMouseClick = [](weak_ref me)
-    // {
+    a->getLayout().pos = {150, 100};
+    a->getLayout().scale = {300, 300};
+    a->getVisual().color = {0, 0, 0, 1};
+    b->getLayout().pos = {390, 140};
 
-    // };
+    a->getEvents().listen<MouseExitEvt>([&log, &a](const MouseExitEvt& e)
+    {
+        a->getVisual().color = {0, 0, 0, 1};
+        log.warn("exit called {}", e.getType());
+    });
+
+    a->getEvents().listen<MouseEnterEvt>([&log, &a](const MouseEnterEvt& e)
+    {
+        log.warn("enter called {}", e.getType());
+        a->getVisual().color = {1, 0, 1, 1};
+    });
+
+    a->getEvents().listen<MouseButtonEvt>([&log, &a](const MouseButtonEvt& e)
+    {
+        log.warn("click called {} {}", e.btn, e.action);
+    });
 
     a->add(b);
     b->add(d);
 
-    // a->add(c);
 
-    // b->add(c);
-    // c->add(d);
-    // d->add(e);
-    // e->add(f);
-    // e->add(g);
-    // a->add(x);
-    /*
-        -- a
-            -- b
-                -- c
-            -- d
-    
-    */
-    // a->remove(b);
-    // a->remove(std::move(x));
-    // a->remove(std::move(x));
-    // a->remove(b);
-    // std::cout << *a << "\n";
-    // std::cout << a << "\n";
+    // b->getEvents().listen<MouseExitEvt>([&log, &b](const MouseExitEvt& e)
+    // {
+    //     b->getVisual().color = {0, 0, 0, 1};
+    //     log.error("exit called {}", e.getType());
+    // });
+
+    // b->getEvents().listen<MouseEnterEvt>([&log, &b](const MouseEnterEvt& e)
+    // {
+    //     log.error("enter called {}", e.getType());
+    //     b->getVisual().color = {1, 0, 1, 1};
+    // });
+
+    // b->getEvents().listen<MouseButtonEvt>([&log, &b](const MouseButtonEvt& e)
+    // {
+    //     log.error("click called {} {}", e.btn, e.action);
+    // });
     std::println("{}", frame.lock());
     // std::println("{}", a->getTypeId());
     // std::println("{}", frame.lock()->getTypeId());

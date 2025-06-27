@@ -3,23 +3,20 @@
 #include <algorithm>
 #include <cxxabi.h>
 
+#include "src/ElementEvents/IEvent.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
-#include "src/UIElements/VisualAttribs.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
-UIBase::UIBase(const std::string& name, const std::type_index type)
+UIBase::UIBase(const std::type_index type)
     : id_(utils::genId())
-    , typeId_(type.hash_code())
-    , typeInfo_(type)
-    , name_(name)
-    , log_("{}/{}", demangleName(typeInfo_.name()), id_)
+    , log_("{}/{}", demangleName(type.name()), id_)
     , mesh_(resourceloaders::MeshLoader::get().loadQuad())
     , shader_(resourceloaders::ShaderLoader::get().load(
         "assets/shaders/basicVert.glsl", "assets/shaders/basicFrag.glsl"))
@@ -43,7 +40,7 @@ auto UIBase::addInternal(T&& element) -> bool
     
     if (element->isParented_)
     {
-        log_.warn("Node '{}/{}' already has a parent set!", element->name_, element->id_);
+        log_.warn("Node '{}' already has a parent set!", element->id_);
         return false;
     }
     element->isParented_ = true;
@@ -129,7 +126,6 @@ auto UIBase::layoutNext() -> void
         layoutAttr_.viewScale = layoutAttr_.scale;
     }
 
-    // compute view pos/scale here for this node then call layout for the children
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
@@ -146,9 +142,9 @@ auto UIBase::layoutNext() -> void
         });
 }
 
-auto UIBase::eventNext(const elementcomposable::IEvent& evt) -> void
+auto UIBase::eventNext(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
 {
-    std::ranges::for_each(elements_, [&evt](const auto& e){ e->event(evt); });
+    std::ranges::for_each(elements_, [&state, &evt](const auto& e){ e->event(state, evt); });
 }
 
 auto UIBase::render(const glm::mat4& projection) -> void
@@ -166,9 +162,21 @@ auto UIBase::layout() -> void
     // do default layout stuff
 }
 
-auto UIBase::event(const elementcomposable::IEvent& evt) -> void
+auto UIBase::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
 {
-    // do default event handling stuff
+    using namespace elementevents;
+    const auto type = evt.getType();
+
+    /* Determine in the scan pass who's the hovered element. */
+    if (type == MouseMoveScanEvt::eventId)
+    {
+        const glm::ivec2& mPos =state->mousePos;
+        if ((mPos.x >= layoutAttr_.viewPos.x && mPos.x <= layoutAttr_.viewPos.x + layoutAttr_.viewScale.x) &&
+            (mPos.y >= layoutAttr_.viewPos.y && mPos.y <= layoutAttr_.viewPos.y + layoutAttr_.viewScale.y))
+        {
+            state->hoveredId = id_;
+        }
+    }
 }
 
 auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
@@ -177,9 +185,11 @@ auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
     zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
     out << std::format("[{:%F %T}]{}[DBG] ", nowLocal, "\033[38;2;150;150;150m");
-    out << std::format("{:{}}|-- {}[Id:{} L:{}]({})",
-        "", obj->depth_ * 2, UIBase::demangleName(obj->typeInfo_.name()),
-        obj->id_, obj->layoutAttr_.index, obj->name_);
+    out << std::format("{:{}}|-- {}[Id:{} L:{}]",
+        "", obj->depth_ * 2,
+        // UIBase::demangleName(obj->typeInfo_.name()),
+        UIBase::demangleName(obj->getTypeInfo().name()),
+        obj->id_, obj->layoutAttr_.index);
     out << "\033[m";
     std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
     return out;
@@ -202,13 +212,15 @@ auto UIBase::demangleName(const char* name) -> std::string
     return (status == 0) ? res.get() : name;
 }
 
-auto UIBase::getName() -> std::string { return name_; }
-
 auto UIBase::getId() -> uint32_t { return id_; }
 
-auto UIBase::getTypeId() -> uint32_t { return typeId_; }
+// auto UIBase::getTypeId() -> uint32_t { return typeId_; }
 
-auto UIBase::getLayoutRef() -> LayoutAttribs& { return layoutAttr_; }
+auto UIBase::getLayout() -> elementcomposable::LayoutAttribs& { return layoutAttr_; }
 
-auto UIBase::getVisualRef() -> VisualAttribs& { return visualAttr_; }
+auto UIBase::getVisual() -> elementcomposable::VisualAttribs& { return visualAttr_; }
+
+auto UIBase::getEvents() -> elementevents::EventManager& { return eventManager_; }
+
+// auto UIBase::getClassTypeId() -> uint32_t { return 0; }
 } // namespace src::uielements

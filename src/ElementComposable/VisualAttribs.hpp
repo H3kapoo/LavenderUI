@@ -2,7 +2,7 @@
 
 #include "vendor/glm/glm.hpp"
 
-namespace src::uielements
+namespace src::elementcomposable
 {
 class VisualAttribs
 {
@@ -17,4 +17,4 @@ public:
 public:
     glm::vec4 color{1.0f};
 };
-} // namespace src::uielements
+} // namespace src::elementcomposable

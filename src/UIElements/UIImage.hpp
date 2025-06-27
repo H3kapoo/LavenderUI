@@ -7,7 +7,7 @@ namespace src::uielements
 class UIImage : public UIBase
 {
 public:
-    UIImage(const std::string& name);
+    UIImage();
     ~UIImage() = default;
     UIImage(const UIImage&) = delete;
     UIImage(UIBase&&) = delete;

@@ -5,7 +5,7 @@
 
 namespace src::uielements
 {
-class UIFrame : public UIBase
+class UIFrame : public UIBaseCPRT<UIFrame>
 {
 public:
     UIFrame(const std::string& title, const glm::ivec2& size);
@@ -22,12 +22,13 @@ public:
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
-    auto event(const elementcomposable::IEvent& e) -> void override;
+    auto event(framestate::FrameStatePtr& state, const elementevents::IEvent& e) -> void override;
 
     auto updateProjection() -> void;
 
 private:
     windowmanagement::NativeWindow window_;
+    framestate::FrameStatePtr frameState_;
     bool forcedQuit_;
     bool isMainFrame_;
     glm::mat4 projection_;

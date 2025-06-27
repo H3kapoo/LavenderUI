@@ -3,8 +3,13 @@
 #include "vendor/glm/gtc/matrix_transform.hpp"
 #include "vendor/glm/trigonometric.hpp"
 
-namespace src::uielements
+namespace src::elementcomposable
 {
+auto LayoutAttribs::isPointInside(const glm::ivec2& p) const -> bool
+{
+    return false;
+}
+
 auto LayoutAttribs::computeViewBox(const LayoutAttribs& parentAttribs) -> void
 {
     /* Take the intersection between this object's pos+scale & parent's already computed
@@ -30,4 +35,4 @@ auto LayoutAttribs::getTransform() -> const glm::mat4&
     transform_ = glm::scale(transform_, glm::vec3(scale, 1.0f));
     return transform_;
 }
-} // namespace src::uielements
+} // namespace src::elementcomposable

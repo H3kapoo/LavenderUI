@@ -2,7 +2,7 @@
 
 #include "vendor/glm/glm.hpp"
 
-namespace src::uielements
+namespace src::elementcomposable
 {
 class LayoutAttribs
 {
@@ -21,6 +21,7 @@ public:
     LayoutAttribs& operator=(const LayoutAttribs&) = delete;
     LayoutAttribs& operator=(LayoutAttribs&&) = delete;
 
+    auto isPointInside(const glm::ivec2& p) const -> bool;
     auto computeViewBox(const LayoutAttribs& parentAttribs) -> void;
     // contains size of the drawable as sent to the shader: includes border, padding, content are
     auto getDrawableBox() -> BoundingBox;
@@ -42,4 +43,4 @@ public:
 private:
     glm::mat4 transform_{glm::mat4{1}};
 };
-} // namespace src::uielements
+} // namespace src::elementcomposable

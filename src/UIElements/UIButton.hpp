@@ -4,10 +4,10 @@
 
 namespace src::uielements
 {
-class UIButton : public UIBase
+class UIButton : public UIBaseCPRT<UIButton>
 {
 public:
-    UIButton(const std::string& name);
+    UIButton();
     ~UIButton() = default;
     UIButton(const UIButton&) = delete;
     UIButton(UIBase&&) = delete;
@@ -17,7 +17,7 @@ public:
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
-    auto event(const elementcomposable::IEvent& e) -> void override;
+    auto event(framestate::FrameStatePtr& state, const elementevents::IEvent& e) -> void override;
 };
 using UIButtonPtr = std::shared_ptr<UIButton>;
 using UIButtonWPtr = std::weak_ptr<UIButton>;
