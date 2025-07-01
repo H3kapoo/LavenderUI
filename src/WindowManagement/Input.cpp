@@ -13,6 +13,7 @@ auto Input::cbName(const cbType_& callback) -> void\
 SETUP_CALLBACK(setKeyCallback, KeyCallback, keyCallback_);
 SETUP_CALLBACK(setMouseMoveCallback, MouseMoveCallback, mouseMoveCallback_);
 SETUP_CALLBACK(setMouseBtnCallback, MouseButtonCallback, mouseBtnCallback_);
+SETUP_CALLBACK(setMouseScrollCallback, MouseScrollCallback, mouseScrollCallback_);
 SETUP_CALLBACK(setWindowSizeCallback, WindowSizeCallback, windowSizeCallback_);
 
 auto Input::bindWindow(GLFWwindow* windowHandle) -> void
@@ -45,6 +46,13 @@ auto Input::bindWindow(GLFWwindow* windowHandle) -> void
         {
             const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
             input->mouseBtnCallback_(btn, action);
+        });
+
+    glfwSetScrollCallback(windowHandle,
+        [](GLFWwindow* win, double xOffset, double yOffset)
+        {
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->mouseScrollCallback_(xOffset, yOffset);
         });
 }
 

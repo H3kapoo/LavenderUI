@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include "vendor/glm/ext/vector_uint2.hpp"
+#include "vendor/glm/glm.hpp"
 
 // /* FW declaration needed to break cyclic dep. */
 // namespace src::uielements
@@ -17,11 +17,15 @@ static constexpr uint32_t NOTHING = 0;
 
 struct FrameState
 {
+    uint32_t clickedId{NOTHING};
+    uint32_t selectedId{NOTHING};
     uint32_t hoveredId{NOTHING};
     uint32_t prevHoveredId{NOTHING};
     uint8_t mouseAction{NOTHING};
     uint8_t mouseButton{NOTHING};
-    glm::uvec2 mousePos{0, 0};
+    glm::ivec2 mousePos{0, 0};
+    glm::ivec2 scrollOffset{0, 0};
+    bool isDragging{false};
     // src::uielements::UIBaseWPtr hoveredEl;
     // src::uielements::UIBaseWPtr prevHoveredEl;
 };

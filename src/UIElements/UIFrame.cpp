@@ -5,7 +5,9 @@
 #include "src/ElementEvents/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
+#include "src/LayoutCalculator/BasicCalculator.hpp"
 
 namespace src::uielements
 {
@@ -68,6 +70,26 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
             event(frameState_, MouseExitEvt{});
         }
 
+        if (frameState_->clickedId == framestate::NOTHING
+            && frameState_->mouseAction == GLFW_PRESS
+            && frameState_->mouseButton == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            frameState_->clickedId = frameState_->hoveredId;
+            frameState_->isDragging = true;
+        }
+        else if (frameState_->clickedId != framestate::NOTHING
+            && frameState_->mouseAction == GLFW_RELEASE
+            && frameState_->mouseButton == GLFW_MOUSE_BUTTON_LEFT)
+        {
+            frameState_->clickedId = framestate::NOTHING;
+            frameState_->isDragging = false;
+        }
+
+        if (frameState_->isDragging)
+        {
+            event(frameState_, MouseDragEvt{});
+        }
+
         event(frameState_, MouseMoveEvt{});
     });
 
@@ -77,6 +99,14 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
         frameState_->mouseButton = btn;
         frameState_->mouseAction = action;
         event(frameState_, MouseButtonEvt{});
+    });
+
+    window_.getInput().setMouseScrollCallback([this](int8_t xOffset, int8_t yOffset)
+    {
+        using namespace elementevents;
+        frameState_->scrollOffset = {xOffset, yOffset};
+        event(frameState_, MouseScrollEvt{});
+        frameState_->scrollOffset = {0, 0};
     });
 }
 
@@ -90,7 +120,7 @@ auto UIFrame::run() -> bool
     NativeWindow::updateScissors({0, 0, size.x, size.y});
     NativeWindow::clearColor(utils::hexToVec4("#3d3d3dff"));
     NativeWindow::clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    layoutAttr_.scale = size;
+    layoutAttr_.cScale = size;
 
     layout();
     render(projection_);
@@ -109,6 +139,8 @@ auto UIFrame::render(const glm::mat4& projection) -> void
 
 auto UIFrame::layout() -> void
 {
+    using namespace layoutcalculator;
+    BasicCalculator::get().calculate(shared_from_this());
     layoutNext();
 }
 

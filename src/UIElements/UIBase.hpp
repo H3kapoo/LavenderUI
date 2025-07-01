@@ -53,8 +53,8 @@ public:
     auto getLayout() -> elementcomposable::LayoutAttribs&;
     auto getVisual() -> elementcomposable::VisualAttribs&;
     auto getEvents() -> elementevents::EventManager&;
+    auto getElements() -> UIBasePtrVec&;
 
-    virtual auto getTypeId() const -> uint32_t = 0;
     virtual auto getTypeInfo() const -> std::type_index = 0;
 
 protected:
@@ -94,7 +94,6 @@ struct UIBaseCPRT : public UIBase
 public:
     UIBaseCPRT() : UIBase(typeid(Derived)) {}
     virtual ~UIBaseCPRT() = default;
-    auto getTypeId() const -> uint32_t override { return Derived::typeId; };
     auto getTypeInfo() const -> std::type_index override { return typeid(Derived); };
 
     static const uint32_t typeId;

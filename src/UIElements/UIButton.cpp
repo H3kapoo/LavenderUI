@@ -3,11 +3,11 @@
 #include "src/ElementEvents/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
+#include "src/LayoutCalculator/BasicCalculator.hpp"
 
 namespace src::uielements
 {
 UIButton::UIButton()
-    // : UIBase(typeid(UIButton))
 {}
 
 auto UIButton::render(const glm::mat4& projection) -> void
@@ -24,6 +24,10 @@ auto UIButton::render(const glm::mat4& projection) -> void
 
 auto UIButton::layout() -> void
 {
+    using namespace layoutcalculator;
+    BasicCalculator::get().calculate(shared_from_this());
+
+    // log_.debug("Doing layout for {} {}", id_, UIButton::typeId);
     layoutNext();
 }
 
@@ -34,11 +38,7 @@ auto UIButton::event(framestate::FrameStatePtr& state, const elementevents::IEve
     UIBase::event(state, evt);
 
     const auto type = evt.getType();
-    if (type == MouseMoveEvt::eventId)
-    {
-        // do something
-    }
-    else if (type == MouseButtonEvt::eventId && state->hoveredId == id_)
+    if (type == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
@@ -49,14 +49,12 @@ auto UIButton::event(framestate::FrameStatePtr& state, const elementevents::IEve
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return eventManager_.emit<MouseEnterEvt>(e);
-        // log_.debug("Mouse entered me {} ev id{}", id_, MouseEnterEvt::eventId);
     }
     else if (type == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return eventManager_.emit<MouseExitEvt>(e);
-        // log_.debug("Mouse EXIT me {} ev id{}", id_, MouseExitEvt::eventId);
     }
 
     eventNext(state, evt);

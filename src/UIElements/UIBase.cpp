@@ -122,13 +122,14 @@ auto UIBase::layoutNext() -> void
     /* If is the root element, scissor area is the whole object area. */
     if (layoutAttr_.index == 1)
     {
-        layoutAttr_.viewPos = layoutAttr_.pos;
-        layoutAttr_.viewScale = layoutAttr_.scale;
+        layoutAttr_.viewPos = layoutAttr_.cPos;
+        layoutAttr_.viewScale = layoutAttr_.cScale;
     }
 
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
+            /* After calculating my elements, compute how much of them is still visible inside of the parent. */
             e->layoutAttr_.computeViewBox(layoutAttr_);
             /* Index is used for layer rendering order. Can be custom. */
             if (!e->layoutAttr_.isCustomLevel)
@@ -160,6 +161,7 @@ auto UIBase::render(const glm::mat4& projection) -> void
 auto UIBase::layout() -> void
 {
     // do default layout stuff
+    log_.warn("{} element has no layout behavior overriden!", demangleName(getTypeInfo().name()));
 }
 
 auto UIBase::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
@@ -170,30 +172,22 @@ auto UIBase::event(framestate::FrameStatePtr& state, const elementevents::IEvent
     /* Determine in the scan pass who's the hovered element. */
     if (type == MouseMoveScanEvt::eventId)
     {
-        const glm::ivec2& mPos =state->mousePos;
-        if ((mPos.x >= layoutAttr_.viewPos.x && mPos.x <= layoutAttr_.viewPos.x + layoutAttr_.viewScale.x) &&
-            (mPos.y >= layoutAttr_.viewPos.y && mPos.y <= layoutAttr_.viewPos.y + layoutAttr_.viewScale.y))
+        if (layoutAttr_.isPointInsideView(state->mousePos))
         {
             state->hoveredId = id_;
         }
     }
 }
 
-auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
-{
-    using namespace std::chrono;
-    zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
+auto UIBase::getId() -> uint32_t { return id_; }
 
-    out << std::format("[{:%F %T}]{}[DBG] ", nowLocal, "\033[38;2;150;150;150m");
-    out << std::format("{:{}}|-- {}[Id:{} L:{}]",
-        "", obj->depth_ * 2,
-        // UIBase::demangleName(obj->typeInfo_.name()),
-        UIBase::demangleName(obj->getTypeInfo().name()),
-        obj->id_, obj->layoutAttr_.index);
-    out << "\033[m";
-    std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
-    return out;
-}
+auto UIBase::getLayout() -> elementcomposable::LayoutAttribs& { return layoutAttr_; }
+
+auto UIBase::getVisual() -> elementcomposable::VisualAttribs& { return visualAttr_; }
+
+auto UIBase::getEvents() -> elementevents::EventManager& { return eventManager_; }
+
+auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
 
 auto UIBase::demangleName(const char* name) -> std::string
 {
@@ -212,15 +206,18 @@ auto UIBase::demangleName(const char* name) -> std::string
     return (status == 0) ? res.get() : name;
 }
 
-auto UIBase::getId() -> uint32_t { return id_; }
+auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
+{
+    using namespace std::chrono;
+    zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
-// auto UIBase::getTypeId() -> uint32_t { return typeId_; }
-
-auto UIBase::getLayout() -> elementcomposable::LayoutAttribs& { return layoutAttr_; }
-
-auto UIBase::getVisual() -> elementcomposable::VisualAttribs& { return visualAttr_; }
-
-auto UIBase::getEvents() -> elementevents::EventManager& { return eventManager_; }
-
-// auto UIBase::getClassTypeId() -> uint32_t { return 0; }
+    out << std::format("[{:%F %T}]{}[DBG] ", nowLocal, "\033[38;2;150;150;150m");
+    out << std::format("{:{}}|-- {}[Id:{} L:{}]",
+        "", obj->depth_ * 2,
+        UIBase::demangleName(obj->getTypeInfo().name()),
+        obj->id_, obj->layoutAttr_.index);
+    out << "\033[m";
+    std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
+    return out;
+}
 } // namespace src::uielements
