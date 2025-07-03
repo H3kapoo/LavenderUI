@@ -23,10 +23,10 @@ private:
     enum ShaderType
     {
         VERTEX = GL_VERTEX_SHADER,
-        FRAG = GL_FRAGMENT_SHADER,
+        FRAG = GL_FRAGMENT_SHADER
     };
 
-    enum Status
+    enum ShaderStatus
     {
         COMPILE = GL_COMPILE_STATUS,
         LINK = GL_LINK_STATUS
@@ -40,7 +40,7 @@ private:
     ShaderLoader& operator=(ShaderLoader&&) = delete;
 
     auto loadPart(const ShaderType type, const fs::path& partPath) -> uint32_t;
-    auto checkStatus(const uint32_t id, const Status status) -> bool;
+    auto checkStatus(const uint32_t id, const ShaderStatus status) -> bool;
 
 private:
     utils::Logger log_;

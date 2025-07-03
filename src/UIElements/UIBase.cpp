@@ -143,9 +143,9 @@ auto UIBase::layoutNext() -> void
         });
 }
 
-auto UIBase::eventNext(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
+auto UIBase::eventNext(framestate::FrameStatePtr& state) -> void
 {
-    std::ranges::for_each(elements_, [&state, &evt](const auto& e){ e->event(state, evt); });
+    std::ranges::for_each(elements_, [&state](const auto& e){ e->event(state); });
 }
 
 auto UIBase::render(const glm::mat4& projection) -> void
@@ -164,13 +164,12 @@ auto UIBase::layout() -> void
     log_.warn("{} element has no layout behavior overriden!", demangleName(getTypeInfo().name()));
 }
 
-auto UIBase::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
+auto UIBase::event(framestate::FrameStatePtr& state) -> void
 {
     using namespace elementevents;
-    const auto type = evt.getType();
 
     /* Determine in the scan pass who's the hovered element. */
-    if (type == MouseMoveScanEvt::eventId)
+    if (state->currentEventId == MouseMoveScanEvt::eventId)
     {
         if (layoutAttr_.isPointInsideView(state->mousePos))
         {

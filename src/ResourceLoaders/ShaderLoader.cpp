@@ -39,7 +39,7 @@ auto ShaderLoader::load(const fs::path& vertexPath, const fs::path& fragPath) ->
     glDeleteShader(vertexId);
     glDeleteShader(fragId);
 
-    if (!checkStatus(programId, Status::LINK))
+    if (!checkStatus(programId, ShaderStatus::LINK))
     {
         log_.error("Linking shaders failure!");
         return 0;
@@ -80,7 +80,7 @@ auto ShaderLoader::loadPart(const ShaderType type, const fs::path& partPath) -> 
     glShaderSource(id, 1, &data, nullptr);
     glCompileShader(id);
 
-    if (!checkStatus(id, Status::COMPILE))
+    if (!checkStatus(id, ShaderStatus::COMPILE))
     {
         log_.error("Loading shader part failure!");
         return 0;
@@ -88,7 +88,7 @@ auto ShaderLoader::loadPart(const ShaderType type, const fs::path& partPath) -> 
     return id;
 }
 
-auto ShaderLoader::checkStatus(const uint32_t id, const Status status) -> bool
+auto ShaderLoader::checkStatus(const uint32_t id, const ShaderStatus status) -> bool
 {
     int32_t ok{0};
     char msg[512];

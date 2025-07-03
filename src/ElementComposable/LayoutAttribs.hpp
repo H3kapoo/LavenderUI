@@ -55,10 +55,10 @@ public:
 public:
     LayoutAttribs() = default;
     ~LayoutAttribs() = default;
-    LayoutAttribs(const LayoutAttribs&) = delete;
-    LayoutAttribs(LayoutAttribs&&) = delete;
-    LayoutAttribs& operator=(const LayoutAttribs&) = delete;
-    LayoutAttribs& operator=(LayoutAttribs&&) = delete;
+    // LayoutAttribs(const LayoutAttribs&) = delete;
+    // LayoutAttribs(LayoutAttribs&&) = delete;
+    // LayoutAttribs& operator=(const LayoutAttribs&) = delete;
+    // LayoutAttribs& operator=(LayoutAttribs&&) = delete;
 
     auto isPointInside(const glm::ivec2& p) const -> bool;
     auto isPointInsideView(const glm::ivec2& p) const -> bool;

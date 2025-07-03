@@ -2,17 +2,16 @@
 
 #include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementEvents/IEvent.hpp"
+#include "src/ResourceLoaders/ShaderLoader.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/NativeWindow.hpp"
-#include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace src::uielements
 {
 UISlider::UISlider()
 {
-    knobVisualAttr_.color = utils::randomRGB();
+    knobVisualAttr_.color = utils::hexToVec4("#ca5555ff");
 }
 
 auto UISlider::render(const glm::mat4& projection) -> void
@@ -26,12 +25,23 @@ auto UISlider::render(const glm::mat4& projection) -> void
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw knob */
-    mesh_.bind();
+    // mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", knobLayoutAttr_.getTransform());
     shader_.uploadVec4f("uColor", knobVisualAttr_.color);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    /* Draw the text */
+    const auto& textShader_ = textAttribs_.getShader();
+    const auto& textBuffer = textAttribs_.getBuffer();
+    textShader_.bind();
+    textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
+    textShader_.uploadTexture2DArray("uTextureArray", GL_TEXTURE0, textAttribs_.getFont()->textureId);
+    textShader_.uploadMat4("uMatrixProjection", projection);
+    textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
+    textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, textAttribs_.getText().size());
 
     renderNext(projection);
 }
@@ -51,16 +61,20 @@ auto UISlider::layout() -> void
     }
 
     calculateKnobPosition();
+
+    /* Position the text */
+    textAttribs_.setPosition(knobLayoutAttr_.cPos + 10.0f);
 }
 
-auto UISlider::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
+auto UISlider::event(framestate::FrameStatePtr& state) -> void
 {
     using namespace elementevents;
-    /* Let the base do the generic stuff like mouse move pre-pass. */
-    UIBase::event(state, evt);
 
-    const auto type = evt.getType();
-    if (type == MouseScrollEvt::eventId && state->hoveredId == id_)
+    /* Let the base do the generic stuff like mouse move pre-pass. */
+    UIBase::event(state);
+
+    const auto eId = state->currentEventId;
+    if (eId == MouseScrollEvt::eventId && state->hoveredId == id_)
     {
         percentage_ += state->scrollOffset.y * 0.1f;
         percentage_ = std::clamp(percentage_, 0.0f, 1.0f);
@@ -68,7 +82,7 @@ auto UISlider::event(framestate::FrameStatePtr& state, const elementevents::IEve
         SliderEvt sliderEvt{getScrollValue()};
         eventManager_.emit<SliderEvt>(sliderEvt);
     }
-    else if (type == MouseDragEvt::eventId && state->clickedId == id_)
+    else if (eId == MouseDragEvt::eventId && state->clickedId == id_)
     {
         percentage_ = calculatePercentage(state->mousePos);
 
@@ -79,7 +93,7 @@ auto UISlider::event(framestate::FrameStatePtr& state, const elementevents::IEve
         MouseDragEvt e;
         return eventManager_.emit<MouseDragEvt>(e);
     }
-    else if (type == MouseButtonEvt::eventId && state->hoveredId == id_)
+    else if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         if (state->mouseButton == GLFW_MOUSE_BUTTON_LEFT && state->mouseAction == GLFW_PRESS)
         {
@@ -93,21 +107,18 @@ auto UISlider::event(framestate::FrameStatePtr& state, const elementevents::IEve
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         return eventManager_.emit<MouseButtonEvt>(e);
     }
-    else if (type == MouseEnterEvt::eventId && state->hoveredId == id_)
+    else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         return eventManager_.emit<MouseEnterEvt>(e);
     }
-    else if (type == MouseExitEvt::eventId && state->prevHoveredId == id_)
+    else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         return eventManager_.emit<MouseExitEvt>(e);
     }
-
-    /* Notify my children about this cool event. */
-    eventNext(state, evt);
 }
 
 auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
@@ -156,6 +167,11 @@ auto UISlider::getKnobLayout() -> LayoutAttribs&
 auto UISlider::getKnobVisual() -> VisualAttribs&
 {
     return knobVisualAttr_;
+}
+
+auto UISlider::getTextAttribs() -> TextAttribs&
+{
+    return textAttribs_;
 }
 
 auto UISlider::getScrollPercentage() -> float

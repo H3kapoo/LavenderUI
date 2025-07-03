@@ -2,6 +2,8 @@
 #include <type_traits>
 
 #include "src/App.hpp"
+#include "src/UIElements/UISlider.hpp"
+#include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementEvents/IEvent.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/MeshLoader.hpp"
@@ -11,13 +13,12 @@
 #include "src/UIElements/UIFrame.hpp"
 #include "src/UIElements/UIImage.hpp"
 #include "src/Utils/Logger.hpp"
-
 #include "src/Utils/Misc.hpp"
-#include "vendor/freetype/include/freetype/freetype.h"
 
 using namespace src::windowmanagement;
 using namespace src::uielements;
 using namespace src::elementevents;
+using namespace src::elementcomposable;
 using namespace src;
 
 int main()
@@ -34,77 +35,43 @@ int main()
     UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    // UIButton::type();
-    // UIButton::typeId;
-    UIBasePtr a = utils::make<UIButton>();
-    UIButtonPtr b = utils::make<UIButton>();
+    UISliderPtr a = utils::make<UISlider>();
+    UISliderPtr b = utils::make<UISlider>();
     UIButtonPtr c = utils::make<UIButton>();
-    UIButtonPtr d = utils::make<UIButton>();
 
-    // uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
+    frame.lock()->add(a);
+    frame.lock()->getLayout().tempPosOffset = {20, 20};
 
-    // a->render({});
-    frame.lock()->add({a});
-    a->getLayout().pos = {150, 100};
-    a->getLayout().scale = {300, 300};
-    a->getVisual().color = {0, 0, 0, 1};
-    b->getLayout().pos = {390, 140};
+    a->getTextAttribs().setText("Textaaaaaaa");
+    a->getLayout().scale = {300_px, 50_px};
+    a->getLayout().type = LayoutAttribs::Type::HORIZONTAL;
 
-    a->getEvents().listen<MouseExitEvt>([&log, &a](const MouseExitEvt& e)
+    a->getEvents().listen<SliderEvt>([&log, &a](const SliderEvt& e)
     {
-        a->getVisual().color = {0, 0, 0, 1};
-        log.warn("exit called {}", e.getType());
+        a->getTextAttribs().setText(std::to_string(e.value).substr(0, 5));
     });
+    // UIButtonPtr b = utils::make<UIButton>();
+    // UIButtonPtr c = utils::make<UIButton>();
+    // UIButtonPtr d = utils::make<UIButton>();
 
-    a->getEvents().listen<MouseEnterEvt>([&log, &a](const MouseEnterEvt& e)
-    {
-        log.warn("enter called {}", e.getType());
-        a->getVisual().color = {1, 0, 1, 1};
-    });
+    // // uielements::UIBasePtrVec x = {a, b, c, d, e, f, g};
 
-    a->getEvents().listen<MouseButtonEvt>([&log, &a](const MouseButtonEvt& e)
-    {
-        log.warn("click called {} {}", e.btn, e.action);
-    });
+    // frame.lock()->add({a});
+    // frame.lock()->getLayout().tempPosOffset = {20, 20};
 
-    a->add(b);
-    b->add(d);
+    // a->getLayout().pos = {150, 100};
+    // // a->getLayout().computedScale = {300, 300};
+    // a->getVisual().color = {0, 0, 0, 1};
 
+    // // a->getLayout().scale = {300_px, 300_px};
+    // a->getLayout().scale = {0.5_rel, 300_px};
 
-    // b->getEvents().listen<MouseExitEvt>([&log, &b](const MouseExitEvt& e)
-    // {
-    //     b->getVisual().color = {0, 0, 0, 1};
-    //     log.error("exit called {}", e.getType());
-    // });
+    // // b->getLayout().pos = {390, 140};
+    // b->getVisual().color = utils::randomRGB();
+    // c->getVisual().color = utils::randomRGB();
+    // d->getVisual().color = utils::randomRGB();
 
-    // b->getEvents().listen<MouseEnterEvt>([&log, &b](const MouseEnterEvt& e)
-    // {
-    //     log.error("enter called {}", e.getType());
-    //     b->getVisual().color = {1, 0, 1, 1};
-    // });
-
-    // b->getEvents().listen<MouseButtonEvt>([&log, &b](const MouseButtonEvt& e)
-    // {
-    //     log.error("click called {} {}", e.btn, e.action);
-    // });
     std::println("{}", frame.lock());
-    // std::println("{}", a->getTypeId());
-    // std::println("{}", frame.lock()->getTypeId());
-    // std::println("{}", b->getTypeId());
-    // a->add(uielements::UIBasePtrVec{});
-    // a->add(x);
-    // a->add(std::move(x));
-    // a->add({a, b});
-    // FT_Library ftLib;
-    // if (FT_Init_FreeType(&ftLib))
-    // {
-    //     std::cout << "testing not good\n";
-    // }
-    // FT_Done_FreeType(ftLib);
-    // log.warn("hey there");
-
-    // App::setVsync(false);
-    // app.setWaitEvents(false);
 
     /* Blocks */
     app.run();

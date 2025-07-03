@@ -8,14 +8,14 @@ namespace src::elementevents
 struct IEvent
 {
     virtual ~IEvent() = default;
-    virtual auto getType() const -> uint32_t = 0;
+    virtual auto getEventId() const -> uint32_t = 0;
 };
 
 template<typename Derived>
 struct IEventCRTP : public IEvent
 {
     virtual ~IEventCRTP() = default;
-    auto getType() const -> uint32_t override { return Derived::eventId; };
+    auto getEventId() const -> uint32_t override { return Derived::eventId; };
 
     static const uint32_t eventId;
 };

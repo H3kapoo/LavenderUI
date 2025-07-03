@@ -31,11 +31,15 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/ResourceLoaders/Shader.cpp
         src/ResourceLoaders/MeshLoader.cpp
         src/ResourceLoaders/ShaderLoader.cpp
+        src/ResourceLoaders/FontLoader.cpp
+        src/ElementComposable/TextAttribs.cpp
         src/ElementComposable/LayoutAttribs.cpp
         src/ElementComposable/VisualAttribs.cpp
+        src/LayoutCalculator/BasicCalculator.cpp
         src/UIElements/UIBase.cpp
         src/UIElements/UIFrame.cpp
         src/UIElements/UIButton.cpp
+        src/UIElements/UISlider.cpp
         # src/UIElements/UIImage.cpp
         src/WindowManagement/NativeWindow.cpp
         src/WindowManagement/Input.cpp

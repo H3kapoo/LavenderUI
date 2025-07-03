@@ -86,19 +86,40 @@ build CMakeFiles/toying.dir/src/ResourceLoaders/ShaderLoader.cpp.o: CXX_COMPILER
   OBJECT_DIR = CMakeFiles/toying.dir
   OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/ResourceLoaders
 
-build CMakeFiles/toying.dir/src/UIElements/LayoutAttribs.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/UIElements/LayoutAttribs.cpp || cmake_object_order_depends_target_toying
-  DEP_FILE = CMakeFiles/toying.dir/src/UIElements/LayoutAttribs.cpp.o.d
+build CMakeFiles/toying.dir/src/ResourceLoaders/FontLoader.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/ResourceLoaders/FontLoader.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/ResourceLoaders/FontLoader.cpp.o.d
   FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
   INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
   OBJECT_DIR = CMakeFiles/toying.dir
-  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/UIElements
+  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/ResourceLoaders
 
-build CMakeFiles/toying.dir/src/UIElements/VisualAttribs.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/UIElements/VisualAttribs.cpp || cmake_object_order_depends_target_toying
-  DEP_FILE = CMakeFiles/toying.dir/src/UIElements/VisualAttribs.cpp.o.d
+build CMakeFiles/toying.dir/src/ElementComposable/TextAttribs.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/ElementComposable/TextAttribs.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/ElementComposable/TextAttribs.cpp.o.d
   FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
   INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
   OBJECT_DIR = CMakeFiles/toying.dir
-  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/UIElements
+  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/ElementComposable
+
+build CMakeFiles/toying.dir/src/ElementComposable/LayoutAttribs.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/ElementComposable/LayoutAttribs.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/ElementComposable/LayoutAttribs.cpp.o.d
+  FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
+  INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
+  OBJECT_DIR = CMakeFiles/toying.dir
+  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/ElementComposable
+
+build CMakeFiles/toying.dir/src/ElementComposable/VisualAttribs.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/ElementComposable/VisualAttribs.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/ElementComposable/VisualAttribs.cpp.o.d
+  FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
+  INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
+  OBJECT_DIR = CMakeFiles/toying.dir
+  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/ElementComposable
+
+build CMakeFiles/toying.dir/src/LayoutCalculator/BasicCalculator.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/LayoutCalculator/BasicCalculator.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/LayoutCalculator/BasicCalculator.cpp.o.d
+  FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
+  INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
+  OBJECT_DIR = CMakeFiles/toying.dir
+  OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/LayoutCalculator
 
 build CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/UIElements/UIBase.cpp || cmake_object_order_depends_target_toying
   DEP_FILE = CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o.d
@@ -121,8 +142,8 @@ build CMakeFiles/toying.dir/src/UIElements/UIButton.cpp.o: CXX_COMPILER__toying_
   OBJECT_DIR = CMakeFiles/toying.dir
   OBJECT_FILE_DIR = CMakeFiles/toying.dir/src/UIElements
 
-build CMakeFiles/toying.dir/src/UIElements/UIImage.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/UIElements/UIImage.cpp || cmake_object_order_depends_target_toying
-  DEP_FILE = CMakeFiles/toying.dir/src/UIElements/UIImage.cpp.o.d
+build CMakeFiles/toying.dir/src/UIElements/UISlider.cpp.o: CXX_COMPILER__toying_unscanned_ /home/hekapoo/Documents/probe/move_stuff/src/UIElements/UISlider.cpp || cmake_object_order_depends_target_toying
+  DEP_FILE = CMakeFiles/toying.dir/src/UIElements/UISlider.cpp.o.d
   FLAGS = -Wall -Wextra -Wshadow -ggdb -g -std=gnu++23
   INCLUDES = -I/home/hekapoo/Documents/probe/move_stuff -I/home/hekapoo/Documents/probe/move_stuff/vendor/glew/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/sglfw/include -I/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/include
   OBJECT_DIR = CMakeFiles/toying.dir
@@ -157,7 +178,7 @@ build CMakeFiles/toying.dir/src/Utils/Logger.cpp.o: CXX_COMPILER__toying_unscann
 #############################################
 # Link the executable /home/hekapoo/Documents/probe/move_stuff/debug/toying
 
-build /home/hekapoo/Documents/probe/move_stuff/debug/toying: CXX_EXECUTABLE_LINKER__toying_ CMakeFiles/toying.dir/main.cpp.o CMakeFiles/toying.dir/src/App.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/Mesh.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/Shader.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/MeshLoader.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/ShaderLoader.cpp.o CMakeFiles/toying.dir/src/UIElements/LayoutAttribs.cpp.o CMakeFiles/toying.dir/src/UIElements/VisualAttribs.cpp.o CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o CMakeFiles/toying.dir/src/UIElements/UIFrame.cpp.o CMakeFiles/toying.dir/src/UIElements/UIButton.cpp.o CMakeFiles/toying.dir/src/UIElements/UIImage.cpp.o CMakeFiles/toying.dir/src/WindowManagement/NativeWindow.cpp.o CMakeFiles/toying.dir/src/WindowManagement/Input.cpp.o CMakeFiles/toying.dir/src/Utils/Logger.cpp.o
+build /home/hekapoo/Documents/probe/move_stuff/debug/toying: CXX_EXECUTABLE_LINKER__toying_ CMakeFiles/toying.dir/main.cpp.o CMakeFiles/toying.dir/src/App.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/Mesh.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/Shader.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/MeshLoader.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/ShaderLoader.cpp.o CMakeFiles/toying.dir/src/ResourceLoaders/FontLoader.cpp.o CMakeFiles/toying.dir/src/ElementComposable/TextAttribs.cpp.o CMakeFiles/toying.dir/src/ElementComposable/LayoutAttribs.cpp.o CMakeFiles/toying.dir/src/ElementComposable/VisualAttribs.cpp.o CMakeFiles/toying.dir/src/LayoutCalculator/BasicCalculator.cpp.o CMakeFiles/toying.dir/src/UIElements/UIBase.cpp.o CMakeFiles/toying.dir/src/UIElements/UIFrame.cpp.o CMakeFiles/toying.dir/src/UIElements/UIButton.cpp.o CMakeFiles/toying.dir/src/UIElements/UISlider.cpp.o CMakeFiles/toying.dir/src/WindowManagement/NativeWindow.cpp.o CMakeFiles/toying.dir/src/WindowManagement/Input.cpp.o CMakeFiles/toying.dir/src/Utils/Logger.cpp.o
   FLAGS = -Wall -Wextra -Wshadow -ggdb -g
   LINK_LIBRARIES = -Wl,-rpath,/home/hekapoo/Documents/probe/move_stuff/vendor/glew/lib:/home/hekapoo/Documents/probe/move_stuff/vendor/glfw/lib:/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/lib  -lglfw3  -lGLEW  -lGL  -lfreetype  -lpng  -lz  -lbrotlidec  -lbrotlicommon  -lbz2  -lX11
   LINK_PATH = -L/home/hekapoo/Documents/probe/move_stuff/vendor/glew/lib   -L/home/hekapoo/Documents/probe/move_stuff/vendor/glfw/lib   -L/home/hekapoo/Documents/probe/move_stuff/vendor/freetype/lib

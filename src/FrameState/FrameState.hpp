@@ -4,13 +4,6 @@
 
 #include "vendor/glm/glm.hpp"
 
-// /* FW declaration needed to break cyclic dep. */
-// namespace src::uielements
-// {
-// class UIBase;
-// using UIBaseWPtr = std::weak_ptr<UIBase>;
-// }
-
 namespace src::framestate
 {
 static constexpr uint32_t NOTHING = 0;
@@ -26,8 +19,7 @@ struct FrameState
     glm::ivec2 mousePos{0, 0};
     glm::ivec2 scrollOffset{0, 0};
     bool isDragging{false};
-    // src::uielements::UIBaseWPtr hoveredEl;
-    // src::uielements::UIBaseWPtr prevHoveredEl;
+    uint32_t currentEventId{0};
 };
 using FrameStatePtr = std::shared_ptr<FrameState>;
 } // namespace src::framestate

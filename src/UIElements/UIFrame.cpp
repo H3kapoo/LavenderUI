@@ -5,6 +5,7 @@
 #include "src/ElementEvents/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
+#include "src/WindowManagement/NativeWindow.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
@@ -52,22 +53,21 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
 
     window_.getInput().setMouseMoveCallback([this](int32_t x, int32_t y)
     {
-        using namespace elementevents;
         frameState_->mousePos = {x, y};
 
         uint32_t prevHoveredId = frameState_->hoveredId;
-        event(frameState_, MouseMoveScanEvt{});
+        spawnEvent(MouseMoveScanEvt{});
         uint32_t currentHoveredId = frameState_->hoveredId;
 
         if (prevHoveredId == framestate::NOTHING)
         {
-            event(frameState_, MouseEnterEvt{});
+            spawnEvent(MouseEnterEvt{});
         }
         else if (prevHoveredId != 0 && currentHoveredId != 0 && prevHoveredId != currentHoveredId)
         {
             frameState_->prevHoveredId = prevHoveredId;
-            event(frameState_, MouseEnterEvt{});
-            event(frameState_, MouseExitEvt{});
+            spawnEvent(MouseEnterEvt{});
+            spawnEvent(MouseExitEvt{});
         }
 
         if (frameState_->clickedId == framestate::NOTHING
@@ -87,27 +87,28 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
 
         if (frameState_->isDragging)
         {
-            event(frameState_, MouseDragEvt{});
+            spawnEvent(MouseDragEvt{});
         }
 
-        event(frameState_, MouseMoveEvt{});
+        spawnEvent(MouseMoveEvt{});
     });
 
     window_.getInput().setMouseBtnCallback([this](uint8_t btn, uint8_t action)
     {
-        using namespace elementevents;
         frameState_->mouseButton = btn;
         frameState_->mouseAction = action;
-        event(frameState_, MouseButtonEvt{});
+        spawnEvent(MouseButtonEvt{});
     });
 
     window_.getInput().setMouseScrollCallback([this](int8_t xOffset, int8_t yOffset)
     {
-        using namespace elementevents;
         frameState_->scrollOffset = {xOffset, yOffset};
-        event(frameState_, MouseScrollEvt{});
+        spawnEvent(MouseScrollEvt{});
         frameState_->scrollOffset = {0, 0};
     });
+
+    // NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
+    // NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
 }
 
 auto UIFrame::run() -> bool
@@ -144,13 +145,19 @@ auto UIFrame::layout() -> void
     layoutNext();
 }
 
-auto UIFrame::event(framestate::FrameStatePtr& state, const elementevents::IEvent& e) -> void
+auto UIFrame::event(framestate::FrameStatePtr& state) -> void
 {
     /* Do default handling of events. */
-    UIBase::event(state, e);
+    UIBase::event(state);
 
     /* Bubble event down the tree to the leafs. */
-    eventNext(state, e);
+    eventNext(state);
+}
+
+auto UIFrame::spawnEvent(const elementevents::IEvent& e) -> void
+{
+    frameState_->currentEventId = e.getEventId();
+    event(frameState_);
 }
 
 auto UIFrame::updateProjection() -> void

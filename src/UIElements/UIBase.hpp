@@ -7,7 +7,6 @@
 #include <type_traits>
 #include <typeindex>
 
-#include "src/ElementEvents/IEvent.hpp"
 #include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementComposable/VisualAttribs.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
@@ -30,6 +29,7 @@ using UIBasePtr = std::shared_ptr<UIBase>;
 using UIBaseWPtr = std::weak_ptr<UIBase>;
 using UIBasePtrVec = std::vector<UIBasePtr>;
 class UIBase : public std::enable_shared_from_this<UIBase>
+             , public elementcomposable::LayoutAttribs
 {
 public:
     UIBase(const std::type_index type);
@@ -56,14 +56,15 @@ public:
     auto getElements() -> UIBasePtrVec&;
 
     virtual auto getTypeInfo() const -> std::type_index = 0;
+    virtual auto getTypeId() const -> uint32_t = 0;
 
 protected:
     auto renderNext(const glm::mat4& projection) -> void;
     auto layoutNext() -> void;
-    auto eventNext(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void;
+    auto eventNext(framestate::FrameStatePtr& state) -> void;
     virtual auto render(const glm::mat4& projection) -> void;
     virtual auto layout() -> void;
-    virtual auto event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void;
+    virtual auto event(framestate::FrameStatePtr& state) -> void;
 
 private:
     template<UIBaseDerived T>
@@ -95,6 +96,7 @@ public:
     UIBaseCPRT() : UIBase(typeid(Derived)) {}
     virtual ~UIBaseCPRT() = default;
     auto getTypeInfo() const -> std::type_index override { return typeid(Derived); };
+    auto getTypeId() const -> uint32_t override { return typeId; };
 
     static const uint32_t typeId;
 };

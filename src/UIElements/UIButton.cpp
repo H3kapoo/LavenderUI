@@ -31,32 +31,32 @@ auto UIButton::layout() -> void
     layoutNext();
 }
 
-auto UIButton::event(framestate::FrameStatePtr& state, const elementevents::IEvent& evt) -> void
+auto UIButton::event(framestate::FrameStatePtr& state) -> void
 {
     using namespace elementevents;
     /* Let the base do the generic stuff */
-    UIBase::event(state, evt);
+    UIBase::event(state);
 
-    const auto type = evt.getType();
-    if (type == MouseButtonEvt::eventId && state->hoveredId == id_)
+    const auto eId = state->currentEventId;
+    if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         return eventManager_.emit<MouseButtonEvt>(e);
     }
-    else if (type == MouseEnterEvt::eventId && state->hoveredId == id_)
+    else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return eventManager_.emit<MouseEnterEvt>(e);
     }
-    else if (type == MouseExitEvt::eventId && state->prevHoveredId == id_)
+    else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return eventManager_.emit<MouseExitEvt>(e);
     }
 
-    eventNext(state, evt);
+    eventNext(state);
 }
 } // namespace src::uielements
