@@ -45,7 +45,7 @@ auto ShaderLoader::load(const fs::path& vertexPath, const fs::path& fragPath) ->
         return 0;
     }
 
-    log_.debug("Loaded shader with progranID {}", programId);
+    log_.debug("Loaded shader with programID {}", programId);
     programIds_[allPathKey] = programId;
 
     return programId;

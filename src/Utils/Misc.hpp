@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vendor/glm/ext/vector_float4.hpp"
+#include "vendor/glm/ext/vector_float2.hpp"
 #include <print>
 #include <memory>
 #include <random>

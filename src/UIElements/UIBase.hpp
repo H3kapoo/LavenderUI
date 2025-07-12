@@ -13,7 +13,7 @@
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementComposable/VisualAttribs.hpp"
-#include "src/ElementEvents/EventManager.hpp"
+#include "src/ElementComposable/EventAttribs.hpp"
 #include "src/FrameState/FrameState.hpp"
 #include "src/Utils/Logger.hpp"
 
@@ -30,6 +30,8 @@ using UIBaseWPtr = std::weak_ptr<UIBase>;
 using UIBasePtrVec = std::vector<UIBasePtr>;
 class UIBase : public std::enable_shared_from_this<UIBase>
              , public elementcomposable::LayoutAttribs
+             , public elementcomposable::VisualAttribs
+             , public elementcomposable::EventAttribs
 {
 public:
     UIBase(const std::type_index type);
@@ -49,10 +51,11 @@ public:
     auto remove(UIBasePtrVec&& elements) -> void;
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
+    auto setCustomTagId(const uint32_t id) -> void;
+
+    auto isParented() -> bool;
+    auto getCustomTagId() -> uint32_t;
     auto getId() -> uint32_t;
-    auto getLayout() -> elementcomposable::LayoutAttribs&;
-    auto getVisual() -> elementcomposable::VisualAttribs&;
-    auto getEvents() -> elementevents::EventManager&;
     auto getElements() -> UIBasePtrVec&;
 
     virtual auto getTypeInfo() const -> std::type_index = 0;
@@ -60,6 +63,10 @@ public:
 
 protected:
     auto renderNext(const glm::mat4& projection) -> void;
+    auto renderNextExcept(const glm::mat4& projection,
+        const std::function<bool(const UIBasePtr&)> filterFunc) -> void;
+    auto renderNextSingle(const glm::mat4& projection, const UIBasePtr& element) -> void;
+
     auto layoutNext() -> void;
     auto eventNext(framestate::FrameStatePtr& state) -> void;
     virtual auto render(const glm::mat4& projection) -> void;
@@ -77,12 +84,10 @@ private:
 
 protected:
     uint32_t id_;
+    uint32_t customTagid_;
     utils::Logger log_;
     resourceloaders::Mesh mesh_;
     resourceloaders::Shader shader_;
-    elementcomposable::LayoutAttribs layoutAttr_;
-    elementcomposable::VisualAttribs visualAttr_;
-    elementevents::EventManager eventManager_;
     bool isParented_;
     uint32_t depth_{0};
     UIBaseWPtr parent_;

@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cxxabi.h>
 
-#include "src/ElementEvents/IEvent.hpp"
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
@@ -44,7 +44,7 @@ auto UIBase::addInternal(T&& element) -> bool
         return false;
     }
     element->isParented_ = true;
-    element->parent_ = shared_from_this();
+    element->parent_ = weak_from_this();
     elements_.emplace_back(std::forward<T>(element));
     return true;
 }
@@ -58,6 +58,7 @@ auto UIBase::removeInternal(T&& element) -> bool
         return false;
     }
     element->parent_.reset();
+    element->isParented_ = false;
     std::erase(elements_, element);
     return true;
 }
@@ -104,37 +105,54 @@ auto UIBase::remove(UIBasePtrVec&& elements) -> void
 
 auto UIBase::renderNext(const glm::mat4& projection) -> void
 {
-    std::ranges::for_each(elements_, [&projection](const auto& e)
+    renderNextExcept(projection, [](auto&){ return false; });
+}
+
+auto UIBase::renderNextExcept(const glm::mat4& projection,
+        const std::function<bool(const UIBasePtr&)> filterFunc) -> void
+{
+    std::ranges::for_each(elements_, [this, &projection, &filterFunc](const auto& e)
     {
-        windowmanagement::NativeWindow::updateScissors(
-        {
-            e->layoutAttr_.viewPos.x,
-            std::floor((-2.0f / projection[1][1])) - e->layoutAttr_.viewPos.y - e->layoutAttr_.viewScale.y,
-            e->layoutAttr_.viewScale.x,
-            e->layoutAttr_.viewScale.y
-        });
-        e->render(projection);
+        if (filterFunc(e)) { return; }
+
+        renderNextSingle(projection, e);
     });
+}
+
+auto UIBase::renderNextSingle(const glm::mat4& projection, const UIBasePtr& e) -> void
+{
+    //TODO: Do not render nodes that aint visible
+    if (!e || !e->isParented()) { return; }
+
+    windowmanagement::NativeWindow::updateScissors(
+        {
+            e->viewPos_.x,
+            std::floor((-2.0f / projection[1][1])) - e->viewPos_.y - e->viewScale_.y,
+            e->viewScale_.x,
+            e->viewScale_.y
+        });
+    e->render(projection);
 }
 
 auto UIBase::layoutNext() -> void
 {
+    //TODO: Do not calculate the layout for nodes that aint visible
     /* If is the root element, scissor area is the whole object area. */
-    if (layoutAttr_.index == 1)
+    if (index_ == 1)
     {
-        layoutAttr_.viewPos = layoutAttr_.cPos;
-        layoutAttr_.viewScale = layoutAttr_.cScale;
+        viewPos_ = computedPos_;
+        viewScale_ = computedScale_;
     }
 
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
             /* After calculating my elements, compute how much of them is still visible inside of the parent. */
-            e->layoutAttr_.computeViewBox(layoutAttr_);
+            e->computeViewBox(*this);
             /* Index is used for layer rendering order. Can be custom. */
-            if (!e->layoutAttr_.isCustomLevel)
+            if (!e->isCustomIndex_)
             {
-                e->layoutAttr_.index = layoutAttr_.index + 1;
+                e->index_ = index_ + 1;
             }
 
             /* Depth is used mostly for printing. */
@@ -153,8 +171,8 @@ auto UIBase::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutAttr_.getTransform());
-    shader_.uploadVec4f("uColor", visualAttr_.color);
+    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
+    shader_.uploadVec4f("uColor", color_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -166,32 +184,32 @@ auto UIBase::layout() -> void
 
 auto UIBase::event(framestate::FrameStatePtr& state) -> void
 {
-    using namespace elementevents;
-
     /* Determine in the scan pass who's the hovered element. */
-    if (state->currentEventId == MouseMoveScanEvt::eventId)
+    if (state->currentEventId == elementcomposable::MouseMoveScanEvt::eventId)
     {
-        if (layoutAttr_.isPointInsideView(state->mousePos))
+        /* Due to the way we are processing events, we need to ensure that the user's input will
+        go to the highest index element. */
+        if (index_ > state->hoveredZIndex && isPointInsideView(state->mousePos))
         {
             state->hoveredId = id_;
+            state->hoveredZIndex = index_;
         }
     }
 }
 
+auto UIBase::setCustomTagId(const uint32_t id) -> void { customTagid_ = id; }
+
+auto UIBase::isParented() -> bool { return isParented_; }
+
+auto UIBase::getCustomTagId() -> uint32_t { return customTagid_; }
+
 auto UIBase::getId() -> uint32_t { return id_; }
-
-auto UIBase::getLayout() -> elementcomposable::LayoutAttribs& { return layoutAttr_; }
-
-auto UIBase::getVisual() -> elementcomposable::VisualAttribs& { return visualAttr_; }
-
-auto UIBase::getEvents() -> elementevents::EventManager& { return eventManager_; }
 
 auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
 
 auto UIBase::demangleName(const char* name) -> std::string
 {
-    /* Works on linux for now, not sure about windows. */
-
+    /* Works on linux+gcc for now, not sure about windows. */
     int status = 0;
     std::unique_ptr<char, void(*)(void*)> res {
         abi::__cxa_demangle(name, nullptr, nullptr, &status),
@@ -207,6 +225,7 @@ auto UIBase::demangleName(const char* name) -> std::string
 
 auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
 {
+    /* Printing before the first layoutNext() will print elements with an incorrect number of tabs. */
     using namespace std::chrono;
     zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
@@ -214,7 +233,7 @@ auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
     out << std::format("{:{}}|-- {}[Id:{} L:{}]",
         "", obj->depth_ * 2,
         UIBase::demangleName(obj->getTypeInfo().name()),
-        obj->id_, obj->layoutAttr_.index);
+        obj->id_, obj->index_);
     out << "\033[m";
     std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
     return out;

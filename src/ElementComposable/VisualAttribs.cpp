@@ -5,4 +5,7 @@
 
 namespace src::elementcomposable
 {
+auto VisualAttribs::setColor(const glm::vec4& value) -> void { color_ = value; }
+
+auto VisualAttribs::getColor() const -> const glm::vec4& { return color_; }
 } // namespace src::elementcomposable

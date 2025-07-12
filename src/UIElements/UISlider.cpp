@@ -1,7 +1,7 @@
 #include "UISlider.hpp"
 
 #include "src/ElementComposable/LayoutAttribs.hpp"
-#include "src/ElementEvents/IEvent.hpp"
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
@@ -11,7 +11,7 @@ namespace src::uielements
 {
 UISlider::UISlider()
 {
-    knobVisualAttr_.color = utils::hexToVec4("#ca5555ff");
+    knobVisualAttr_.setColor(utils::hexToVec4("#ca5555ff"));
 }
 
 auto UISlider::render(const glm::mat4& projection) -> void
@@ -20,16 +20,16 @@ auto UISlider::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutAttr_.getTransform());
-    shader_.uploadVec4f("uColor", visualAttr_.color);
+    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
+    shader_.uploadVec4f("uColor", color_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw knob */
     // mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", knobLayoutAttr_.getTransform());
-    shader_.uploadVec4f("uColor", knobVisualAttr_.color);
+    shader_.uploadMat4("uMatrixTransform", knobLayoutAttr_.getLayoutTransform());
+    shader_.uploadVec4f("uColor", knobVisualAttr_.getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw the text */
@@ -49,93 +49,103 @@ auto UISlider::render(const glm::mat4& projection) -> void
 auto UISlider::layout() -> void
 {
     /* Technically this node cannot have child elems. Do your layout logic here.*/
-    knobLayoutAttr_.index = layoutAttr_.index + 1;
+    knobLayoutAttr_.setLayoutIndex(index_ + 1);
 
-    if (layoutAttr_.type == LayoutAttribs::Type::HORIZONTAL)
+    if (layoutType_ == LayoutAttribs::Type::HORIZONTAL)
     {
-        knobLayoutAttr_.cScale = {layoutAttr_.cScale.y, layoutAttr_.cScale.y};
+        knobLayoutAttr_.setLayoutComputedScale({computedScale_.y, computedScale_.y});
     }
-    else if (layoutAttr_.type == LayoutAttribs::Type::VERTICAL)
+    else if (layoutType_ == LayoutAttribs::Type::VERTICAL)
     {
-        knobLayoutAttr_.cScale = {layoutAttr_.cScale.x, layoutAttr_.cScale.x};
+        // knobLayoutAttr_.setLayoutComputedScale({computedScale_.x, computedScale_.x});
+        knobLayoutAttr_.setLayoutComputedScale({computedScale_.x,
+            std::max(computedScale_.x, computedScale_.y - scrollTo_)});
     }
 
     calculateKnobPosition();
 
     /* Position the text */
-    textAttribs_.setPosition(knobLayoutAttr_.cPos + 10.0f);
+    const glm::vec2 p = knobLayoutAttr_.getLayoutComputedPos() + knobLayoutAttr_.getLayoutComputedScale() / 2.0f
+        - textAttribs_.computeMaxSize() / 2.0f;
+    textAttribs_.setPosition(p);
 }
 
 auto UISlider::event(framestate::FrameStatePtr& state) -> void
 {
-    using namespace elementevents;
-
     /* Let the base do the generic stuff like mouse move pre-pass. */
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
     if (eId == MouseScrollEvt::eventId && state->hoveredId == id_)
     {
-        percentage_ += state->scrollOffset.y * 0.1f;
+        percentage_ -= state->scrollOffset.y * 0.1f * invertVertical_;
         percentage_ = std::clamp(percentage_, 0.0f, 1.0f);
 
         SliderEvt sliderEvt{getScrollValue()};
-        eventManager_.emit<SliderEvt>(sliderEvt);
+        emitEvent<SliderEvt>(sliderEvt);
     }
     else if (eId == MouseDragEvt::eventId && state->clickedId == id_)
     {
-        percentage_ = calculatePercentage(state->mousePos);
+        percentage_ = calculatePercentage(state->mousePos - offsetToKnobCenter_);
 
         SliderEvt sliderEvt{getScrollValue()};
-        eventManager_.emit<SliderEvt>(sliderEvt);
+        emitEvent<SliderEvt>(sliderEvt);
 
         /* We can safely ignore bubbling down the tree as we found the dragged element. */
         MouseDragEvt e;
-        return eventManager_.emit<MouseDragEvt>(e);
+        return emitEvent<MouseDragEvt>(e);
     }
     else if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         if (state->mouseButton == GLFW_MOUSE_BUTTON_LEFT && state->mouseAction == GLFW_PRESS)
         {
-            percentage_ = calculatePercentage(state->mousePos);
+            const glm::vec2 knobHalf = knobLayoutAttr_.getLayoutComputedScale() / 2.0f;
+            const glm::ivec2 middle = knobLayoutAttr_.getLayoutComputedPos() + knobHalf;
+            offsetToKnobCenter_ = state->mousePos - middle;
+            offsetToKnobCenter_.x = std::abs(offsetToKnobCenter_.x) > knobHalf.x
+                ? 0.0f : offsetToKnobCenter_.x;
+            offsetToKnobCenter_.y = std::abs(offsetToKnobCenter_.y) > knobHalf.y
+                ? 0.0f : offsetToKnobCenter_.y;
+            percentage_ = calculatePercentage(state->mousePos - offsetToKnobCenter_);
 
             SliderEvt sliderEvt{getScrollValue()};
-            eventManager_.emit<SliderEvt>(sliderEvt);
+            emitEvent<SliderEvt>(sliderEvt);
         }
 
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        return eventManager_.emit<MouseButtonEvt>(e);
+        return emitEvent<MouseButtonEvt>(e);
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        return eventManager_.emit<MouseEnterEvt>(e);
+        return emitEvent<MouseEnterEvt>(e);
     }
     else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        return eventManager_.emit<MouseExitEvt>(e);
+        return emitEvent<MouseExitEvt>(e);
     }
 }
 
 auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
 {
-    if (layoutAttr_.type == LayoutAttribs::Type::HORIZONTAL)
+    if (layoutType_ == LayoutAttribs::Type::HORIZONTAL)
     {
-        const float halfKnobScale = knobLayoutAttr_.cScale.x / 2.0f;
+        const float halfKnobScale = knobLayoutAttr_.getLayoutComputedScale().x / 2.0f;
         return utils::remap(mPos.x,
-            layoutAttr_.cPos.x + halfKnobScale, layoutAttr_.cPos.x + layoutAttr_.cScale.x - halfKnobScale,
+            computedPos_.x + halfKnobScale, computedPos_.x + computedScale_.x - halfKnobScale,
             0.0f, 1.0f);
     }
-    else if (layoutAttr_.type == LayoutAttribs::Type::VERTICAL)
+    else if (layoutType_ == LayoutAttribs::Type::VERTICAL)
     {
-        const float halfKnobScale = knobLayoutAttr_.cScale.y / 2.0f;
-        return 1.0f - utils::remap(mPos.y,
-            layoutAttr_.cPos.y + halfKnobScale, layoutAttr_.cPos.y + layoutAttr_.cScale.y - halfKnobScale,
+        const float halfKnobScale = knobLayoutAttr_.getLayoutComputedScale().y / 2.0f;
+        const float remapped = utils::remap(mPos.y,
+            computedPos_.y + halfKnobScale, computedPos_.y + computedScale_.y - halfKnobScale,
             0.0f, 1.0f);
+        return invertVertical_ ? remapped : 1.0f - remapped;
     }
 
     return 0.0f;
@@ -143,19 +153,18 @@ auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
 
 auto UISlider::calculateKnobPosition() -> void
 {
-    if (layoutAttr_.type == LayoutAttribs::Type::HORIZONTAL)
+    if (layoutType_ == LayoutAttribs::Type::HORIZONTAL)
     {
-        knobLayoutAttr_.cPos.y = layoutAttr_.cPos.y;
-        knobLayoutAttr_.cPos.x = utils::remap(percentage_,
-            0.0f, 1.0f, layoutAttr_.cPos.x,
-            layoutAttr_.cPos.x + layoutAttr_.cScale.x - knobLayoutAttr_.cScale.x);
+        knobLayoutAttr_.setLayoutComputedPos({
+            utils::remap(percentage_, 0.0f, 1.0f,
+                computedPos_.x, computedPos_.x + computedScale_.x - knobLayoutAttr_.getLayoutComputedScale().x),
+                computedPos_.y});
     }
-    else if (layoutAttr_.type == LayoutAttribs::Type::VERTICAL)
+    else if (layoutType_ == LayoutAttribs::Type::VERTICAL)
     {
-        knobLayoutAttr_.cPos.x = layoutAttr_.cPos.x;
-        knobLayoutAttr_.cPos.y = utils::remap(1.0f - percentage_,
-            0.0f, 1.0f, layoutAttr_.cPos.y,
-            layoutAttr_.cPos.y + layoutAttr_.cScale.y - knobLayoutAttr_.cScale.y);
+        knobLayoutAttr_.setLayoutComputedPos({computedPos_.x,
+            utils::remap(invertVertical_ ? percentage_ : 1.0f - percentage_, 0.0f, 1.0f,
+                computedPos_.y, computedPos_.y + computedScale_.y - knobLayoutAttr_.getLayoutComputedScale().y)});
     }
 }
 
@@ -199,4 +208,10 @@ auto UISlider::setScrollTo(const float value) -> void
 {
     scrollTo_ = value;
 }
+
+auto UISlider::enableVerticalInversion(const bool val) -> void
+{
+    invertVertical_ = val;
+}
+
 } // namespace src::uielements

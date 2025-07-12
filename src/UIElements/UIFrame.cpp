@@ -2,17 +2,17 @@
 
 #include "src/App.hpp"
 #include "src/FrameState/FrameState.hpp"
-#include "src/ElementEvents/IEvent.hpp"
+#include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
-#include "src/LayoutCalculator/BasicCalculator.hpp"
 
 namespace src::uielements
 {
 using namespace windowmanagement;
+using namespace elementcomposable;
 
 bool UIFrame::isFirstFrame_ = true;
 
@@ -54,6 +54,7 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
     window_.getInput().setMouseMoveCallback([this](int32_t x, int32_t y)
     {
         frameState_->mousePos = {x, y};
+        frameState_->hoveredZIndex = framestate::NOTHING;
 
         uint32_t prevHoveredId = frameState_->hoveredId;
         spawnEvent(MouseMoveScanEvt{});
@@ -107,8 +108,9 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
         frameState_->scrollOffset = {0, 0};
     });
 
-    // NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
-    // NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
+    NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
+    NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
+    // NativeWindow::setProp(NativeWindow::Property::ALPHA_BLENDING, false);
 }
 
 auto UIFrame::run() -> bool
@@ -121,7 +123,7 @@ auto UIFrame::run() -> bool
     NativeWindow::updateScissors({0, 0, size.x, size.y});
     NativeWindow::clearColor(utils::hexToVec4("#3d3d3dff"));
     NativeWindow::clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    layoutAttr_.cScale = size;
+    computedScale_ = size;
 
     layout();
     render(projection_);
@@ -142,6 +144,8 @@ auto UIFrame::layout() -> void
 {
     using namespace layoutcalculator;
     BasicCalculator::get().calculate(shared_from_this());
+    // BasicCalculator::get().calcElementsScale(shared_from_this());
+    // BasicCalculator::get().calcElementsPos(shared_from_this());
     layoutNext();
 }
 
@@ -154,7 +158,7 @@ auto UIFrame::event(framestate::FrameStatePtr& state) -> void
     eventNext(state);
 }
 
-auto UIFrame::spawnEvent(const elementevents::IEvent& e) -> void
+auto UIFrame::spawnEvent(const elementcomposable::IEvent& e) -> void
 {
     frameState_->currentEventId = e.getEventId();
     event(frameState_);

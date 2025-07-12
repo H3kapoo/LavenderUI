@@ -1,13 +1,11 @@
 #pragma once
 
-#include "src/ElementEvents/IEvent.hpp"
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
-using namespace elementevents;
-
 class UIFrame : public UIBaseCPRT<UIFrame>
 {
 public:
@@ -26,7 +24,7 @@ private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
     auto event(framestate::FrameStatePtr& state) -> void override;
-    auto spawnEvent(const elementevents::IEvent& event) -> void;
+    auto spawnEvent(const elementcomposable::IEvent& event) -> void;
     auto updateProjection() -> void;
 
 private:

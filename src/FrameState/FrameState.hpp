@@ -14,6 +14,7 @@ struct FrameState
     uint32_t selectedId{NOTHING};
     uint32_t hoveredId{NOTHING};
     uint32_t prevHoveredId{NOTHING};
+    uint32_t hoveredZIndex{NOTHING};
     uint8_t mouseAction{NOTHING};
     uint8_t mouseButton{NOTHING};
     glm::ivec2 mousePos{0, 0};

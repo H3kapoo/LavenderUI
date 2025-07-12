@@ -8,13 +8,13 @@ class VisualAttribs
 {
 public:
     VisualAttribs() = default;
-    ~VisualAttribs() = default;
-    VisualAttribs(const VisualAttribs&) = delete;
-    VisualAttribs(VisualAttribs&&) = delete;
-    VisualAttribs& operator=(const VisualAttribs&) = delete;
-    VisualAttribs& operator=(VisualAttribs&&) = delete;
+    virtual ~VisualAttribs() = default;
 
-public:
-    glm::vec4 color{1.0f};
+    auto setColor(const glm::vec4& value) -> void;
+
+    auto getColor() const -> const glm::vec4&;
+
+protected:
+    glm::vec4 color_{1.0f};
 };
 } // namespace src::elementcomposable

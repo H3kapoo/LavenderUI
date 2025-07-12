@@ -18,9 +18,12 @@ struct TextSoA;
 
 public:
     TextAttribs();
+    auto computeMaxSize() const -> glm::vec2;
+
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(std::string text) -> void;
-    auto setPosition(const glm::vec2& pos) -> void;
+    auto setPosition(const glm::ivec2& pos) -> void;
+    auto setValidBounds(const glm::vec2& start, const glm::vec2& scale) -> void;
 
     auto getShader() -> resourceloaders::Shader&;
     auto getText() const -> std::string;

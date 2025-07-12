@@ -31,6 +31,7 @@ public:
     auto setScrollTo(const float value) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(std::string text) -> void;
+    auto enableVerticalInversion(const bool val) -> void;
 
 private:
     auto render(const glm::mat4& projection) -> void override;
@@ -48,6 +49,10 @@ protected:
     float scrollFrom_{0.0f};
     float scrollTo_{100.0f};
     float scrollValue_{0.0f};
+
+private:
+    glm::ivec2 offsetToKnobCenter_{0.0f, 0.0f};
+    bool invertVertical_{false}; /* false - starts from bottom; true - starts from top */
 
 };
 using UISliderPtr = std::shared_ptr<UISlider>;

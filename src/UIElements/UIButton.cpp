@@ -1,6 +1,6 @@
 #include "UIButton.hpp"
 
-#include "src/ElementEvents/IEvent.hpp"
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
@@ -15,8 +15,8 @@ auto UIButton::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutAttr_.getTransform());
-    shader_.uploadVec4f("uColor", visualAttr_.color);
+    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
+    shader_.uploadVec4f("uColor", color_);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     renderNext(projection);
@@ -25,7 +25,7 @@ auto UIButton::render(const glm::mat4& projection) -> void
 auto UIButton::layout() -> void
 {
     using namespace layoutcalculator;
-    BasicCalculator::get().calculate(shared_from_this());
+    // BasicCalculator::get().calcElementsPos(shared_from_this());
 
     // log_.debug("Doing layout for {} {}", id_, UIButton::typeId);
     layoutNext();
@@ -33,7 +33,7 @@ auto UIButton::layout() -> void
 
 auto UIButton::event(framestate::FrameStatePtr& state) -> void
 {
-    using namespace elementevents;
+    using namespace elementcomposable;
     /* Let the base do the generic stuff */
     UIBase::event(state);
 
@@ -42,19 +42,19 @@ auto UIButton::event(framestate::FrameStatePtr& state) -> void
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        return eventManager_.emit<MouseButtonEvt>(e);
+        return emitEvent<MouseButtonEvt>(e);
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventManager_.emit<MouseEnterEvt>(e);
+        return emitEvent<MouseEnterEvt>(e);
     }
     else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventManager_.emit<MouseExitEvt>(e);
+        return emitEvent<MouseExitEvt>(e);
     }
 
     eventNext(state);
