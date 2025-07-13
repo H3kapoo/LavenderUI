@@ -1,3 +1,0 @@
-[38;2;255;80;80m[ERROR] Window[myWindow] Window with id 0 has been created!
-[m[38;2;0;200;255m[WARN] Window[myWindow] Window with id 0 has been created!
-[m
