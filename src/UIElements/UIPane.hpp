@@ -33,6 +33,8 @@ private:
     auto layout() -> void override;
     auto event(framestate::FrameStatePtr& state) -> void override;
 
+    auto updateSlidersWithOverflow(const glm::vec2& overflow) -> bool;
+
 protected:
     UISliderPtr hSlider_;
     UISliderPtr vSlider_;

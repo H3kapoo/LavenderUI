@@ -154,8 +154,6 @@ auto BasicCalculator::calcOverflow(uielements::UIBase* parent,
 auto BasicCalculator::calcPaneElements(uielements::UIPane* parent,
     const glm::vec2 scrollData) const -> void
 {
-    // const glm::vec2 sd = calcPaneSliders(parent);
-
     calcElementsScale(parent, scrollData);
     calcElementsPos(parent, scrollData);
 }
@@ -165,7 +163,7 @@ auto BasicCalculator::calcPaneSliders(uielements::UIPane* parent) const -> glm::
     glm::vec2 sliderImpact{0, 0};
     const auto& pComputedPos = parent->getLayoutComputedPos();
     const auto& pComputedScale = parent->getLayoutComputedScale();
-    if (const auto vSlider = parent->getVerticalSlider().lock())
+    if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
         sliderImpact.x = vSlider->getLayoutScale().x.val;
@@ -176,7 +174,7 @@ auto BasicCalculator::calcPaneSliders(uielements::UIPane* parent) const -> glm::
         vSlider->setLayoutComputedScale({sliderImpact.x, pComputedScale.y});
     }
 
-    if (const auto hSlider = parent->getHorizontalSlider().lock())
+    if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
         sliderImpact.y = hSlider->getLayoutScale().y.val;
@@ -186,7 +184,6 @@ auto BasicCalculator::calcPaneSliders(uielements::UIPane* parent) const -> glm::
         });
         hSlider->setLayoutComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
     }
-
 
     return sliderImpact;
 }

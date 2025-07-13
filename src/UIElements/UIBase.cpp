@@ -8,6 +8,7 @@
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
+#include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"

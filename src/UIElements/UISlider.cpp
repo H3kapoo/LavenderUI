@@ -53,11 +53,11 @@ auto UISlider::layout() -> void
 
     if (layoutType_ == LayoutAttribs::Type::HORIZONTAL)
     {
-        knobLayoutAttr_.setLayoutComputedScale({computedScale_.y, computedScale_.y});
+        knobLayoutAttr_.setLayoutComputedScale({
+            std::max(computedScale_.y, computedScale_.x - scrollTo_), computedScale_.y});
     }
     else if (layoutType_ == LayoutAttribs::Type::VERTICAL)
     {
-        // knobLayoutAttr_.setLayoutComputedScale({computedScale_.x, computedScale_.x});
         knobLayoutAttr_.setLayoutComputedScale({computedScale_.x,
             std::max(computedScale_.x, computedScale_.y - scrollTo_)});
     }
@@ -76,13 +76,16 @@ auto UISlider::event(framestate::FrameStatePtr& state) -> void
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
-    if (eId == MouseScrollEvt::eventId && state->hoveredId == id_)
+    // if (eId == MouseScrollEvt::eventId && state->hoveredId == id_)
+    if (eId == MouseScrollEvt::eventId && (state->hoveredId == id_ || state->closestScroll == id_))
     {
-        percentage_ -= state->scrollOffset.y * 0.1f * invertVertical_;
+        // NOTE: inverting affects horizontal sliders. No side effects really.
+        percentage_ += state->scrollOffset.y * 0.1f * (invertVertical_ ? -1 : 1);
         percentage_ = std::clamp(percentage_, 0.0f, 1.0f);
 
+        /* We can safely ignore bubbling down the tree as we found the slided element. */
         SliderEvt sliderEvt{getScrollValue()};
-        emitEvent<SliderEvt>(sliderEvt);
+        return emitEvent<SliderEvt>(sliderEvt);
     }
     else if (eId == MouseDragEvt::eventId && state->clickedId == id_)
     {

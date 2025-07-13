@@ -44,10 +44,11 @@ int main()
     // UIButtonPtr c = utils::make<UIButton>();
 
     frame.lock()->add(c);
-    frame.lock()->tempPosOffset = {20, 20};
+    // frame.lock()->tempPosOffset = {20, 20};
 
     // c->setLayoutScale({600_px, 300_px});
-    c->setLayoutScale({0.6_rel, 0.9_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
+    // c->setLayoutScale({0.6_rel, 0.9_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
+    c->setLayoutScale({1.0_rel, 1.0_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
     c->setColor(utils::hexToVec4("#b40a0aff"));
 
     for (int32_t i = 0; i < 7; i++)
