@@ -13,6 +13,7 @@
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIFrame.hpp"
 #include "src/UIElements/UIImage.hpp"
+#include "src/UIElements/UITreeView.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
@@ -39,50 +40,48 @@ int main()
     UISliderPtr a = utils::make<UISlider>();
     UISliderPtr b = utils::make<UISlider>();
     UIPanePtr c = utils::make<UIPane>();
-    UIButtonPtr d = utils::make<UIButton>();
-    UIButtonPtr e = utils::make<UIButton>();
-    // UIButtonPtr c = utils::make<UIButton>();
+    // UIButtonPtr d = utils::make<UIButton>();
+    // UIButtonPtr e = utils::make<UIButton>();
+    // UITreeViewPtr tv = utils::make<UITreeView>();
 
-    frame.lock()->add(c);
+    // frame.lock()->add(tv);
     // frame.lock()->tempPosOffset = {20, 20};
+    // tv->setLayoutScale({600_px, 300_px});
+    // // c->setLayoutScale({0.6_rel, 0.9_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
+    // // tv->setLayoutScale({0.8_rel, .8_rel});
+    // tv->setColor(utils::hexToVec4("#b40a0aff"));
 
-    // c->setLayoutScale({600_px, 300_px});
-    // c->setLayoutScale({0.6_rel, 0.9_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
-    c->setLayoutScale({1.0_rel, 1.0_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
-    c->setColor(utils::hexToVec4("#b40a0aff"));
-
-    for (int32_t i = 0; i < 7; i++)
-    {
-        UIButtonPtr x = utils::make<UIButton>();
-        x->setLayoutScale({
-            {(float)utils::randomInt(50, 200)},
-            {(float)utils::randomInt(75, 200)}
-        })
-        // .setLayoutMargin({4, 4, 10, 4});
-        .setLayoutMargin({4, 4, 4, 1});
-        ;
-        x->setColor(utils::randomRGB());
-        c->add(x);
-    }
-
-    c->listenTo<MouseButtonEvt>([&c, &log](const MouseButtonEvt& e)
-    {
-        if (e.btn == GLFW_MOUSE_BUTTON_LEFT && e.action == GLFW_RELEASE)
-        {
-            c->setLayoutType(LayoutAttribs::Type::VERTICAL);
-        }
-        else if (e.btn == GLFW_MOUSE_BUTTON_RIGHT && e.action == GLFW_RELEASE)
-        {
-            c->setLayoutType(LayoutAttribs::Type::HORIZONTAL);
-        }
-        else if (e.btn == GLFW_MOUSE_BUTTON_4 && e.action == GLFW_RELEASE)
-        {
-            c->setLayoutWrap(!c->getLayoutWrap());
-            log.debug("button pressed");
-        }
-    });
+    // for (int32_t i = 0; i < 7; i++)
+    // {
+    //     UIButtonPtr x = utils::make<UIButton>();
+    //     x->setLayoutScale({
+    //         {(float)utils::randomInt(50, 200)},
+    //         {(float)utils::randomInt(75, 200)}
+    //     })
+    //     // .setLayoutMargin({4, 4, 10, 4});
+    //     .setLayoutMargin({0});
+    //     ;
+    //     x->setColor(utils::randomRGB());
+    //     tv->add(x);
+    // }
 
     std::println("{}", frame.lock());
+    log.debug("id of pane {}", UIPane::typeId);
+    log.debug("id of tv {}", UITreeView::typeId);
+    log.debug("id of button {}", UIButton::typeId);
+
+    /*
+        UIBase
+        UIBaseCRTP
+        UIPane
+        UITreeView
+
+        UIBaseCRTP : UIBase
+        UIPane : UIBaseCRTP<UIPane>
+
+        UIPane : UIBase, UIBaseCRTP<UIPane>
+    
+    */
 
     /* Blocks */
     app.run();

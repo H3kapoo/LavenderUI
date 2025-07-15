@@ -12,6 +12,7 @@ namespace src::uielements
 {
 UIPane::UIPane()
 {
+    //TODO: These shall be created on demand and only if the layout permits
     vSlider_ = utils::make<UISlider>();
     vSlider_->setColor(utils::hexToVec4("#ffffffff"));
     vSlider_->enableVerticalInversion(true);
@@ -28,9 +29,6 @@ UIPane::UIPane()
         .setLayoutScale({1.0_rel, 20_px})
         .setLayoutEnableCustomIndex(true)
         .setLayoutIndex(4);
-
-    // add(vSlider_);
-    // add(hSlider_);
 }
 
 auto UIPane::render(const glm::mat4& projection) -> void

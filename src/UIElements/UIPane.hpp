@@ -1,13 +1,9 @@
 #pragma once
 
-#include "src/ElementComposable/LayoutAttribs.hpp"
-#include "src/ElementComposable/TextAttribs.hpp"
-#include "src/ElementComposable/VisualAttribs.hpp"
-#include "src/ResourceLoaders/Font.hpp"
-#include "src/ResourceLoaders/Shader.hpp"
+#include <memory>
+
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UISlider.hpp"
-#include <memory>
 
 namespace src::uielements
 {
@@ -33,6 +29,7 @@ private:
     auto layout() -> void override;
     auto event(framestate::FrameStatePtr& state) -> void override;
 
+protected:
     auto updateSlidersWithOverflow(const glm::vec2& overflow) -> bool;
 
 protected:
