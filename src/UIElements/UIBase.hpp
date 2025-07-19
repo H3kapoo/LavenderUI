@@ -16,9 +16,15 @@
 #include "src/ElementComposable/EventAttribs.hpp"
 #include "src/FrameState/FrameState.hpp"
 #include "src/Utils/Logger.hpp"
+#include "src/Utils/Misc.hpp"
 
 namespace src::uielements
 {
+#define INSERT_TYPEINFO(UIElement)\
+    auto getTypeInfo() const -> std::type_index override { return typeid(UIElement); };\
+    auto getTypeId() const -> uint32_t override { return typeId; };\
+    inline static const uint32_t typeId = utils::getTypeId<UIElement>();\
+
 class UIBase;
 
 template<typename T>
@@ -34,7 +40,7 @@ class UIBase : public std::enable_shared_from_this<UIBase>
              , public elementcomposable::EventAttribs
 {
 public:
-    UIBase(const std::type_index type);
+    UIBase(const std::type_index& typeIndex);
     virtual ~UIBase() = default;
     UIBase(const UIBase&) = delete;
     UIBase(UIBase&&) = delete;
@@ -73,14 +79,14 @@ protected:
     virtual auto layout() -> void;
     virtual auto event(framestate::FrameStatePtr& state) -> void;
 
+    static auto demangleName(const char* name) -> std::string;
+
 private:
     template<UIBaseDerived T>
     auto addInternal(T&& element) -> bool;
 
     template<UIBaseDerived T>
     auto removeInternal(T&& element) -> bool;
-
-    static auto demangleName(const char* name) -> std::string;
 
 protected:
     uint32_t id_;
@@ -93,22 +99,6 @@ protected:
     UIBaseWPtr parent_;
     UIBasePtrVec elements_;
 };
-
-template<typename Derived>
-struct UIBaseCPRT : public UIBase
-{
-public:
-    UIBaseCPRT() : UIBase(typeid(Derived)) {}
-    virtual ~UIBaseCPRT() = default;
-    auto getTypeInfo() const -> std::type_index override { return typeid(Derived); };
-    auto getTypeId() const -> uint32_t override { return typeId; };
-
-    static const uint32_t typeId;
-};
-
-template<typename Derived>
-const uint32_t UIBaseCPRT<Derived>::typeId = utils::genId();
-
 } // namespace src::uielements
 
 template<typename T>

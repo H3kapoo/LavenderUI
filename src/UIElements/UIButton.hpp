@@ -4,7 +4,7 @@
 
 namespace src::uielements
 {
-class UIButton : public UIBaseCPRT<UIButton>
+class UIButton : public UIBase
 {
 public:
     UIButton();
@@ -13,6 +13,8 @@ public:
     UIButton(UIBase&&) = delete;
     UIButton& operator=(const UIButton&) = delete;
     UIButton& operator=(UIButton&&) = delete;
+
+    INSERT_TYPEINFO(UIButton);
 
 private:
     auto render(const glm::mat4& projection) -> void override;

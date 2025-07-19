@@ -11,7 +11,7 @@ namespace src::uielements
 {
 using namespace elementcomposable;
 
-class UISlider : public UIBaseCPRT<UISlider>
+class UISlider : public UIBase
 {
 public:
     UISlider();
@@ -29,9 +29,12 @@ public:
     auto setScrollValue(const float value) -> void;
     auto setScrollFrom(const float value) -> void;
     auto setScrollTo(const float value) -> void;
+    auto setScrollSensitivity(const float value) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
-    auto setText(std::string text) -> void;
-    auto enableVerticalInversion(const bool val) -> void;
+    auto setText(const std::string& text) -> void;
+    auto enableVerticalInversion(const bool value) -> void;
+
+    INSERT_TYPEINFO(UISlider);
 
 private:
     auto render(const glm::mat4& projection) -> void override;
@@ -53,7 +56,7 @@ protected:
 private:
     glm::ivec2 offsetToKnobCenter_{0.0f, 0.0f};
     bool invertVertical_{false}; /* false - starts from bottom; true - starts from top */
-
+    float sensitivity_{0.01f};
 };
 using UISliderPtr = std::shared_ptr<UISlider>;
 using UISliderWPtr = std::weak_ptr<UISlider>;

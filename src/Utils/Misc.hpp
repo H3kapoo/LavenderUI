@@ -5,7 +5,7 @@
 #include <print>
 #include <memory>
 #include <random>
-
+#include <cxxabi.h>
 
 namespace src::utils
 {
@@ -13,6 +13,31 @@ inline auto genId() -> uint64_t
 {
     static uint64_t id{1};
     return id++;
+}
+
+// inline auto demangleName(const char* name) -> std::string
+// {
+//     /* Works on linux+gcc for now, not sure about windows. */
+//     int status = 0;
+//     std::unique_ptr<char, void(*)(void*)> res {
+//         abi::__cxa_demangle(name, nullptr, nullptr, &status),
+//         std::free
+//     };
+//     if (status == 0)
+//     {
+//         std::string s{res.get()};
+//         return s.substr(s.find_last_of(":") + 1);
+//     }
+//     return (status == 0) ? res.get() : name;
+// }
+
+template <typename T>
+inline auto getTypeId() -> uint64_t
+{
+    // using PlainT = std::remove_cvref_t<T>;
+    static uint64_t id = genId();
+    // std::println("{} {}", id, demangleName(typeid(PlainT).name()));
+    return id;
 }
 
 inline auto random01() -> float

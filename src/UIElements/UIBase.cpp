@@ -15,9 +15,9 @@
 
 namespace src::uielements
 {
-UIBase::UIBase(const std::type_index type)
+UIBase::UIBase(const std::type_index& typeIndex)
     : id_(utils::genId())
-    , log_("{}/{}", demangleName(type.name()), id_)
+    , log_("{}/{}", demangleName(typeIndex.name()), id_)
     , mesh_(resourceloaders::MeshLoader::get().loadQuad())
     , shader_(resourceloaders::ShaderLoader::get().load(
         "assets/shaders/basicVert.glsl", "assets/shaders/basicFrag.glsl"))
@@ -60,7 +60,7 @@ auto UIBase::removeInternal(T&& element) -> bool
     }
     element->parent_.reset();
     element->isParented_ = false;
-    std::erase(elements_, element);
+    // std::erase(elements_, element);
     return true;
 }
 
@@ -86,7 +86,9 @@ auto UIBase::add(UIBasePtrVec&& elements) -> void
 
 auto UIBase::remove(const std::function<bool(const UIBasePtr&)>& pred) -> void
 {
-    std::ranges::for_each(elements_, [this, pred](const UIBasePtr& e){ if (pred(e)) removeInternal(e); });
+    // std::ranges::for_each(elements_, [this, pred](const UIBasePtr& e){ if (pred(e)) removeInternal(e); });
+    std::erase_if(elements_,
+        [this, pred](const UIBasePtr& e){ if (pred(e)) { removeInternal(e); return true; }; return false; });
 }
 
 auto UIBase::remove(const UIBasePtr& element) -> bool
@@ -164,7 +166,20 @@ auto UIBase::layoutNext() -> void
 
 auto UIBase::eventNext(framestate::FrameStatePtr& state) -> void
 {
-    std::ranges::for_each(elements_, [&state](const auto& e){ e->event(state); });
+    /* An event might have the effect of adding/removing elements of this object and thus
+    invalidatin elements_. If this happens, reset the iterator and process the event from the
+    beginning. */
+    auto size = elements_.size();
+    for (auto it = elements_.begin(); it != elements_.end();)
+    {
+        (*it)->event(state);
+        if (elements_.size() != size)
+        {
+            it = elements_.begin();
+            size = elements_.size();
+        }
+        else { ++it; }
+    }
 }
 
 auto UIBase::render(const glm::mat4& projection) -> void

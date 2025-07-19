@@ -9,7 +9,7 @@
 
 namespace src::uielements
 {
-UISlider::UISlider()
+UISlider::UISlider() : UIBase(getTypeInfo()) 
 {
     knobVisualAttr_.setColor(utils::hexToVec4("#ca5555ff"));
 }
@@ -76,11 +76,10 @@ auto UISlider::event(framestate::FrameStatePtr& state) -> void
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
-    // if (eId == MouseScrollEvt::eventId && state->hoveredId == id_)
     if (eId == MouseScrollEvt::eventId && (state->hoveredId == id_ || state->closestScroll == id_))
     {
         // NOTE: inverting affects horizontal sliders. No side effects really.
-        percentage_ += state->scrollOffset.y * 0.1f * (invertVertical_ ? -1 : 1);
+        percentage_ += state->scrollOffset.y * sensitivity_ * (invertVertical_ ? -1 : 1);
         percentage_ = std::clamp(percentage_, 0.0f, 1.0f);
 
         /* We can safely ignore bubbling down the tree as we found the slided element. */
@@ -212,9 +211,19 @@ auto UISlider::setScrollTo(const float value) -> void
     scrollTo_ = value;
 }
 
-auto UISlider::enableVerticalInversion(const bool val) -> void
+auto UISlider::setScrollSensitivity(const float value) -> void
 {
-    invertVertical_ = val;
+    sensitivity_ = value;
 }
 
+auto UISlider::setText(const std::string& text) -> void
+{
+    // sensitivity_ = value;
+    textAttribs_.setText(text);
+}
+
+auto UISlider::enableVerticalInversion(const bool value) -> void
+{
+    invertVertical_ = value;
+}
 } // namespace src::uielements

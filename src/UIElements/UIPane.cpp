@@ -10,26 +10,12 @@
 
 namespace src::uielements
 {
-UIPane::UIPane()
-{
-    //TODO: These shall be created on demand and only if the layout permits
-    vSlider_ = utils::make<UISlider>();
-    vSlider_->setColor(utils::hexToVec4("#ffffffff"));
-    vSlider_->enableVerticalInversion(true);
-    vSlider_->setCustomTagId(1000);
-    vSlider_->setLayoutType(LayoutAttribs::Type::VERTICAL)
-        .setLayoutScale({20_px, 1.0_rel})
-        .setLayoutEnableCustomIndex(true)
-        .setLayoutIndex(4);
+UIPane::UIPane() : UIPane(getTypeInfo())
+{}
 
-    hSlider_ = utils::make<UISlider>();
-    hSlider_->setColor(utils::hexToVec4("#ffffffff"));
-    hSlider_->setCustomTagId(1000);
-    hSlider_->setLayoutType(LayoutAttribs::Type::HORIZONTAL)
-        .setLayoutScale({1.0_rel, 20_px})
-        .setLayoutEnableCustomIndex(true)
-        .setLayoutIndex(4);
-}
+UIPane::UIPane(const std::type_index& type)
+    : UIBase(type)
+{}
 
 auto UIPane::render(const glm::mat4& projection) -> void
 {
@@ -76,24 +62,10 @@ auto UIPane::event(framestate::FrameStatePtr& state) -> void
     /* Let the base do the generic stuff like mouse move pre-pass. */
     UIBase::event(state);
 
+    updateClosestSlider(state);
+
     const auto eId = state->currentEventId;
-    /* Get the closes scrollbar available in this pane and prioritize the verical direction. Mouse needs
-        to be inside the pane. If the mouse is not on the slider, assume closest is the vertical one, if
-        available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the closest one.
-    */
-    if (eId == MouseMoveScanEvt::eventId && state->hoveredId == id_ && isPointInsideView(state->mousePos))
-    {
-        state->closestScroll = vSlider_->isParented() ? vSlider_->getId() : hSlider_->getId();
-        if (vSlider_->isParented() && vSlider_->isPointInsideView(state->mousePos))
-        {
-            state->closestScroll = vSlider_->getId();
-        }
-        else if (hSlider_->isParented() && hSlider_->isPointInsideView(state->mousePos))
-        {
-            state->closestScroll = hSlider_->getId();
-        }
-    }
-    else if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
+    if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
@@ -106,29 +78,98 @@ auto UIPane::event(framestate::FrameStatePtr& state) -> void
 auto UIPane::updateSlidersWithOverflow(const glm::vec2& overflow) -> bool
 {
     bool needsRecalc{false};
-    if (overflow.x > 0)
+    if (hSlider_ && overflow.x > 0)
     {
         if (!hSlider_->isParented()) { add(hSlider_); needsRecalc = true; }
         hSlider_->setScrollTo(std::clamp(overflow.x, 0.0f, 9999.0f));
     }
-    else if (overflow.x <= 0 && hSlider_->isParented())
+    else if (hSlider_ && overflow.x <= 0 && hSlider_->isParented())
     {
         hSlider_->setScrollValue(0);
         if (hSlider_->isParented()) { remove(hSlider_); needsRecalc = true; }
     }
 
-    if (overflow.y > 0)
+    if (vSlider_ && overflow.y > 0)
     {
         if (!vSlider_->isParented()) { add(vSlider_); needsRecalc = true; }
-        vSlider_->setScrollTo(std::clamp(overflow.y, 0.0f, 9999.0f));
+        // vSlider_->setScrollTo(std::clamp(overflow.y, 0.0f, 9999.0f));
+        vSlider_->setScrollTo(overflow.y);
     }
-    else if (overflow.y <= 0 && vSlider_->isParented())
+    else if (vSlider_ && overflow.y <= 0 && vSlider_->isParented())
     {
         vSlider_->setScrollValue(0);
         if (vSlider_->isParented()) { remove(vSlider_); needsRecalc = true; }
     }
 
     return needsRecalc;
+}
+
+auto UIPane::updateClosestSlider(framestate::FrameStatePtr& state) -> void
+{
+    /* Get the closes scrollbar available in this pane and prioritize the verical direction. Mouse needs
+        to be inside the pane. If the mouse is not on the slider, assume closest is the vertical one, if
+        available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the closest one.
+    */
+    const auto eId = state->currentEventId;
+    if (eId == MouseMoveScanEvt::eventId && state->hoveredId == id_ && isPointInsideView(state->mousePos))
+    {
+        //TODO: Needs more work: if the last pane only has hSlider, the previous vSlider will be overwritten
+        if (hSlider_ && hSlider_->isParented())
+        {
+            state->closestScroll = hSlider_->getId();
+        }
+
+        if (vSlider_ && vSlider_->isParented())
+        {
+            state->closestScroll = vSlider_->getId();
+        }
+
+        if (vSlider_ && vSlider_->isParented() && vSlider_->isPointInsideView(state->mousePos))
+        {
+            state->closestScroll = vSlider_->getId();
+        }
+        else if (hSlider_ && hSlider_->isParented() && hSlider_->isPointInsideView(state->mousePos))
+        {
+            state->closestScroll = hSlider_->getId();
+        }
+    }
+}
+
+auto UIPane::enableScroll(const bool valueH, const bool valueV) -> UIPane&
+{
+    if (valueV)
+    {
+        vSlider_ = utils::make<UISlider>();
+        vSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        vSlider_->enableVerticalInversion(true);
+        vSlider_->setCustomTagId(1000);
+        vSlider_->setLayoutType(LayoutAttribs::Type::VERTICAL)
+            .setLayoutScale({20_px, 1.0_rel})
+            .setLayoutEnableCustomIndex(true)
+            .setLayoutIndex(4);
+    }
+    else { vSlider_.reset(); }
+
+    if (valueH)
+    {
+        hSlider_ = utils::make<UISlider>();
+        hSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        hSlider_->setCustomTagId(1000);
+        hSlider_->setLayoutType(LayoutAttribs::Type::HORIZONTAL)
+            .setLayoutScale({1.0_rel, 20_px})
+            .setLayoutEnableCustomIndex(true)
+            .setLayoutIndex(4);
+    }
+    else { hSlider_.reset(); }
+
+    return *this;
+}
+
+auto UIPane::setScrollSensitivity(const float value) -> UIPane&
+{
+    vSlider_ ? vSlider_->setScrollSensitivity(value) : void();
+    hSlider_ ? hSlider_->setScrollSensitivity(value) : void();
+    return *this;
 }
 
 auto UIPane::isVerticalOverflow() const -> bool { return vSlider_ ? true : false; }

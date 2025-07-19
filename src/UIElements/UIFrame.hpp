@@ -2,11 +2,12 @@
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
+#include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
-class UIFrame : public UIBaseCPRT<UIFrame>
+class UIFrame : public UIBase
 {
 public:
     UIFrame(const std::string& title, const glm::ivec2& size);
@@ -19,6 +20,8 @@ public:
 
     auto getWindow() -> windowmanagement::NativeWindow&;
     auto isMainFrame() -> bool;
+
+    INSERT_TYPEINFO(UIFrame);
 
 private:
     auto render(const glm::mat4& projection) -> void override;

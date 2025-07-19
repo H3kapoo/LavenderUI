@@ -37,51 +37,76 @@ int main()
     UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    UISliderPtr a = utils::make<UISlider>();
-    UISliderPtr b = utils::make<UISlider>();
-    UIPanePtr c = utils::make<UIPane>();
-    // UIButtonPtr d = utils::make<UIButton>();
-    // UIButtonPtr e = utils::make<UIButton>();
-    // UITreeViewPtr tv = utils::make<UITreeView>();
+    UIPanePtr x = utils::make<UIPane>();
+    UITreeViewPtr tv = utils::make<UITreeView>();
 
-    // frame.lock()->add(tv);
-    // frame.lock()->tempPosOffset = {20, 20};
+    // UIBasePtrVec x = {c};
+    frame.lock()->add(tv);
+    frame.lock()->tempPosOffset = {20, 20};
     // tv->setLayoutScale({600_px, 300_px});
-    // // c->setLayoutScale({0.6_rel, 0.9_rel}).setLayoutType(LayoutAttribs::Type::VERTICAL);
-    // // tv->setLayoutScale({0.8_rel, .8_rel});
-    // tv->setColor(utils::hexToVec4("#b40a0aff"));
+    tv->setLayoutScale({600_px, 0.4_rel});
+    tv->setColor(utils::hexToVec4("#043da7ff"));
+    tv->enableScroll(false, true).setScrollSensitivity(0.055f);
 
-    // for (int32_t i = 0; i < 7; i++)
+    // for (int32_t i = 0; i < 20; i++)
     // {
-    //     UIButtonPtr x = utils::make<UIButton>();
-    //     x->setLayoutScale({
-    //         {(float)utils::randomInt(50, 200)},
-    //         {(float)utils::randomInt(75, 200)}
-    //     })
-    //     // .setLayoutMargin({4, 4, 10, 4});
-    //     .setLayoutMargin({0});
-    //     ;
-    //     x->setColor(utils::randomRGB());
-    //     tv->add(x);
+    //     UITreeView::ItemPtr item = utils::make<UITreeView::Item>(std::to_string(i), utils::randomRGB());
+    //     tv->addItem(item);
     // }
+    auto a = utils::make<UITreeView::Item>("a", utils::hexToVec4("#ff0000ff"));
+    auto b = utils::make<UITreeView::Item>("b", utils::hexToVec4("#0024eeff"));
+    auto c = utils::make<UITreeView::Item>("c", utils::hexToVec4("#dd0000ff"));
+    auto d = utils::make<UITreeView::Item>("d", utils::hexToVec4("#cc0000ff"));
+    auto e = utils::make<UITreeView::Item>("e", utils::hexToVec4("#aa0000ff"));
+    auto f = utils::make<UITreeView::Item>("f", utils::hexToVec4("#006199ff"));
+    auto g = utils::make<UITreeView::Item>("g", utils::hexToVec4("#880000ff"));
+    auto h = utils::make<UITreeView::Item>("h", utils::hexToVec4("#770000ff"));
+    auto i = utils::make<UITreeView::Item>("i", utils::hexToVec4("#660000ff"));
+    auto j = utils::make<UITreeView::Item>("j", utils::hexToVec4("#550000ff"));
+    auto k = utils::make<UITreeView::Item>("k", utils::hexToVec4("#440000ff"));
+    auto l = utils::make<UITreeView::Item>("l", utils::hexToVec4("#330000ff"));
+    auto m = utils::make<UITreeView::Item>("m", utils::hexToVec4("#220000ff"));
+    auto n = utils::make<UITreeView::Item>("n", utils::hexToVec4("#110000ff"));
+    auto o = utils::make<UITreeView::Item>("o", utils::hexToVec4("#000000ff"));
+
+    a->subItems.emplace_back(c);
+    a->subItems.emplace_back(d);
+    a->subItems.emplace_back(e);
+    a->subItems.emplace_back(g);
+    // a->subItems.emplace_back(h);
+    // a->subItems.emplace_back(i);
+    // a->subItems.emplace_back(j);
+    // a->subItems.emplace_back(k);
+    // a->subItems.emplace_back(l);
+    // a->subItems.emplace_back(m);
+    // a->subItems.emplace_back(n);
+    // a->subItems.emplace_back(o);
+
+    b->subItems.emplace_back(f);
+
+    g->subItems.emplace_back(h);
+    h->subItems.emplace_back(i);
+    i->subItems.emplace_back(j);
+    j->subItems.emplace_back(k);
+    k->subItems.emplace_back(l);
+    l->subItems.emplace_back(m);
+    m->subItems.emplace_back(n);
+    n->subItems.emplace_back(o);
+
+    tv->addItem(a);
+    tv->addItem(b);
+
+    tv->refreshItems();
+    for (int32_t i = 0; i < 2'000'000; i++)
+    {
+        auto item = utils::make<UITreeView::Item>("item" + std::to_string(i), utils::randomRGB());
+        b->subItems.emplace_back(item);
+    }
+    tv->refreshItems();
 
     std::println("{}", frame.lock());
-    log.debug("id of pane {}", UIPane::typeId);
-    log.debug("id of tv {}", UITreeView::typeId);
-    log.debug("id of button {}", UIButton::typeId);
 
-    /*
-        UIBase
-        UIBaseCRTP
-        UIPane
-        UITreeView
-
-        UIBaseCRTP : UIBase
-        UIPane : UIBaseCRTP<UIPane>
-
-        UIPane : UIBase, UIBaseCRTP<UIPane>
-    
-    */
+    app.setWaitEvents(false);
 
     /* Blocks */
     app.run();

@@ -17,7 +17,8 @@ using namespace elementcomposable;
 bool UIFrame::isFirstFrame_ = true;
 
 UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
-    : window_(title, size)
+    : UIBase(getTypeInfo())
+    , window_(title, size)
     , frameState_(utils::make<framestate::FrameState>())
     , forcedQuit_(false)
     , isMainFrame_(isFirstFrame_)
@@ -96,6 +97,9 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
 
     window_.getInput().setMouseBtnCallback([this](uint8_t btn, uint8_t action)
     {
+        frameState_->hoveredZIndex = framestate::NOTHING;
+        spawnEvent(MouseMoveScanEvt{});
+
         frameState_->mouseButton = btn;
         frameState_->mouseAction = action;
         spawnEvent(MouseButtonEvt{});
@@ -108,8 +112,9 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
         frameState_->scrollOffset = {0, 0};
     });
 
-    NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
+    // NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
     NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
+    NativeWindow::setVsync(false);
     // NativeWindow::setProp(NativeWindow::Property::ALPHA_BLENDING, false);
 }
 

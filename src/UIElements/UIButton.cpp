@@ -7,7 +7,7 @@
 
 namespace src::uielements
 {
-UIButton::UIButton()
+UIButton::UIButton() : UIBase(getTypeInfo())
 {}
 
 auto UIButton::render(const glm::mat4& projection) -> void
