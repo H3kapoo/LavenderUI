@@ -1,22 +1,11 @@
-#include <print>
-#include <type_traits>
 
 #include "src/App.hpp"
 #include "src/UIElements/UIPane.hpp"
-#include "src/UIElements/UISlider.hpp"
-#include "src/ElementComposable/LayoutAttribs.hpp"
-#include "src/ElementComposable/IEvent.hpp"
-#include "src/ResourceLoaders/Mesh.hpp"
-#include "src/ResourceLoaders/MeshLoader.hpp"
-#include "src/ResourceLoaders/Shader.hpp"
 #include "src/UIElements/UIBase.hpp"
-#include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIFrame.hpp"
-#include "src/UIElements/UIImage.hpp"
 #include "src/UIElements/UITreeView.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 
 using namespace src::windowmanagement;
 using namespace src::uielements;
@@ -32,7 +21,6 @@ int main()
     App& app = App::get();
 
     if (!app.init()) { return 1; }
-
     // uielements::UIFrameWPtr win = app.createFrame("myWindow", glm::ivec2{1280, 720});
     UIFrameWPtr frame = app.createFrame("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
@@ -42,11 +30,10 @@ int main()
 
     // UIBasePtrVec x = {c};
     frame.lock()->add(tv);
-    frame.lock()->tempPosOffset = {20, 20};
-    // tv->setLayoutScale({600_px, 300_px});
-    tv->setLayoutScale({600_px, 0.4_rel});
-    tv->setColor(utils::hexToVec4("#043da7ff"));
-    tv->enableScroll(false, true).setScrollSensitivity(0.055f);
+    frame.lock()->getLayout().tempPosOffset = {20, 20};
+    tv->getLayout().setScale({0.5_rel, 0.4_rel}).setMargin({30, 40, 20, 10});
+    tv->getProps().setColor(utils::hexToVec4("#043da7ff"));
+    tv->enableScroll(true, true).setScrollSensitivity(0.055f);
 
     // for (int32_t i = 0; i < 20; i++)
     // {
@@ -73,14 +60,6 @@ int main()
     a->subItems.emplace_back(d);
     a->subItems.emplace_back(e);
     a->subItems.emplace_back(g);
-    // a->subItems.emplace_back(h);
-    // a->subItems.emplace_back(i);
-    // a->subItems.emplace_back(j);
-    // a->subItems.emplace_back(k);
-    // a->subItems.emplace_back(l);
-    // a->subItems.emplace_back(m);
-    // a->subItems.emplace_back(n);
-    // a->subItems.emplace_back(o);
 
     b->subItems.emplace_back(f);
 
@@ -96,17 +75,17 @@ int main()
     tv->addItem(a);
     tv->addItem(b);
 
-    tv->refreshItems();
-    for (int32_t i = 0; i < 2'000'000; i++)
-    {
-        auto item = utils::make<UITreeView::Item>("item" + std::to_string(i), utils::randomRGB());
-        b->subItems.emplace_back(item);
-    }
+    // tv->refreshItems();
+    // // for (int32_t i = 0; i < 2'000'000; i++)
+    // for (int32_t i = 0; i < 2'000; i++)
+    // {
+    //     auto item = utils::make<UITreeView::Item>("item" + std::to_string(i), utils::randomRGB());
+    //     b->subItems.emplace_back(item);
+    // }
     tv->refreshItems();
 
-    std::println("{}", frame.lock());
 
-    app.setWaitEvents(false);
+    // app.setWaitEvents(false);
 
     /* Blocks */
     app.run();

@@ -7,13 +7,11 @@
 #include <type_traits>
 #include <typeindex>
 
-#include "src/ElementComposable/LayoutAttribs.hpp"
-#include "src/ElementComposable/VisualAttribs.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
+#include "src/ElementComposable/PropsBase.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
-#include "src/ElementComposable/LayoutAttribs.hpp"
-#include "src/ElementComposable/VisualAttribs.hpp"
-#include "src/ElementComposable/EventAttribs.hpp"
+#include "src/ElementComposable/Events.hpp"
 #include "src/FrameState/FrameState.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
@@ -35,9 +33,6 @@ using UIBasePtr = std::shared_ptr<UIBase>;
 using UIBaseWPtr = std::weak_ptr<UIBase>;
 using UIBasePtrVec = std::vector<UIBasePtr>;
 class UIBase : public std::enable_shared_from_this<UIBase>
-             , public elementcomposable::LayoutAttribs
-             , public elementcomposable::VisualAttribs
-             , public elementcomposable::EventAttribs
 {
 public:
     UIBase(const std::type_index& typeIndex);
@@ -63,6 +58,9 @@ public:
     auto getCustomTagId() -> uint32_t;
     auto getId() -> uint32_t;
     auto getElements() -> UIBasePtrVec&;
+    auto getLayout() -> elementcomposable::LayoutBase&;
+    auto getEvents() -> elementcomposable::Events&;
+    auto getProps() -> elementcomposable::PropsBase&;
 
     virtual auto getTypeInfo() const -> std::type_index = 0;
     virtual auto getTypeId() const -> uint32_t = 0;
@@ -94,6 +92,10 @@ protected:
     utils::Logger log_;
     resourceloaders::Mesh mesh_;
     resourceloaders::Shader shader_;
+    elementcomposable::LayoutBase layoutBase_;
+    elementcomposable::PropsBase propsBase_;
+    elementcomposable::Events events_;
+
     bool isParented_;
     uint32_t depth_{0};
     UIBaseWPtr parent_;

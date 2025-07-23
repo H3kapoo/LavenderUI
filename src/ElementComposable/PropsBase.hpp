@@ -4,11 +4,11 @@
 
 namespace src::elementcomposable
 {
-class VisualAttribs
+class PropsBase
 {
 public:
-    VisualAttribs() = default;
-    virtual ~VisualAttribs() = default;
+    PropsBase() = default;
+    virtual ~PropsBase() = default;
 
     auto setColor(const glm::vec4& value) -> void;
 

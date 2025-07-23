@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/ElementComposable/LayoutAttribs.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UISlider.hpp"
@@ -17,8 +17,8 @@ public:
     auto calcPaneSliders(uielements::UIPane* parent) const -> glm::vec2;
     auto calcPaneElementsAddScrollToPos(uielements::UIPane* parent, const glm::vec2 scrollData) const -> void;
 
-    auto calcElementsPos(uielements::UIBase* parent, const glm::vec2 scrollData) const -> void;
-    auto calcElementsScale(uielements::UIBase* parent, const glm::vec2 scrollData) const -> void;
+    auto calcElementsPos(uielements::UIBase* parent, const glm::vec2 scrollData = {}) const -> void;
+    auto calcElementsScale(uielements::UIBase* parent, const glm::vec2 scrollData = {}) const -> void;
 
     auto calcOverflow(uielements::UIBase* parent, const glm::vec2 scrollData) const -> glm::vec2;
 

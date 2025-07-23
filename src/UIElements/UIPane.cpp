@@ -1,6 +1,5 @@
 #include "UIPane.hpp"
 
-#include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
@@ -23,8 +22,8 @@ auto UIPane::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
-    shader_.uploadVec4f("uColor", color_);
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
+    shader_.uploadVec4f("uColor", propsBase_.getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
@@ -69,7 +68,7 @@ auto UIPane::event(framestate::FrameStatePtr& state) -> void
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        return emitEvent<MouseButtonEvt>(e);
+        return events_.emitEvent<MouseButtonEvt>(e);
     }
 
     eventNext(state);
@@ -111,7 +110,8 @@ auto UIPane::updateClosestSlider(framestate::FrameStatePtr& state) -> void
         available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the closest one.
     */
     const auto eId = state->currentEventId;
-    if (eId == MouseMoveScanEvt::eventId && state->hoveredId == id_ && isPointInsideView(state->mousePos))
+    if (eId == MouseMoveScanEvt::eventId && state->hoveredId == id_
+        && layoutBase_.isPointInsideView(state->mousePos))
     {
         //TODO: Needs more work: if the last pane only has hSlider, the previous vSlider will be overwritten
         if (hSlider_ && hSlider_->isParented())
@@ -124,11 +124,11 @@ auto UIPane::updateClosestSlider(framestate::FrameStatePtr& state) -> void
             state->closestScroll = vSlider_->getId();
         }
 
-        if (vSlider_ && vSlider_->isParented() && vSlider_->isPointInsideView(state->mousePos))
+        if (vSlider_ && vSlider_->isParented() && vSlider_->getLayout().isPointInsideView(state->mousePos))
         {
             state->closestScroll = vSlider_->getId();
         }
-        else if (hSlider_ && hSlider_->isParented() && hSlider_->isPointInsideView(state->mousePos))
+        else if (hSlider_ && hSlider_->isParented() && hSlider_->getLayout().isPointInsideView(state->mousePos))
         {
             state->closestScroll = hSlider_->getId();
         }
@@ -140,25 +140,27 @@ auto UIPane::enableScroll(const bool valueH, const bool valueV) -> UIPane&
     if (valueV)
     {
         vSlider_ = utils::make<UISlider>();
-        vSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        vSlider_->getProps().setColor(utils::hexToVec4("#ffffffff"));
         vSlider_->enableVerticalInversion(true);
         vSlider_->setCustomTagId(1000);
-        vSlider_->setLayoutType(LayoutAttribs::Type::VERTICAL)
-            .setLayoutScale({20_px, 1.0_rel})
-            .setLayoutEnableCustomIndex(true)
-            .setLayoutIndex(4);
+        vSlider_->getLayout()
+            .setType(LayoutBase::Type::VERTICAL)
+            .setScale({20_px, 1.0_rel})
+            .setEnableCustomIndex(true)
+            .setIndex(4);
     }
     else { vSlider_.reset(); }
 
     if (valueH)
     {
         hSlider_ = utils::make<UISlider>();
-        hSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        hSlider_->getProps().setColor(utils::hexToVec4("#ffffffff"));
         hSlider_->setCustomTagId(1000);
-        hSlider_->setLayoutType(LayoutAttribs::Type::HORIZONTAL)
-            .setLayoutScale({1.0_rel, 20_px})
-            .setLayoutEnableCustomIndex(true)
-            .setLayoutIndex(4);
+        hSlider_->getLayout()
+            .setType(LayoutBase::Type::HORIZONTAL)
+            .setScale({1.0_rel, 20_px})
+            .setEnableCustomIndex(true)
+            .setIndex(4);
     }
     else { hSlider_.reset(); }
 

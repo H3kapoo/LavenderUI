@@ -36,7 +36,7 @@ auto TextAttribs::setText(std::string text) -> void
     buffer_ = std::move(TextSoA(text.size()));
     glm::ivec2 startPos{pos_};
     float z{0};
-    float mockIndex = 4;
+    float mockIndex = 10;
     // this supports only one line for now
     // obviously this needs to be done only if the text changes
     const glm::ivec2 textBounds = computeMaxSize();

@@ -1,12 +1,8 @@
 #include "UITreeView.hpp"
 
-#include <algorithm>
-
-#include "src/ElementComposable/LayoutAttribs.hpp"
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
-#include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
@@ -16,7 +12,7 @@ namespace src::uielements
 UITreeView::UITreeView()
     : UIPane(getTypeInfo())
 {
-    setLayoutType(LayoutAttribs::Type::VERTICAL);
+    layoutBase_.setType(LayoutBase::Type::VERTICAL);
 }
 
 auto UITreeView::render(const glm::mat4& projection) -> void
@@ -25,8 +21,8 @@ auto UITreeView::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
-    shader_.uploadVec4f("uColor", color_);
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
+    shader_.uploadVec4f("uColor", propsBase_.getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
@@ -42,13 +38,14 @@ auto UITreeView::layout() -> void
 
     /* Slider value needs to be reset to zero if there's no need for it anymore after an
     item had closed */
-    if (flatItems_.size() * rowSize_ - getLayoutComputedScale().y <= 0)
+    if (flatItems_.size() * rowSize_ - layoutBase_.getComputedScale().y <= 0)
     {
-        vSlider_->setScrollValue(0);
+        vSlider_ ? vSlider_->setScrollValue(0) : void();
+        hSlider_ ? hSlider_->setScrollValue(0) : void();
     }
 
     topOfTheListIdx_ = vSlider_ ? vSlider_->getScrollValue() / rowSize_ : 0;
-    visibleCount_ = getLayoutComputedScale().y / rowSize_ + 2;
+    visibleCount_ = layoutBase_.getComputedScale().y / rowSize_ + 2;
     if (topOfTheListIdx_ != oldTopOfTheListIdx_ || visibleCount_ != oldVisibleCount_)
     {
         log_.debug("tol {} {}", topOfTheListIdx_, visibleCount_);
@@ -62,13 +59,13 @@ auto UITreeView::layout() -> void
             // auto ref = std::make_shared<Button>("Item");
             // auto itemObj = utils::make<UIButton>();
             auto itemObj = utils::make<UISlider>();
-            itemObj->setColor(flatItems_[index]->color);
+            itemObj->getProps().setColor(flatItems_[index]->color);
             itemObj->setText(flatItems_[index]->text);
-            // itemObj->setLayoutScale({.x = 1.0_rel, .y = {(float)rowSize_}})
-            itemObj->setLayoutScale({.x = 200_px, .y = {(float)rowSize_}})
-                .setLayoutMargin({0, 0, flatItems_[index]->depth * 20, 0});
+            itemObj->getLayout()
+                .setScale({.x = 200_px, .y = {(float)rowSize_}})
+                .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
 
-            itemObj->listenTo<elementcomposable::MouseButtonEvt>(
+            itemObj->getEvents().listenTo<elementcomposable::MouseButtonEvt>(
                 [this, index](const auto& e)
                 {
                     if (e.action == GLFW_RELEASE)
@@ -94,7 +91,7 @@ auto UITreeView::layout() -> void
         calculator.calcPaneElements(this, sliderImpact);
 
         glm::vec2 overflow = calculator.calcOverflow(this, sliderImpact);
-        overflow.y = flatItems_.size() * rowSize_ - getLayoutComputedScale().y;
+        overflow.y = flatItems_.size() * rowSize_ - layoutBase_.getComputedScale().y;
         if (const auto needsRecalc = updateSlidersWithOverflow(overflow); !needsRecalc) { break; }
     }
     
@@ -112,7 +109,7 @@ auto UITreeView::event(framestate::FrameStatePtr& state) -> void
 
     updateClosestSlider(state);
 
-    const auto eId = state->currentEventId;
+    // const auto eId = state->currentEventId;
 
     eventNext(state);
 }

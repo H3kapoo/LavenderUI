@@ -12,7 +12,7 @@ namespace src::elementcomposable
 {
 using EventCallback = std::function<void(const IEvent&)>;
 
-class EventAttribs
+class Events
 {
 public:
     template<typename EventT>

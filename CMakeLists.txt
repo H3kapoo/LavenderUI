@@ -6,7 +6,7 @@ set(CXX_STANDARD 23)
 set(PLATFORM_NAME ${CMAKE_SYSTEM_NAME})
 
 set(GLEW_INCLUDE_PATH     "vendor/glew/include/")
-set(GLFW_INCLUDE_PATH     "vendor/sglfw/include/")
+set(GLFW_INCLUDE_PATH     "vendor/glfw/include/")
 set(FREETYPE_INCLUDE_PATH "vendor/freetype/include/")
 
 set(GLEW_LIB_PATH     "vendor/glew/lib/")
@@ -33,13 +33,13 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/ResourceLoaders/ShaderLoader.cpp
         src/ResourceLoaders/FontLoader.cpp
         src/ElementComposable/TextAttribs.cpp
-        src/ElementComposable/LayoutAttribs.cpp
-        src/ElementComposable/VisualAttribs.cpp
+        src/ElementComposable/LayoutBase.cpp
+        src/ElementComposable/PropsBase.cpp
         src/LayoutCalculator/BasicCalculator.cpp
         src/UIElements/UIBase.cpp
         src/UIElements/UIFrame.cpp
         src/UIElements/UIPane.cpp
-        src/UIElements/UIButton.cpp
+        # src/UIElements/UIButton.cpp
         src/UIElements/UISlider.cpp
         src/UIElements/UITreeView.cpp
         # src/UIElements/UIImage.cpp
@@ -67,8 +67,8 @@ if(${PLATFORM_NAME} MATCHES "Linux")
     target_link_libraries(${PROJECT_NAME}
         glfw3
         GLEW GL
-        freetype png z brotlidec brotlicommon bz2
         X11
+        freetype png z brotlidec brotlicommon bz2
     )
 
 # If the operating system is not recognized

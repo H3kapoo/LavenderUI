@@ -1,5 +1,5 @@
 #include "BasicCalculator.hpp"
-#include "src/ElementComposable/LayoutAttribs.hpp"
+
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
@@ -24,11 +24,12 @@ auto BasicCalculator::calculate(const uielements::UIBasePtr& parent) -> void
 auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
     const glm::vec2 scrollData) const -> void
 {
-    const auto& pComputedPos = parent->getLayoutComputedPos();
-    const auto& pComputedScale = parent->getLayoutComputedScale() - scrollData;
-    const auto& pTemp = parent->tempPosOffset;
-    const auto& pLayoutType = parent->getLayoutType();
-    const auto pWrap = parent->getLayoutWrap();
+    const auto& pLayout = parent->getLayout();
+    const auto& pComputedPos = pLayout.getComputedPos();
+    const auto& pComputedScale = pLayout.getComputedScale() - scrollData;
+    const auto& pTemp = pLayout.tempPosOffset;
+    const auto& pLayoutType = pLayout.getType();
+    const auto pWrap = pLayout.getWrap();
     const auto& elements = parent->getElements();
 
     glm::vec2 nextPos{pComputedPos + pTemp};
@@ -38,11 +39,12 @@ auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
     {
         if (element->getTypeId() == uielements::UISlider::typeId && element->getCustomTagId() == 1000) { continue; }
 
-        const auto& margins = element->getLayoutMargin();
-        const auto& compScale = element->getLayoutComputedScale();
-        const glm::vec2 fullScale = element->getFullBoxScale();
+        auto& eLayout = element->getLayout();
+        const auto& margins = eLayout.getMargin();
+        const auto& compScale = eLayout.getComputedScale();
+        const glm::vec2 fullScale = eLayout.getFullBoxScale();
 
-        if (pLayoutType == LayoutAttribs::Type::HORIZONTAL)
+        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
             // nextPos starts at the end of the previous' element margin end
             if (pWrap && nextPos.x + fullScale.x > pComputedPos.x + pComputedScale.x)
@@ -56,7 +58,7 @@ auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
             nextPos.x = pos.x + compScale.x + margins.right;
             maxOnAxis.y = std::max(maxOnAxis.y, fullScale.y);
         }
-        else if (pLayoutType == LayoutAttribs::Type::VERTICAL)
+        else if (pLayoutType == LayoutBase::Type::VERTICAL)
         {
             // nextPos starts at the end of the previous' element margin end
             if (pWrap && nextPos.y + fullScale.y > pComputedPos.y + pComputedScale.y)
@@ -71,62 +73,64 @@ auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
             maxOnAxis.x = std::max(maxOnAxis.x, fullScale.x);
         }
 
-        element->setLayoutComputedPos(pos);
+        eLayout.setComputedPos(pos);
     }
 }
 
 auto BasicCalculator::calcElementsScale(uielements::UIBase* parent,
     const glm::vec2 scrollData) const -> void
 {
-    const auto& pComputedScale = parent->getLayoutComputedScale() - scrollData;
-    const auto& pComputedPos = parent-> getLayoutComputedPos();
-    const auto& pLayoutType = parent->getLayoutType();
+    const auto& pLayout = parent->getLayout();
+    const auto& pComputedScale = pLayout.getComputedScale() - scrollData;
+    // const auto& pComputedPos = pLayout.getComputedPos();
+    // const auto& pLayoutType = pLayout.getType();
     const auto& elements = parent->getElements();
 
     for (const auto& element : elements)
     {
         if (element->getTypeId() == uielements::UISlider::typeId && element->getCustomTagId() == 1000) { continue; }
 
-        const auto& userScale = element->getLayoutScale();
-        const auto& marginTB = element->getTBMargin();
-        const auto& marginLR = element->getLRMargin();
         glm::vec2 cScale;
-        if (userScale.x.type == LayoutAttribs::ScaleType::PX)
+        auto& eLayout = element->getLayout();
+        const auto& userScale = eLayout.getScale();
+        // const auto& marginTB = eLayout.getTBMargin();
+        const auto& marginLR = eLayout.getLRMargin();
+        if (userScale.x.type == LayoutBase::ScaleType::PX)
         {
             cScale.x = userScale.x.val;// - marginLR;
         }
-        else if (userScale.x.type == LayoutAttribs::ScaleType::REL)
+        else if (userScale.x.type == LayoutBase::ScaleType::REL)
         {
             cScale.x = pComputedScale.x * userScale.x.val - marginLR;
         }
-        else if (userScale.x.type == LayoutAttribs::ScaleType::FIT)
+        else if (userScale.x.type == LayoutBase::ScaleType::FIT)
         {
 
         }
-        else if (userScale.x.type == LayoutAttribs::ScaleType::FILL)
+        else if (userScale.x.type == LayoutBase::ScaleType::FILL)
         {
 
         }
 
         // y
-        if (userScale.y.type == LayoutAttribs::ScaleType::PX)
+        if (userScale.y.type == LayoutBase::ScaleType::PX)
         {
             cScale.y = userScale.y.val;// - marginTB;
         }
-        else if (userScale.y.type == LayoutAttribs::ScaleType::REL)
+        else if (userScale.y.type == LayoutBase::ScaleType::REL)
         {
             cScale.y = pComputedScale.y * userScale.y.val;
         }
-        else if (userScale.y.type == LayoutAttribs::ScaleType::FIT)
+        else if (userScale.y.type == LayoutBase::ScaleType::FIT)
         {
 
         }
-        else if (userScale.y.type == LayoutAttribs::ScaleType::FILL)
+        else if (userScale.y.type == LayoutBase::ScaleType::FILL)
         {
 
         }
 
-        element->setLayoutComputedScale(cScale);
+        eLayout.setComputedScale(cScale);
     }
 }
 
@@ -134,16 +138,18 @@ auto BasicCalculator::calcOverflow(uielements::UIBase* parent,
     const glm::vec2 scrollData) const -> glm::vec2
 {
     glm::vec2 boxScale{0, 0};
-    const auto& pContentPos = parent->getContentBoxPos();
-    const auto& pContentScale = parent->getContentBoxScale() - scrollData;
+    const auto& pLayout = parent->getLayout();
+    const auto& pContentPos = pLayout.getContentBoxPos();
+    const auto& pContentScale = pLayout.getContentBoxScale() - scrollData;
     const auto& elements = parent->getElements();
     for (const auto& element : elements)
     {
         /* Shall not be taken into consideration for overflow */
         if (element->getTypeId() == uielements::UISlider::typeId && element->getCustomTagId() == 1000) { continue; }
 
-        const auto& fullPos = element->getFullBoxPos();
-        const auto& fullScale = element->getFullBoxScale();
+        const auto& eLayout = element->getLayout();
+        const auto& fullPos = eLayout.getFullBoxPos();
+        const auto& fullScale = eLayout.getFullBoxScale();
         boxScale.x = std::max(boxScale.x, fullPos.x + fullScale.x);
         boxScale.y = std::max(boxScale.y, fullPos.y + fullScale.y);
     }
@@ -161,28 +167,31 @@ auto BasicCalculator::calcPaneElements(uielements::UIPane* parent,
 auto BasicCalculator::calcPaneSliders(uielements::UIPane* parent) const -> glm::vec2
 {
     glm::vec2 sliderImpact{0, 0};
-    const auto& pComputedPos = parent->getLayoutComputedPos();
-    const auto& pComputedScale = parent->getLayoutComputedScale();
+    const auto& pLayout = parent->getLayout();
+    const auto& pComputedPos = pLayout.getComputedPos();
+    const auto& pComputedScale = pLayout.getComputedScale();
     if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-        sliderImpact.x = vSlider->getLayoutScale().x.val;
-        vSlider->setLayoutComputedPos({
+        auto& eLayout = vSlider->getLayout();
+        sliderImpact.x = eLayout.getScale().x.val;
+        eLayout.setComputedPos({
             pComputedPos.x + pComputedScale.x - sliderImpact.x,
             pComputedPos.y
         });
-        vSlider->setLayoutComputedScale({sliderImpact.x, pComputedScale.y});
+        eLayout.setComputedScale({sliderImpact.x, pComputedScale.y});
     }
 
     if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-        sliderImpact.y = hSlider->getLayoutScale().y.val;
-        hSlider->setLayoutComputedPos({
+        auto& eLayout = hSlider->getLayout();
+        sliderImpact.y = eLayout.getScale().y.val;
+        eLayout.setComputedPos({
             pComputedPos.x,
             pComputedPos.y + pComputedScale.y - sliderImpact.y,
         });
-        hSlider->setLayoutComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
+        eLayout.setComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
     }
 
     return sliderImpact;
@@ -194,8 +203,10 @@ auto BasicCalculator::calcPaneElementsAddScrollToPos(uielements::UIPane* parent,
     const auto& elements = parent->getElements();
     for (const auto& element : elements)
     {
-        if (element->getTypeId() == uielements::UISlider::typeId && element->getCustomTagId() == 1000) { continue; }
-        element->setLayoutComputedPos(element->getLayoutComputedPos() - scrollData);
+        if (element->getTypeId() == uielements::UISlider::typeId && element->getCustomTagId() == 1000) { continue; }\
+
+        auto& eLayout = element->getLayout();
+        eLayout.setComputedPos(eLayout.getComputedPos() - scrollData);
     }
 }
 } // namespace src::layoutcalculator

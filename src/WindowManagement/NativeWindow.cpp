@@ -3,6 +3,7 @@
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glfw/include/GLFW/glfw3.h"
+#include <GL/glx.h>
 
 namespace src::windowmanagement
 {
@@ -124,9 +125,15 @@ auto NativeWindow::init() -> bool
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_VISIBLE, false);
 
-    initWindowHandle_ = glfwCreateWindow(1, 1, "", NULL, NULL);
+    initWindowHandle_ = glfwCreateWindow(100, 100, "dummy", NULL, NULL);
+    utils::Logger internalLog2("WINDOW");
+    
     glfwWindowHint(GLFW_VISIBLE, true);
 
+    if (initWindowHandle_ == nullptr)
+    {
+        internalLog2.debug("THIS IS NULL");
+    }
     glfwMakeContextCurrent(initWindowHandle_);
 
 #ifdef __linux__
@@ -138,6 +145,7 @@ auto NativeWindow::init() -> bool
     {
         utils::Logger internalLog("WINDOW");
         internalLog.error("Couldn't initialize GLEW.");
+        return false;
     }
 
     glEnable(GL_DEBUG_OUTPUT);

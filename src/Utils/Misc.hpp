@@ -1,11 +1,10 @@
 #pragma once
 
-#include "vendor/glm/ext/vector_float4.hpp"
-#include "vendor/glm/ext/vector_float2.hpp"
 #include <print>
 #include <memory>
 #include <random>
-#include <cxxabi.h>
+
+#include "vendor/glm/glm.hpp"
 
 namespace src::utils
 {
@@ -14,22 +13,6 @@ inline auto genId() -> uint64_t
     static uint64_t id{1};
     return id++;
 }
-
-// inline auto demangleName(const char* name) -> std::string
-// {
-//     /* Works on linux+gcc for now, not sure about windows. */
-//     int status = 0;
-//     std::unique_ptr<char, void(*)(void*)> res {
-//         abi::__cxa_demangle(name, nullptr, nullptr, &status),
-//         std::free
-//     };
-//     if (status == 0)
-//     {
-//         std::string s{res.get()};
-//         return s.substr(s.find_last_of(":") + 1);
-//     }
-//     return (status == 0) ? res.get() : name;
-// }
 
 template <typename T>
 inline auto getTypeId() -> uint64_t
@@ -129,4 +112,5 @@ inline auto make(Args&&... args) -> std::shared_ptr<T>
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
+
 } // namespace src::utils

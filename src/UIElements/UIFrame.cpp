@@ -29,7 +29,7 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
 
     /* Note: use framebuffer size to set viewport in case DPI is not a default
        one aka we have some artificial scaling. */
-    window_.getInput().setWindowSizeCallback([this](uint32_t x, uint32_t y)
+    window_.getInput().setWindowSizeCallback([this](uint32_t, uint32_t)
     {
         updateProjection();
     });
@@ -113,8 +113,8 @@ UIFrame::UIFrame(const std::string& title, const glm::ivec2& size)
     });
 
     // NativeWindow::setProp(NativeWindow::Property::SCISSOR_TEST, false);
-    NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
-    NativeWindow::setVsync(false);
+    // NativeWindow::setProp(NativeWindow::Property::DEPTH_TEST, false);
+    // NativeWindow::setVsync(false);
     // NativeWindow::setProp(NativeWindow::Property::ALPHA_BLENDING, false);
 }
 
@@ -128,7 +128,7 @@ auto UIFrame::run() -> bool
     NativeWindow::updateScissors({0, 0, size.x, size.y});
     NativeWindow::clearColor(utils::hexToVec4("#3d3d3dff"));
     NativeWindow::clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    computedScale_ = size;
+    layoutBase_.setComputedScale(size);
 
     layout();
     render(projection_);
@@ -148,9 +148,9 @@ auto UIFrame::render(const glm::mat4& projection) -> void
 auto UIFrame::layout() -> void
 {
     using namespace layoutcalculator;
-    BasicCalculator::get().calculate(shared_from_this());
-    // BasicCalculator::get().calcElementsScale(shared_from_this());
-    // BasicCalculator::get().calcElementsPos(shared_from_this());
+    // BasicCalculator::get().calculate(shared_from_this());
+    BasicCalculator::get().calcElementsScale(this);
+    BasicCalculator::get().calcElementsPos(this);
     layoutNext();
 }
 

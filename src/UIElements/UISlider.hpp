@@ -1,8 +1,8 @@
 #pragma once
 
-#include "src/ElementComposable/LayoutAttribs.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/ElementComposable/TextAttribs.hpp"
-#include "src/ElementComposable/VisualAttribs.hpp"
+#include "src/ElementComposable/PropsBase.hpp"
 #include "src/ResourceLoaders/Font.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/UIElements/UIBase.hpp"
@@ -21,8 +21,8 @@ public:
     UISlider& operator=(const UISlider&) = delete;
     UISlider& operator=(UISlider&&) = delete;
 
-    auto getKnobLayout() -> LayoutAttribs&;
-    auto getKnobVisual() -> VisualAttribs&;
+    auto getKnobLayout() -> LayoutBase&;
+    auto getKnobProps() -> PropsBase&;
     auto getTextAttribs() -> TextAttribs&;
     auto getScrollPercentage() -> float;
     auto getScrollValue() -> float;
@@ -45,8 +45,8 @@ private:
     auto calculateKnobPosition() -> void;
 
 protected:
-    LayoutAttribs knobLayoutAttr_;
-    VisualAttribs knobVisualAttr_;
+    LayoutBase knobLayout_;
+    PropsBase knobProps_;
     TextAttribs textAttribs_;
     float percentage_{0.0f};
     float scrollFrom_{0.0f};

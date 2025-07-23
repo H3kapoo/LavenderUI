@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/ElementComposable/IEvent.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"

@@ -4,11 +4,11 @@
 #include <cxxabi.h>
 
 #include "src/ElementComposable/IEvent.hpp"
+#include "src/ElementComposable/PropsBase.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
-#include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
@@ -127,12 +127,14 @@ auto UIBase::renderNextSingle(const glm::mat4& projection, const UIBasePtr& e) -
     //TODO: Do not render nodes that aint visible
     if (!e || !e->isParented()) { return; }
 
+    const auto& viewPos = e->layoutBase_.getViewPos();
+    const auto& viewScale = e->layoutBase_.getViewScale();
     windowmanagement::NativeWindow::updateScissors(
         {
-            e->viewPos_.x,
-            std::floor((-2.0f / projection[1][1])) - e->viewPos_.y - e->viewScale_.y,
-            e->viewScale_.x,
-            e->viewScale_.y
+            viewPos.x,
+            std::floor((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
+            viewScale.x,
+            viewScale.y
         });
     e->render(projection);
 }
@@ -141,21 +143,21 @@ auto UIBase::layoutNext() -> void
 {
     //TODO: Do not calculate the layout for nodes that aint visible
     /* If is the root element, scissor area is the whole object area. */
-    if (index_ == 1)
+    if (layoutBase_.getIndex() == 1)
     {
-        viewPos_ = computedPos_;
-        viewScale_ = computedScale_;
+        layoutBase_.setViewPos(layoutBase_.getComputedPos());
+        layoutBase_.setViewScale(layoutBase_.getComputedScale());
     }
 
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
             /* After calculating my elements, compute how much of them is still visible inside of the parent. */
-            e->computeViewBox(*this);
+            e->layoutBase_.computeViewBox(layoutBase_);
             /* Index is used for layer rendering order. Can be custom. */
-            if (!e->isCustomIndex_)
+            if (!e->layoutBase_.isCustomIndex())
             {
-                e->index_ = index_ + 1;
+                e->layoutBase_.setIndex(layoutBase_.getIndex() + 1);
             }
 
             /* Depth is used mostly for printing. */
@@ -187,8 +189,8 @@ auto UIBase::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getLayoutTransform());
-    shader_.uploadVec4f("uColor", color_);
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
+    shader_.uploadVec4f("uColor", propsBase_.getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
@@ -205,10 +207,10 @@ auto UIBase::event(framestate::FrameStatePtr& state) -> void
     {
         /* Due to the way we are processing events, we need to ensure that the user's input will
         go to the highest index element. */
-        if (index_ > state->hoveredZIndex && isPointInsideView(state->mousePos))
+        if (layoutBase_.getIndex() > state->hoveredZIndex && layoutBase_.isPointInsideView(state->mousePos))
         {
             state->hoveredId = id_;
-            state->hoveredZIndex = index_;
+            state->hoveredZIndex = layoutBase_.getIndex();
         }
     }
 }
@@ -222,6 +224,12 @@ auto UIBase::getCustomTagId() -> uint32_t { return customTagid_; }
 auto UIBase::getId() -> uint32_t { return id_; }
 
 auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
+
+auto UIBase::getLayout() -> elementcomposable::LayoutBase& { return layoutBase_; }
+
+auto UIBase::getEvents() -> elementcomposable::Events& { return events_; }
+
+auto UIBase::getProps() -> elementcomposable::PropsBase& { return propsBase_; }
 
 auto UIBase::demangleName(const char* name) -> std::string
 {
@@ -249,7 +257,7 @@ auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
     out << std::format("{:{}}|-- {}[Id:{} L:{}]",
         "", obj->depth_ * 2,
         UIBase::demangleName(obj->getTypeInfo().name()),
-        obj->id_, obj->index_);
+        obj->id_, obj->layoutBase_.getIndex());
     out << "\033[m";
     std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
     return out;
