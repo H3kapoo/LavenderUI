@@ -2,13 +2,11 @@
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
-#include "src/ResourceLoaders/ShaderLoader.hpp"
-#include "src/UIElements/UIBase.hpp"
-#include "src/Utils/Misc.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace src::uielements
 {
+using namespace layoutcalculator;
+
 UIPane::UIPane() : UIPane(getTypeInfo())
 {}
 
@@ -22,8 +20,8 @@ auto UIPane::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    shader_.uploadVec4f("uColor", propsBase_.getColor());
+    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
@@ -34,19 +32,17 @@ auto UIPane::render(const glm::mat4& projection) -> void
 
 auto UIPane::layout() -> void
 {
-    using namespace layoutcalculator;
     const auto& calculator = BasicCalculator::get();
 
-    //TODO: Cap the while to max one or two retries. Anything else is too much.
-    while (true)
-    {
-        const auto sliderImpact = calculator.calcPaneSliders(this);
-        calculator.calcPaneElements(this, sliderImpact);
-    
-        const auto overflow = calculator.calcOverflow(this, sliderImpact);
+    const auto sliderImpact = calculator.calcPaneSliders(this);
+    calculator.calcPaneElements(this, sliderImpact);
 
-        /* Adding new elements (slides in this case) invalidates the calculations. */
-        if (const auto needsRecalc = updateSlidersWithOverflow(overflow); !needsRecalc) { break; }
+    const auto overflow = calculator.calcOverflow(this, sliderImpact);
+
+    /* Adding new elements (slides in this case) invalidates the calculations. */
+    if (const auto needsRecalc = updateSlidersWithOverflow(overflow); needsRecalc)
+    {
+        layout();
     }
 
     calculator.calcPaneElementsAddScrollToPos(this, {
@@ -56,7 +52,7 @@ auto UIPane::layout() -> void
     layoutNext();
 }
 
-auto UIPane::event(framestate::FrameStatePtr& state) -> void
+auto UIPane::event(state::UIWindowStatePtr& state) -> void
 {
     /* Let the base do the generic stuff like mouse move pre-pass. */
     UIBase::event(state);
@@ -68,7 +64,7 @@ auto UIPane::event(framestate::FrameStatePtr& state) -> void
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        return events_.emitEvent<MouseButtonEvt>(e);
+        return emitEvent<MouseButtonEvt>(e);
     }
 
     eventNext(state);
@@ -80,7 +76,7 @@ auto UIPane::updateSlidersWithOverflow(const glm::vec2& overflow) -> bool
     if (hSlider_ && overflow.x > 0)
     {
         if (!hSlider_->isParented()) { add(hSlider_); needsRecalc = true; }
-        hSlider_->setScrollTo(std::clamp(overflow.x, 0.0f, 9999.0f));
+        hSlider_->setScrollTo(overflow.x);
     }
     else if (hSlider_ && overflow.x <= 0 && hSlider_->isParented())
     {
@@ -91,7 +87,6 @@ auto UIPane::updateSlidersWithOverflow(const glm::vec2& overflow) -> bool
     if (vSlider_ && overflow.y > 0)
     {
         if (!vSlider_->isParented()) { add(vSlider_); needsRecalc = true; }
-        // vSlider_->setScrollTo(std::clamp(overflow.y, 0.0f, 9999.0f));
         vSlider_->setScrollTo(overflow.y);
     }
     else if (vSlider_ && overflow.y <= 0 && vSlider_->isParented())
@@ -103,61 +98,59 @@ auto UIPane::updateSlidersWithOverflow(const glm::vec2& overflow) -> bool
     return needsRecalc;
 }
 
-auto UIPane::updateClosestSlider(framestate::FrameStatePtr& state) -> void
+auto UIPane::updateClosestSlider(state::UIWindowStatePtr& state) -> void
 {
-    /* Get the closes scrollbar available in this pane and prioritize the verical direction. Mouse needs
+    /* Get the closest scrollbar available in this pane and prioritize the verical direction. Mouse needs
         to be inside the pane. If the mouse is not on the slider, assume closest is the vertical one, if
-        available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the closest one.
+        available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the
+        closest one.
     */
-    const auto eId = state->currentEventId;
-    if (eId == MouseMoveScanEvt::eventId && state->hoveredId == id_
-        && layoutBase_.isPointInsideView(state->mousePos))
+    if (state->currentEventId != MouseMoveScanEvt::eventId) {return; }
+    if (state->hoveredId != id_) {return; }
+    if (!isPointInsideView(state->mousePos)) {return; }
+
+    //TODO: Needs more work: if the last pane only has hSlider, the previous vSlider will be overwritten
+    if (hSlider_ && hSlider_->isParented())
     {
-        //TODO: Needs more work: if the last pane only has hSlider, the previous vSlider will be overwritten
-        if (hSlider_ && hSlider_->isParented())
-        {
-            state->closestScroll = hSlider_->getId();
-        }
+        state->closestScroll = hSlider_->getId();
+    }
 
-        if (vSlider_ && vSlider_->isParented())
-        {
-            state->closestScroll = vSlider_->getId();
-        }
+    if (vSlider_ && vSlider_->isParented())
+    {
+        state->closestScroll = vSlider_->getId();
+    }
 
-        if (vSlider_ && vSlider_->isParented() && vSlider_->getLayout().isPointInsideView(state->mousePos))
-        {
-            state->closestScroll = vSlider_->getId();
-        }
-        else if (hSlider_ && hSlider_->isParented() && hSlider_->getLayout().isPointInsideView(state->mousePos))
-        {
-            state->closestScroll = hSlider_->getId();
-        }
+    if (vSlider_ && vSlider_->isParented() && vSlider_->isPointInsideView(state->mousePos))
+    {
+        state->closestScroll = vSlider_->getId();
+    }
+    else if (hSlider_ && hSlider_->isParented() && hSlider_->isPointInsideView(state->mousePos))
+    {
+        state->closestScroll = hSlider_->getId();
     }
 }
 
-auto UIPane::enableScroll(const bool valueH, const bool valueV) -> UIPane&
+auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
 {
-    if (valueV)
+    if (enableV)
     {
         vSlider_ = utils::make<UISlider>();
-        vSlider_->getProps().setColor(utils::hexToVec4("#ffffffff"));
-        vSlider_->enableVerticalInversion(true);
+        vSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        vSlider_->setInvertAxis(true);
         vSlider_->setCustomTagId(1000);
-        vSlider_->getLayout()
-            .setType(LayoutBase::Type::VERTICAL)
+        vSlider_->setType(LayoutBase::Type::VERTICAL)
             .setScale({20_px, 1.0_rel})
             .setEnableCustomIndex(true)
             .setIndex(4);
     }
     else { vSlider_.reset(); }
 
-    if (valueH)
+    if (enableH)
     {
         hSlider_ = utils::make<UISlider>();
-        hSlider_->getProps().setColor(utils::hexToVec4("#ffffffff"));
+        hSlider_->setColor(utils::hexToVec4("#ffffffff"));
         hSlider_->setCustomTagId(1000);
-        hSlider_->getLayout()
-            .setType(LayoutBase::Type::HORIZONTAL)
+        hSlider_->setType(LayoutBase::Type::HORIZONTAL)
             .setScale({1.0_rel, 20_px})
             .setEnableCustomIndex(true)
             .setIndex(4);
@@ -167,7 +160,7 @@ auto UIPane::enableScroll(const bool valueH, const bool valueV) -> UIPane&
     return *this;
 }
 
-auto UIPane::setScrollSensitivity(const float value) -> UIPane&
+auto UIPane::setScrollSensitivityMultiplier(const float value) -> UIPane&
 {
     vSlider_ ? vSlider_->setScrollSensitivity(value) : void();
     hSlider_ ? hSlider_->setScrollSensitivity(value) : void();

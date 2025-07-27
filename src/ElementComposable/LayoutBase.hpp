@@ -6,6 +6,10 @@
 
 namespace src::elementcomposable
 {
+/**
+    @brief:
+        Base class for any generic layout related options/information.
+*/
 class LayoutBase
 {
 public:
@@ -75,7 +79,6 @@ public:
     auto getFullBoxScale() const -> glm::vec2;
     auto getContentBoxPos() const -> glm::vec2;
     auto getContentBoxScale() const -> glm::vec2;
-
     auto getTransform() -> const glm::mat4&;
     auto getType() const -> Type;
     auto getMargin() const -> const TBLR&;
@@ -117,11 +120,11 @@ public:
 
 protected:
     Type layoutType_{Type::HORIZONTAL};
-    TBLR margin{0}; // top, bottom, left, right
+    TBLR margin{0};
     TBLR padding{0};
     TBLR border{0};
-    TBLR borderRadius{0}; // top-left, top-right, bottom-right, bottom-left
-    TBLR shadow{0}; // no ideea of it's use so far
+    TBLR borderRadius{0};
+    TBLR shadow{0};
     bool wrap{false};
 
     /* User supplied position details. This is NOT the actual render start position since it includes margins
@@ -155,19 +158,13 @@ private:
     glm::mat4 transform_{glm::mat4{1}};
 };
 
-// Layout::Scale operator"" _fill(unsigned long long val);
-// Layout::Scale operator"" _fit(unsigned long long);
+LayoutBase::Scale operator"" _fill(unsigned long long);
+LayoutBase::Scale operator"" _fit(unsigned long long);
 LayoutBase::Scale operator"" _rel(long double value);
 LayoutBase::Scale operator"" _px(unsigned long long value);
 // Layout::GridDistrib operator"" _gpx(unsigned long long value);
 // Layout::GridDistrib operator"" _fr(unsigned long long value);
 
-// inline Layout::Scale operator*(Layout::Scale lhs, float rhs)
-// {
-//     lhs.value *= rhs;
-//     lhs.value = lhs.type == Layout::ScaleType::PX ? (int32_t)lhs.value : lhs.value;
-//     return lhs;
-// }
 } // namespace src::elementcomposable
 
 /* Custom formatters */

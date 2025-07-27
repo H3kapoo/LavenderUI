@@ -1,22 +1,17 @@
 #include "App.hpp"
-#include "src/Utils/Logger.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 
 #include <algorithm>
-#include <memory>
-#include <vector>
 
 namespace src
 {
 using namespace windowmanagement;
 
 App::App()
-    : log_("App")
 {}
 
 App::~App()
 {
-    frames_.clear();
+    windows_.clear();
     NativeWindow::terminate();
 }
 
@@ -25,39 +20,40 @@ auto App::init() -> bool
     return NativeWindow::init();
 }
 
-auto App::createFrame(const std::string& title, const glm::ivec2 size) -> uielements::UIFrameWPtr
+auto App::createWindow(const std::string& title, const glm::ivec2 size) -> uielements::UIWindowWPtr
 {
-    uielements::UIFramePtr frame = std::make_shared<uielements::UIFrame>(title, size);
-    return frames_.emplace_back(frame);
+    uielements::UIWindowPtr frame = std::make_shared<uielements::UIWindow>(title, size);
+    return windows_.emplace_back(frame);
 }
 
-auto App::findFrame(const uint64_t frameId) -> uielements::UIFrameWPtr
+auto App::findWindow(const uint64_t windowId) -> uielements::UIWindowWPtr
 {
-    const auto it = std::ranges::find_if(frames_,
-        [frameId](const uint64_t id) { return id == frameId; },
-        [](const uielements::UIFramePtr& f) { return f->getId(); });
+    const auto it = std::ranges::find_if(windows_,
+        [windowId](const uint64_t id) { return id == windowId; }, // pred
+        [](const uielements::UIWindowPtr& w) { return w->getId(); }); // proj
 
-    return it != frames_.end() ? *it : std::weak_ptr<uielements::UIFrame>{};
+    return it != windows_.end() ? *it : std::weak_ptr<uielements::UIWindow>{};
 }
 
 auto App::run() -> void
 {
-    double storedTime{glfwGetTime()};
-    bool updateTitle{false};
-    while (runCondition_)
+    static uint32_t ONE_SECOND = 1.0f;
+    double startTime{NativeWindow::getTime()};
+    while (keepRunning_)
     {
-        std::erase_if(frames_, std::bind(&App::runPerWindow, this, std::placeholders::_1, updateTitle));
-
-        if (frames_.empty()) { break; }
-
-        updateTitle = false;
-        if (const double nowTime = glfwGetTime(); nowTime - storedTime >= 1)
+        if (const double nowTime = NativeWindow::getTime(); nowTime - startTime >= ONE_SECOND)
         {
-            updateTitle = true;
-            storedTime = nowTime;
+            shouldUpdateTitle_ = true;
+            startTime = nowTime;
         }
 
-        NativeWindow::nextEvent();
+        std::erase_if(windows_, [this](const auto& w) { return runPerWindow(w); });
+
+        shouldUpdateTitle_ = false;
+
+        if (windows_.empty()) { break; }
+
+        NativeWindow::pollEvents();
     }
 }
 
@@ -72,18 +68,21 @@ auto App::setWaitEvents(const bool waitEvents) -> void
     NativeWindow::setWaitEvents(waitEvents);
 }
 
-auto App::runPerWindow(const uielements::UIFramePtr& frame, const bool updateTitle) -> bool
+auto App::enableTitleWithFPS(const bool enable) -> void { showFps_ = enable; }
+
+auto App::runPerWindow(const uielements::UIWindowPtr& window) -> bool
 {
-    NativeWindow& window = frame->getWindow();
-    const bool shouldFrameBeRemoved = frame->run();
-    if (shouldFrameBeRemoved && frame->isMainFrame())
+    const bool shouldFrameBeRemoved = window->run();
+    if (shouldFrameBeRemoved && window->isMainWindow())
     {
-        runCondition_ = false;
+        keepRunning_ = false;
     }
 
-    if (updateTitle)
+    if (showFps_ && shouldUpdateTitle_)
     {
-        window.updateTitle(std::to_string(1.0f / window.getDeltaTime()));
+        const auto fps = std::to_string(1.0f / window->getDeltaTime());
+        const auto title = window->getTitle();
+        window->setTitle(title + " | " + fps, false);
     }
 
     return shouldFrameBeRemoved;

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
 #include <functional>
-#include <print>
 #include <typeindex>
 #include <unordered_map>
 
@@ -12,11 +10,20 @@ namespace src::elementcomposable
 {
 using EventCallback = std::function<void(const IEvent&)>;
 
+/**
+    @brief:
+        Manager handling the storage and dispatch of user or window generated events.
+*/
 class Events
 {
 public:
+    /**
+        @brief Listen to a specific template event EventT and call the callback when it happens.
+
+        @param callback Callback to be called upon event triggered.
+    */
     template<typename EventT>
-    void listenTo(const std::function<void(const EventT)>& callback)
+    auto listenTo(const std::function<void(const EventT)>& callback) -> void
     {
         const uint32_t key = std::type_index(typeid(EventT)).hash_code();
         eventMap_[key] = [callback](const IEvent& e)
@@ -28,8 +35,13 @@ public:
         };
     }
 
+    /**
+        @brief Emit an event EventT in order to trigger the listeners.
+
+        @param event Event to be triggered.
+    */
     template<typename EventT>
-    void emitEvent(EventT& event)
+    auto emitEvent(EventT& event) -> void
     {
         const uint32_t key = std::type_index(typeid(EventT)).hash_code();
 

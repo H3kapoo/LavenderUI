@@ -1,16 +1,16 @@
 #pragma once
 
-#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/ElementComposable/TextAttribs.hpp"
-#include "src/ElementComposable/PropsBase.hpp"
-#include "src/ResourceLoaders/Font.hpp"
-#include "src/ResourceLoaders/Shader.hpp"
 #include "src/UIElements/UIBase.hpp"
 
 namespace src::uielements
 {
 using namespace elementcomposable;
 
+/**
+    @brief:
+        Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane.
+*/
 class UISlider : public UIBase
 {
 public:
@@ -21,25 +21,27 @@ public:
     UISlider& operator=(const UISlider&) = delete;
     UISlider& operator=(UISlider&&) = delete;
 
+    auto getScrollPercentage() -> float;
+    auto getScrollValue() -> float;
     auto getKnobLayout() -> LayoutBase&;
     auto getKnobProps() -> PropsBase&;
     auto getTextAttribs() -> TextAttribs&;
-    auto getScrollPercentage() -> float;
-    auto getScrollValue() -> float;
+
     auto setScrollValue(const float value) -> void;
     auto setScrollFrom(const float value) -> void;
     auto setScrollTo(const float value) -> void;
     auto setScrollSensitivity(const float value) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(const std::string& text) -> void;
-    auto enableVerticalInversion(const bool value) -> void;
+    auto setInvertAxis(const bool value) -> void;
 
+    /* Mandatory typeinfo */
     INSERT_TYPEINFO(UISlider);
 
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
-    auto event(framestate::FrameStatePtr& state) -> void override;
+    auto event(state::UIWindowStatePtr&state) -> void override;
 
     auto calculatePercentage(const glm::ivec2& mPos) -> float;
     auto calculateKnobPosition() -> void;

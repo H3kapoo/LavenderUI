@@ -12,7 +12,7 @@ namespace src::uielements
 UITreeView::UITreeView()
     : UIPane(getTypeInfo())
 {
-    layoutBase_.setType(LayoutBase::Type::VERTICAL);
+    setType(LayoutBase::Type::VERTICAL);
 }
 
 auto UITreeView::render(const glm::mat4& projection) -> void
@@ -21,8 +21,8 @@ auto UITreeView::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    shader_.uploadVec4f("uColor", propsBase_.getColor());
+    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
@@ -38,14 +38,14 @@ auto UITreeView::layout() -> void
 
     /* Slider value needs to be reset to zero if there's no need for it anymore after an
     item had closed */
-    if (flatItems_.size() * rowSize_ - layoutBase_.getComputedScale().y <= 0)
+    if (flatItems_.size() * rowSize_ - getComputedScale().y <= 0)
     {
         vSlider_ ? vSlider_->setScrollValue(0) : void();
         hSlider_ ? hSlider_->setScrollValue(0) : void();
     }
 
     topOfTheListIdx_ = vSlider_ ? vSlider_->getScrollValue() / rowSize_ : 0;
-    visibleCount_ = layoutBase_.getComputedScale().y / rowSize_ + 2;
+    visibleCount_ = getComputedScale().y / rowSize_ + 2;
     if (topOfTheListIdx_ != oldTopOfTheListIdx_ || visibleCount_ != oldVisibleCount_)
     {
         log_.debug("tol {} {}", topOfTheListIdx_, visibleCount_);
@@ -59,13 +59,12 @@ auto UITreeView::layout() -> void
             // auto ref = std::make_shared<Button>("Item");
             // auto itemObj = utils::make<UIButton>();
             auto itemObj = utils::make<UISlider>();
-            itemObj->getProps().setColor(flatItems_[index]->color);
+            itemObj->setColor(flatItems_[index]->color);
             itemObj->setText(flatItems_[index]->text);
-            itemObj->getLayout()
-                .setScale({.x = 200_px, .y = {(float)rowSize_}})
+            itemObj->setScale({.x = 200_px, .y = {(float)rowSize_}})
                 .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
 
-            itemObj->getEvents().listenTo<elementcomposable::MouseButtonEvt>(
+            itemObj->listenTo<elementcomposable::MouseButtonEvt>(
                 [this, index](const auto& e)
                 {
                     if (e.action == GLFW_RELEASE)
@@ -91,7 +90,7 @@ auto UITreeView::layout() -> void
         calculator.calcPaneElements(this, sliderImpact);
 
         glm::vec2 overflow = calculator.calcOverflow(this, sliderImpact);
-        overflow.y = flatItems_.size() * rowSize_ - layoutBase_.getComputedScale().y;
+        overflow.y = flatItems_.size() * rowSize_ - getComputedScale().y;
         if (const auto needsRecalc = updateSlidersWithOverflow(overflow); !needsRecalc) { break; }
     }
     
@@ -102,7 +101,7 @@ auto UITreeView::layout() -> void
     layoutNext();
 }
 
-auto UITreeView::event(framestate::FrameStatePtr& state) -> void
+auto UITreeView::event(state::UIWindowStatePtr& state) -> void
 {
     /* Let the base do the generic stuff like mouse move pre-pass. */
     UIBase::event(state);
@@ -145,6 +144,10 @@ auto UITreeView::refreshItems() -> void
         We will use pre-order traversal to populate the flat list.
     */
 
+    /* Note: An optimization could be done in the future such that tree[index] gives us
+        the visible element that would be at that index if the tree was flat.
+        A custom class iterator maybe for Item? This will half the memory needed to store items. */
+
     flatItems_.clear();
     auto recurseFlat = [this](const auto& self, const ItemPtrVec& items, const int32_t depth) -> void
     {
@@ -159,12 +162,5 @@ auto UITreeView::refreshItems() -> void
         }
     };
     recurseFlat(recurseFlat, treeRoots_, 0);
-
-    log_.debug("size {}", flatItems_.size());
-    // std::ranges::for_each(flatItems_, [this](const auto& e)
-    // {
-    //     log_.debug("Item: {}", e->text);
-    // });
 }
-
 } // namespace src::uielements

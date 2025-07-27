@@ -8,15 +8,17 @@
 namespace src::uielements
 {
 UIButton::UIButton() : UIBase(getTypeInfo())
-{}
+{
+    setScale({100_px, 36_px});
+}
 
 auto UIButton::render(const glm::mat4& projection) -> void
 {
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    shader_.uploadVec4f("uColor", color_);
+    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     renderNext(projection);
@@ -31,7 +33,7 @@ auto UIButton::layout() -> void
     layoutNext();
 }
 
-auto UIButton::event(framestate::FrameStatePtr& state) -> void
+auto UIButton::event(state::UIWindowStatePtr& state) -> void
 {
     using namespace elementcomposable;
     /* Let the base do the generic stuff */
@@ -42,19 +44,19 @@ auto UIButton::event(framestate::FrameStatePtr& state) -> void
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        return events_.emitEvent<MouseButtonEvt>(e);
+        return emitEvent<MouseButtonEvt>(e);
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return events_.emitEvent<MouseEnterEvt>(e);
+        return emitEvent<MouseEnterEvt>(e);
     }
     else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return events_.emitEvent<MouseExitEvt>(e);
+        return emitEvent<MouseExitEvt>(e);
     }
 
     eventNext(state);

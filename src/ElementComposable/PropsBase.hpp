@@ -6,11 +6,15 @@ namespace src::elementcomposable
 {
 class PropsBase
 {
+/**
+    @brief:
+        Base class for any generic element property.
+*/
 public:
     PropsBase() = default;
     virtual ~PropsBase() = default;
 
-    auto setColor(const glm::vec4& value) -> void;
+    auto setColor(const glm::vec4& value) -> PropsBase&;
 
     auto getColor() const -> const glm::vec4&;
 

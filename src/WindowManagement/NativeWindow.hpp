@@ -9,6 +9,7 @@
 #include "vendor/glfw/include/GLFW/glfw3native.h"
 #include "src/WindowManagement/Input.hpp"
 #include "vendor/glm/glm.hpp"
+
 #include "src/Utils/Logger.hpp"
 
 #ifdef __linux__
@@ -17,21 +18,13 @@
 
 namespace src::windowmanagement
 {
+/**
+    @brief:
+        Class responsible for initializing and wrapping the native OS window provided by GLFW.
+        Furthermore anything related to window management from GLEW side is handled here as well.
+*/
 class NativeWindow
 {
-public:
-    enum Property
-    {
-        DEPTH_TEST = GL_DEPTH_TEST,
-        SCISSOR_TEST = GL_SCISSOR_TEST,
-        ALPHA_BLENDING = GL_BLEND,
-    };
-
-    enum BlendingFunc
-    {
-        CLASSIC = GL_ONE_MINUS_SRC_ALPHA
-    };
-
 public:
     NativeWindow(const std::string& title, const glm::ivec2 size);
     ~NativeWindow();
@@ -40,11 +33,90 @@ public:
     NativeWindow(NativeWindow&&) = delete;
     NativeWindow& operator=(NativeWindow&&) = delete;
 
-    auto doCloseWindow() const -> void;
+    /**
+        @brief:
+            Tells the window API to close the window.
+    */
+    auto close() const -> void;
+
+    /**
+        @brief:
+            Makes the openGL context be the current one.
+    */
     auto makeContextCurrent() -> void;
+
+    /**
+        @brief:
+            Checks if the window shall be closed.
+
+        @returns:
+            True if window shall close.
+            False otherwise.
+    */
     auto shouldWindowClose() const -> bool;
+
+    /**
+        @brief:
+            Swap back and front buffers.
+    */
     auto swapBuffers() -> void;
-    auto updateTitle(const std::string title) -> void;
+
+
+    /**
+        @brief:
+            Initialize GLFW and GLEW libs.
+
+        @returns:
+            True on success.
+            Flase on failure.
+    */
+    static auto init() -> bool;
+
+    /**
+        @brief:
+            Terminate GLFW allocated resources.
+    */
+    static auto terminate() -> void;
+
+    /**
+        @brief:
+            Changes vsync of the windows.
+
+        @notes:
+        (1) Vsync change will affect all the windows at least on Linux.
+
+        @params:
+            enable - enable of not this thing
+    */
+    static auto enableVsync(const bool enable = true) -> void;
+
+    /**
+        @brief:
+            Make the window wait or not for events before continuing the game loop.
+
+        @params:
+            waitEvents - wait for the next event or not
+    */
+    static auto setWaitEvents(const bool waitEvents = true) -> void;
+
+    /**
+        @brief:
+            Just poll the currently in the queue events or wait for events.
+    */
+    static auto pollEvents() -> void;
+
+    static auto enableDepthTest(const bool enable = true) -> void;
+    static auto enableScissorsTest(const bool enable = true) -> void;
+    static auto enableAlphaBlending(const bool enable = true) -> void;
+    static auto updateScissors(const glm::vec4& area) -> void;
+    static auto clearColor(const glm::vec4& color) -> void;
+    static auto clearBuffers(uint32_t bufferBits) -> void;
+    static auto clearAllBuffers() -> void;
+    static auto updateViewport(const glm::ivec2 size) -> void;
+    static auto getInitGlfwHandle() -> GLFWwindow*;
+    static auto getTime() -> double;
+
+    auto setTitle(std::string title, const bool updateInteralText) -> void;
 
     auto getGlfwHandle() const -> GLFWwindow*;
     auto getTitle() const -> std::string;
@@ -52,20 +124,6 @@ public:
     auto getId() const -> uint64_t;
     auto getDeltaTime() -> double;
     auto getInput() -> Input&;
-
-public:
-    static auto init() -> bool;
-    static auto terminate() -> void;
-    static auto setVsync(const bool capped = true) -> void;
-    static auto setWaitEvents(const bool waitEvents = true) -> void;
-    static auto nextEvent() -> void;
-    static auto setProp(const Property prop, const bool enable = true) -> void;
-    static auto setBlendFunc(const BlendingFunc fun) -> void;
-    static auto updateScissors(glm::vec4 area) -> void;
-    static auto clearColor(glm::vec4 color) -> void;
-    static auto clearBuffers(uint32_t bufferBits) -> void;
-    static auto updateViewport(const glm::ivec2 size) -> void;
-    static auto getInitGlfwHandle() -> GLFWwindow*;
 
 private:
     auto maskEvents() -> void;
@@ -85,8 +143,7 @@ private:
 
 /* In order for all windows to share a single context, and thus the same resources, we need
     to go native, beyong glfw's normal handling. All resources will be shared with the init
-    window created at the beggining of the app.
-*/
+    window created at the beggining of the app. */
 #ifdef __linux__
     static Display* initDisplay_;
     static GLXContext initContext_;

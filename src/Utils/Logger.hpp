@@ -11,10 +11,14 @@
 
 namespace src::utils
 {
-/* Note: Class is not trivially destructible/constructible so avoid using it as a member variable
-    inside the classes that need to be trivial in that sense.
+/**
+    @brief:
+        Simple colored logger than can output to either the console of a text file.
+
+    @notes:
+    (1) Class is not trivially destructible/constructible so avoid using it as a member variable
+        inside the classes that need to be trivial in that sense.
 */
-/**/
 class Logger
 {
 public:

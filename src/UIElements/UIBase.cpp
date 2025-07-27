@@ -60,7 +60,6 @@ auto UIBase::removeInternal(T&& element) -> bool
     }
     element->parent_.reset();
     element->isParented_ = false;
-    // std::erase(elements_, element);
     return true;
 }
 
@@ -84,26 +83,25 @@ auto UIBase::add(UIBasePtrVec&& elements) -> void
     std::ranges::for_each(elements, [this](UIBasePtr& e){ addInternal(std::move(e)); });
 }
 
-auto UIBase::remove(const std::function<bool(const UIBasePtr&)>& pred) -> void
+auto UIBase::remove(const std::function<bool(const UIBasePtr&)>& pred) -> uint32_t
 {
-    // std::ranges::for_each(elements_, [this, pred](const UIBasePtr& e){ if (pred(e)) removeInternal(e); });
-    std::erase_if(elements_,
-        [this, pred](const UIBasePtr& e){ if (pred(e)) { removeInternal(e); return true; }; return false; });
+    return std::erase_if(elements_,
+        [this, pred](const UIBasePtr& e){ if (pred(e)) { return removeInternal(e); }; return false; });
 }
 
 auto UIBase::remove(const UIBasePtr& element) -> bool
 {
-    return removeInternal(element);
+    return remove([&element](auto&& e) { return e->id_ == element->id_; });
 }
 
 auto UIBase::remove(const UIBasePtrVec& elements) -> void
 {
-    std::ranges::for_each(elements, [this](const UIBasePtr& e){ removeInternal(e); });
+    std::ranges::for_each(elements, [this](const UIBasePtr& e){ remove(e); });
 }
 
 auto UIBase::remove(UIBasePtrVec&& elements) -> void
 {
-    std::ranges::for_each(elements, [this](UIBasePtr& e){ removeInternal(std::move(e)); });
+    std::ranges::for_each(std::move(elements), [this](const UIBasePtr& e){ remove(e); });
 }
 
 auto UIBase::renderNext(const glm::mat4& projection) -> void
@@ -127,8 +125,8 @@ auto UIBase::renderNextSingle(const glm::mat4& projection, const UIBasePtr& e) -
     //TODO: Do not render nodes that aint visible
     if (!e || !e->isParented()) { return; }
 
-    const auto& viewPos = e->layoutBase_.getViewPos();
-    const auto& viewScale = e->layoutBase_.getViewScale();
+    const auto& viewPos = e->getViewPos();
+    const auto& viewScale = e->getViewScale();
     windowmanagement::NativeWindow::updateScissors(
         {
             viewPos.x,
@@ -143,21 +141,21 @@ auto UIBase::layoutNext() -> void
 {
     //TODO: Do not calculate the layout for nodes that aint visible
     /* If is the root element, scissor area is the whole object area. */
-    if (layoutBase_.getIndex() == 1)
+    if (getIndex() == 1)
     {
-        layoutBase_.setViewPos(layoutBase_.getComputedPos());
-        layoutBase_.setViewScale(layoutBase_.getComputedScale());
+        setViewPos(getComputedPos());
+        setViewScale(getComputedScale());
     }
 
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
             /* After calculating my elements, compute how much of them is still visible inside of the parent. */
-            e->layoutBase_.computeViewBox(layoutBase_);
+            e->computeViewBox(*this);
             /* Index is used for layer rendering order. Can be custom. */
-            if (!e->layoutBase_.isCustomIndex())
+            if (!e->isCustomIndex())
             {
-                e->layoutBase_.setIndex(layoutBase_.getIndex() + 1);
+                e->setIndex(getIndex() + 1);
             }
 
             /* Depth is used mostly for printing. */
@@ -166,11 +164,11 @@ auto UIBase::layoutNext() -> void
         });
 }
 
-auto UIBase::eventNext(framestate::FrameStatePtr& state) -> void
+auto UIBase::eventNext(state::UIWindowStatePtr& state) -> void
 {
     /* An event might have the effect of adding/removing elements of this object and thus
-    invalidatin elements_. If this happens, reset the iterator and process the event from the
-    beginning. */
+    invalidating elements_'s interators. If this happens, reset the iterator and process
+    the event from the beginning. */
     auto size = elements_.size();
     for (auto it = elements_.begin(); it != elements_.end();)
     {
@@ -189,28 +187,27 @@ auto UIBase::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    shader_.uploadVec4f("uColor", propsBase_.getColor());
+    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 auto UIBase::layout() -> void
 {
-    // do default layout stuff
     log_.warn("{} element has no layout behavior overriden!", demangleName(getTypeInfo().name()));
 }
 
-auto UIBase::event(framestate::FrameStatePtr& state) -> void
+auto UIBase::event(state::UIWindowStatePtr& state) -> void
 {
     /* Determine in the scan pass who's the hovered element. */
     if (state->currentEventId == elementcomposable::MouseMoveScanEvt::eventId)
     {
         /* Due to the way we are processing events, we need to ensure that the user's input will
         go to the highest index element. */
-        if (layoutBase_.getIndex() > state->hoveredZIndex && layoutBase_.isPointInsideView(state->mousePos))
+        if (getIndex() > state->hoveredZIndex && isPointInsideView(state->mousePos))
         {
             state->hoveredId = id_;
-            state->hoveredZIndex = layoutBase_.getIndex();
+            state->hoveredZIndex = getIndex();
         }
     }
 }
@@ -224,12 +221,6 @@ auto UIBase::getCustomTagId() -> uint32_t { return customTagid_; }
 auto UIBase::getId() -> uint32_t { return id_; }
 
 auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
-
-auto UIBase::getLayout() -> elementcomposable::LayoutBase& { return layoutBase_; }
-
-auto UIBase::getEvents() -> elementcomposable::Events& { return events_; }
-
-auto UIBase::getProps() -> elementcomposable::PropsBase& { return propsBase_; }
 
 auto UIBase::demangleName(const char* name) -> std::string
 {
@@ -249,7 +240,7 @@ auto UIBase::demangleName(const char* name) -> std::string
 
 auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
 {
-    /* Printing before the first layoutNext() will print elements with an incorrect number of tabs. */
+    /* Note: Printing before the first layoutNext() will print elements with an incorrect number of tabs. */
     using namespace std::chrono;
     zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
@@ -257,7 +248,7 @@ auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
     out << std::format("{:{}}|-- {}[Id:{} L:{}]",
         "", obj->depth_ * 2,
         UIBase::demangleName(obj->getTypeInfo().name()),
-        obj->id_, obj->layoutBase_.getIndex());
+        obj->id_, obj->getIndex());
     out << "\033[m";
     std::ranges::for_each(obj->elements_, [&out](const UIBasePtr& o){ out << "\n" << o; });
     return out;

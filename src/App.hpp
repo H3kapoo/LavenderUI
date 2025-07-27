@@ -2,11 +2,25 @@
 
 #include <vector>
 
-#include "src/UIElements/UIFrame.hpp"
+#include "src/UIElements/UIWindow.hpp"
 #include "src/Utils/Logger.hpp"
 
 namespace src
 {
+/**
+    @brief:
+        Main app management entry point responsible for the lifetime of the GUI's windows.
+
+    @notes:
+    (1) Always ensure init() is called before everything else happens.
+
+    (2) Only one instance of this can exist at one time. Windows can be created from any thread.
+        The first window is always the main window and closing it will close all the other windows.
+
+    (3) It is not advised to have an active shared_ptr handle to the window frame in the same scope
+        as the run() command due to reference counting keeping the window alive even if the exit event was issued.
+        You as the caller don't own anything the callee created.
+*/
 class App
 {
 public:
@@ -15,25 +29,102 @@ public:
     App& operator=(const App&) = delete;
     App& operator=(App&&) = delete;
 
+    /**
+        @brief:
+            Initialize application specific libs.
+
+        @notes:
+            On successfull return it is guaranteed tha an opengl is bound.
+
+        @returns:
+            True on success.
+            False otherwise.
+    */
     auto init() -> bool;
-    auto createFrame(const std::string& title, const glm::ivec2 size) -> uielements::UIFrameWPtr;
-    auto findFrame(const uint64_t frameId) -> uielements::UIFrameWPtr;
+
+    /**
+        @brief:
+            Create a new window of specified parameters.
+
+        @notes:
+            Caller should not OWN a handle to created window!
+
+        @params:
+            title - title of the window
+            size - x,y size of the window in pixels
+
+        @returns:
+            Weak reference to the newly created window.
+    */
+    auto createWindow(const std::string& title, const glm::ivec2 size) -> uielements::UIWindowWPtr;
+
+    /**
+        @brief:
+            Find a window of specified id.
+
+        @notes:
+            Caller should not OWN a handle to the returned window!
+
+        @params:
+            windowId - id of the searched for window
+
+        @returns:
+            Weak reference to the newly created window.
+    */
+    auto findWindow(const uint64_t windowId) -> uielements::UIWindowWPtr;
+
+    /**
+        @brief:
+            Starts the GUI loop.
+
+        @notes:
+            Blocks until the app's main window is closed.
+    */
     auto run() -> void;
 
+    /**
+        @brief:
+            Choose if the app shall run the loop at full speed or only when an OS window event is spawed.
+
+        @notes:
+            Default behavior is to wait for events to come in and not go full blast as it is useless
+            in most applications that don't need constant refresh of UI.
+
+        @params:
+            waitEvents - should wait for events or not
+
+    */
     auto setWaitEvents(const bool waitEvents = true) -> void;
 
-public:
+    /**
+        @brief:
+            Show FPS counter near the window's title.
+
+        @params:
+            enable - enable or not this thing
+    */
+    auto enableTitleWithFPS(const bool enable = true) -> void;
+
+    /**
+        @brief:
+            Static singleton accessor.
+
+        @returns:
+            Instance of the App class.
+    */
     static auto get() -> App&;
 
 private:
     App();
     ~App();
 
-    auto runPerWindow(const uielements::UIFramePtr& frame, const bool updateTitle) -> bool;
+    auto runPerWindow(const uielements::UIWindowPtr& frame) -> bool;
 
 private:
-    utils::Logger log_;
-    std::vector<uielements::UIFramePtr> frames_;
-    bool runCondition_{true};
+    utils::Logger log_{"App"};
+    std::vector<uielements::UIWindowPtr> windows_;
+    bool keepRunning_{true};
+    bool shouldUpdateTitle_{false};
+    bool showFps_{false};
 };
 } // namespace src

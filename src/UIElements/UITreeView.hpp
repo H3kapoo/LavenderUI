@@ -9,6 +9,14 @@ namespace src::uielements
 {
 using namespace elementcomposable;
 
+/**
+    @brief:
+        Treeview that can be used to display elements in a tree like structure with on
+        click opening and closing of parent node UI children.
+    
+    @notes:
+    (1) All elements need to have the same Y size as of current limitations.
+*/
 class UITreeView : public UIPane
 {
 public:
@@ -46,13 +54,10 @@ public:
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
-    auto event(framestate::FrameStatePtr& state) -> void override;
+    auto event(state::UIWindowStatePtr& state) -> void override;
 
 
 private:
-    //Note: An optimization could be done in the future such that tree[index] gives us
-    // the visible element that would be at that index if the tree was flat.
-    // A custom class iterator maybe for Item? This will half the memory needed to store items.
     ItemPtrVec treeRoots_;
     ItemPtrVec flatItems_;
     uint32_t rowSize_{30};

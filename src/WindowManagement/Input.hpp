@@ -13,6 +13,15 @@ using MouseScrollCallback = std::function<void(int8_t xOffset, int8_t yOffset)>;
 using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
 
 class NativeWindow;
+
+/**
+    @brief:
+        Top level GUI input provider from the bound window.
+
+    @notes:
+    (1) You can hook into these callbacks and generate events yourself if you want.
+    (2) Window handle can be rebound at runtime if need be. 
+*/
 class Input
 {
 public:
@@ -39,5 +48,32 @@ private:
     MouseButtonCallback mouseBtnCallback_{[](auto, auto){}};
     MouseScrollCallback mouseScrollCallback_{[](auto, auto){}};
     WindowSizeCallback windowSizeCallback_{[](auto, auto){}};
+
+public:
+    enum Action
+    {
+        RELEASE = GLFW_RELEASE,
+        PRESS = GLFW_PRESS,
+        REPEAT = GLFW_REPEAT
+    };
+
+    enum Mouse
+    {
+        LEFT = GLFW_MOUSE_BUTTON_LEFT,
+        RIGHT = GLFW_MOUSE_BUTTON_RIGHT,
+        MIDDLE = GLFW_MOUSE_BUTTON_MIDDLE,
+        AUX_1 = GLFW_MOUSE_BUTTON_4,
+        AUX_2 = GLFW_MOUSE_BUTTON_5,
+        AUX_3 = GLFW_MOUSE_BUTTON_6,
+        AUX_4 = GLFW_MOUSE_BUTTON_7,
+        AUX_5 = GLFW_MOUSE_BUTTON_8,
+    };
+
+    enum Key
+    {
+        ESC = GLFW_KEY_ESCAPE,
+        C = GLFW_KEY_C,
+        P = GLFW_KEY_P
+    };
 };
 } // namespace src::windowmanagement

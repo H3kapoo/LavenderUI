@@ -8,21 +8,34 @@
 
 namespace src::utils
 {
+/**
+    @brief Generate a new Id.
+
+    @return Newly generated id.
+*/
 inline auto genId() -> uint64_t
 {
     static uint64_t id{1};
     return id++;
 }
 
+/**
+    @brief Generate an Id based on a template type T.
+
+    @return Newly generated id.
+*/
 template <typename T>
 inline auto getTypeId() -> uint64_t
 {
-    // using PlainT = std::remove_cvref_t<T>;
     static uint64_t id = genId();
-    // std::println("{} {}", id, demangleName(typeid(PlainT).name()));
     return id;
 }
 
+/**
+    @brief Generate a random float between [0, 1].
+
+    @return Newly generated random value.
+*/
 inline auto random01() -> float
 {
     static std::random_device rd;
@@ -32,27 +45,45 @@ inline auto random01() -> float
     return distance(generator);
 }
 
+/**
+    @brief Generate a random RGB value.
+
+    @return Newly generated random value.
+*/
 inline auto randomRGB() -> glm::vec4 
 {
     return {random01(), random01(), random01(), 1.0f};
 }
 
+/**
+    @brief Generate a random RGBA value.
+
+    @return Newly generated random value.
+*/
 inline auto randomRGBA() -> glm::vec4 
 {
     return {random01(), random01(), random01(), random01()};
 }
 
+/**
+    @brief Generate a random integer between [min, max].
+
+    @param min Minimum value
+    @param max Maximum value
+
+    @return Newly generated random integer.
+*/
 inline auto randomInt(const int32_t min, const int32_t max) -> int32_t
 {
     return min + (random01() * (max - min));
 }
 
 /**
-    Convert a hex string to a normalized RGBA vector.
+    @brief Convert a hex string to a normalized RGBA vector.
 
-    @param hexColor Hex color to convert (#RRGGBBAA)
+    @param hexColor hex color to convert (#RRGGBBAA)
 
-    @return Normalized color vector
+    @return Normalized color vector.
 */
 inline auto hexToVec4(const std::string& hexColor) -> glm::vec4
 {
@@ -79,7 +110,7 @@ inline auto hexToVec4(const std::string& hexColor) -> glm::vec4
 }
 
 /**
-    Remamps a value that is normally between A and B to a value between C and D linearly.
+    @brief Remamps a value that is normally between A and B to a value between C and D linearly.
 
     @param value Value to remap
     @param startA Value range start before remap
@@ -107,6 +138,13 @@ inline auto remap(float value, const float startA, const float endA,
     return (1.0f - t) * startB + t * endB;
 }
 
+/**
+    @brief Simple wrapper around std::make_shared.
+
+    @param args.. Arguments with which to create the object
+
+    @return Newly construsted T object
+*/
 template<typename T, typename... Args>
 inline auto make(Args&&... args) -> std::shared_ptr<T>
 {

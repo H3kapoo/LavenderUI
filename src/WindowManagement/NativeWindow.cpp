@@ -1,9 +1,6 @@
 #include "NativeWindow.hpp"
 
-#include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
-#include <GL/glx.h>
 
 namespace src::windowmanagement
 {
@@ -30,7 +27,7 @@ NativeWindow::NativeWindow(const std::string& title, const glm::ivec2 size)
     }
 
     makeContextCurrent();
-    setVsync(true);
+    enableVsync(true);
     maskEvents();
 
     input_.bindWindow(windowHandle_);
@@ -43,66 +40,6 @@ NativeWindow::~NativeWindow()
     log_.debug("Window {} destroyed.", windowId_);
     glfwDestroyWindow(windowHandle_);
 }
-
-auto NativeWindow::doCloseWindow() const -> void
-{
-    glfwSetWindowShouldClose(windowHandle_, true);
-}
-
-auto NativeWindow::makeContextCurrent() -> void
-{
-#ifdef __linux__
-    glXMakeCurrent(initDisplay_, glfwGetX11Window(windowHandle_), initContext_);
-#else
-    glfwMakeContextCurrent(windowHandle_);
-#endif
-}
-
-auto NativeWindow::shouldWindowClose() const -> bool
-{
-    return glfwWindowShouldClose(windowHandle_);
-}
-
-auto NativeWindow::swapBuffers() -> void
-{
-    if (!glfwGetCurrentContext())
-    {
-        utils::Logger("WINDOW").error("No context is bound!");
-        return;
-    }
-#ifdef __linux__
-    glXSwapBuffers(initDisplay_, glfwGetX11Window(windowHandle_));
-#else
-    glfwSwapBuffers(windowHandle_);
-#endif
-
-    const double nowTime = glfwGetTime();
-    delta_ = nowTime - startTime_;
-    startTime_ = nowTime;
-}
-
-auto NativeWindow::updateTitle(const std::string title) -> void
-{
-    title_ = std::move(title);
-    glfwSetWindowTitle(windowHandle_, title_.c_str());
-}
-
-auto NativeWindow::getGlfwHandle() const -> GLFWwindow* { return windowHandle_; }
-
-auto NativeWindow::getTitle() const -> std::string { return title_; }
-
-auto NativeWindow::getSize() const -> glm::ivec2
-{
-    glm::ivec2 size;
-    glfwGetWindowSize(windowHandle_, &size.x, &size.y);
-    return size;
-}
-
-auto NativeWindow::getId() const -> uint64_t { return windowId_; }
-
-auto NativeWindow::getDeltaTime() -> double { return delta_; }
-
-auto NativeWindow::getInput() -> Input& { return input_; }
 
 auto NativeWindow::init() -> bool
 {
@@ -126,14 +63,8 @@ auto NativeWindow::init() -> bool
     glfwWindowHint(GLFW_VISIBLE, false);
 
     initWindowHandle_ = glfwCreateWindow(100, 100, "dummy", NULL, NULL);
-    utils::Logger internalLog2("WINDOW");
-    
-    glfwWindowHint(GLFW_VISIBLE, true);
 
-    if (initWindowHandle_ == nullptr)
-    {
-        internalLog2.debug("THIS IS NULL");
-    }
+    glfwWindowHint(GLFW_VISIBLE, true);
     glfwMakeContextCurrent(initWindowHandle_);
 
 #ifdef __linux__
@@ -166,13 +97,73 @@ auto NativeWindow::init() -> bool
     utils::Logger internalLog("WINDOW");
     internalLog.debug("GL Version {}", (const char*)glGetString(GL_VERSION));
     internalLog.debug("GLSL Version {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
-    setProp(Property::DEPTH_TEST);
-    setProp(Property::SCISSOR_TEST);
-    setProp(Property::ALPHA_BLENDING);
-    setBlendFunc(BlendingFunc::CLASSIC);
+
+    enableDepthTest();
+    enableScissorsTest();
+    enableAlphaBlending();
 
     return true;
 }
+
+auto NativeWindow::close() const -> void
+{
+    glfwSetWindowShouldClose(windowHandle_, true);
+}
+
+auto NativeWindow::makeContextCurrent() -> void
+{
+#ifdef __linux__
+    glXMakeCurrent(initDisplay_, glfwGetX11Window(windowHandle_), initContext_);
+#else
+    glfwMakeContextCurrent(windowHandle_);
+#endif
+}
+
+auto NativeWindow::swapBuffers() -> void
+{
+    if (!glfwGetCurrentContext())
+    {
+        utils::Logger("WINDOW").error("No context is bound!");
+        return;
+    }
+#ifdef __linux__
+    glXSwapBuffers(initDisplay_, glfwGetX11Window(windowHandle_));
+#else
+    glfwSwapBuffers(windowHandle_);
+#endif
+
+    const double nowTime = glfwGetTime();
+    delta_ = nowTime - startTime_;
+    startTime_ = nowTime;
+}
+
+auto NativeWindow::setTitle(std::string title, const bool updateInteralText) -> void
+{
+    if (updateInteralText) { title_ = std::move(title); }
+    glfwSetWindowTitle(windowHandle_, title.c_str());
+}
+
+auto NativeWindow::shouldWindowClose() const -> bool
+{
+    return glfwWindowShouldClose(windowHandle_);
+}
+
+auto NativeWindow::getGlfwHandle() const -> GLFWwindow* { return windowHandle_; }
+
+auto NativeWindow::getTitle() const -> std::string { return title_; }
+
+auto NativeWindow::getSize() const -> glm::ivec2
+{
+    glm::ivec2 size;
+    glfwGetWindowSize(windowHandle_, &size.x, &size.y);
+    return size;
+}
+
+auto NativeWindow::getId() const -> uint64_t { return windowId_; }
+
+auto NativeWindow::getDeltaTime() -> double { return delta_; }
+
+auto NativeWindow::getInput() -> Input& { return input_; }
 
 auto NativeWindow::terminate() -> void
 {
@@ -181,7 +172,7 @@ auto NativeWindow::terminate() -> void
     internalLog.debug("Terminated.");
 }
 
-auto NativeWindow::setVsync(const bool capped) -> void
+auto NativeWindow::enableVsync(const bool enable) -> void
 {
 #ifdef __linux__
     /* Unfortunately due to drivers or my limited knowledge we can only have the main window obey
@@ -191,11 +182,11 @@ auto NativeWindow::setVsync(const bool capped) -> void
         glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXSwapIntervalMESA")));
     if (glXSwapIntervalMESA)
     {
-        glXSwapIntervalMESA(capped);
+        glXSwapIntervalMESA(enable);
     }
 
 #else
-    glfwSwapInterval(capped);
+    glfwSwapInterval(enable);
 #endif
 }
 
@@ -204,27 +195,39 @@ auto NativeWindow::setWaitEvents(const bool waitEvents) -> void
     isWaitingEvents_ = waitEvents;
 }
 
-auto NativeWindow::nextEvent() -> void
+auto NativeWindow::pollEvents() -> void
 {
     isWaitingEvents_ ? glfwWaitEvents() : glfwPollEvents();
 }
 
-auto NativeWindow::setProp(const Property prop, const bool enable) -> void
+auto NativeWindow::enableDepthTest(const bool enable) -> void
 {
-    enable ? glEnable(prop) : glDisable(prop);
+    enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 }
 
-auto NativeWindow::setBlendFunc(const BlendingFunc fun) -> void
+auto NativeWindow::enableScissorsTest(const bool enable) -> void
 {
-    glBlendFunc(GL_SRC_ALPHA, fun);
+    enable ? glEnable(GL_SCISSOR_TEST) : glDisable(GL_SCISSOR_TEST);
 }
 
-auto NativeWindow::updateScissors(glm::vec4 area) -> void
+auto NativeWindow::enableAlphaBlending(const bool enable) -> void
+{
+    if (enable)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        return;
+    }
+
+    glDisable(GL_BLEND);
+}
+
+auto NativeWindow::updateScissors(const glm::vec4& area) -> void
 {
     glScissor(area.x, area.y, area.z, area.w);
 }
 
-auto NativeWindow::clearColor(glm::vec4 color) -> void
+auto NativeWindow::clearColor(const glm::vec4& color) -> void
 {
     glClearColor(color.r, color.g, color.b, color.a);
 }
@@ -234,12 +237,19 @@ auto NativeWindow::clearBuffers(uint32_t bufferBits) -> void
     glClear(bufferBits);
 }
 
+auto NativeWindow::clearAllBuffers() -> void
+{
+    clearBuffers(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 auto NativeWindow::updateViewport(const glm::ivec2 size) -> void
 {
     glViewport(0, 0, size.x, size.y);
 }
 
 auto NativeWindow::getInitGlfwHandle() -> GLFWwindow* { return initWindowHandle_; }
+
+auto NativeWindow::getTime() -> double { return glfwGetTime(); }
 
 auto NativeWindow::maskEvents() -> void
 {

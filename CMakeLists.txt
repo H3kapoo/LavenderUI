@@ -37,9 +37,9 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/ElementComposable/PropsBase.cpp
         src/LayoutCalculator/BasicCalculator.cpp
         src/UIElements/UIBase.cpp
-        src/UIElements/UIFrame.cpp
+        src/UIElements/UIWindow.cpp
         src/UIElements/UIPane.cpp
-        # src/UIElements/UIButton.cpp
+        src/UIElements/UIButton.cpp
         src/UIElements/UISlider.cpp
         src/UIElements/UITreeView.cpp
         # src/UIElements/UIImage.cpp

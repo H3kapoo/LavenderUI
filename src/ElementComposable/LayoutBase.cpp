@@ -108,6 +108,16 @@ auto LayoutBase::setIndex(uint32_t val) -> LayoutBase& { index_ = val;  return *
 auto LayoutBase::setEnableCustomIndex(const bool val) -> LayoutBase& { isCustomIndex_ = val;  return *this; }
 auto LayoutBase::setAngle(float val) -> LayoutBase& { angle_ = val; return *this; }
 
+LayoutBase::Scale operator"" _fill(unsigned long long)
+{
+    return {.val = 1.0f, .type = LayoutBase::ScaleType::FILL};
+}
+
+LayoutBase::Scale operator"" _fit(unsigned long long)
+{
+    return {.val = 1.0f, .type = LayoutBase::ScaleType::FIT};
+}
+
 LayoutBase::Scale operator"" _px(unsigned long long value)
 {
     /* Loss of precision justified. */
@@ -116,6 +126,7 @@ LayoutBase::Scale operator"" _px(unsigned long long value)
 
 LayoutBase::Scale operator"" _rel(long double value)
 {
+    /* Loss of precision justified. */
     return {.val = (float)value, .type = LayoutBase::ScaleType::REL};
 }
 } // namespace src::elementcomposable
