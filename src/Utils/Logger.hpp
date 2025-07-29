@@ -12,11 +12,9 @@
 namespace src::utils
 {
 /**
-    @brief:
-        Simple colored logger than can output to either the console of a text file.
+    @brief Simple colored logger than can output to either the console of a text file.
 
-    @notes:
-    (1) Class is not trivially destructible/constructible so avoid using it as a member variable
+    @note Class is not trivially destructible/constructible so avoid using it as a member variable
         inside the classes that need to be trivial in that sense.
 */
 class Logger
@@ -55,6 +53,7 @@ public:
     LOGGER_GENERATE_LOGGERS(info, Level::INFO);
 #undef LOGGER_GENERATE_LOGGERS
 
+    /** @note If the filePath is empty, then the standard output stream is used. */
     static auto useFileForLogging(const std::filesystem::path& filePath) -> void;
     static auto setMaxAllowedLevel(const Level lvl) -> void;
 

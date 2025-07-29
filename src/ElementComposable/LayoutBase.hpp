@@ -7,8 +7,7 @@
 namespace src::elementcomposable
 {
 /**
-    @brief:
-        Base class for any generic layout related options/information.
+    @brief Base class for any generic layout related options/information.
 */
 class LayoutBase
 {
@@ -19,45 +18,53 @@ public:
         glm::vec2 end;
     };
 
+    /** @brief Represents the display type of the element. */
     enum class Type : uint8_t
     {
         HORIZONTAL, VERTICAL, GRID
     };
 
+    /** @brief Represents the scale type applied to the element. */
     enum class ScaleType : uint8_t
     {
         PX, REL, FIT, FILL
     };
 
+    /** @brief Represents the scale type and value of the element. */
     struct Scale
     {
         float val{100.0f};
         ScaleType type{ScaleType::PX};
     };
 
+    /** @brief Represents the Scale on each axis. */
     struct ScaleXY
     {
         Scale x;
         Scale y;
     };
 
-    enum class PositionType
+    /** @brief Represents the position type applied to the element. */
+    enum class PositionType : uint8_t
     {
         COMPUTED, ABS
     };
 
+    /** @brief Represents the position type and value of the element. */
     struct Position
     {
         float val{0.0f};
         PositionType type{PositionType::COMPUTED};
     };
 
+    /** @brief Represents the Position on each axis. */
     struct PositionXY
     {
         Position x;
         Position y;
     };
 
+    /** @brief Represents a generic structure containing values for the 4 general directions. */
     struct TBLR
     {
         int32_t top{0};

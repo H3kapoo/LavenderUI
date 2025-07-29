@@ -8,12 +8,10 @@
 namespace src::uielements
 {
 /**
-    @brief:
-        Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,
+    @brief Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,
         rendering, layout and events handling for all children GUI elements.
 
-    @notes:
-    (1) Each UIWindow has it's own global state handle.
+    @note Each UIWindow has it's own global UIWindowState handle.
 */
 class UIWindow : public UIBase
 {
@@ -22,22 +20,17 @@ public:
     virtual ~UIWindow() = default;
     UIWindow(const UIWindow&) = delete;
     UIWindow(UIWindow&&) = delete;
-    UIWindow& operator=(const UIWindow&) = delete;
-    UIWindow& operator=(UIWindow&&) = delete;
+    auto operator=(UIWindow&&) -> UIWindow& = delete;
+    auto operator=(const UIWindow&) -> UIWindow& = delete;
 
     /**
-        @brief:
-            Run the window's logic one time.
+        @brief Run the window's logic one time.
 
-        @notes:
-        (1) This is not the same as the App::run() method as UIWindows do not have their
+        @note This is not the same as the App::run() method as UIWindows do not have their
             standalone game loop.
-        (2) This is public in order to give the user the freedom to make his own loop.
+        @note This is public in order to give the user the freedom to make his own loop.
 
-        @returns:
-            True if window shall close.
-            False otherwise.
-
+        @return True if window shall close. False otherwise.
     */
     auto run() -> bool;
 
@@ -49,6 +42,7 @@ public:
 
     /* Mandatory typeinfo */
     INSERT_TYPEINFO(UIWindow);
+    BASE_ALLOW_ADD_REMOVE;
 
 private:
     auto render(const glm::mat4& projection) -> void override;

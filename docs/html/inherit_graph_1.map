@@ -1,0 +1,37 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$structsrc_1_1elementcomposable_1_1IEvent.html" title=" " alt="" coords="5,261,188,301"/>
+<area shape="rect" id="Node000001" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="248,5,489,45"/>
+<area shape="poly" id="edge1_Node000000_Node000001" title=" " alt="" coords="107,248,125,204,152,151,188,99,210,76,234,55,255,43,258,48,238,60,214,80,192,103,156,154,129,206,111,250"/>
+<area shape="rect" id="Node000003" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="254,69,483,109"/>
+<area shape="poly" id="edge3_Node000000_Node000003" title=" " alt="" coords="115,248,163,182,197,148,235,119,259,107,261,112,237,124,200,152,167,186,119,251"/>
+<area shape="rect" id="Node000005" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="253,133,485,173"/>
+<area shape="poly" id="edge5_Node000000_Node000005" title=" " alt="" coords="130,250,178,215,235,183,267,171,269,176,237,188,181,220,134,255"/>
+<area shape="rect" id="Node000007" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="257,197,480,237"/>
+<area shape="poly" id="edge7_Node000000_Node000007" title=" " alt="" coords="195,256,283,235,284,240,196,261"/>
+<area shape="rect" id="Node000009" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="251,261,486,301"/>
+<area shape="poly" id="edge9_Node000000_Node000009" title=" " alt="" coords="201,279,251,279,251,284,201,284"/>
+<area shape="rect" id="Node000011" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="236,325,501,365"/>
+<area shape="poly" id="edge11_Node000000_Node000011" title=" " alt="" coords="196,302,284,323,283,328,195,307"/>
+<area shape="rect" id="Node000013" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="251,389,486,429"/>
+<area shape="poly" id="edge13_Node000000_Node000013" title=" " alt="" coords="134,308,181,343,237,375,269,387,267,392,235,380,178,348,130,312"/>
+<area shape="rect" id="Node000015" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title=" " alt="" coords="273,453,465,493"/>
+<area shape="poly" id="edge15_Node000000_Node000015" title=" " alt="" coords="119,311,167,377,200,411,237,439,274,455,272,460,235,444,197,415,163,381,115,315"/>
+<area shape="rect" id="Node000017" href="$structsrc_1_1elementcomposable_1_1IEventCRTP.html" title="Base event from which every new custom event needs to inherit from. Ids are given automatically throu..." alt="" coords="276,517,461,557"/>
+<area shape="poly" id="edge17_Node000000_Node000017" title=" " alt="" coords="111,313,129,357,156,408,192,460,214,483,237,503,277,523,275,527,235,508,210,487,188,463,152,411,125,359,107,315"/>
+<area shape="rect" id="Node000002" href="$structsrc_1_1elementcomposable_1_1MouseButtonEvt.html" title=" " alt="" coords="549,5,732,45"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="503,23,549,23,549,28,503,28"/>
+<area shape="rect" id="Node000004" href="$structsrc_1_1elementcomposable_1_1MouseDragEvt.html" title=" " alt="" coords="549,69,732,109"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="497,87,549,87,549,92,497,92"/>
+<area shape="rect" id="Node000006" href="$structsrc_1_1elementcomposable_1_1MouseEnterEvt.html" title=" " alt="" coords="549,133,732,173"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="499,151,549,151,549,156,499,156"/>
+<area shape="rect" id="Node000008" href="$structsrc_1_1elementcomposable_1_1MouseExitEvt.html" title=" " alt="" coords="549,197,732,237"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="494,215,549,215,549,220,494,220"/>
+<area shape="rect" id="Node000010" href="$structsrc_1_1elementcomposable_1_1MouseMoveEvt.html" title=" " alt="" coords="549,261,732,301"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="500,279,549,279,549,284,500,284"/>
+<area shape="rect" id="Node000012" href="$structsrc_1_1elementcomposable_1_1MouseMoveScanEvt.html" title=" " alt="" coords="549,325,732,365"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="515,343,549,343,549,348,515,348"/>
+<area shape="rect" id="Node000014" href="$structsrc_1_1elementcomposable_1_1MouseScrollEvt.html" title=" " alt="" coords="549,389,732,429"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="500,407,549,407,549,412,500,412"/>
+<area shape="rect" id="Node000016" href="$structsrc_1_1elementcomposable_1_1SliderEvt.html" title=" " alt="" coords="549,453,732,493"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="479,471,549,471,549,476,479,476"/>
+</map>

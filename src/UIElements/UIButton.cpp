@@ -2,7 +2,6 @@
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
-#include "src/WindowManagement/NativeWindow.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 
 namespace src::uielements
@@ -21,6 +20,17 @@ auto UIButton::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+    /* Draw the text */
+    const auto& textShader_ = textAttribs_.getShader();
+    const auto& textBuffer = textAttribs_.getBuffer();
+    textShader_.bind();
+    textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
+    textShader_.uploadTexture2DArray("uTextureArray", GL_TEXTURE0, textAttribs_.getFont()->textureId);
+    textShader_.uploadMat4("uMatrixProjection", projection);
+    textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
+    textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, textAttribs_.getText().size());
+
     renderNext(projection);
 }
 
@@ -30,7 +40,11 @@ auto UIButton::layout() -> void
     // BasicCalculator::get().calcElementsPos(shared_from_this());
 
     // log_.debug("Doing layout for {} {}", id_, UIButton::typeId);
-    layoutNext();
+
+    /* Position the text */
+    const glm::vec2 p = getComputedPos() + getComputedScale() / 2.0f
+        - textAttribs_.computeMaxSize() / 2.0f;
+    textAttribs_.setPosition(p);
 }
 
 auto UIButton::event(state::UIWindowStatePtr& state) -> void
@@ -61,4 +75,11 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
 
     eventNext(state);
 }
+
+auto UIButton::setFont(const std::filesystem::path& fontPath) -> void
+{
+
+}
+
+auto UIButton::setText(const std::string& text) -> void { textAttribs_.setText(text); }
 } // namespace src::uielements

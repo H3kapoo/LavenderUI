@@ -1,0 +1,13 @@
+<map id="src::uielements::UIButton" name="src::uielements::UIButton">
+<area shape="rect" id="Node000001" title="Simple generic button which generic click functionality." alt="" coords="460,109,647,134"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1uielements_1_1UIBase.html" title="Abstract class defining base functionality for any new UI element." alt="" coords="236,109,412,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="426,119,460,119,460,124,426,124"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="13,5,180,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="171,48,189,55,299,106,297,111,187,60,169,53"/>
+<area shape="rect" id="Node000004" href="$classsrc_1_1elementcomposable_1_1LayoutBase.html" title="Base class for any generic layout related options/information." alt="" coords="5,69,188,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="202,101,236,106,235,112,201,107"/>
+<area shape="rect" id="Node000005" href="$classsrc_1_1elementcomposable_1_1PropsBase.html" title=" " alt="" coords="5,133,188,173"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="201,136,235,131,236,136,202,141"/>
+<area shape="rect" id="Node000006" href="$classsrc_1_1elementcomposable_1_1Events.html" title="Manager handling the storage and dispatch of user or window generated events." alt="" coords="5,197,188,237"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="169,190,187,183,297,132,299,137,189,188,171,195"/>
+</map>

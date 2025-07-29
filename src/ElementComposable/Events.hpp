@@ -11,8 +11,7 @@ namespace src::elementcomposable
 using EventCallback = std::function<void(const IEvent&)>;
 
 /**
-    @brief:
-        Manager handling the storage and dispatch of user or window generated events.
+    @brief Manager handling the storage and dispatch of user or window generated events.
 */
 class Events
 {

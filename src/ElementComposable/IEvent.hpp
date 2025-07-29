@@ -13,8 +13,7 @@ struct IEvent
 };
 
 /**
-    @brief:
-        Base event from which every new custom event needs to inherit from.
+    @brief Base event from which every new custom event needs to inherit from.
         Ids are given automatically through CRTP.
 */
 template<typename Derived>

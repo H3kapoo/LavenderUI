@@ -7,8 +7,7 @@ namespace src::elementcomposable
 class PropsBase
 {
 /**
-    @brief:
-        Base class for any generic element property.
+    @brief Base class for any generic element property.
 */
 public:
     PropsBase() = default;

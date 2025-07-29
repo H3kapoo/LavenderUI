@@ -8,8 +8,7 @@ namespace src::uielements
 using namespace elementcomposable;
 
 /**
-    @brief:
-        Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane.
+    @brief Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane.
 */
 class UISlider : public UIBase
 {
@@ -18,8 +17,8 @@ public:
     ~UISlider() = default;
     UISlider(const UISlider&) = delete;
     UISlider(UIBase&&) = delete;
-    UISlider& operator=(const UISlider&) = delete;
-    UISlider& operator=(UISlider&&) = delete;
+    auto operator=(const UISlider&) -> UISlider& = delete;
+    auto operator=(UISlider&&) -> UISlider& = delete;
 
     auto getScrollPercentage() -> float;
     auto getScrollValue() -> float;

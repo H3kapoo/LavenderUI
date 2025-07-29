@@ -15,12 +15,9 @@ using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
 class NativeWindow;
 
 /**
-    @brief:
-        Top level GUI input provider from the bound window.
+    @brief Top level GUI input provider from the bound window.
 
-    @notes:
-    (1) You can hook into these callbacks and generate events yourself if you want.
-    (2) Window handle can be rebound at runtime if need be. 
+    @note You can hook into these callbacks and generate events yourself if you want.
 */
 class Input
 {
@@ -29,8 +26,8 @@ public:
     ~Input() = default;
     Input(const Input&) = delete;
     Input(Input&&) = delete;
-    Input& operator=(const Input&) = delete;
-    Input& operator=(Input&&) = delete;
+    auto operator=(const Input&) -> Input& = delete;
+    auto operator=(Input&&) -> Input& = delete;
 
     auto setKeyCallback(const KeyCallback& callback) -> void;
     auto setMouseMoveCallback(const MouseMoveCallback& callback) -> void;
@@ -39,6 +36,7 @@ public:
     auto setWindowSizeCallback(const WindowSizeCallback& callback) -> void;
 
 private:
+    /* Only meant to be used by NativeWindow */
     friend NativeWindow;
     auto bindWindow(GLFWwindow* windowHandle) -> void;
 

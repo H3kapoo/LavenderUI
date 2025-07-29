@@ -8,109 +8,84 @@
 namespace src
 {
 /**
-    @brief:
-        Main app management entry point responsible for the lifetime of the GUI's windows.
+    @brief Main app management entry point responsible for the lifetime of the GUI's windows.
 
-    @notes:
-    (1) Always ensure init() is called before everything else happens.
-
-    (2) Only one instance of this can exist at one time. Windows can be created from any thread.
-        The first window is always the main window and closing it will close all the other windows.
-
-    (3) It is not advised to have an active shared_ptr handle to the window frame in the same scope
-        as the run() command due to reference counting keeping the window alive even if the exit event was issued.
-        You as the caller don't own anything the callee created.
+    @note Always ensure init() is called before everything else happens.
+    @note Only one instance of this can exist at any given time.
+    @note Windows can be created from any thread. The first window is always the main window and closing it
+        will close all the other windows.
+    @note It is not advised to have an active shared_ptr handle to the window frame in the same scope
+            as the run() command due to reference counting keeping the window alive even if the exit event was issued.
+            You as the caller don't own anything the callee created.
 */
 class App
 {
 public:
     App(const App&) = delete;
     App(App&&) = delete;
-    App& operator=(const App&) = delete;
-    App& operator=(App&&) = delete;
+    auto operator=(const App&) -> App& = delete;
+    auto operator=(App&&) -> App& = delete;
 
     /**
-        @brief:
-            Initialize application specific libs.
+        @brief Initialize application specific libs.
 
-        @notes:
-            On successfull return it is guaranteed tha an opengl is bound.
+        @note On successfull return it is guaranteed that an opengl is bound.
 
-        @returns:
-            True on success.
-            False otherwise.
+        @return True on success. False otherwise.
     */
     auto init() -> bool;
 
     /**
-        @brief:
-            Create a new window of specified parameters.
+        @brief Create a new window of specified parameters.
 
-        @notes:
-            Caller should not OWN a handle to created window!
+        @note Caller shall not OWN a handle to the created window!
 
-        @params:
-            title - title of the window
-            size - x,y size of the window in pixels
+        @param title Title of the window
+        @param size x, y size of the window in pixels
 
-        @returns:
-            Weak reference to the newly created window.
+        @return Weak reference to the newly created window.
     */
     auto createWindow(const std::string& title, const glm::ivec2 size) -> uielements::UIWindowWPtr;
 
     /**
-        @brief:
-            Find a window of specified id.
+        @brief Find a window of specified id.
 
-        @notes:
-            Caller should not OWN a handle to the returned window!
+        @note Caller shall not OWN a handle to the returned window!
 
-        @params:
-            windowId - id of the searched for window
+        @param windowId Id of the searched for window
 
-        @returns:
-            Weak reference to the newly created window.
+        @return Weak reference to the newly created window.
     */
     auto findWindow(const uint64_t windowId) -> uielements::UIWindowWPtr;
 
     /**
-        @brief:
-            Starts the GUI loop.
+        @brief Starts the GUI loop.
 
-        @notes:
-            Blocks until the app's main window is closed.
+        @note Blocks until the app's main window is closed.
     */
     auto run() -> void;
 
     /**
-        @brief:
-            Choose if the app shall run the loop at full speed or only when an OS window event is spawed.
+        @brief Choose if the app shall run the loop at full speed or only when an OS window event is spawed.
 
-        @notes:
-            Default behavior is to wait for events to come in and not go full blast as it is useless
+        @note Default behavior is to wait for events to come in and not go full blast as it is useless
             in most applications that don't need constant refresh of UI.
 
-        @params:
-            waitEvents - should wait for events or not
-
+        @param waitEvents Should wait for events or not
     */
     auto setWaitEvents(const bool waitEvents = true) -> void;
 
     /**
-        @brief:
-            Show FPS counter near the window's title.
+        @brief Show FPS counter near the window's title.
 
-        @params:
-            enable - enable or not this thing
+        @param enable Enable or not the counter
     */
     auto enableTitleWithFPS(const bool enable = true) -> void;
 
     /**
-        @brief:
-            Static singleton accessor.
+        @brief Static singleton accessor.
 
-        @returns:
-            Instance of the App class.
+        @return Instance of the App class.
     */
     static auto get() -> App&;
 

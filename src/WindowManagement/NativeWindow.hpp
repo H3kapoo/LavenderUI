@@ -19,8 +19,7 @@
 namespace src::windowmanagement
 {
 /**
-    @brief:
-        Class responsible for initializing and wrapping the native OS window provided by GLFW.
+    @brief Class responsible for initializing and wrapping the native OS window provided by GLFW.
         Furthermore anything related to window management from GLEW side is handled here as well.
 */
 class NativeWindow
@@ -29,81 +28,73 @@ public:
     NativeWindow(const std::string& title, const glm::ivec2 size);
     ~NativeWindow();
     NativeWindow(const NativeWindow&) = delete;
-    NativeWindow& operator=(const NativeWindow&) = delete;
     NativeWindow(NativeWindow&&) = delete;
-    NativeWindow& operator=(NativeWindow&&) = delete;
+    auto operator=(const NativeWindow&) -> NativeWindow& = delete;
+    auto operator=(NativeWindow&&) -> NativeWindow& = delete;
 
     /**
-        @brief:
-            Tells the window API to close the window.
+        @brief Tells the window API to close the window.
     */
     auto close() const -> void;
 
     /**
-        @brief:
-            Makes the openGL context be the current one.
+        @brief Makes the openGL context be the current one.
     */
     auto makeContextCurrent() -> void;
 
     /**
-        @brief:
-            Checks if the window shall be closed.
+        @brief Checks if the window shall be closed.
 
-        @returns:
-            True if window shall close.
-            False otherwise.
+        @return True if window shall close. False otherwise.
     */
     auto shouldWindowClose() const -> bool;
 
     /**
-        @brief:
-            Swap back and front buffers.
+        @brief Swap back and front buffers.
     */
     auto swapBuffers() -> void;
 
-
     /**
-        @brief:
-            Initialize GLFW and GLEW libs.
+        @brief Initialize GLFW and GLEW libs.
 
-        @returns:
-            True on success.
-            Flase on failure.
+        @return True on success. Flase on failure.
     */
     static auto init() -> bool;
 
     /**
-        @brief:
-            Terminate GLFW allocated resources.
+        @brief Terminate GLFW allocated resources.
     */
     static auto terminate() -> void;
 
     /**
-        @brief:
-            Changes vsync of the windows.
+        @brief Changes vsync of the windows.
 
-        @notes:
-        (1) Vsync change will affect all the windows at least on Linux.
+        @note Vsync change will affect all the windows at least on Linux.
 
-        @params:
-            enable - enable of not this thing
+        @param enable Enable of not vsync
     */
     static auto enableVsync(const bool enable = true) -> void;
 
     /**
-        @brief:
-            Make the window wait or not for events before continuing the game loop.
+        @brief Make the window wait or not for events before continuing the game loop.
 
-        @params:
-            waitEvents - wait for the next event or not
+        @param waitEvents Wait for the next event or not
     */
     static auto setWaitEvents(const bool waitEvents = true) -> void;
 
     /**
-        @brief:
-            Just poll the currently in the queue events or wait for events.
+        @brief Just poll the currently in the queue events or wait for events.
     */
     static auto pollEvents() -> void;
+
+    auto setTitle(std::string title, const bool updateInteralText) -> void;
+
+    auto getGlfwHandle() const -> GLFWwindow*;
+    auto getTitle() const -> std::string;
+    auto getSize() const -> glm::ivec2;
+    auto getId() const -> uint64_t;
+    auto getDeltaTime() -> double;
+    auto getInput() -> Input&;
 
     static auto enableDepthTest(const bool enable = true) -> void;
     static auto enableScissorsTest(const bool enable = true) -> void;
@@ -115,15 +106,6 @@ public:
     static auto updateViewport(const glm::ivec2 size) -> void;
     static auto getInitGlfwHandle() -> GLFWwindow*;
     static auto getTime() -> double;
-
-    auto setTitle(std::string title, const bool updateInteralText) -> void;
-
-    auto getGlfwHandle() const -> GLFWwindow*;
-    auto getTitle() const -> std::string;
-    auto getSize() const -> glm::ivec2;
-    auto getId() const -> uint64_t;
-    auto getDeltaTime() -> double;
-    auto getInput() -> Input&;
 
 private:
     auto maskEvents() -> void;

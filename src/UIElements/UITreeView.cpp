@@ -2,10 +2,8 @@
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
-#include "src/ResourceLoaders/ShaderLoader.hpp"
-#include "src/UIElements/UISlider.hpp"
-#include "src/Utils/Misc.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
+#include "src/UIElements/UIButton.hpp"
+#include "src/WindowManagement/Input.hpp"
 
 namespace src::uielements
 {
@@ -36,64 +34,19 @@ auto UITreeView::layout() -> void
     using namespace layoutcalculator;
     const auto& calculator = BasicCalculator::get();
 
-    /* Slider value needs to be reset to zero if there's no need for it anymore after an
-    item had closed */
-    if (flatItems_.size() * rowSize_ - getComputedScale().y <= 0)
-    {
-        vSlider_ ? vSlider_->setScrollValue(0) : void();
-        hSlider_ ? hSlider_->setScrollValue(0) : void();
-    }
+    resolveVisibleItems();
 
-    topOfTheListIdx_ = vSlider_ ? vSlider_->getScrollValue() / rowSize_ : 0;
-    visibleCount_ = getComputedScale().y / rowSize_ + 2;
-    if (topOfTheListIdx_ != oldTopOfTheListIdx_ || visibleCount_ != oldVisibleCount_)
-    {
-        log_.debug("tol {} {}", topOfTheListIdx_, visibleCount_);
-        remove([](const auto&){ return true; });
-
-        for (int32_t i = 0; i < visibleCount_; ++i)
-        {
-            uint32_t index = topOfTheListIdx_ + i;
-            if (index >= flatItems_.size()) { break; }
-
-            // auto ref = std::make_shared<Button>("Item");
-            // auto itemObj = utils::make<UIButton>();
-            auto itemObj = utils::make<UISlider>();
-            itemObj->setColor(flatItems_[index]->color);
-            itemObj->setText(flatItems_[index]->text);
-            itemObj->setScale({.x = 200_px, .y = {(float)rowSize_}})
-                .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
-
-            itemObj->listenTo<elementcomposable::MouseButtonEvt>(
-                [this, index](const auto& e)
-                {
-                    if (e.action == GLFW_RELEASE)
-                    {
-                        log_.debug("clicked on {}", flatItems_[index]->text);
-                        flatItems_[index]->open = !flatItems_[index]->open;
-                        oldVisibleCount_ = 0;
-                        refreshItems();
-
-                        layout();
-                    }
-                });
-            add(itemObj);
-        }
-        oldTopOfTheListIdx_ = topOfTheListIdx_;
-        oldVisibleCount_ = visibleCount_;
-    }
-
-    /* Adding new elements (slides in this case) invalidates the calculations. */
-    while (true)
+    glm::ivec2 overflow{0, 0};
+    do
     {
         const auto sliderImpact = calculator.calcPaneSliders(this);
         calculator.calcPaneElements(this, sliderImpact);
-
-        glm::vec2 overflow = calculator.calcOverflow(this, sliderImpact);
-        overflow.y = flatItems_.size() * rowSize_ - getComputedScale().y;
-        if (const auto needsRecalc = updateSlidersWithOverflow(overflow); !needsRecalc) { break; }
-    }
     
+        overflow = calculator.calcOverflow(this, sliderImpact);
+        overflow.y = flatItems_.size() * rowSize_ - getComputedScale().y;
+    
+    } while (updateSlidersWithOverflow(overflow));
+
     calculator.calcPaneElementsAddScrollToPos(this, {
         hSlider_ ? hSlider_->getScrollValue() : 0,
         vSlider_ ? (uint32_t)vSlider_->getScrollValue() % rowSize_ : 0});
@@ -113,9 +66,74 @@ auto UITreeView::event(state::UIWindowStatePtr& state) -> void
     eventNext(state);
 }
 
+
+auto UITreeView::resolveVisibleItems() -> void
+{
+    /* Slider value needs to be reset to zero if there's no need for it anymore after an
+    item has closed. */
+    if (flatItems_.size() * rowSize_ - getComputedScale().y <= 0)
+    {
+        vSlider_ ? vSlider_->setScrollValue(0) : void();
+        // TODO: Not ok if there's still overflow on X axis
+        hSlider_ ? hSlider_->setScrollValue(0) : void();
+    }
+
+    topOfTheListIdx_ = vSlider_ ? vSlider_->getScrollValue() / rowSize_ : 0;
+    visibleCount_ = getComputedScale().y / rowSize_ + 2;
+
+    if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
+    {
+        return;
+    }
+
+    remove([](const auto&){ return true; });
+
+    for (int32_t i = 0; i < visibleCount_; ++i)
+    {
+        uint32_t index = topOfTheListIdx_ + i;
+        if (index >= flatItems_.size()) { break; }
+
+        // auto ref = std::make_shared<Button>("Item");
+        auto itemObj = utils::make<UIButton>();
+        // auto itemObj = utils::make<UISlider>();
+        itemObj->setColor(flatItems_[index]->color);
+        itemObj->setText(flatItems_[index]->text);
+        itemObj->setScale({.x = 200_px, .y = {(float)rowSize_}})
+            .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
+
+        itemObj->listenTo<elementcomposable::MouseButtonEvt>(
+            [this, index](const auto& e)
+            {
+                using namespace windowmanagement;
+                if (e.action == Input::RELEASE)
+                {
+                    log_.debug("clicked on {}", flatItems_[index]->text);
+                    flatItems_[index]->open = !flatItems_[index]->open;
+                    oldVisibleCount_ = 0;
+                    refreshItems();
+
+                    layout();
+                }
+            });
+        add(itemObj);
+    }
+    oldTopOfTheListIdx_ = topOfTheListIdx_;
+    oldVisibleCount_ = visibleCount_;
+}
+
+auto UITreeView::addItem(ItemPtr&& item) -> void
+{
+    treeRoots_.emplace_back(item);
+}
+
 auto UITreeView::addItem(const ItemPtr& item) -> void
 {
     treeRoots_.emplace_back(item);
+}
+
+auto UITreeView::removeItem(const ItemPtr& item) -> bool
+{
+    return std::erase(treeRoots_, item);
 }
 
 auto UITreeView::refreshItems() -> void
@@ -162,5 +180,20 @@ auto UITreeView::refreshItems() -> void
         }
     };
     recurseFlat(recurseFlat, treeRoots_, 0);
+}
+
+auto UITreeView::Item::addItem(ItemPtr&& item) -> void
+{
+    subItems.emplace_back(std::move(item));
+}
+
+auto UITreeView::Item::addItem(const ItemPtr& item) -> void
+{
+    subItems.emplace_back(item);
+}
+
+auto UITreeView::Item::removeItem(const ItemPtr& item) -> bool
+{
+    return std::erase(subItems, item);
 }
 } // namespace src::uielements

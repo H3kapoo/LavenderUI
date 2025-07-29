@@ -9,11 +9,9 @@ namespace src::state
 static constexpr uint32_t NOTHING = 0;
 
 /**
-    @brief:
-        Structure defining each needed state per window.
+    @brief Structure defining each needed state per window.
     
-    @notes:
-    (1) Can be used to exchange data between UI elements if need be.
+    @note Can be used to exchange data between UI elements if need be.
 */
 struct UIWindowState
 {
