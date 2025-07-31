@@ -11,6 +11,7 @@ var hierarchy =
           [ "src::uielements::UITreeView", "classsrc_1_1uielements_1_1UITreeView.html", null ]
         ] ],
         [ "src::uielements::UISlider", "classsrc_1_1uielements_1_1UISlider.html", null ],
+        [ "src::uielements::UISplitPane", "classsrc_1_1uielements_1_1UISplitPane.html", null ],
         [ "src::uielements::UIWindow", "classsrc_1_1uielements_1_1UIWindow.html", null ]
       ] ]
     ] ],

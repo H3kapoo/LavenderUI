@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UISlider.hpp"
 
@@ -74,4 +72,5 @@ protected:
 };
 using UIPanePtr = std::shared_ptr<UIPane>;
 using UIPaneWPtr = std::weak_ptr<UIPane>;
+using UIPanePtrVec = std::vector<UIPanePtr>;
 } // namespace src::uielements

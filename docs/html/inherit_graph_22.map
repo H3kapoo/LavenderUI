@@ -1,23 +1,25 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="24,5,169,45"/>
-<area shape="rect" id="Node000001" href="$classsrc_1_1uielements_1_1UIBase.html" title="Abstract class defining base functionality for any new UI element." alt="" coords="236,109,412,134"/>
-<area shape="poly" id="edge18_Node000000_Node000001" title=" " alt="" coords="171,48,189,55,299,106,297,111,187,60,169,53"/>
-<area shape="rect" id="Node000002" href="$classsrc_1_1uielements_1_1UIButton.html" title="Simple generic button which generic click functionality." alt="" coords="465,10,651,35"/>
-<area shape="poly" id="edge19_Node000001_Node000002" title=" " alt="" coords="355,99,403,71,459,44,494,33,496,38,461,49,405,76,358,103"/>
-<area shape="rect" id="Node000003" href="$classsrc_1_1uielements_1_1UIImage.html" title=" " alt="" coords="465,59,651,85"/>
-<area shape="poly" id="edge20_Node000001_Node000003" title=" " alt="" coords="398,103,496,82,497,87,399,108"/>
-<area shape="rect" id="Node000004" href="$classsrc_1_1uielements_1_1UIPane.html" title="Pane GUI element that can be used as a container for other elements. Has the ability to scroll the el..." alt="" coords="471,109,645,134"/>
-<area shape="poly" id="edge21_Node000001_Node000004" title=" " alt="" coords="426,119,471,119,471,124,426,124"/>
-<area shape="rect" id="Node000006" href="$classsrc_1_1uielements_1_1UISlider.html" title="Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane." alt="" coords="467,158,649,183"/>
-<area shape="poly" id="edge23_Node000001_Node000006" title=" " alt="" coords="399,134,497,155,496,161,398,139"/>
-<area shape="rect" id="Node000007" href="$classsrc_1_1uielements_1_1UIWindow.html" title="Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,..." alt="" coords="460,207,656,233"/>
-<area shape="poly" id="edge24_Node000001_Node000007" title=" " alt="" coords="358,139,405,167,461,194,496,205,494,210,459,198,403,172,355,144"/>
-<area shape="rect" id="Node000005" href="$classsrc_1_1uielements_1_1UITreeView.html" title="Treeview that can be used to display elements in a tree like structure with on click opening and clos..." alt="" coords="704,109,907,134"/>
-<area shape="poly" id="edge22_Node000004_Node000005" title=" " alt="" coords="659,119,704,119,704,124,659,124"/>
-<area shape="rect" id="Node000008" href="$classsrc_1_1elementcomposable_1_1Events.html" title="Manager handling the storage and dispatch of user or window generated events." alt="" coords="5,69,188,109"/>
-<area shape="poly" id="edge25_Node000008_Node000001" title=" " alt="" coords="202,101,236,106,235,112,201,107"/>
-<area shape="rect" id="Node000009" href="$classsrc_1_1elementcomposable_1_1LayoutBase.html" title="Base class for any generic layout related options/information." alt="" coords="5,133,188,173"/>
-<area shape="poly" id="edge26_Node000009_Node000001" title=" " alt="" coords="201,136,235,131,236,136,202,141"/>
-<area shape="rect" id="Node000010" href="$classsrc_1_1elementcomposable_1_1PropsBase.html" title=" " alt="" coords="5,197,188,237"/>
-<area shape="poly" id="edge27_Node000010_Node000001" title=" " alt="" coords="169,190,187,183,297,132,299,137,189,188,171,195"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="24,26,169,66"/>
+<area shape="rect" id="Node000001" href="$classsrc_1_1uielements_1_1UIBase.html" title="Abstract class defining base functionality for any new UI element." alt="" coords="236,129,412,155"/>
+<area shape="poly" id="edge18_Node000000_Node000001" title=" " alt="" coords="171,68,189,76,299,127,297,132,187,80,169,73"/>
+<area shape="rect" id="Node000002" href="$classsrc_1_1uielements_1_1UIButton.html" title="Simple generic button which generic click functionality." alt="" coords="469,5,655,31"/>
+<area shape="poly" id="edge19_Node000001_Node000002" title=" " alt="" coords="347,118,396,78,459,40,490,28,492,33,461,44,399,82,350,122"/>
+<area shape="rect" id="Node000003" href="$classsrc_1_1uielements_1_1UIImage.html" title=" " alt="" coords="469,55,655,80"/>
+<area shape="poly" id="edge20_Node000001_Node000003" title=" " alt="" coords="369,122,459,90,505,78,506,83,461,95,371,127"/>
+<area shape="rect" id="Node000004" href="$classsrc_1_1uielements_1_1UIPane.html" title="Pane GUI element that can be used as a container for other elements. Has the ability to scroll the el..." alt="" coords="475,104,649,129"/>
+<area shape="poly" id="edge21_Node000001_Node000004" title=" " alt="" coords="425,129,474,123,475,129,426,134"/>
+<area shape="rect" id="Node000006" href="$classsrc_1_1uielements_1_1UISlider.html" title="Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane." alt="" coords="471,153,653,179"/>
+<area shape="poly" id="edge23_Node000001_Node000006" title=" " alt="" coords="426,150,472,154,471,160,426,155"/>
+<area shape="rect" id="Node000007" href="$classsrc_1_1uielements_1_1UISplitPane.html" title="Splitter GUI element used as a container manager holding multiple UIPanes that can be resize on mouse..." alt="" coords="460,203,664,228"/>
+<area shape="poly" id="edge24_Node000001_Node000007" title=" " alt="" coords="370,157,461,189,503,200,502,205,459,194,369,162"/>
+<area shape="rect" id="Node000008" href="$classsrc_1_1uielements_1_1UIWindow.html" title="Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,..." alt="" coords="464,252,660,277"/>
+<area shape="poly" id="edge25_Node000001_Node000008" title=" " alt="" coords="350,162,399,201,461,238,492,249,490,254,459,243,396,205,347,166"/>
+<area shape="rect" id="Node000005" href="$classsrc_1_1uielements_1_1UITreeView.html" title="Treeview that can be used to display elements in a tree like structure with on click opening and clos..." alt="" coords="712,104,915,129"/>
+<area shape="poly" id="edge22_Node000004_Node000005" title=" " alt="" coords="663,114,712,114,712,119,663,119"/>
+<area shape="rect" id="Node000009" href="$classsrc_1_1elementcomposable_1_1Events.html" title="Manager handling the storage and dispatch of user or window generated events." alt="" coords="5,90,188,130"/>
+<area shape="poly" id="edge26_Node000009_Node000001" title=" " alt="" coords="202,122,236,127,235,132,201,127"/>
+<area shape="rect" id="Node000010" href="$classsrc_1_1elementcomposable_1_1LayoutBase.html" title="Base class for any generic layout related options/information." alt="" coords="5,154,188,194"/>
+<area shape="poly" id="edge27_Node000010_Node000001" title=" " alt="" coords="201,157,235,152,236,157,202,162"/>
+<area shape="rect" id="Node000011" href="$classsrc_1_1elementcomposable_1_1PropsBase.html" title=" " alt="" coords="5,218,188,258"/>
+<area shape="poly" id="edge28_Node000011_Node000001" title=" " alt="" coords="169,211,187,204,297,152,299,157,189,208,171,216"/>
 </map>

@@ -45,6 +45,10 @@ private:
     auto calculatePercentage(const glm::ivec2& mPos) -> float;
     auto calculateKnobPosition() -> void;
 
+public:
+    static uint32_t scrollTagId; /** @brief Tag used to check if this Slider is actually a scroll bar. */
+    static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index, */;
+
 protected:
     LayoutBase knobLayout_;
     PropsBase knobProps_;
@@ -57,7 +61,7 @@ protected:
 private:
     glm::ivec2 offsetToKnobCenter_{0.0f, 0.0f};
     bool invertVertical_{false}; /* false - starts from bottom; true - starts from top */
-    float sensitivity_{0.01f};
+    float sensitivity_{2.0f};
 };
 using UISliderPtr = std::shared_ptr<UISlider>;
 using UISliderWPtr = std::weak_ptr<UISlider>;

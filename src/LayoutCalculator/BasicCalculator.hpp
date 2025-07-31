@@ -2,6 +2,7 @@
 
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIPane.hpp"
+#include "src/UIElements/UISplitPane.hpp"
 
 namespace src::layoutcalculator
 {
@@ -28,14 +29,34 @@ class BasicCalculator
 public:
     static auto get() -> BasicCalculator&;
 
-    auto calculate(const uielements::UIBasePtr& parent) -> void;
+    /** @brief Calculate the computed scale for the elements of this parent element.
+
+        @details Function calculates the required `computedScale` based on the user supplied `scaleType` and
+            `value` set via `setScale`.
+        @details Parameters such as `margin`, `padding` and `border` are taken into consideration when
+            calculating the `computedScale`.
+        @details Refer to LayoutBase for more details.
+
+        @param parent Element for which the subelements need to be calculated
+        @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
+            (usually used to make room for scroll bars)
+
+        @return Void. But the elements of the parent element will now have the required computed scale.
+    */
+    auto calculateScaleForGenericElement(uielements::UIPane* parent,
+        const glm::vec2 shrinkScaleBy = {}) const -> void;
+    auto calculatePositionForGenericElement(uielements::UIPane* parent,
+        const glm::vec2 shrinkScaleBy = {}) const -> void;
+
     auto calcPaneElements(uielements::UIPane* parent, const glm::vec2 scrollData) const -> void;
     auto calcPaneSliders(uielements::UIPane* parent) const -> glm::vec2;
-    auto calcPaneElementsAddScrollToPos(uielements::UIPane* parent, const glm::vec2 scrollData) const -> void;
+    auto calcPaneElementsAddScrollToPos(uielements::UIPane* parent, const glm::ivec2 offset) const -> void;
 
     auto calcElementsPos(uielements::UIBase* parent, const glm::vec2 scrollData = {}) const -> void;
     auto calcElementsScale(uielements::UIBase* parent, const glm::vec2 scrollData = {}) const -> void;
 
-    auto calcOverflow(uielements::UIBase* parent, const glm::vec2 scrollData) const -> glm::vec2;
+    auto calcSplitPaneElements(uielements::UISplitPane* parent) const -> void;
+
+    auto calcOverflow(uielements::UIBase* parent, const glm::vec2 shrinkScaleBy) const -> glm::vec2;
 };
 } // namespace src::layoutcalculator

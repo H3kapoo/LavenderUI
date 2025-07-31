@@ -20,9 +20,11 @@ public:
         @brief Listen to a specific template event EventT and call the callback when it happens.
 
         @param callback Callback to be called upon event triggered.
+
+        @return Myself.
     */
     template<typename EventT>
-    auto listenTo(const std::function<void(const EventT)>& callback) -> void
+    auto listenTo(const std::function<void(const EventT)>& callback) -> Events&
     {
         const uint32_t key = std::type_index(typeid(EventT)).hash_code();
         eventMap_[key] = [callback](const IEvent& e)
@@ -32,6 +34,8 @@ public:
                 callback(*eCast);
             }
         };
+
+        return *this;
     }
 
     /**

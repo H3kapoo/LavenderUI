@@ -121,6 +121,8 @@ public:
     auto setEnableCustomIndex(const bool val) -> LayoutBase&;
     auto setAngle(float value) -> LayoutBase&;
 
+    friend auto operator-(const glm::vec2 lhs, const TBLR rhs) -> glm::vec2;
+
 // for now
 public:
     glm::vec2 tempPosOffset{0, 0};
@@ -134,26 +136,26 @@ protected:
     TBLR shadow{0};
     bool wrap{false};
 
-    /* User supplied position details. This is NOT the actual render start position since it includes margins
-        as well. This is the start position of the whole object. */
+    /** @brief User supplied position details. This is NOT the actual render start position since it
+        includes margins as well. This is the start position of the whole object. */
     PositionXY userPos_;
 
-    /* User supplied scale details. This is NOT the actual renderable scale, it's the size of the element's
-        content area + padding + border + margins.
+    /** @brief User supplied scale details. This is NOT the actual rendered scale but the size of
+        the element's content area + padding + border + margins.
     */
     ScaleXY userScale_{{100.0f}, {100.0f}};
 
-    /* The computed position where the mesh rendering starts. This is NOT the actual position of the element
-        as it doesn't include margins.
+    /** @brief The computed position where the mesh rendering starts. This is NOT the actual position of
+        the element as it doesn't include margins.
     */
     glm::vec2 computedPos_{0.0f, 0.0f};
 
-    /* The computed scale that dictates the scale of the rendered area. This is NOT the actual scale of the
-        element as it doesn't include margins.
+    /** @brief The computed scale that dictates the scale of the rendered area. This is NOT the actual
+        scale of the element as it doesn't include margins.
     */
     glm::vec2 computedScale_{100.0f, 100.0f};
 
-    /* Viewable pos and scale used to determine how much of this element is visible from the parent's
+    /** @brief Viewable pos and scale used to determine how much of this element is visible from the parent's
         perspective. Basically the parent-child intersection data. It doesn't include margins.
     */
     glm::vec2 viewPos_{0}, viewScale_{0};
@@ -171,6 +173,8 @@ LayoutBase::Scale operator"" _rel(long double value);
 LayoutBase::Scale operator"" _px(unsigned long long value);
 // Layout::GridDistrib operator"" _gpx(unsigned long long value);
 // Layout::GridDistrib operator"" _fr(unsigned long long value);
+
+auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 
 } // namespace src::elementcomposable
 
@@ -288,3 +292,4 @@ struct std::formatter<src::elementcomposable::LayoutBase::ScaleXY> : std::format
         return std::formatter<std::string_view>::format(std::move(os).str(), ctx);
     }
 };
+

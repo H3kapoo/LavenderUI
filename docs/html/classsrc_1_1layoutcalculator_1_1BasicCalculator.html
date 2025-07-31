@@ -111,9 +111,12 @@ $(document).ready(function(){initNavTree('classsrc_1_1layoutcalculator_1_1BasicC
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a2db9e913f7875d96014f1e8e30c3345e" id="r_a2db9e913f7875d96014f1e8e30c3345e"><td class="memItemLeft" align="right" valign="top"><a id="a2db9e913f7875d96014f1e8e30c3345e" name="a2db9e913f7875d96014f1e8e30c3345e"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>calculate</b> (const uielements::UIBasePtr &amp;parent) -&gt; void</td></tr>
-<tr class="separator:a2db9e913f7875d96014f1e8e30c3345e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa606dfe18bd844b86ef03c8a709186d2" id="r_aa606dfe18bd844b86ef03c8a709186d2"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsrc_1_1layoutcalculator_1_1BasicCalculator.html#aa606dfe18bd844b86ef03c8a709186d2">calculateScaleForGenericElement</a> (<a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *parent, const glm::vec2 shrinkScaleBy={}) const -&gt; void</td></tr>
+<tr class="memdesc:aa606dfe18bd844b86ef03c8a709186d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the computed scale for the elements of this parent element.  <br /></td></tr>
+<tr class="separator:aa606dfe18bd844b86ef03c8a709186d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6184b292b2a12b1caa35c84d0b1c8ca3" id="r_a6184b292b2a12b1caa35c84d0b1c8ca3"><td class="memItemLeft" align="right" valign="top"><a id="a6184b292b2a12b1caa35c84d0b1c8ca3" name="a6184b292b2a12b1caa35c84d0b1c8ca3"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>calculatePositionForGenericElement</b> (<a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *parent, const glm::vec2 shrinkScaleBy={}) const -&gt; void</td></tr>
+<tr class="separator:a6184b292b2a12b1caa35c84d0b1c8ca3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a28045e6fa3239a5f79d789118af3d2cd" id="r_a28045e6fa3239a5f79d789118af3d2cd"><td class="memItemLeft" align="right" valign="top"><a id="a28045e6fa3239a5f79d789118af3d2cd" name="a28045e6fa3239a5f79d789118af3d2cd"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcPaneElements</b> (<a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *parent, const glm::vec2 scrollData) const -&gt; void</td></tr>
 <tr class="separator:a28045e6fa3239a5f79d789118af3d2cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -129,6 +132,9 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcElementsPos</b> (
 <tr class="memitem:a224612f4f83f8dadf5657e2ef5645cdd" id="r_a224612f4f83f8dadf5657e2ef5645cdd"><td class="memItemLeft" align="right" valign="top"><a id="a224612f4f83f8dadf5657e2ef5645cdd" name="a224612f4f83f8dadf5657e2ef5645cdd"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcElementsScale</b> (<a class="el" href="classsrc_1_1uielements_1_1UIBase.html">uielements::UIBase</a> *parent, const glm::vec2 scrollData={}) const -&gt; void</td></tr>
 <tr class="separator:a224612f4f83f8dadf5657e2ef5645cdd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4286b1f825791b149ceb02496984455" id="r_ad4286b1f825791b149ceb02496984455"><td class="memItemLeft" align="right" valign="top"><a id="ad4286b1f825791b149ceb02496984455" name="ad4286b1f825791b149ceb02496984455"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcSplitPaneElements</b> (<a class="el" href="classsrc_1_1uielements_1_1UISplitPane.html">uielements::UISplitPane</a> *parent) const -&gt; void</td></tr>
+<tr class="separator:ad4286b1f825791b149ceb02496984455"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f12910614c5155633d91717a3d06a0a" id="r_a4f12910614c5155633d91717a3d06a0a"><td class="memItemLeft" align="right" valign="top"><a id="a4f12910614c5155633d91717a3d06a0a" name="a4f12910614c5155633d91717a3d06a0a"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcOverflow</b> (<a class="el" href="classsrc_1_1uielements_1_1UIBase.html">uielements::UIBase</a> *parent, const glm::vec2 scrollData) const -&gt; glm::vec2</td></tr>
 <tr class="separator:a4f12910614c5155633d91717a3d06a0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,7 +152,48 @@ static auto&#160;</td><td class="memItemRight" valign="bottom"><b>get</b> () -&g
 There is a limitation on using shared_from_this() in the derived classes that inherit UIBase. Since UIBase inherits enable_shared_from_this&lt;UIBase&gt;, the shared_from_this() returned when used inside a derived class is of type UIBase and it will corrupt the shared/weak ptr control block when trying to do sharedParent-&gt;getSomethingShared/Weak inside the layout calculator (derived_func(shared_from_this()). The workaround for this is to use raw pointers and call the functions with "this" instead of "shared_from_this". It is safe anyway as the class doesnt save anything or delete the pointers.</dd>
 <dd>
 Ex of explained: in calculator: castedParent-&gt;getSomeInternalUIElementShared() =&gt; this will crash if it was called from derived class with parent = shared_from_this </dd></dl>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="aa606dfe18bd844b86ef03c8a709186d2" name="aa606dfe18bd844b86ef03c8a709186d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa606dfe18bd844b86ef03c8a709186d2">&#9670;&#160;</a></span>calculateScaleForGenericElement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">auto src::layoutcalculator::BasicCalculator::calculateScaleForGenericElement </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *&#160;</td>
+          <td class="paramname"><em>parent</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const glm::vec2&#160;</td>
+          <td class="paramname"><em>shrinkScaleBy</em> = <code>{}</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const -&gt; void</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Calculate the computed scale for the elements of this parent element. </p>
+<p>Function calculates the required <code>computedScale</code> based on the user supplied <code>scaleType</code> and <code>value</code> set via <code>setScale</code>.</p>
+<p>Parameters such as <code>margin</code>, <code>padding</code> and <code>border</code> are taken into consideration when calculating the <code>computedScale</code>.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">parent</td><td>Element for which the subelements need to be calculated </td></tr>
+    <tr><td class="paramname">shrinkScaleBy</td><td>Optional parameter to shrink the parent computed scale area if needed (usually used to make room for scroll bars)</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Void. But the elements of the parent element will now have the required computed scale. </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/LayoutCalculator/<a class="el" href="BasicCalculator_8hpp_source.html">BasicCalculator.hpp</a></li>
 <li>src/LayoutCalculator/<b>BasicCalculator.cpp</b></li>
 </ul>

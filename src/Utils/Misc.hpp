@@ -6,6 +6,13 @@
 
 #include "vendor/glm/glm.hpp"
 
+
+/* Fwd declaration for UIBase */
+namespace src::uielements
+{
+    class UIBase;
+}
+
 namespace src::utils
 {
 /**
@@ -143,12 +150,25 @@ inline auto remap(float value, const float startA, const float endA,
 
     @param args.. Arguments with which to create the object
 
-    @return Newly construsted T object
+    @return Newly constructed T object
 */
 template<typename T, typename... Args>
 inline auto make(Args&&... args) -> std::shared_ptr<T>
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
+}
+
+/**
+    @brief Simple wrapper around static_pointer_cast<T>.
+
+    @param obj Object to be downcasted statically to T
+
+    @return Newly cast T object
+*/
+template<typename T>
+inline auto as(std::shared_ptr<src::uielements::UIBase>& val) -> std::shared_ptr<T>
+{
+    return std::static_pointer_cast<T>(val);
 }
 
 } // namespace src::utils

@@ -2,6 +2,10 @@
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
+#include "src/ResourceLoaders/Shader.hpp"
+#include "src/ResourceLoaders/ShaderLoader.hpp"
+#include "src/UIElements/UISlider.hpp"
+#include "src/Utils/Misc.hpp"
 
 namespace src::uielements
 {
@@ -12,7 +16,12 @@ UIPane::UIPane() : UIPane(getTypeInfo())
 
 UIPane::UIPane(const std::type_index& type)
     : UIBase(type)
-{}
+{
+    shader_ = resourceloaders::Shader(
+        resourceloaders::ShaderLoader::get().load(
+            "assets/shaders/elemVert.glsl", "assets/shaders/elemFrag.glsl"
+        ));
+}
 
 auto UIPane::render(const glm::mat4& projection) -> void
 {
@@ -22,9 +31,12 @@ auto UIPane::render(const glm::mat4& projection) -> void
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", getTransform());
     shader_.uploadVec4f("uColor", getColor());
+    shader_.uploadVec2f("uResolution", getComputedScale());
+    shader_.uploadVec4f("uBorderSize", {getBorder().top, getBorder().bot, getBorder().left, getBorder().right});
+    shader_.uploadVec4f("uBorderColor", utils::hexToVec4("#ffffffff"));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
+    static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == UISlider::scrollTagId; };
     renderNextExcept(projection, l);
     renderNextSingle(projection, vSlider_);
     renderNextSingle(projection, hSlider_);
@@ -35,7 +47,8 @@ auto UIPane::layout() -> void
     const auto& calculator = BasicCalculator::get();
 
     const auto sliderImpact = calculator.calcPaneSliders(this);
-    calculator.calcPaneElements(this, sliderImpact);
+    calculator.calculateScaleForGenericElement(this, sliderImpact);
+    calculator.calculatePositionForGenericElement(this, sliderImpact);
 
     const auto overflow = calculator.calcOverflow(this, sliderImpact);
 
@@ -137,7 +150,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
         vSlider_ = utils::make<UISlider>();
         vSlider_->setColor(utils::hexToVec4("#ffffffff"));
         vSlider_->setInvertAxis(true);
-        vSlider_->setCustomTagId(1000);
+        vSlider_->setCustomTagId(UISlider::scrollTagId);
         vSlider_->setType(LayoutBase::Type::VERTICAL)
             .setScale({20_px, 1.0_rel})
             .setEnableCustomIndex(true)
@@ -149,7 +162,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     {
         hSlider_ = utils::make<UISlider>();
         hSlider_->setColor(utils::hexToVec4("#ffffffff"));
-        hSlider_->setCustomTagId(1000);
+        hSlider_->setCustomTagId(UISlider::scrollTagId);
         hSlider_->setType(LayoutBase::Type::HORIZONTAL)
             .setScale({1.0_rel, 20_px})
             .setEnableCustomIndex(true)

@@ -4,6 +4,9 @@
 
 namespace src::uielements
 {
+uint32_t UISlider::scrollTagId = 1000;
+uint32_t UISlider::scrollIndexOffset = 250;
+
 UISlider::UISlider() : UIBase(getTypeInfo()) 
 {
     knobProps_.setColor(utils::hexToVec4("#ca5555ff"));
@@ -75,8 +78,7 @@ auto UISlider::event(state::UIWindowStatePtr& state) -> void
     if (eId == MouseScrollEvt::eventId && (state->hoveredId == id_ || state->closestScroll == id_))
     {
         // NOTE: inverting affects horizontal sliders. No side effects really.
-        percentage_ += state->scrollOffset.y * sensitivity_ * (invertVertical_ ? -1 : 1);
-        percentage_ = std::clamp(percentage_, 0.0f, 1.0f);
+        setScrollValue(scrollValue_ + state->scrollOffset.y * sensitivity_ * (invertVertical_ ? -1 : 1));
 
         /* We can safely ignore bubbling down the tree as we found the slided element. */
         SliderEvt sliderEvt{getScrollValue()}; 

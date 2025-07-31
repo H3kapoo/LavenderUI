@@ -39,6 +39,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/UIElements/UIBase.cpp
         src/UIElements/UIWindow.cpp
         src/UIElements/UIPane.cpp
+        src/UIElements/UISplitPane.cpp
         src/UIElements/UIButton.cpp
         src/UIElements/UISlider.cpp
         src/UIElements/UITreeView.cpp

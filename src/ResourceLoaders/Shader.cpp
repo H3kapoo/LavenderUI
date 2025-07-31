@@ -22,6 +22,11 @@ auto Shader::uploadMat4v(const std::string& name, const std::vector<glm::mat4>& 
     glUniformMatrix4fv(getLocation(name), vals.size(), transposeMatrix, glm::value_ptr(vals[0]));
 }
 
+auto Shader::uploadVec2f(const std::string& name, const glm::vec2& val) const -> void
+{
+    glUniform2f(getLocation(name), val.x, val.y);
+}
+
 auto Shader::uploadVec4f(const std::string& name, const glm::vec4& val) const -> void
 {
     glUniform4f(getLocation(name), val.x, val.y, val.z, val.w);

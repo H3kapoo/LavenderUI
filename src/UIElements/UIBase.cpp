@@ -9,6 +9,7 @@
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
+#include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
@@ -125,12 +126,13 @@ auto UIBase::renderNextSingle(const glm::mat4& projection, const UIBasePtr& e) -
     //TODO: Do not render nodes that aint visible
     if (!e || !e->isParented()) { return; }
 
-    const auto& viewPos = e->getViewPos();
-    const auto& viewScale = e->getViewScale();
+    const glm::vec2& viewPos = e->getViewPos();
+    const glm::vec2& viewScale = e->getViewScale();
     windowmanagement::NativeWindow::updateScissors(
         {
             viewPos.x,
             std::floor((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
+            // std::round((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
             viewScale.x,
             viewScale.y
         });
@@ -152,10 +154,17 @@ auto UIBase::layoutNext() -> void
         {
             /* After calculating my elements, compute how much of them is still visible inside of the parent. */
             e->computeViewBox(*this);
-            /* Index is used for layer rendering order. Can be custom. */
+
+            /* Index is used for layer rendering order. Can be custom. Otherwise it is just 1 + parentIndex. */
             if (!e->isCustomIndex())
             {
                 e->setIndex(getIndex() + 1);
+            }
+
+            /* It's a pane scrollbar and it will have a higher custom zIndex */
+            if (e->getTypeId() == UISlider::typeId && e->getCustomTagId() == UISlider::scrollTagId)
+            {
+                e->setIndex(getIndex() + UISlider::scrollIndexOffset);
             }
 
             /* Depth is used mostly for printing. */

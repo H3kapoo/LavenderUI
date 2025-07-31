@@ -1,5 +1,6 @@
 #include "LayoutBase.hpp"
 
+#include "vendor/glm/ext/vector_float2.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 #include "vendor/glm/trigonometric.hpp"
 
@@ -20,13 +21,18 @@ auto LayoutBase::isPointInsideView(const glm::ivec2& p) const -> bool
 auto LayoutBase::computeViewBox(const LayoutBase& parentAttribs) -> void
 {
     /* Take the intersection between this object's pos+scale & parent's already computed
-        viewable area box.*/
+        viewable area box minus parent borders.*/
+    const glm::vec2 pBorderPos = {parentAttribs.getBorder().left, parentAttribs.getBorder().top};
+
     viewPos_ = {
-        std::max(parentAttribs.viewPos_.x, computedPos_.x),
-        std::max(parentAttribs.viewPos_.y, computedPos_.y)
+        std::max(parentAttribs.viewPos_.x + pBorderPos.x, computedPos_.x),
+        std::max(parentAttribs.viewPos_.y + pBorderPos.y, computedPos_.y)
     };
 
-    const glm::vec2 pComposed = parentAttribs.viewPos_ + parentAttribs.viewScale_;
+    const glm::vec2 pBorderScale = {
+        parentAttribs.getBorder().left + parentAttribs.getBorder().right,
+        parentAttribs.getBorder().top + parentAttribs.getBorder().bot};
+    const glm::vec2 pComposed = parentAttribs.viewPos_ + pBorderPos + parentAttribs.viewScale_ - pBorderScale;
     const glm::vec2 thisComposed = computedPos_ + computedScale_;
     viewScale_ = {
         std::max(0.0f, std::min(pComposed.x, thisComposed.x) - viewPos_.x),
@@ -128,5 +134,15 @@ LayoutBase::Scale operator"" _rel(long double value)
 {
     /* Loss of precision justified. */
     return {.val = (float)value, .type = LayoutBase::ScaleType::REL};
+}
+
+auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
+{
+    return {lhs.x - (rhs.left + rhs.right), lhs.y - (rhs.top + rhs.bot)};
+}
+
+auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x - rhs.x, lhs.y - rhs.y};
 }
 } // namespace src::elementcomposable

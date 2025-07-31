@@ -39,9 +39,11 @@ auto UIButton::layout() -> void
     using namespace layoutcalculator;
     // BasicCalculator::get().calcElementsPos(shared_from_this());
 
-    // log_.debug("Doing layout for {} {}", id_, UIButton::typeId);
+    // log_.debug("Pos {} viewPos {}",
+    //     getComputedPos().x + getComputedScale().x,  getViewPos().x + getViewScale().x);
 
     /* Position the text */
+    // const glm::vec2 p = getComputedPos() + getComputedScale() / 2.0f
     const glm::vec2 p = getComputedPos() + getComputedScale() / 2.0f
         - textAttribs_.computeMaxSize() / 2.0f;
     textAttribs_.setPosition(p);
@@ -54,11 +56,18 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
-    if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
+    // if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
+    if (eId == MouseButtonEvt::eventId && (state->hoveredId == id_ || state->clickedId == id_))
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         return emitEvent<MouseButtonEvt>(e);
+    }
+    else if (eId == MouseDragEvt::eventId && state->clickedId == id_)
+    {
+        /* We can safely ignore bubbling down the tree as we found the dragged element. */
+        MouseDragEvt e{state->mousePos.x, state->mousePos.y};
+        return emitEvent<MouseDragEvt>(e);
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {

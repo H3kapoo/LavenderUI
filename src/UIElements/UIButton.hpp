@@ -38,4 +38,5 @@ protected:
 };
 using UIButtonPtr = std::shared_ptr<UIButton>;
 using UIButtonWPtr = std::weak_ptr<UIButton>;
+using UIButtonPtrVec = std::vector<UIButtonPtr>;
 } // namespace src::uielements

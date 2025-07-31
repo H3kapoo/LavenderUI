@@ -18,7 +18,7 @@ var annotated_dup =
         [ "TextAttribs", "classsrc_1_1elementcomposable_1_1TextAttribs.html", null ]
       ] ],
       [ "layoutcalculator", null, [
-        [ "BasicCalculator", "classsrc_1_1layoutcalculator_1_1BasicCalculator.html", null ]
+        [ "BasicCalculator", "classsrc_1_1layoutcalculator_1_1BasicCalculator.html", "classsrc_1_1layoutcalculator_1_1BasicCalculator" ]
       ] ],
       [ "resourceloaders", null, [
         [ "Font", "structsrc_1_1resourceloaders_1_1Font.html", "structsrc_1_1resourceloaders_1_1Font" ],
@@ -37,6 +37,7 @@ var annotated_dup =
         [ "UIImage", "classsrc_1_1uielements_1_1UIImage.html", null ],
         [ "UIPane", "classsrc_1_1uielements_1_1UIPane.html", "classsrc_1_1uielements_1_1UIPane" ],
         [ "UISlider", "classsrc_1_1uielements_1_1UISlider.html", null ],
+        [ "UISplitPane", "classsrc_1_1uielements_1_1UISplitPane.html", null ],
         [ "UITreeView", "classsrc_1_1uielements_1_1UITreeView.html", "classsrc_1_1uielements_1_1UITreeView" ],
         [ "UIWindow", "classsrc_1_1uielements_1_1UIWindow.html", "classsrc_1_1uielements_1_1UIWindow" ]
       ] ],

@@ -63,8 +63,8 @@ struct MouseExitEvt : public IEventCRTP<MouseExitEvt>
 struct MouseDragEvt : public IEventCRTP<MouseDragEvt>
 {
     MouseDragEvt() {}
-    // MouseExitEvt(int32_t xIn, int32_t yIn) : x{xIn}, y{yIn} {}
-    // int32_t x{0}, y{0};
+    MouseDragEvt(int32_t xIn, int32_t yIn) : x{xIn}, y{yIn} {}
+    int32_t x{0}, y{0};
 };
 
 struct MouseScrollEvt : public IEventCRTP<MouseScrollEvt>

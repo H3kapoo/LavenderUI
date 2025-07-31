@@ -20,5 +20,10 @@ var classsrc_1_1elementcomposable_1_1LayoutBase =
       [ "HORIZONTAL", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8ca86e5d0d8407ce71f7e2004ef3949894e", null ],
       [ "VERTICAL", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8ca3e1b74251c07310c5f1b968145bf00dc", null ],
       [ "GRID", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8cabc899ea5d6a94a8e4e60c16244919ba0", null ]
-    ] ]
+    ] ],
+    [ "computedPos_", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006", null ],
+    [ "computedScale_", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff", null ],
+    [ "userPos_", "classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d", null ],
+    [ "userScale_", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009", null ],
+    [ "viewPos_", "classsrc_1_1elementcomposable_1_1LayoutBase.html#ae0f7f3467a8ba5779dc64330acce8a25", null ]
 ];

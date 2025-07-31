@@ -13,12 +13,14 @@ class Shader
 public:
     Shader(const uint32_t programId);
     ~Shader() = default;
-    Shader(Shader&&) = delete;
-    Shader& operator=(const Shader&) = delete;
-    Shader& operator=(Shader&&) = delete;
+    //TODO: Needs to be decided how are we gonna switch shaders at runtime with new ones
+    // Shader(Shader&&) = delete;
+    Shader& operator=(const Shader&) = default;
+    // Shader& operator=(Shader&&) = delete;
 
     auto uploadMat4(const std::string& name, const glm::mat4& val) const -> void;
     auto uploadMat4v(const std::string& name, const std::vector<glm::mat4>& vals) const -> void;
+    auto uploadVec2f(const std::string& name, const glm::vec2& val) const -> void;
     auto uploadVec4f(const std::string& name, const glm::vec4& val) const -> void;
     auto uploadInt(const std::string& name, const int32_t val) const -> void;
     auto uploadIntv(const std::string& name, const std::vector<int32_t>& val) const -> void;

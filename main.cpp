@@ -4,6 +4,7 @@
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UIBase.hpp"
+#include "src/UIElements/UISplitPane.hpp"
 #include "src/UIElements/UIWindow.hpp"
 #include "src/UIElements/UITreeView.hpp"
 #include "src/Utils/Logger.hpp"
@@ -30,46 +31,36 @@ int main()
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
+    // UISplitPanePtr sp = utils::make<UISplitPane>();
+
+    // const float frac = 1.0f / 5;
+    // // sp->createPanes({frac, frac});
+    // sp->createPanes({frac, frac, frac, frac, frac});
+    // sp->setColor(utils::hexToVec4("#3a3a3aff"));
+    // sp->setScale({1.0_rel, 1.0_rel});
+    // // window.lock()->tempPosOffset = {30, 40};
+
+    // window.lock()->add(sp);
+    // // p->setScale({0.5_rel, 400_px});
+
     UIPanePtr p = utils::make<UIPane>();
     p->setScrollEnabled(true, true);
-    p->setScrollSensitivityMultiplier(0.01);
     p->setScale({1.0_rel, 1.0_rel});
-    p->setColor(utils::hexToVec4("#505050ed"));
+        // .setBorder({4, 4, 4, 4});
 
-    glm::vec4 alt{utils::hexToVec4("#dfdfdfff")};
-    glm::vec4 alt2{utils::hexToVec4("#a8a8a8ff")};
-    window.lock()->add(p);
+    p->setColor(utils::hexToVec4("#635a5aff"));
 
-    for (int32_t i = 0; i < 20; ++i)
+    for (int32_t i = 0; i < 10; i++)
     {
         UIButtonPtr b = utils::make<UIButton>();
-        // b->setColor(i % 2 ? alt : alt2);
-        b->setColor(utils::hexToVec4("#ffffffff"));
-        b->setText(std::format("Id: {}", i));
-        b->setMargin({2, 2, 2, 2});
-
-        b->listenTo<MouseEnterEvt>(
-            [rb = std::weak_ptr<UIButton>(b)](const auto&)
-            {
-                rb.lock()->setColor(utils::hexToVec4("#a3a3a3ff"));
-            });
-
-        b->listenTo<MouseExitEvt>(
-            [rb = std::weak_ptr<UIButton>(b)](const auto&)
-            {
-                rb.lock()->setColor(utils::hexToVec4("#ffffffff"));
-            });
-        p->add(std::move(b));
+        // b->setMargin({3, 2, 5, 4});
+        // b->setMargin({4, 4, 4, 4});
+        b->setColor(utils::randomRGB());
+        p->add(b);
     }
-    // window.lock()->tempPosOffset = {30, 40};
 
-    // p->setScale({0.5_rel, 400_px});
-
+    window.lock()->add(p);
     // app.setWaitEvents(false);
-
-
-    
-
 
     /* Blocks */
     app.run();
