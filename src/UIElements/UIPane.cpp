@@ -46,17 +46,20 @@ auto UIPane::layout() -> void
 {
     const auto& calculator = BasicCalculator::get();
 
-    const auto sliderImpact = calculator.calcPaneSliders(this);
-    calculator.calculateScaleForGenericElement(this, sliderImpact);
-    calculator.calculatePositionForGenericElement(this, sliderImpact);
-
-    const auto overflow = calculator.calcOverflow(this, sliderImpact);
-
-    /* Adding new elements (slides in this case) invalidates the calculations. */
-    if (const auto needsRecalc = updateSlidersWithOverflow(overflow); needsRecalc)
+    updateTriesCount_ = 0;
+    glm::ivec2 overflow{0, 0};
+    do
     {
-        layout();
-    }
+        const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
+        const auto maxElemScale = calculator.calculateScaleForGenericElement(this, sliderImpact);
+        calculator.calculatePositionForGenericElement(this, maxElemScale, sliderImpact);
+
+        overflow = calculator.calcOverflow(this, sliderImpact);
+        calculator.calculateAlignmentForElements(this, overflow);
+
+        ++updateTriesCount_;
+    /* Adding new elements (slides in this case) invalidates the calculations. */
+    } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
 
     calculator.calcPaneElementsAddScrollToPos(this, {
         hSlider_ ? hSlider_->getScrollValue() : 0,
@@ -148,7 +151,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     if (enableV)
     {
         vSlider_ = utils::make<UISlider>();
-        vSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        // vSlider_->setColor(utils::hexToVec4("#ffffffff"));
         vSlider_->setInvertAxis(true);
         vSlider_->setCustomTagId(UISlider::scrollTagId);
         vSlider_->setType(LayoutBase::Type::VERTICAL)
@@ -161,7 +164,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     if (enableH)
     {
         hSlider_ = utils::make<UISlider>();
-        hSlider_->setColor(utils::hexToVec4("#ffffffff"));
+        // hSlider_->setColor(utils::hexToVec4("#ffffffff"));
         hSlider_->setCustomTagId(UISlider::scrollTagId);
         hSlider_->setType(LayoutBase::Type::HORIZONTAL)
             .setScale({1.0_rel, 20_px})

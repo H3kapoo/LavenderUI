@@ -1,5 +1,6 @@
 #include "UISlider.hpp"
 
+#include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/Input.hpp"
 
 namespace src::uielements
@@ -9,7 +10,8 @@ uint32_t UISlider::scrollIndexOffset = 250;
 
 UISlider::UISlider() : UIBase(getTypeInfo()) 
 {
-    knobProps_.setColor(utils::hexToVec4("#ca5555ff"));
+    knobProps_.setColor(utils::hexToVec4("#ca555581"));
+    setColor(utils::hexToVec4("#ffffff99"));
 }
 
 auto UISlider::render(const glm::mat4& projection) -> void
@@ -23,7 +25,6 @@ auto UISlider::render(const glm::mat4& projection) -> void
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw knob */
-    // mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", knobLayout_.getTransform());

@@ -29,7 +29,7 @@ class BasicCalculator
 public:
     static auto get() -> BasicCalculator&;
 
-    /** @brief Calculate the computed scale for the elements of this parent element.
+    /** @brief Calculate the computed scale for the elements of this parent element & get the total scale.
 
         @details Function calculates the required `computedScale` based on the user supplied `scaleType` and
             `value` set via `setScale`.
@@ -41,15 +41,42 @@ public:
         @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
             (usually used to make room for scroll bars)
 
-        @return Void. But the elements of the parent element will now have the required computed scale.
+        @return Total scale on each axis. The the elements of the parent element will now have the required computed scale.
     */
     auto calculateScaleForGenericElement(uielements::UIPane* parent,
-        const glm::vec2 shrinkScaleBy = {}) const -> void;
-    auto calculatePositionForGenericElement(uielements::UIPane* parent,
+        const glm::vec2 shrinkScaleBy = {}) const -> glm::vec2;
+
+    /** @brief Calculate the computed position for the elements of this parent element.
+
+        @details Function calculates the required `computedPos` based on layout rules such as `Type`, `wrap`, etc. or
+            based on the user supplied `userPos` in case an absolute positioning is needed.
+        @details Parameters such as `margins`, `padding`, etc. are taken into consideration when calculating the `computedPos`.
+        @details Refer to LayoutBase for more details.
+
+        @param parent Element for which the subelements need to be calculated
+        @param maxScale Max scale on each axis for the calculated elements (as a unit)
+        @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
+            (usually used to make room for scroll bars)
+
+        @return Void. But the elements of the parent element will now have the required computed pos.
+    */
+    auto calculatePositionForGenericElement(uielements::UIPane* parent, const glm::vec2 maxScale,
         const glm::vec2 shrinkScaleBy = {}) const -> void;
 
+    /** @brief Adjust the previously calculated computedPos in order to obey user set parent alignment.
+
+        @details Function adjusts `computedPos` based on user's parent `Align` rule.
+        @details Refer to LayoutBase for more details.
+
+        @param parent Element for which the subelements need to be adjusted
+        @param overflow Previously calculated layout overflow
+
+        @return Void. But the elements of the parent element will now have their `computedPos` ajusted as needed.
+    */
+    auto calculateAlignmentForElements(uielements::UIBase* parent, const glm::vec2 overflow) const -> void;
+
     auto calcPaneElements(uielements::UIPane* parent, const glm::vec2 scrollData) const -> void;
-    auto calcPaneSliders(uielements::UIPane* parent) const -> glm::vec2;
+    auto calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2;
     auto calcPaneElementsAddScrollToPos(uielements::UIPane* parent, const glm::ivec2 offset) const -> void;
 
     auto calcElementsPos(uielements::UIBase* parent, const glm::vec2 scrollData = {}) const -> void;
@@ -58,5 +85,9 @@ public:
     auto calcSplitPaneElements(uielements::UISplitPane* parent) const -> void;
 
     auto calcOverflow(uielements::UIBase* parent, const glm::vec2 shrinkScaleBy) const -> glm::vec2;
+
+private:
+    auto computeSpacingOnAxis(const elementcomposable::LayoutBase::Spacing spacing, const int32_t elementsCount,
+        const float pContentScale, const float maxScale) const -> glm::vec2;
 };
 } // namespace src::layoutcalculator

@@ -39,7 +39,7 @@ auto UITreeView::layout() -> void
     glm::ivec2 overflow{0, 0};
     do
     {
-        const auto sliderImpact = calculator.calcPaneSliders(this);
+        const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
         calculator.calcPaneElements(this, sliderImpact);
     
         overflow = calculator.calcOverflow(this, sliderImpact);

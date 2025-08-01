@@ -126,13 +126,12 @@ auto UIBase::renderNextSingle(const glm::mat4& projection, const UIBasePtr& e) -
     //TODO: Do not render nodes that aint visible
     if (!e || !e->isParented()) { return; }
 
-    const glm::vec2& viewPos = e->getViewPos();
-    const glm::vec2& viewScale = e->getViewScale();
+    const auto& viewPos = e->getViewPos();
+    const auto& viewScale = e->getViewScale();
     windowmanagement::NativeWindow::updateScissors(
         {
             viewPos.x,
-            std::floor((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
-            // std::round((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
+            std::round((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
             viewScale.x,
             viewScale.y
         });

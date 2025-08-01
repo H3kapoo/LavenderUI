@@ -9,6 +9,11 @@ namespace src::layoutcalculator
 {
 using namespace elementcomposable;
 
+#define SKIP_SLIDER(element)\
+    if (element->getTypeId() == uielements::UISlider::typeId\
+    && element->getCustomTagId() == uielements::UISlider::scrollTagId)\
+    { continue; }\
+
 auto BasicCalculator::get() -> BasicCalculator&
 {
     static BasicCalculator instance;
@@ -16,18 +21,17 @@ auto BasicCalculator::get() -> BasicCalculator&
 }
 
 auto BasicCalculator::calculateScaleForGenericElement(uielements::UIPane* parent,
-    const glm::vec2 shrinkScaleBy) const -> void
+    const glm::vec2 shrinkScaleBy) const -> glm::vec2
 {
     const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
     const auto& pContentBoxPos = parent-> getContentBoxPos();
     const auto& pLayoutType = parent->getType();
     const auto& elements = parent->getElements();
 
+    glm::vec2 runningMax{0, 0};
     for (const auto& element : elements)
     {
-        if (element->getTypeId() == uielements::UISlider::typeId
-            && element->getCustomTagId() == uielements::UISlider::scrollTagId)
-        { continue; }
+        SKIP_SLIDER(element);
 
         const auto& userScale = element->getScale();
         const auto& marginTB = element->getTBMargin();
@@ -69,63 +73,166 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIPane* parent
         }
 
         element->setComputedScale(cScale);
+
+        runningMax += cScale;
     }
+
+    return runningMax;
 }
 
 auto BasicCalculator::calculatePositionForGenericElement(uielements::UIPane* parent,
-    const glm::vec2 shrinkScaleBy) const -> void
+    const glm::vec2 maxScale, const glm::vec2 shrinkScaleBy) const -> void
 {
     const auto& pContentBoxPos = parent->getContentBoxPos();
     const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
-    const auto& pTemp = parent->tempPosOffset;
+    const auto& pContentBoxMaxPoint = pContentBoxPos + pContentBoxScale;
     const auto& pLayoutType = parent->getType();
     const auto pWrap = parent->getWrap();
     const auto& elements = parent->getElements();
 
-    glm::vec2 nextPos{pContentBoxPos + pTemp};
-    glm::vec2 pos{0, 0};
+    glm::vec2 nextPos{pContentBoxPos};
+    glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
+    glm::vec2 spacing{0, 0};
+    if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+    {
+        spacing = computeSpacingOnAxis(parent->getSpacing(), elements.size(), parent->getContentBoxScale().x, maxScale.x);
+        nextPos.x += spacing.y /* Additional start push*/;
+    }
+    else if (pLayoutType == LayoutBase::Type::VERTICAL)
+    {
+        spacing = computeSpacingOnAxis(parent->getSpacing(), elements.size(), parent->getContentBoxScale().y, maxScale.y);
+        nextPos.y += spacing.y /* Additional start push*/;
+    }
+
     for (auto& element : elements)
     {
-        if (element->getTypeId() == uielements::UISlider::typeId
-            && element->getCustomTagId() == uielements::UISlider::scrollTagId)
-        { continue; }
+        SKIP_SLIDER(element);
 
         const auto& margins = element->getMargin();
         const auto& compScale = element->getComputedScale();
-        const glm::vec2 fullScale = element->getFullBoxScale();
+        const glm::vec2 fullBoxScale = element->getFullBoxScale();
+        const glm::vec2 nextMaxPoint = nextPos + fullBoxScale;
+        const glm::vec2 marginPush = glm::vec2{margins.left, margins.top};
 
+        /* Note: `nextPos` starts at the end of the previous' element margin end. */
         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
-            // nextPos starts at the end of the previous' element margin end
-            if (pWrap && nextPos.x + fullScale.x > pContentBoxPos.x + pContentBoxScale.x)
+            if (pWrap && nextMaxPoint.x > pContentBoxMaxPoint.x)
             {
                 nextPos.y += maxOnAxis.y;
-                nextPos.x = pContentBoxPos.x + pTemp.x;
+                nextPos.x = pContentBoxPos.x;
                 maxOnAxis.y = 0;
             }
 
-            pos = nextPos + glm::vec2{margins.left, margins.top};
-            nextPos.x = pos.x + compScale.x + margins.right;
-            maxOnAxis.y = std::max(maxOnAxis.y, fullScale.y);
+            computedPos = nextPos + marginPush;
+            nextPos.x = computedPos.x + compScale.x + margins.right + spacing.x;
+            maxOnAxis.y = std::max(maxOnAxis.y, fullBoxScale.y);
         }
         else if (pLayoutType == LayoutBase::Type::VERTICAL)
         {
-            // nextPos starts at the end of the previous' element margin end
-            if (pWrap && nextPos.y + fullScale.y > pContentBoxPos.y + pContentBoxScale.y)
+            if (pWrap && nextMaxPoint.y > pContentBoxMaxPoint.y)
             {
                 nextPos.x += maxOnAxis.x;
-                nextPos.y = pContentBoxPos.y + pTemp.y;
+                nextPos.y = pContentBoxPos.y;
                 maxOnAxis.x = 0;
             }
 
-            pos = nextPos + glm::vec2{margins.left, margins.top};
-            nextPos.y = pos.y + compScale.y + margins.bot;
-            maxOnAxis.x = std::max(maxOnAxis.x, fullScale.x);
+            computedPos = nextPos + marginPush;
+            nextPos.y = computedPos.y + compScale.y + margins.bot;
+            maxOnAxis.x = std::max(maxOnAxis.x, fullBoxScale.x);
         }
 
-        element->setComputedPos(pos);
+        element->setComputedPos(computedPos);
     }
+}
+
+auto BasicCalculator::calculateAlignmentForElements(uielements::UIBase* parent,
+    const glm::vec2 overflow) const -> void
+{
+    if (overflow.x >= 0 && overflow.y >= 0) { return;}
+
+    /* Note: negative overflow means there's `-overflow` pixels left until an overflow occurs.
+        We can leverage that to align elements.*/
+    const auto& elements = parent->getElements();
+    const auto& pAlign = parent->getAlign();
+    const auto& pType = parent->getType();
+    const auto& isTightSpacing = parent->getSpacing() == LayoutBase::Spacing::TIGHT;
+    for (auto& element : elements)
+    {
+        SKIP_SLIDER(element);
+
+        glm::vec2 offset{0, 0};
+        switch (pAlign)
+        {
+            case LayoutBase::TOP_LEFT:
+                break;
+            case LayoutBase::CENTER_LEFT:
+                offset.y = overflow.y < 0 ? -overflow.y * 0.5f : 0.0f;
+                break;
+            case LayoutBase::BOTTOM_LEFT:
+                offset.y = overflow.y < 0 ? -overflow.y : 0.0f;
+                break;
+            case LayoutBase::TOP_CENTER:
+                offset.x = overflow.x < 0 ? -overflow.x * 0.5f : 0.0f;
+                break;
+            case LayoutBase::CENTER:
+                offset.x = overflow.x < 0 ? -overflow.x * 0.5f : 0.0f;
+                offset.y = overflow.y < 0 ? -overflow.y * 0.5f : 0.0f;
+                break;
+            case LayoutBase::BOTTOM_CENTER:
+                offset.x = overflow.x < 0 ? -overflow.x * 0.5f : 0.0f;
+                offset.y = overflow.y < 0 ? -overflow.y : 0.0f;
+                break;
+            case LayoutBase::TOP_RIGHT:
+                offset.x = overflow.x < 0 ? -overflow.x : 0.0f;
+                break;
+            case LayoutBase::CENTER_RIGHT:
+                offset.x = overflow.x < 0 ? -overflow.x : 0.0f;
+                offset.y = overflow.y < 0 ? -overflow.y * 0.5f : 0.0f;
+                break;
+            case LayoutBase::BOTTOM_RIGHT:
+                offset.x = overflow.x < 0 ? -overflow.x : 0.0f;
+                offset.y = overflow.y < 0 ? -overflow.y : 0.0f;
+                break;
+        }
+
+        if (pType == LayoutBase::Type::HORIZONTAL && !isTightSpacing)
+        {
+            offset.x = 0;
+        }
+        else if (pType == LayoutBase::Type::VERTICAL && !isTightSpacing)
+        {
+            offset.y = 0;
+        }
+
+        element->setComputedPos(element->getComputedPos() + offset);
+    }
+    // utils::Logger("calc").warn("of is {}", overflow);
+}
+
+auto BasicCalculator::computeSpacingOnAxis(const LayoutBase::Spacing spacing, const int32_t elementsCount,
+    const float pContentScale, const float maxScale) const -> glm::vec2
+{
+    float computedSpacing{0};
+    float additionalStartPush{0};
+    switch (spacing)
+    {
+        case LayoutBase::Spacing::TIGHT:
+            // Do nothing
+            break;
+        case LayoutBase::Spacing::EVEN_NO_GAP:
+            computedSpacing = (pContentScale - maxScale) / (elementsCount - 1);
+            computedSpacing = std::max(0.0f, computedSpacing);
+            break;
+        case LayoutBase::Spacing::EVEN_GAP:
+            computedSpacing = (pContentScale - maxScale) / elementsCount;
+            computedSpacing = std::max(0.0f, computedSpacing);
+            additionalStartPush += computedSpacing * 0.5f;
+            break;
+    }
+
+    return {computedSpacing, additionalStartPush};
 }
 
 auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
@@ -340,7 +447,7 @@ auto BasicCalculator::calcPaneElements(uielements::UIPane* parent,
     calcElementsPos(parent, scrollData);
 }
 
-auto BasicCalculator::calcPaneSliders(uielements::UIPane* parent) const -> glm::vec2
+auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2
 {
     glm::vec2 sliderImpact{0, 0};
     const auto& pComputedPos = parent->  getContentBoxPos();
@@ -376,9 +483,7 @@ auto BasicCalculator::calcPaneElementsAddScrollToPos(uielements::UIPane* parent,
     const auto& elements = parent->getElements();
     for (const auto& element : elements)
     {
-        if (element->getTypeId() == uielements::UISlider::typeId
-            && element->getCustomTagId() == uielements::UISlider::scrollTagId)
-        { continue; }
+        SKIP_SLIDER(element);
         element->setComputedPos(element->getComputedPos() - offset);
     }
 }

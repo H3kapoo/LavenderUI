@@ -69,6 +69,10 @@ private:
 protected:
     UISliderPtr hSlider_;
     UISliderPtr vSlider_;
+
+private:
+    int32_t updateTriesCount_{0};
+    int32_t maxUpdateTries_{2};
 };
 using UIPanePtr = std::shared_ptr<UIPane>;
 using UIPaneWPtr = std::weak_ptr<UIPane>;

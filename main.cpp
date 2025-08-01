@@ -1,6 +1,7 @@
 
 #include "src/App.hpp"
 #include "src/ElementComposable/IEvent.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UIBase.hpp"
@@ -36,7 +37,7 @@ int main()
     // const float frac = 1.0f / 5;
     // // sp->createPanes({frac, frac});
     // sp->createPanes({frac, frac, frac, frac, frac});
-    // sp->setColor(utils::hexToVec4("#3a3a3aff"));
+    // sp->setColor(utils::hexToVec4("#290303ff"));
     // sp->setScale({1.0_rel, 1.0_rel});
     // // window.lock()->tempPosOffset = {30, 40};
 
@@ -45,16 +46,19 @@ int main()
 
     UIPanePtr p = utils::make<UIPane>();
     p->setScrollEnabled(true, true);
-    p->setScale({1.0_rel, 1.0_rel});
-        // .setBorder({4, 4, 4, 4});
+    p->setScale({1.0_rel, 1.0_rel})
+        .setAlign(LayoutBase::Align::BOTTOM_CENTER)
+        .setSpacing(LayoutBase::Spacing::EVEN_NO_GAP)
+        // .setWrap(true)
+        .setPadding({4, 4, 4, 4})
+        .setBorder({4, 4, 4, 4});
 
     p->setColor(utils::hexToVec4("#635a5aff"));
 
-    for (int32_t i = 0; i < 10; i++)
+    for (int32_t i = 0; i < 5; i++)
     {
         UIButtonPtr b = utils::make<UIButton>();
-        // b->setMargin({3, 2, 5, 4});
-        // b->setMargin({4, 4, 4, 4});
+        b->setScale({{utils::randomInt(70, 220)}, {utils::randomInt(70, 220)}});
         b->setColor(utils::randomRGB());
         p->add(b);
     }

@@ -24,6 +24,31 @@ public:
         HORIZONTAL, VERTICAL, GRID
     };
 
+    /** @brief Defines how elements will be aligned inside the parent. */
+    enum Align : uint8_t
+    {
+        // TOP, LEFT, BOTTOM, RIGHT,
+        TOP_LEFT,
+        TOP_CENTER,
+        TOP_RIGHT,
+        CENTER_LEFT,
+        CENTER,
+        CENTER_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_CENTER,
+        BOTTOM_RIGHT
+    };
+
+    // /** @brief Represents the Algin on each axis. */
+    // struct AlignXY
+    // {
+    //     Align x{Align::LEFT};
+    //     Align y{Align::TOP};
+    // };
+
+    /** @brief Defines how elements will be spaced from each other inside the parent. */
+    enum Spacing : uint8_t { TIGHT, EVEN_NO_GAP, EVEN_GAP };
+
     /** @brief Represents the scale type applied to the element. */
     enum class ScaleType : uint8_t
     {
@@ -33,6 +58,10 @@ public:
     /** @brief Represents the scale type and value of the element. */
     struct Scale
     {
+        Scale(int32_t v) : val{(float)v} {}
+        Scale(float v) : val{v} {}
+        Scale(float v, ScaleType t) : val{v}, type{t} {}
+
         float val{100.0f};
         ScaleType type{ScaleType::PX};
     };
@@ -93,13 +122,18 @@ public:
     auto getBorder() const -> const TBLR&;
     auto getBorderRadius() const -> const TBLR&;
     auto getShadow() const -> const TBLR&;
+    auto getSelfAlign() const -> const Align&;
+    auto getAlign() const -> const Align&;
+    auto getSpacing() const -> const Spacing&;
+    auto getMinScale() const -> const glm::ivec2&;
+    auto getMaxScale() const -> const glm::ivec2&;
     auto getWrap() const -> bool;
     auto getPos() const -> const PositionXY&;
     auto getScale() const -> const ScaleXY&;
     auto getComputedPos() const -> const glm::vec2&;
     auto getComputedScale() const -> const glm::vec2&;
-    auto getViewPos() const -> const glm::vec2&;
-    auto getViewScale() const -> const glm::vec2&;
+    auto getViewPos() const -> const glm::ivec2&;
+    auto getViewScale() const -> const glm::ivec2&;
     auto getIndex() const -> uint32_t;
     auto getAngle() const -> float;
     auto isCustomIndex() const -> bool;
@@ -110,6 +144,11 @@ public:
     auto setBorder(const TBLR& value) -> LayoutBase&;
     auto setBorderRadius(const TBLR& value) -> LayoutBase&;
     auto setShadow(const TBLR& value) -> LayoutBase&;
+    auto setSelfAlign(const Align value) -> LayoutBase&;
+    auto setAlign(const Align value) -> LayoutBase&;
+    auto setSpacing(const Spacing value) -> LayoutBase&;
+    auto setMinScale(const glm::ivec2 value) -> LayoutBase&;
+    auto setMaxScale(const glm::ivec2 value) -> LayoutBase&;
     auto setWrap(const bool value) -> LayoutBase&;
     auto setPos(const PositionXY& value) -> LayoutBase&;
     auto setScale(const ScaleXY& value) -> LayoutBase&;
@@ -134,6 +173,11 @@ protected:
     TBLR border{0};
     TBLR borderRadius{0};
     TBLR shadow{0};
+    Align selfAlign_{Align::TOP_LEFT};
+    Align align_{Align::TOP_LEFT};
+    Spacing spacing_{Spacing::TIGHT};
+    glm::ivec2 minScale{10, 10};
+    glm::ivec2 maxScale{10'000, 10'000};
     bool wrap{false};
 
     /** @brief User supplied position details. This is NOT the actual render start position since it
@@ -158,7 +202,7 @@ protected:
     /** @brief Viewable pos and scale used to determine how much of this element is visible from the parent's
         perspective. Basically the parent-child intersection data. It doesn't include margins.
     */
-    glm::vec2 viewPos_{0}, viewScale_{0};
+    glm::ivec2 viewPos_{0}, viewScale_{0};
     uint32_t index_{1};
     float angle_{30.0f};
     bool isCustomIndex_{false};

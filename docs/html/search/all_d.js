@@ -9,6 +9,7 @@ var searchData=
   ['shaderloader_6',['ShaderLoader',['../classsrc_1_1resourceloaders_1_1ShaderLoader.html',1,'src::resourceloaders']]],
   ['shouldwindowclose_7',['shouldWindowClose',['../classsrc_1_1windowmanagement_1_1NativeWindow.html#a875f523f11f89a39530039d14a869829',1,'src::windowmanagement::NativeWindow']]],
   ['sliderevt_8',['SliderEvt',['../structsrc_1_1elementcomposable_1_1SliderEvt.html',1,'src::elementcomposable']]],
-  ['src_3a_3auielements_3a_3auibasederived_9',['UIBaseDerived',['../conceptsrc_1_1uielements_1_1UIBaseDerived.html',1,'src::uielements']]],
-  ['swapbuffers_10',['swapBuffers',['../classsrc_1_1windowmanagement_1_1NativeWindow.html#ac6af124222392cefea8659078ecbab90',1,'src::windowmanagement::NativeWindow']]]
+  ['spacing_9',['Spacing',['../classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529',1,'src::elementcomposable::LayoutBase']]],
+  ['src_3a_3auielements_3a_3auibasederived_10',['UIBaseDerived',['../conceptsrc_1_1uielements_1_1UIBaseDerived.html',1,'src::uielements']]],
+  ['swapbuffers_11',['swapBuffers',['../classsrc_1_1windowmanagement_1_1NativeWindow.html#ac6af124222392cefea8659078ecbab90',1,'src::windowmanagement::NativeWindow']]]
 ];
