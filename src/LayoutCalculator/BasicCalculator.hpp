@@ -89,5 +89,7 @@ public:
 private:
     auto computeSpacingOnAxis(const elementcomposable::LayoutBase::Spacing spacing, const int32_t elementsCount,
         const float pContentScale, const float maxScale) const -> glm::vec2;
+
+    auto computeFitScale(uielements::UIBase* parent) const -> glm::vec2;
 };
 } // namespace src::layoutcalculator

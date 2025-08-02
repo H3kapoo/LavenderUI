@@ -46,21 +46,41 @@ int main()
 
     UIPanePtr p = utils::make<UIPane>();
     p->setScrollEnabled(true, true);
+    p->setBorderColor(utils::hexToVec4("#b14cb1ff"));
     p->setScale({1.0_rel, 1.0_rel})
-        .setAlign(LayoutBase::Align::BOTTOM_CENTER)
-        .setSpacing(LayoutBase::Spacing::EVEN_NO_GAP)
+        // .setType(LayoutBase::Type::VERTICAL)
+        .setAlign(LayoutBase::Align::CENTER)
+        .setSpacing(LayoutBase::Spacing::EVEN_GAP)
         // .setWrap(true)
         .setPadding({4, 4, 4, 4})
-        .setBorder({4, 4, 4, 4});
+        .setBorder({4, 4, 4, 4})
+        ;
 
     p->setColor(utils::hexToVec4("#635a5aff"));
 
-    for (int32_t i = 0; i < 5; i++)
+    UIPanePtr p2 = utils::make<UIPane>();
+    // p2->setScale({0.5_rel, 0.5_rel});
+    p2->setScale({1_fit, 1_fit});
+    p2->setPadding({4, 4, 4, 4});
+    p2->setBorder({4, 4, 4, 4});
+    p2->setColor(utils::hexToVec4("#f52f2fff"));
+    p->add(p2);
+
+    // for (int32_t i = 0; i < 5; i++)
+    for (int32_t i = 0; i < 3; i++)
     {
         UIButtonPtr b = utils::make<UIButton>();
-        b->setScale({{utils::randomInt(70, 220)}, {utils::randomInt(70, 220)}});
-        b->setColor(utils::randomRGB());
-        p->add(b);
+        // b->setScale({1_fit, 1_fit});
+        b->setScale({200_px, 100_px});
+        b->setMargin({2, 2, 2, 2});
+        b->setColor(utils::hexToVec4("#ffffff96"));
+        // b->setText("ai");
+        
+        if (i == 1 || i == 3)
+        {
+            b->setScale({200_px, 400_px});
+        }
+        p2->add(b);
     }
 
     window.lock()->add(p);

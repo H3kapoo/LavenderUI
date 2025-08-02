@@ -71,6 +71,8 @@ protected:
     UISliderPtr vSlider_;
 
 private:
+    /** Note: Ideally layout will not be recalculated due to slider addition/removal more than once,
+        but sometimes, due to rounding errors or pure entropy, it will get stuck. Cap max retries. */
     int32_t updateTriesCount_{0};
     int32_t maxUpdateTries_{2};
 };

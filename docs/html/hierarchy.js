@@ -1,6 +1,5 @@
 var hierarchy =
 [
-    [ "src::elementcomposable::LayoutBase::AlignXY", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html", null ],
     [ "src::App", "classsrc_1_1App.html", null ],
     [ "src::layoutcalculator::BasicCalculator", "classsrc_1_1layoutcalculator_1_1BasicCalculator.html", null ],
     [ "src::elementcomposable::LayoutBase::BoundingBox", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1BoundingBox.html", null ],

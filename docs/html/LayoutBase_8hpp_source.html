@@ -129,17 +129,16 @@ $(document).ready(function(){initNavTree('LayoutBase_8hpp_source.html',''); init
 <div class="foldopen" id="foldopen00028" data-start="{" data-end="};">
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">   28</a></span>    <span class="keyword">enum</span> <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> : uint8_t</div>
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    {</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        TOP, LEFT, BOTTOM, RIGHT,</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        CENTER,</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        TOP_LEFT, TOP_RIGHT, CENTER_LEFT, CENTER_RIGHT, CENTER_TOP, CENTER_BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    };</div>
-</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="foldopen" id="foldopen00036" data-start="{" data-end="};">
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno"><a class="line" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html">   36</a></span>    <span class="keyword">struct </span><a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html">AlignXY</a></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    {</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> x{Align::LEFT};</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> y{Align::TOP};</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>        <span class="comment">// TOP, LEFT, BOTTOM, RIGHT,</span></div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        TOP_LEFT,</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        TOP_CENTER,</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>        TOP_RIGHT,</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        CENTER_LEFT,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        CENTER,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        CENTER_RIGHT,</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        BOTTOM_LEFT,</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>        BOTTOM_CENTER,</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        BOTTOM_RIGHT</div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    };</div>
 </div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
@@ -226,7 +225,7 @@ $(document).ready(function(){initNavTree('LayoutBase_8hpp_source.html',''); init
 <div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    auto getBorderRadius() const -&gt; const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">TBLR</a>&amp;;</div>
 <div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    auto getShadow() const -&gt; const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">TBLR</a>&amp;;</div>
 <div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    auto getSelfAlign() const -&gt; const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a>&amp;;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    auto getAlign() const -&gt; const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html">AlignXY</a>&amp;;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    auto getAlign() const -&gt; const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a>&amp;;</div>
 <div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    auto getSpacing() const -&gt; const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">Spacing</a>&amp;;</div>
 <div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    auto getMinScale() const -&gt; const glm::ivec2&amp;;</div>
 <div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    auto getMaxScale() const -&gt; const glm::ivec2&amp;;</div>
@@ -249,213 +248,211 @@ $(document).ready(function(){initNavTree('LayoutBase_8hpp_source.html',''); init
 <div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    auto setShadow(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">TBLR</a>&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    auto setSelfAlign(const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    auto setAlign(const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    auto setAlign(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html">AlignXY</a> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    auto setSpacing(const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">Spacing</a> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    auto setMinScale(const glm::ivec2 value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    auto setMaxScale(const glm::ivec2 value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    auto setWrap(const <span class="keywordtype">bool</span> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    auto setPos(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">PositionXY</a>&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    auto setScale(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">ScaleXY</a>&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    auto setComputedPos(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    auto setComputedScale(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    auto setViewPos(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    auto setViewScale(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    auto setIndex(uint32_t value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    auto setEnableCustomIndex(const <span class="keywordtype">bool</span> val) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    auto setAngle(<span class="keywordtype">float</span> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    friend auto operator-(const glm::vec2 lhs, const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">TBLR</a> rhs) -&gt; glm::vec2;</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span><span class="comment">// for now</span></div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>public:</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    glm::vec2 tempPosOffset{0, 0};</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="keyword">protected</span>:</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8c">Type</a> layoutType_{Type::HORIZONTAL};</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    TBLR margin{0};</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    TBLR padding{0};</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    TBLR border{0};</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    TBLR borderRadius{0};</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    TBLR shadow{0};</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> selfAlign_{Align::LEFT};</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    AlignXY align_{Align::LEFT, Align::TOP};</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">Spacing</a> spacing_{Spacing::TIGHT};</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    glm::ivec2 minScale{10, 10};</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    glm::ivec2 maxScale{10&#39;000, 10&#39;000};</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    <span class="keywordtype">bool</span> wrap{<span class="keyword">false</span>};</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">  179</a></span>    <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">PositionXY</a> <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">userPos_</a>;</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">  184</a></span>    <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">ScaleXY</a> <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">userScale_</a>{{100.0f}, {100.0f}};</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">  189</a></span>    glm::vec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">computedPos_</a>{0.0f, 0.0f};</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">  194</a></span>    glm::vec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">computedScale_</a>{100.0f, 100.0f};</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">  199</a></span>    glm::ivec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">viewPos_</a>{0}, viewScale_{0};</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    uint32_t index_{1};</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">float</span> angle_{30.0f};</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">bool</span> isCustomIndex_{<span class="keyword">false</span>};</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    glm::mat4 transform_{glm::mat4{1}};</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>};</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    auto setSpacing(const <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">Spacing</a> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    auto setMinScale(const glm::ivec2 value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    auto setMaxScale(const glm::ivec2 value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    auto setWrap(const <span class="keywordtype">bool</span> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    auto setPos(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">PositionXY</a>&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    auto setScale(const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">ScaleXY</a>&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    auto setComputedPos(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    auto setComputedScale(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    auto setViewPos(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    auto setViewScale(const glm::vec2&amp; value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    auto setIndex(uint32_t value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    auto setEnableCustomIndex(const <span class="keywordtype">bool</span> val) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    auto setAngle(<span class="keywordtype">float</span> value) -&gt; <a class="code hl_class" href="classsrc_1_1elementcomposable_1_1LayoutBase.html">LayoutBase</a>&amp;;</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    friend auto operator-(const glm::vec2 lhs, const <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">TBLR</a> rhs) -&gt; glm::vec2;</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="comment">// for now</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>public:</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    glm::vec2 tempPosOffset{0, 0};</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span><span class="keyword">protected</span>:</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8c">Type</a> layoutType_{Type::HORIZONTAL};</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    TBLR margin{0};</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    TBLR padding{0};</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    TBLR border{0};</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    TBLR borderRadius{0};</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    TBLR shadow{0};</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> selfAlign_{Align::TOP_LEFT};</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">Align</a> align_{Align::TOP_LEFT};</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">Spacing</a> spacing_{Spacing::TIGHT};</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    glm::ivec2 minScale{10, 10};</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    glm::ivec2 maxScale{10&#39;000, 10&#39;000};</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    <span class="keywordtype">bool</span> wrap{<span class="keyword">false</span>};</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">  178</a></span>    <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">PositionXY</a> <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">userPos_</a>;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">  183</a></span>    <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">ScaleXY</a> <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">userScale_</a>{{100.0f}, {100.0f}};</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">  188</a></span>    glm::vec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">computedPos_</a>{0.0f, 0.0f};</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">  193</a></span>    glm::vec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">computedScale_</a>{100.0f, 100.0f};</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno"><a class="line" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">  198</a></span>    glm::ivec2 <a class="code hl_variable" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">viewPos_</a>{0}, viewScale_{0};</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    uint32_t index_{1};</div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">float</span> angle_{30.0f};</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">bool</span> isCustomIndex_{<span class="keyword">false</span>};</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    glm::mat4 transform_{glm::mat4{1}};</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>};</div>
 </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span> </div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _fill(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span>);</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _fit(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span>);</div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _rel(<span class="keywordtype">long</span> <span class="keywordtype">double</span> value);</div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _px(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> value);</div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="comment">// Layout::GridDistrib operator&quot;&quot; _gpx(unsigned long long value);</span></div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span><span class="comment">// Layout::GridDistrib operator&quot;&quot; _fr(unsigned long long value);</span></div>
-<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
-<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span><span class="keyword">auto</span> operator-(<span class="keyword">const</span> glm::vec2 lhs, <span class="keyword">const</span> glm::ivec2 rhs) -&gt; glm::vec2;</div>
-<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span> </div>
-<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>} <span class="comment">// namespace src::elementcomposable</span></div>
-<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span> </div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="comment">/* Custom formatters */</span></div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00221" data-start="{" data-end="};">
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec2_01_4.html">  221</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec2&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>{</div>
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec2&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f})&quot;</span>, obj.x, obj.y);</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>    }</div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>};</div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _fill(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span>);</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _fit(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span>);</div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _rel(<span class="keywordtype">long</span> <span class="keywordtype">double</span> value);</div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>LayoutBase::Scale <span class="keyword">operator</span><span class="stringliteral">&quot;&quot;</span> _px(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> <span class="keywordtype">long</span> value);</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span><span class="comment">// Layout::GridDistrib operator&quot;&quot; _gpx(unsigned long long value);</span></div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="comment">// Layout::GridDistrib operator&quot;&quot; _fr(unsigned long long value);</span></div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span><span class="keyword">auto</span> operator-(<span class="keyword">const</span> glm::vec2 lhs, <span class="keyword">const</span> glm::ivec2 rhs) -&gt; glm::vec2;</div>
+<div class="line"><a id="l00215" name="l00215"></a><span class="lineno">  215</span> </div>
+<div class="line"><a id="l00216" name="l00216"></a><span class="lineno">  216</span>} <span class="comment">// namespace src::elementcomposable</span></div>
+<div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span> </div>
+<div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span><span class="comment">/* Custom formatters */</span></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00220" data-start="{" data-end="};">
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec2_01_4.html">  220</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec2&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>{</div>
+<div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec2&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f})&quot;</span>, obj.x, obj.y);</div>
+<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>    }</div>
+<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span>};</div>
 </div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span> </div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00232" data-start="{" data-end="};">
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec3_01_4.html">  232</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec3&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>{</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec3&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f}, {:.03f})&quot;</span>, obj.x, obj.y, obj.z);</div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>    }</div>
-<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span>};</div>
+<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span> </div>
+<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00231" data-start="{" data-end="};">
+<div class="line"><a id="l00231" name="l00231"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec3_01_4.html">  231</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec3&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>{</div>
+<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec3&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f}, {:.03f})&quot;</span>, obj.x, obj.y, obj.z);</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span>    }</div>
+<div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>};</div>
 </div>
-<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span> </div>
-<div class="line"><a id="l00242" name="l00242"></a><span class="lineno">  242</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00243" data-start="{" data-end="};">
-<div class="line"><a id="l00243" name="l00243"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec4_01_4.html">  243</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec4&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>{</div>
-<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec4&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f}, {:.03f}, {:.03f})&quot;</span>, obj.x, obj.y, obj.z, obj.w);</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>    }</div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>};</div>
+<div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
+<div class="line"><a id="l00241" name="l00241"></a><span class="lineno">  241</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00242" data-start="{" data-end="};">
+<div class="line"><a id="l00242" name="l00242"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01glm_1_1vec4_01_4.html">  242</a></span><span class="keyword">struct </span>std::formatter&lt;glm::vec4&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00243" name="l00243"></a><span class="lineno">  243</span>{</div>
+<div class="line"><a id="l00244" name="l00244"></a><span class="lineno">  244</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> glm::vec4&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00245" name="l00245"></a><span class="lineno">  245</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;({:.03f}, {:.03f}, {:.03f}, {:.03f})&quot;</span>, obj.x, obj.y, obj.z, obj.w);</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>    }</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>};</div>
 </div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span> </div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00254" data-start="{" data-end="};">
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1TBLR_01_4.html">  254</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::TBLR&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>{</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">src::elementcomposable::LayoutBase::TBLR</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(T:{}, B:{}, L:{}, R:{})&quot;</span>, obj.top, obj.bot, obj.left, obj.right);</div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>    }</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>};</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00253" data-start="{" data-end="};">
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1TBLR_01_4.html">  253</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::TBLR&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>{</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html">src::elementcomposable::LayoutBase::TBLR</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(T:{}, B:{}, L:{}, R:{})&quot;</span>, obj.top, obj.bot, obj.left, obj.right);</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>    }</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>};</div>
 </div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span> </div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00265" data-start="{" data-end="};">
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionType_01_4.html">  265</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::PositionType&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>{</div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8f1c1f4d43f06760cb0b216013389c22">src::elementcomposable::LayoutBase::PositionType</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>        <span class="keywordflow">switch</span>(obj)</div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>        {</div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::PositionType::ABS:</div>
-<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                os &lt;&lt; <span class="stringliteral">&quot;ABS&quot;</span>;</div>
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::PositionType::COMPUTED:</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                os &lt;&lt; <span class="stringliteral">&quot;COMPUTED&quot;</span>;</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>            <span class="keywordflow">default</span>:</div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>                os &lt;&lt; <span class="stringliteral">&quot;UNKNOWN&quot;</span>;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        }</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>    }</div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>};</div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span> </div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00264" data-start="{" data-end="};">
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionType_01_4.html">  264</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::PositionType&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>{</div>
+<div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8f1c1f4d43f06760cb0b216013389c22">src::elementcomposable::LayoutBase::PositionType</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>        <span class="keywordflow">switch</span>(obj)</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>        {</div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::PositionType::ABS:</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>                os &lt;&lt; <span class="stringliteral">&quot;ABS&quot;</span>;</div>
+<div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::PositionType::COMPUTED:</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>                os &lt;&lt; <span class="stringliteral">&quot;COMPUTED&quot;</span>;</div>
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>                os &lt;&lt; <span class="stringliteral">&quot;UNKNOWN&quot;</span>;</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>        }</div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>    }</div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>};</div>
 </div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span> </div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00286" data-start="{" data-end="};">
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionXY_01_4.html">  286</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::PositionXY&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>{</div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">src::elementcomposable::LayoutBase::PositionXY</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(({}, {}), ({}, {}))&quot;</span>, obj.x.val, obj.x.type, obj.y.val, obj.y.type);</div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>    }</div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>};</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span> </div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00285" data-start="{" data-end="};">
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionXY_01_4.html">  285</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::PositionXY&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>{</div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">src::elementcomposable::LayoutBase::PositionXY</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(({}, {}), ({}, {}))&quot;</span>, obj.x.val, obj.x.type, obj.y.val, obj.y.type);</div>
+<div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>    }</div>
+<div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span>};</div>
 </div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00297" data-start="{" data-end="};">
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleType_01_4.html">  297</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::ScaleType&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>{</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8b779e1b8e21851c3f44b66a847761ed">src::elementcomposable::LayoutBase::ScaleType</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        <span class="keywordflow">switch</span>(obj)</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        {</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::PX:</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                os &lt;&lt; <span class="stringliteral">&quot;PX&quot;</span>;</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::REL:</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>                os &lt;&lt; <span class="stringliteral">&quot;REL&quot;</span>;</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::FIT:</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>                os &lt;&lt; <span class="stringliteral">&quot;FIT&quot;</span>;</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::FILL:</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>                os &lt;&lt; <span class="stringliteral">&quot;FILL&quot;</span>;</div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>                <span class="keywordflow">break</span>;</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>            <span class="keywordflow">default</span>:</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>                os &lt;&lt; <span class="stringliteral">&quot;UNKNOWN&quot;</span>;</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        }</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>    }</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>};</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span> </div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00296" data-start="{" data-end="};">
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleType_01_4.html">  296</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::ScaleType&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>{</div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_enumeration" href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8b779e1b8e21851c3f44b66a847761ed">src::elementcomposable::LayoutBase::ScaleType</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>        <span class="keywordflow">switch</span>(obj)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>        {</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::PX:</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>                os &lt;&lt; <span class="stringliteral">&quot;PX&quot;</span>;</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::REL:</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>                os &lt;&lt; <span class="stringliteral">&quot;REL&quot;</span>;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::FIT:</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>                os &lt;&lt; <span class="stringliteral">&quot;FIT&quot;</span>;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>            <span class="keywordflow">case</span> src::elementcomposable::LayoutBase::ScaleType::FILL:</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>                os &lt;&lt; <span class="stringliteral">&quot;FILL&quot;</span>;</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>                <span class="keywordflow">break</span>;</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            <span class="keywordflow">default</span>:</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>                os &lt;&lt; <span class="stringliteral">&quot;UNKNOWN&quot;</span>;</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>        }</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    }</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>};</div>
 </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span> </div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span><span class="keyword">template</span>&lt;&gt;</div>
-<div class="foldopen" id="foldopen00324" data-start="{" data-end="};">
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY_01_4.html">  324</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::ScaleXY&gt; : std::formatter&lt;std::string_view&gt;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>{</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">src::elementcomposable::LayoutBase::ScaleXY</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span><span class="keyword">    </span>{</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        std::ostringstream os;</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(({}, {}), ({}, {}))&quot;</span>, obj.x.val, obj.x.type, obj.y.val, obj.y.type);</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    }</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>};</div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span><span class="keyword">template</span>&lt;&gt;</div>
+<div class="foldopen" id="foldopen00323" data-start="{" data-end="};">
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno"><a class="line" href="structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY_01_4.html">  323</a></span><span class="keyword">struct </span>std::formatter&lt;src::elementcomposable::LayoutBase::ScaleXY&gt; : std::formatter&lt;std::string_view&gt;</div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>{</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keyword">auto</span> format(<span class="keyword">const</span> <a class="code hl_struct" href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html">src::elementcomposable::LayoutBase::ScaleXY</a>&amp; obj, format_context&amp; ctx)<span class="keyword"> const</span></div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span><span class="keyword">    </span>{</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        std::ostringstream os;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        os &lt;&lt; std::format(<span class="stringliteral">&quot;(({}, {}), ({}, {}))&quot;</span>, obj.x.val, obj.x.type, obj.y.val, obj.y.type);</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        <span class="keywordflow">return</span> std::formatter&lt;std::string_view&gt;::format(std::move(os).str(), ctx);</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    }</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>};</div>
 </div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span> </div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html">src::elementcomposable::LayoutBase</a></div><div class="ttdoc">Base class for any generic layout related options/information.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:13</div></div>
-<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a0a4a7a5a4fe5c4c4345832fd16519bff"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">src::elementcomposable::LayoutBase::computedScale_</a></div><div class="ttdeci">glm::vec2 computedScale_</div><div class="ttdoc">The computed scale that dictates the scale of the rendered area. This is NOT the actual scale of the ...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:194</div></div>
-<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a25506eadb2073e73ca9dca021c6e2006"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">src::elementcomposable::LayoutBase::computedPos_</a></div><div class="ttdeci">glm::vec2 computedPos_</div><div class="ttdoc">The computed position where the mesh rendering starts. This is NOT the actual position of the element...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:189</div></div>
+<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a0a4a7a5a4fe5c4c4345832fd16519bff"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a0a4a7a5a4fe5c4c4345832fd16519bff">src::elementcomposable::LayoutBase::computedScale_</a></div><div class="ttdeci">glm::vec2 computedScale_</div><div class="ttdoc">The computed scale that dictates the scale of the rendered area. This is NOT the actual scale of the ...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:193</div></div>
+<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a25506eadb2073e73ca9dca021c6e2006"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a25506eadb2073e73ca9dca021c6e2006">src::elementcomposable::LayoutBase::computedPos_</a></div><div class="ttdeci">glm::vec2 computedPos_</div><div class="ttdoc">The computed position where the mesh rendering starts. This is NOT the actual position of the element...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:188</div></div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a41a905a4b60f4fe66135b20e4e64ea8c"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a41a905a4b60f4fe66135b20e4e64ea8c">src::elementcomposable::LayoutBase::Type</a></div><div class="ttdeci">Type</div><div class="ttdoc">Represents the display type of the element.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:23</div></div>
-<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a66a4a0e5302655966363c141519ff00c"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">src::elementcomposable::LayoutBase::viewPos_</a></div><div class="ttdeci">glm::ivec2 viewPos_</div><div class="ttdoc">Viewable pos and scale used to determine how much of this element is visible from the parent's perspe...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:199</div></div>
-<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a7c5f0ec3570ef5614246d6ade978a009"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">src::elementcomposable::LayoutBase::userScale_</a></div><div class="ttdeci">ScaleXY userScale_</div><div class="ttdoc">User supplied scale details. This is NOT the actual rendered scale but the size of the element's cont...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:184</div></div>
+<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a66a4a0e5302655966363c141519ff00c"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a66a4a0e5302655966363c141519ff00c">src::elementcomposable::LayoutBase::viewPos_</a></div><div class="ttdeci">glm::ivec2 viewPos_</div><div class="ttdoc">Viewable pos and scale used to determine how much of this element is visible from the parent's perspe...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:198</div></div>
+<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a7c5f0ec3570ef5614246d6ade978a009"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a7c5f0ec3570ef5614246d6ade978a009">src::elementcomposable::LayoutBase::userScale_</a></div><div class="ttdeci">ScaleXY userScale_</div><div class="ttdoc">User supplied scale details. This is NOT the actual rendered scale but the size of the element's cont...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:183</div></div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a8b779e1b8e21851c3f44b66a847761ed"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8b779e1b8e21851c3f44b66a847761ed">src::elementcomposable::LayoutBase::ScaleType</a></div><div class="ttdeci">ScaleType</div><div class="ttdoc">Represents the scale type applied to the element.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:47</div></div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_a8f1c1f4d43f06760cb0b216013389c22"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#a8f1c1f4d43f06760cb0b216013389c22">src::elementcomposable::LayoutBase::PositionType</a></div><div class="ttdeci">PositionType</div><div class="ttdoc">Represents the position type applied to the element.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:71</div></div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_abae3b168099cce17c08469d2e95ed9d4"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4">src::elementcomposable::LayoutBase::Align</a></div><div class="ttdeci">Align</div><div class="ttdoc">Defines how elements will be aligned inside the parent.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:29</div></div>
-<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_af2c7c6165e47decec9b9f937a911431d"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">src::elementcomposable::LayoutBase::userPos_</a></div><div class="ttdeci">PositionXY userPos_</div><div class="ttdoc">User supplied position details. This is NOT the actual render start position since it includes margin...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:179</div></div>
+<div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_af2c7c6165e47decec9b9f937a911431d"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af2c7c6165e47decec9b9f937a911431d">src::elementcomposable::LayoutBase::userPos_</a></div><div class="ttdeci">PositionXY userPos_</div><div class="ttdoc">User supplied position details. This is NOT the actual render start position since it includes margin...</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:178</div></div>
 <div class="ttc" id="aclasssrc_1_1elementcomposable_1_1LayoutBase_html_af68ac4288347b8fb4e1615aa06508529"><div class="ttname"><a href="classsrc_1_1elementcomposable_1_1LayoutBase.html#af68ac4288347b8fb4e1615aa06508529">src::elementcomposable::LayoutBase::Spacing</a></div><div class="ttdeci">Spacing</div><div class="ttdoc">Defines how elements will be spaced from each other inside the parent.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:43</div></div>
-<div class="ttc" id="astructsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY_html"><div class="ttname"><a href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html">src::elementcomposable::LayoutBase::AlignXY</a></div><div class="ttdoc">Represents the Algin on each axis.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:37</div></div>
 <div class="ttc" id="astructsrc_1_1elementcomposable_1_1LayoutBase_1_1BoundingBox_html"><div class="ttname"><a href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1BoundingBox.html">src::elementcomposable::LayoutBase::BoundingBox</a></div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:16</div></div>
 <div class="ttc" id="astructsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY_html"><div class="ttname"><a href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html">src::elementcomposable::LayoutBase::PositionXY</a></div><div class="ttdoc">Represents the Position on each axis.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:84</div></div>
 <div class="ttc" id="astructsrc_1_1elementcomposable_1_1LayoutBase_1_1Position_html"><div class="ttname"><a href="structsrc_1_1elementcomposable_1_1LayoutBase_1_1Position.html">src::elementcomposable::LayoutBase::Position</a></div><div class="ttdoc">Represents the position type and value of the element.</div><div class="ttdef"><b>Definition</b> LayoutBase.hpp:77</div></div>

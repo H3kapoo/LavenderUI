@@ -39,13 +39,6 @@ public:
         BOTTOM_RIGHT
     };
 
-    // /** @brief Represents the Algin on each axis. */
-    // struct AlignXY
-    // {
-    //     Align x{Align::LEFT};
-    //     Align y{Align::TOP};
-    // };
-
     /** @brief Defines how elements will be spaced from each other inside the parent. */
     enum Spacing : uint8_t { TIGHT, EVEN_NO_GAP, EVEN_GAP };
 

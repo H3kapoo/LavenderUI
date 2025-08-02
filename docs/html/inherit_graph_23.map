@@ -1,25 +1,21 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" title=" " alt="" coords="24,26,169,66"/>
-<area shape="rect" id="Node000001" href="$classsrc_1_1uielements_1_1UIBase.html" title="Abstract class defining base functionality for any new UI element." alt="" coords="236,129,412,155"/>
-<area shape="poly" id="edge18_Node000000_Node000001" title=" " alt="" coords="171,68,189,76,299,127,297,132,187,80,169,73"/>
-<area shape="rect" id="Node000002" href="$classsrc_1_1uielements_1_1UIButton.html" title="Simple generic button which generic click functionality." alt="" coords="469,5,655,31"/>
-<area shape="poly" id="edge19_Node000001_Node000002" title=" " alt="" coords="347,118,396,78,459,40,490,28,492,33,461,44,399,82,350,122"/>
-<area shape="rect" id="Node000003" href="$classsrc_1_1uielements_1_1UIImage.html" title=" " alt="" coords="469,55,655,80"/>
-<area shape="poly" id="edge20_Node000001_Node000003" title=" " alt="" coords="369,122,459,90,505,78,506,83,461,95,371,127"/>
-<area shape="rect" id="Node000004" href="$classsrc_1_1uielements_1_1UIPane.html" title="Pane GUI element that can be used as a container for other elements. Has the ability to scroll the el..." alt="" coords="475,104,649,129"/>
-<area shape="poly" id="edge21_Node000001_Node000004" title=" " alt="" coords="425,129,474,123,475,129,426,134"/>
-<area shape="rect" id="Node000006" href="$classsrc_1_1uielements_1_1UISlider.html" title="Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane." alt="" coords="471,153,653,179"/>
-<area shape="poly" id="edge23_Node000001_Node000006" title=" " alt="" coords="426,150,472,154,471,160,426,155"/>
-<area shape="rect" id="Node000007" href="$classsrc_1_1uielements_1_1UISplitPane.html" title="Splitter GUI element used as a container manager holding multiple UIPanes that can be resize on mouse..." alt="" coords="460,203,664,228"/>
-<area shape="poly" id="edge24_Node000001_Node000007" title=" " alt="" coords="370,157,461,189,503,200,502,205,459,194,369,162"/>
-<area shape="rect" id="Node000008" href="$classsrc_1_1uielements_1_1UIWindow.html" title="Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,..." alt="" coords="464,252,660,277"/>
-<area shape="poly" id="edge25_Node000001_Node000008" title=" " alt="" coords="350,162,399,201,461,238,492,249,490,254,459,243,396,205,347,166"/>
-<area shape="rect" id="Node000005" href="$classsrc_1_1uielements_1_1UITreeView.html" title="Treeview that can be used to display elements in a tree like structure with on click opening and clos..." alt="" coords="712,104,915,129"/>
-<area shape="poly" id="edge22_Node000004_Node000005" title=" " alt="" coords="663,114,712,114,712,119,663,119"/>
-<area shape="rect" id="Node000009" href="$classsrc_1_1elementcomposable_1_1Events.html" title="Manager handling the storage and dispatch of user or window generated events." alt="" coords="5,90,188,130"/>
-<area shape="poly" id="edge26_Node000009_Node000001" title=" " alt="" coords="202,122,236,127,235,132,201,127"/>
-<area shape="rect" id="Node000010" href="$classsrc_1_1elementcomposable_1_1LayoutBase.html" title="Base class for any generic layout related options/information." alt="" coords="5,154,188,194"/>
-<area shape="poly" id="edge27_Node000010_Node000001" title=" " alt="" coords="201,157,235,152,236,157,202,162"/>
-<area shape="rect" id="Node000011" href="$classsrc_1_1elementcomposable_1_1PropsBase.html" title=" " alt="" coords="5,218,188,258"/>
-<area shape="poly" id="edge28_Node000011_Node000001" title=" " alt="" coords="169,211,187,204,297,152,299,157,189,208,171,216"/>
+<area shape="rect" id="Node000000" title=" " alt="" coords="5,291,117,317"/>
+<area shape="rect" id="Node000001" href="$structstd_1_1formatter_3_01glm_1_1vec2_01_4.html" title=" " alt="" coords="195,5,347,45"/>
+<area shape="poly" id="edge29_Node000000_Node000001" title=" " alt="" coords="64,277,73,230,91,170,121,109,140,80,164,55,193,37,196,42,167,59,144,84,125,111,96,172,78,231,69,278"/>
+<area shape="rect" id="Node000002" href="$structstd_1_1formatter_3_01glm_1_1vec3_01_4.html" title=" " alt="" coords="195,69,347,109"/>
+<area shape="poly" id="edge30_Node000000_Node000002" title=" " alt="" coords="68,277,81,242,101,199,128,156,164,119,193,102,196,107,167,123,132,160,105,202,86,244,73,279"/>
+<area shape="rect" id="Node000003" href="$structstd_1_1formatter_3_01glm_1_1vec4_01_4.html" title=" " alt="" coords="195,133,347,173"/>
+<area shape="poly" id="edge31_Node000000_Node000003" title=" " alt="" coords="75,278,112,230,136,205,164,183,193,168,196,173,167,188,140,209,116,234,80,281"/>
+<area shape="rect" id="Node000004" href="$structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionType_01_4.html" title=" " alt="" coords="165,198,376,253"/>
+<area shape="poly" id="edge32_Node000000_Node000004" title=" " alt="" coords="107,284,164,262,194,250,196,255,166,266,108,289"/>
+<area shape="rect" id="Node000005" href="$structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1PositionXY_01_4.html" title=" " alt="" coords="171,277,370,331"/>
+<area shape="poly" id="edge33_Node000000_Node000005" title=" " alt="" coords="131,301,171,301,171,307,131,307"/>
+<area shape="rect" id="Node000006" href="$structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleType_01_4.html" title=" " alt="" coords="173,355,368,410"/>
+<area shape="poly" id="edge34_Node000000_Node000006" title=" " alt="" coords="110,319,198,353,196,358,108,324"/>
+<area shape="rect" id="Node000007" href="$structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY_01_4.html" title=" " alt="" coords="180,434,361,489"/>
+<area shape="poly" id="edge35_Node000000_Node000007" title=" " alt="" coords="80,326,117,373,141,398,167,419,188,432,185,436,164,424,137,402,113,377,76,330"/>
+<area shape="rect" id="Node000008" href="$structstd_1_1formatter_3_01src_1_1elementcomposable_1_1LayoutBase_1_1TBLR_01_4.html" title=" " alt="" coords="189,513,352,567"/>
+<area shape="poly" id="edge36_Node000000_Node000008" title=" " alt="" coords="72,329,85,366,105,412,132,458,167,498,191,514,188,518,164,502,128,461,100,414,80,368,67,331"/>
+<area shape="rect" id="Node000009" href="$structstd_1_1formatter_3_01std_1_1shared__ptr_3_01T_01_4_01_4.html" title=" " alt="" coords="195,592,347,632"/>
+<area shape="poly" id="edge37_Node000000_Node000009" title=" " alt="" coords="68,330,76,382,93,448,122,517,143,549,167,577,196,595,193,599,164,581,138,552,118,520,88,450,70,383,62,331"/>
 </map>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['hello_0',['Hello',['../index.html',1,'']]]
+  ['calculator_20for_20gui_0',['Layout Calculator for GUI',['../index.html',1,'']]]
 ];

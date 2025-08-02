@@ -142,16 +142,20 @@ $(document).ready(function(){initNavTree('UIPane_8hpp_source.html',''); initResi
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span><span class="keyword">protected</span>:</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    UISliderPtr hSlider_;</div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    UISliderPtr vSlider_;</div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>};</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    int32_t updateTriesCount_{0};</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    int32_t maxUpdateTries_{2};</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>};</div>
 </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">using </span>UIPanePtr = std::shared_ptr&lt;UIPane&gt;;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keyword">using </span>UIPaneWPtr = std::weak_ptr&lt;UIPane&gt;;</div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keyword">using </span>UIPanePtrVec = std::vector&lt;UIPanePtr&gt;;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>} <span class="comment">// namespace src::uielements</span></div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span><span class="keyword">using </span>UIPanePtr = std::shared_ptr&lt;UIPane&gt;;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span><span class="keyword">using </span>UIPaneWPtr = std::weak_ptr&lt;UIPane&gt;;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span><span class="keyword">using </span>UIPanePtrVec = std::vector&lt;UIPanePtr&gt;;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>} <span class="comment">// namespace src::uielements</span></div>
 <div class="ttc" id="aclasssrc_1_1uielements_1_1UIBase_html"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIBase.html">src::uielements::UIBase</a></div><div class="ttdoc">Abstract class defining base functionality for any new UI element.</div><div class="ttdef"><b>Definition</b> UIBase.hpp:45</div></div>
 <div class="ttc" id="aclasssrc_1_1uielements_1_1UIPane_html"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIPane.html">src::uielements::UIPane</a></div><div class="ttdoc">Pane GUI element that can be used as a container for other elements. Has the ability to scroll the el...</div><div class="ttdef"><b>Definition</b> UIPane.hpp:17</div></div>
-<div class="ttc" id="aclasssrc_1_1uielements_1_1UIPane_html_a5650d5214371ca53313cdd975443ef82"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIPane.html#a5650d5214371ca53313cdd975443ef82">src::uielements::UIPane::updateSlidersWithOverflow</a></div><div class="ttdeci">auto updateSlidersWithOverflow(const glm::vec2 &amp;overflow) -&gt; bool</div><div class="ttdoc">Update the current sliders with the new overflow value.</div><div class="ttdef"><b>Definition</b> UIPane.cpp:86</div></div>
-<div class="ttc" id="aclasssrc_1_1uielements_1_1UIPane_html_a7aa9fd9ab20b521ee333107704330143"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIPane.html#a7aa9fd9ab20b521ee333107704330143">src::uielements::UIPane::updateClosestSlider</a></div><div class="ttdeci">auto updateClosestSlider(state::UIWindowStatePtr &amp;state) -&gt; void</div><div class="ttdoc">Checks whether one of the active sliders of this object is the closest one to the mouse position and ...</div><div class="ttdef"><b>Definition</b> UIPane.cpp:114</div></div>
+<div class="ttc" id="aclasssrc_1_1uielements_1_1UIPane_html_a5650d5214371ca53313cdd975443ef82"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIPane.html#a5650d5214371ca53313cdd975443ef82">src::uielements::UIPane::updateSlidersWithOverflow</a></div><div class="ttdeci">auto updateSlidersWithOverflow(const glm::vec2 &amp;overflow) -&gt; bool</div><div class="ttdoc">Update the current sliders with the new overflow value.</div><div class="ttdef"><b>Definition</b> UIPane.cpp:89</div></div>
+<div class="ttc" id="aclasssrc_1_1uielements_1_1UIPane_html_a7aa9fd9ab20b521ee333107704330143"><div class="ttname"><a href="classsrc_1_1uielements_1_1UIPane.html#a7aa9fd9ab20b521ee333107704330143">src::uielements::UIPane::updateClosestSlider</a></div><div class="ttdeci">auto updateClosestSlider(state::UIWindowStatePtr &amp;state) -&gt; void</div><div class="ttdoc">Checks whether one of the active sliders of this object is the closest one to the mouse position and ...</div><div class="ttdef"><b>Definition</b> UIPane.cpp:117</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

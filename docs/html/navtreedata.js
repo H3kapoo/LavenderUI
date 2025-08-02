@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "Unnamed GUI Lib", "index.html", [
-    [ "Hello", "index.html", null ],
+    [ "Layout Calculator for GUI", "index.html", "index" ],
     [ "Concepts", "concepts.html", "concepts" ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],

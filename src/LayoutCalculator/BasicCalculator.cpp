@@ -24,11 +24,10 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIPane* parent
     const glm::vec2 shrinkScaleBy) const -> glm::vec2
 {
     const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
-    const auto& pContentBoxPos = parent-> getContentBoxPos();
-    const auto& pLayoutType = parent->getType();
     const auto& elements = parent->getElements();
 
     glm::vec2 runningMax{0, 0};
+    glm::vec2 fillsNeededPerAxis{0, 0};
     for (const auto& element : elements)
     {
         SKIP_SLIDER(element);
@@ -36,40 +35,29 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIPane* parent
         const auto& userScale = element->getScale();
         const auto& marginTB = element->getTBMargin();
         const auto& marginLR = element->getLRMargin();
-        glm::vec2 cScale;
-        if (userScale.x.type == LayoutBase::ScaleType::PX)
-        {
-            cScale.x = userScale.x.val - marginLR;
-        }
-        else if (userScale.x.type == LayoutBase::ScaleType::REL)
-        {
-            cScale.x = pContentBoxScale.x * userScale.x.val - marginLR;
-        }
-        else if (userScale.x.type == LayoutBase::ScaleType::FIT)
-        {
-            //TODO:
-        }
-        else if (userScale.x.type == LayoutBase::ScaleType::FILL)
-        {
-            //TODO:
-        }
+        const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
+        const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
+        const bool isXRel = userScale.x.type == LayoutBase::ScaleType::REL;
+        const bool isYRel = userScale.y.type == LayoutBase::ScaleType::REL;
+        const bool isXFill = userScale.x.type == LayoutBase::ScaleType::FILL;
+        const bool isYFill = userScale.y.type == LayoutBase::ScaleType::FILL;
+        const bool isXFit = userScale.x.type == LayoutBase::ScaleType::FIT;
+        const bool isYFit = userScale.y.type == LayoutBase::ScaleType::FIT;
 
-        // y
-        if (userScale.y.type == LayoutBase::ScaleType::PX)
-        {
-            cScale.y = userScale.y.val - marginTB;
-        }
-        else if (userScale.y.type == LayoutBase::ScaleType::REL)
-        {
-            cScale.y = pContentBoxScale.y * userScale.y.val - marginTB;
-        }
-        else if (userScale.y.type == LayoutBase::ScaleType::FIT)
-        {
+        glm::vec2 cScale{0, 0};
+        if (isXPx) { cScale.x = userScale.x.val - marginLR; }
+        else if (isXRel) { cScale.x = pContentBoxScale.x * userScale.x.val - marginLR; }
+        else if (isXFill) { ++fillsNeededPerAxis.x; }
 
-        }
-        else if (userScale.y.type == LayoutBase::ScaleType::FILL)
-        {
+        if (isYPx) { cScale.y = userScale.y.val - marginTB; }
+        else if (isYRel) { cScale.y = pContentBoxScale.y * userScale.y.val - marginTB; }
+        else if (isYFill) { ++fillsNeededPerAxis.y; }
 
+        if (isXFit || isYFit)
+        {
+            const glm::vec2 fitScale = computeFitScale(element.get());
+            if (isXFit) { cScale.x = fitScale.x + marginLR; }
+            if (isYFit) { cScale.y = fitScale.y + marginTB; }
         }
 
         element->setComputedScale(cScale);
@@ -77,6 +65,35 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIPane* parent
         runningMax += cScale;
     }
 
+    /* Process the FILL nodes. */
+    const glm::vec2 equalFillSpace = (pContentBoxScale - runningMax) / fillsNeededPerAxis;
+    for (const auto& element : elements)
+    {
+        SKIP_SLIDER(element);
+
+        const auto& userScale = element->getScale();
+        const bool isXFill = userScale.x.type == LayoutBase::ScaleType::FILL;
+        const bool isYFill = userScale.y.type == LayoutBase::ScaleType::FILL;
+
+        if (!isXFill && !isYFill) { continue; }
+
+        const auto& marginTB = element->getTBMargin();
+        const auto& marginLR = element->getLRMargin();
+        glm::vec2 cScale{element->getComputedScale()};
+        if (isXFill)
+        {
+            cScale.x = equalFillSpace.x - marginLR;
+            runningMax.x += cScale.x;
+        }
+
+        if (isYFill)
+        {
+            cScale.y = equalFillSpace.y - marginTB;
+            runningMax.y += cScale.y;
+        }
+
+        element->setComputedScale(cScale);
+    }
     return runningMax;
 }
 
@@ -90,18 +107,33 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIPane* par
     const auto pWrap = parent->getWrap();
     const auto& elements = parent->getElements();
 
+    /* Note: Quick hack for spacing in case parent has scrollbars attached*/
+    int32_t elementsCount = elements.size(); 
+
     glm::vec2 nextPos{pContentBoxPos};
     glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
     glm::vec2 spacing{0, 0};
+    glm::vec2 newMaxScale = maxScale;
     if (pLayoutType == LayoutBase::Type::HORIZONTAL)
     {
-        spacing = computeSpacingOnAxis(parent->getSpacing(), elements.size(), parent->getContentBoxScale().x, maxScale.x);
+        if (shrinkScaleBy.x > 0)
+        {
+            --elementsCount;
+            newMaxScale.x += shrinkScaleBy.x;
+        }
+        spacing = computeSpacingOnAxis(parent->getSpacing(), elementsCount, parent->getContentBoxScale().x, newMaxScale.x);
         nextPos.x += spacing.y /* Additional start push*/;
     }
     else if (pLayoutType == LayoutBase::Type::VERTICAL)
     {
-        spacing = computeSpacingOnAxis(parent->getSpacing(), elements.size(), parent->getContentBoxScale().y, maxScale.y);
+        if (shrinkScaleBy.y > 0)
+        {
+            --elementsCount;
+            newMaxScale.y += shrinkScaleBy.y;
+        }
+
+        spacing = computeSpacingOnAxis(parent->getSpacing(), elementsCount, parent->getContentBoxScale().y, newMaxScale.y);
         nextPos.y += spacing.y /* Additional start push*/;
     }
 
@@ -139,7 +171,7 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIPane* par
             }
 
             computedPos = nextPos + marginPush;
-            nextPos.y = computedPos.y + compScale.y + margins.bot;
+            nextPos.y = computedPos.y + compScale.y + margins.bot + spacing.x;
             maxOnAxis.x = std::max(maxOnAxis.x, fullBoxScale.x);
         }
 
@@ -150,7 +182,7 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIPane* par
 auto BasicCalculator::calculateAlignmentForElements(uielements::UIBase* parent,
     const glm::vec2 overflow) const -> void
 {
-    if (overflow.x >= 0 && overflow.y >= 0) { return;}
+    if (overflow.x >= 0 && overflow.y >= 0) { return; }
 
     /* Note: negative overflow means there's `-overflow` pixels left until an overflow occurs.
         We can leverage that to align elements.*/
@@ -208,7 +240,6 @@ auto BasicCalculator::calculateAlignmentForElements(uielements::UIBase* parent,
 
         element->setComputedPos(element->getComputedPos() + offset);
     }
-    // utils::Logger("calc").warn("of is {}", overflow);
 }
 
 auto BasicCalculator::computeSpacingOnAxis(const LayoutBase::Spacing spacing, const int32_t elementsCount,
@@ -233,6 +264,73 @@ auto BasicCalculator::computeSpacingOnAxis(const LayoutBase::Spacing spacing, co
     }
 
     return {computedSpacing, additionalStartPush};
+}
+
+auto BasicCalculator::computeFitScale(uielements::UIBase* parent) const -> glm::vec2
+{
+    const auto& elements = parent->getElements();
+    if (elements.empty())
+    {
+        utils::Logger("calc").warn("no elements for fit");
+        return {0, 0};
+    }
+
+    const auto& pBorder = parent->getBorder();
+    const auto& pPadding = parent->getPadding();
+    const auto& pType = parent->getType();
+    const auto& pUserScale = parent->getScale();
+    const bool pIsXFit = pUserScale.x.type == LayoutBase::ScaleType::FIT;
+    const bool pIsYFit = pUserScale.y.type == LayoutBase::ScaleType::FIT;
+    const bool pIsHori = pType == LayoutBase::Type::HORIZONTAL;
+    const bool pIsVert = pType == LayoutBase::Type::VERTICAL;
+
+    glm::vec2 fitScale{0, 0};
+    for (const auto& element : elements)
+    {
+        SKIP_SLIDER(element);
+        const auto& userScale = element->getScale();
+        const auto& marginTB = element->getTBMargin();
+        const auto& marginLR = element->getLRMargin();
+        const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
+        const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
+        const bool isXFit = userScale.x.type == LayoutBase::ScaleType::FIT;
+        const bool isYFit = userScale.y.type == LayoutBase::ScaleType::FIT;
+
+        glm::vec2 internalFitScale{0, 0};
+        if (isXFit || isYFit)
+        {
+            internalFitScale = computeFitScale(element.get());
+        }
+
+        if (pIsXFit && isXPx)
+        {
+            // fitScale.x += userScale.x.val - marginLR;
+            fitScale.x = pIsVert
+                ? std::max(fitScale.x, userScale.x.val)
+                : fitScale.x + userScale.x.val;
+        }
+        else if (pIsXFit && isXFit)
+        {
+            fitScale.x += internalFitScale.x;
+        }
+
+        if (pIsYFit && isYPx)
+        {
+            // fitScale.y += userScale.y.val - marginTB;
+            fitScale.y = pIsHori
+                ? std::max(fitScale.y, userScale.y.val)
+                : fitScale.y + userScale.y.val;
+        }
+        else if (pIsXFit && isXFit)
+        {
+            fitScale.y += internalFitScale.y;
+        }
+    }
+
+    /* Adjust for border and padding of the parent */
+    fitScale.x += pBorder.left + pBorder.right + pPadding.left + pPadding.right;
+    fitScale.y += pBorder.top + pBorder.bot + pPadding.top + pPadding.bot;
+    return fitScale;
 }
 
 auto BasicCalculator::calcElementsPos(uielements::UIBase* parent,
@@ -295,8 +393,6 @@ auto BasicCalculator::calcElementsScale(uielements::UIBase* parent,
     const glm::vec2 scrollData) const -> void
 {
     const auto& pComputedScale = parent->getComputedScale() - scrollData;
-    const auto& pComputedPos = parent-> getComputedPos();
-    const auto& pLayoutType = parent->getType();
     const auto& elements = parent->getElements();
 
     for (const auto& element : elements)
@@ -329,11 +425,11 @@ auto BasicCalculator::calcElementsScale(uielements::UIBase* parent,
         // y
         if (userScale.y.type == LayoutBase::ScaleType::PX)
         {
-            cScale.y = userScale.y.val;// - marginTB;
+            cScale.y = userScale.y.val - marginTB;
         }
         else if (userScale.y.type == LayoutBase::ScaleType::REL)
         {
-            cScale.y = pComputedScale.y * userScale.y.val;
+            cScale.y = pComputedScale.y * userScale.y.val - marginTB;
         }
         else if (userScale.y.type == LayoutBase::ScaleType::FIT)
         {
@@ -399,8 +495,6 @@ auto BasicCalculator::calcSplitPaneElements(uielements::UISplitPane* parent) con
     {
         const auto& margins = element->getMargin();
         const auto& compScale = element->getComputedScale();
-        const glm::vec2 fullScale = element->getFullBoxScale();
-
         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
             // nextPos starts at the end of the previous' element margin end

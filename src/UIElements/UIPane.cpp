@@ -33,7 +33,7 @@ auto UIPane::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uColor", getColor());
     shader_.uploadVec2f("uResolution", getComputedScale());
     shader_.uploadVec4f("uBorderSize", {getBorder().top, getBorder().bot, getBorder().left, getBorder().right});
-    shader_.uploadVec4f("uBorderColor", utils::hexToVec4("#ffffffff"));
+    shader_.uploadVec4f("uBorderColor", getBorderColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == UISlider::scrollTagId; };
@@ -58,7 +58,7 @@ auto UIPane::layout() -> void
         calculator.calculateAlignmentForElements(this, overflow);
 
         ++updateTriesCount_;
-    /* Adding new elements (slides in this case) invalidates the calculations. */
+        /* Adding new elements (slides in this case) invalidates the calculations. */
     } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
 
     calculator.calcPaneElementsAddScrollToPos(this, {

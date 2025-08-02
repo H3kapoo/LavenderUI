@@ -1,6 +1,5 @@
 var classsrc_1_1elementcomposable_1_1LayoutBase =
 [
-    [ "AlignXY", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1AlignXY.html", null ],
     [ "BoundingBox", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1BoundingBox.html", null ],
     [ "Position", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1Position.html", null ],
     [ "PositionXY", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1PositionXY.html", null ],
@@ -8,18 +7,14 @@ var classsrc_1_1elementcomposable_1_1LayoutBase =
     [ "ScaleXY", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1ScaleXY.html", null ],
     [ "TBLR", "structsrc_1_1elementcomposable_1_1LayoutBase_1_1TBLR.html", null ],
     [ "Align", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4", [
-      [ "TOP", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4ada0ad0d3074009884988484322be1cbf", null ],
-      [ "LEFT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a67fbd7b006261f649923e8ef0098678d", null ],
-      [ "BOTTOM", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4ac79d5f8e7579a3c65739f6f81e4a3f7d", null ],
-      [ "RIGHT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a0dac6b1384125586c68f682b13c76832", null ],
-      [ "CENTER", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a0d8915f63597204803ff6ecc13f4c139", null ],
       [ "TOP_LEFT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4aaba103e031158479830e19dd415ccbfc", null ],
+      [ "TOP_CENTER", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a686bef8d8d225f31170aa3bc5bceb9a8", null ],
       [ "TOP_RIGHT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4ac088e2f165259bb14b2afc98f9fb0533", null ],
       [ "CENTER_LEFT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a735e1839b04b4bfcbe383aaa6e0f0144", null ],
+      [ "CENTER", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a0d8915f63597204803ff6ecc13f4c139", null ],
       [ "CENTER_RIGHT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a7a11d6880ba1669899486ab30fc1e3bc", null ],
-      [ "CENTER_TOP", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a73e7bcb2c7423741dd8de6f371bd9ac6", null ],
-      [ "CENTER_BOTTOM", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a430c5835124ad3cbd3bce4494a6db790", null ],
       [ "BOTTOM_LEFT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a6574404a85ed6eee67087c5dd1533e79", null ],
+      [ "BOTTOM_CENTER", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a458adbc354e8959e67f3ee18bf785ca6", null ],
       [ "BOTTOM_RIGHT", "classsrc_1_1elementcomposable_1_1LayoutBase.html#abae3b168099cce17c08469d2e95ed9d4a59cf76fb5924439536545a99001dcc4a", null ]
     ] ],
     [ "PositionType", "classsrc_1_1elementcomposable_1_1LayoutBase.html#a8f1c1f4d43f06760cb0b216013389c22", [

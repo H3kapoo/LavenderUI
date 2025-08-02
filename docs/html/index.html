@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Unnamed GUI Lib: Hello</title>
+<title>Unnamed GUI Lib: Layout Calculator for GUI</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript">var page_layout=1;</script>
 <script type="text/javascript" src="jquery.js"></script>
@@ -96,10 +96,79 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </div>
 
 <div><div class="header">
-  <div class="headertitle"><div class="title">Hello </div></div>
+  <div class="headertitle"><div class="title">Layout Calculator for GUI </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md_README"></a> This is the main page of this unnamed gui lib. </p>
+<div class="textblock"><p><a class="anchor" id="md_README"></a> </p>
+<h1><a class="anchor" id="autotoc_md1"></a>
+User Requirements</h1>
+<ol type="1">
+<li>User has the abilty to set<ol type="a">
+<li>Scale (Pixel/Relative/Fit/Fill)</li>
+<li>Position (if not auto computed)</li>
+<li>Wrapping</li>
+<li>Layout type (Horizontal/Vertical/Grid)</li>
+<li>Alignment of objects inside the element</li>
+<li>Spacing inside the element</li>
+<li>Margins</li>
+<li>Padding</li>
+<li>Border</li>
+<li>Border radius</li>
+<li>Min &amp; Max scale</li>
+<li>Custom Z index (if <code>2. Position</code> is not auto computed)</li>
+</ol>
+</li>
+<li>GUI elements that support scroll bars have the ability to interact with the user via common manipulation techniques:<ol type="a">
+<li>Mouse scrolling up and down changes the sub-view the user can see from the bigger layout.</li>
+<li>Clicking outside the scrollbar's knob will scroll the view such that the mouse position is always in the middle of the knob's scale. See Exception 1</li>
+<li>Clicking and dragging the mouse up and down has the effect of changing the sub-view by the same amount the user has dragged. The mouse will not jump up and down in order to be located at the center of the knob's scale as in point 2. An offset from the knob's center and the mouse position shall be used instead.</li>
+</ol>
+</li>
+<li>User set scale actually represents the final element's scale which includes the margins the object. The whole element's area is used to position other elements of the same parent.</li>
+<li>The inside content area of the element is shrunk by it's padding and borders. The content area is used to place child elements inside of the element.</li>
+</ol>
+<h1><a class="anchor" id="autotoc_md2"></a>
+Exceptions</h1>
+<ol type="1">
+<li>If knob position cannot be achieved (i.e. no more space to move the knob up or down), the closest distance to that ideal shall be used.</li>
+</ol>
+<h1><a class="anchor" id="autotoc_md3"></a>
+General box model and definitions</h1>
+<h2><a class="anchor" id="autotoc_md4"></a>
+Box model</h2>
+<p>The box model used is comprised of the following, in order from outside to inside:</p><ol type="1">
+<li>Margins</li>
+<li>Borders</li>
+<li>Padding</li>
+<li>Actual content area</li>
+</ol>
+<blockquote class="doxtable">
+<p>&zwj;<b>Note:</b> When the user sets the scale to be <code>(100, 100)</code> but he also has a margin of <code>(2, 2, 2, 2)</code> then this means that the actual, whole scale of the element is <code>user scale + margins</code> aka <code>(100 + 2ML + 2MR, 100 + 2MT + 2MB) = (104, 104)</code> </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<b>Note:</b> When the user sets the scale to be <code>(100, 100)</code> but he also has a padding of <code>(2, 2, 2, 2)</code> and a border size of <code>(4, 4, 4, 4)</code> then this means that the actual content area left is <code>user scale - padding - border size</code> aka <code>(100 - 2PL - 2PR - 4BL - 4BR, 100 - 2PT - 2PB - 4BT - 4BB) = (88, 88)</code> </p>
+</blockquote>
+<h2><a class="anchor" id="autotoc_md5"></a>
+Definitions</h2>
+<p><code>user scale</code> Refers to the user set preferred whole scale which includes margins.</p>
+<blockquote class="doxtable">
+<p>&zwj;user scale = margins + borders + padding + content area </p>
+</blockquote>
+<p><code>user pos</code> Refers to the user set preferred element start position which includes margins.</p>
+<blockquote class="doxtable">
+<p>&zwj;user pos = content area - borders - padding - margins </p>
+</blockquote>
+<p><code>computed scale</code> Refers to the scale that will be sent to the GPU for rendering. It does not contain the margins. This is what the layout calculator actually computes.</p>
+<blockquote class="doxtable">
+<p>&zwj;computed scale = borders + padding + content area </p>
+</blockquote>
+<p><code>computed pos</code> Refers to the pos that the mesh that will be sent to GPU for rendering starts from. It does not contain the margins. This is what the layout calculator also computes.</p>
+<blockquote class="doxtable">
+<p>&zwj;computed pos = content area - borders - padding </p>
+</blockquote>
+<p><img src="../../assets/textures/wall.jpg" alt="" width="200" height="200" class="inline"/></p>
+<h1><a class="anchor" id="autotoc_md6"></a>
+Objects that support scrolling</h1>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->
