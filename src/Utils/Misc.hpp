@@ -171,4 +171,40 @@ inline auto as(std::shared_ptr<src::uielements::UIBase>& val) -> std::shared_ptr
     return std::static_pointer_cast<T>(val);
 }
 
+/**
+    @brief Return max between 2 glm vec2s.
+
+    @param a First vector
+    @param b Second vector
+
+    @return Max between the 2 vectors.
+*/
+inline auto max(const glm::vec2& a, const glm::vec2& b) -> glm::vec2
+{
+    return glm::vec2{(a.x < b.x) ? b.x : a.x, (a.y < b.y) ? b.y : a.y};
+}
+
+/**
+    @brief Round vector to nearest integer.
+
+    @param vec Vector to round components of
+
+    @return rounded vector components
+*/
+inline auto round(const glm::vec2& vec) -> glm::vec2
+{
+    return {std::round(vec.x), std::round(vec.y)};
+}
+
+/**
+    @brief Round in place vector to nearest integer.
+
+    @param vec Vector to round components of
+*/
+inline auto roundInPlace(glm::vec2& vec) -> void
+{
+    vec.x = std::round(vec.x);
+    vec.y = std::round(vec.y);
+}
 } // namespace src::utils
+

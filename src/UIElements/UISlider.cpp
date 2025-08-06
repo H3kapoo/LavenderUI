@@ -2,6 +2,7 @@
 
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/Input.hpp"
+#include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
@@ -10,6 +11,8 @@ uint32_t UISlider::scrollIndexOffset = 250;
 
 UISlider::UISlider() : UIBase(getTypeInfo()) 
 {
+    // knobProps_.setColor(utils::hexToVec4("#ca5555ff"));
+    // setColor(utils::hexToVec4("#ffffffff"));
     knobProps_.setColor(utils::hexToVec4("#ca555581"));
     setColor(utils::hexToVec4("#ffffff99"));
 }
@@ -22,14 +25,21 @@ auto UISlider::render(const glm::mat4& projection) -> void
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", getTransform());
     shader_.uploadVec4f("uColor", getColor());
+    shader_.uploadVec2f("uResolution", getComputedScale());
+    shader_.uploadVec4f("uBorderSize", getBorder());
+    shader_.uploadVec4f("uBorderRadii", getBorderRadius());
+    shader_.uploadVec4f("uBorderColor", getBorderColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw knob */
+    windowmanagement::NativeWindow::enableDepthTest(false);
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", knobLayout_.getTransform());
     shader_.uploadVec4f("uColor", knobProps_.getColor());
+    shader_.uploadVec2f("uResolution", getComputedScale());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    windowmanagement::NativeWindow::enableDepthTest(true);
 
     /* Draw the text */
     const auto& textShader_ = textAttribs_.getShader();
@@ -48,7 +58,6 @@ auto UISlider::render(const glm::mat4& projection) -> void
 auto UISlider::layout() -> void
 {
     /* Technically this node cannot have child elems. Do your layout logic here.*/
-    knobLayout_.setIndex(getIndex() + 1);
 
     const auto& computedScale = getComputedScale();
     if (getType() == LayoutBase::Type::HORIZONTAL)

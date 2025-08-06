@@ -3,9 +3,13 @@
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
+#include "src/WindowManagement/Input.hpp"
 
 namespace src::uielements
 {
+using namespace elementcomposable;
+using namespace windowmanagement;
+
 UIButton::UIButton() : UIBase(getTypeInfo())
 {
     setScale({100_px, 36_px});
@@ -18,6 +22,10 @@ auto UIButton::render(const glm::mat4& projection) -> void
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", getTransform());
     shader_.uploadVec4f("uColor", getColor());
+    shader_.uploadVec2f("uResolution", getComputedScale());
+    shader_.uploadVec4f("uBorderSize", getBorder());
+    shader_.uploadVec4f("uBorderRadii", getBorderRadius());
+    shader_.uploadVec4f("uBorderColor", getBorderColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     /* Draw the text */
@@ -51,17 +59,31 @@ auto UIButton::layout() -> void
 
 auto UIButton::event(state::UIWindowStatePtr& state) -> void
 {
-    using namespace elementcomposable;
     /* Let the base do the generic stuff */
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
-    // if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     if (eId == MouseButtonEvt::eventId && (state->hoveredId == id_ || state->clickedId == id_))
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         return emitEvent<MouseButtonEvt>(e);
+    }
+    else if (eId == MouseLeftClickEvt::eventId && state->clickedId == id_)
+    {
+        setColor(onClickColor_);
+
+        /* We can safely ignore bubbling down the tree as we found the clicked element. */
+        MouseLeftClickEvt e;
+        return emitEvent<MouseLeftClickEvt>(e);
+    }
+    else if (eId == MouseLeftReleaseEvt::eventId && state->clickedId == id_)
+    {
+        setColor(originalColor_);
+
+        /* We can safely ignore bubbling down the tree as we found the clicked element. */
+        MouseLeftReleaseEvt e;
+        return emitEvent<MouseLeftReleaseEvt>(e);
     }
     else if (eId == MouseDragEvt::eventId && state->clickedId == id_)
     {
@@ -71,12 +93,16 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
+        setColor(onEnterColor_);
+
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return emitEvent<MouseEnterEvt>(e);
     }
     else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
+        if (state->clickedId != id_) {setColor(originalColor_);}
+
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
         return emitEvent<MouseExitEvt>(e);

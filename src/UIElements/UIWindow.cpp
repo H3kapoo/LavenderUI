@@ -1,6 +1,7 @@
 #include "UIWindow.hpp"
 
 #include "src/App.hpp"
+#include "src/ElementComposable/IEvent.hpp"
 #include "src/State/UIWindowState.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/UIElements/UIBase.hpp"
@@ -76,8 +77,10 @@ auto UIWindow::render(const glm::mat4& projection) -> void
 auto UIWindow::layout() -> void
 {
     using namespace layoutcalculator;
-    BasicCalculator::get().calcElementsScale(this);
-    BasicCalculator::get().calcElementsPos(this);
+    const auto& calculator = BasicCalculator::get();
+    calculator.calculateScaleForGenericElement(this);
+    calculator.calculatePositionForGenericElement(this);
+
     layoutNext();
 }
 
@@ -138,24 +141,12 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
         spawnEvent(MouseExitEvt{});
     }
 
-    /* Handle draggin on the clicked id */
-    if (windowState_->clickedId == state::NOTHING
+    /* Handle dragging on the clicked id */
+    if (windowState_->clickedId != state::NOTHING
         && windowState_->mouseAction == Input::PRESS
         && windowState_->mouseButton == Input::LEFT)
     {
-        windowState_->clickedId = windowState_->hoveredId;
         windowState_->isDragging = true;
-    }
-    else if (windowState_->clickedId != state::NOTHING
-        && windowState_->mouseAction == Input::RELEASE
-        && windowState_->mouseButton == Input::LEFT)
-    {
-        windowState_->clickedId = state::NOTHING;
-        windowState_->isDragging = false;
-    }
-
-    if (windowState_->isDragging)
-    {
         spawnEvent(MouseDragEvt{});
     }
 
@@ -169,6 +160,18 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
     underlaying element could of got invalidated. */
     windowState_->hoveredZIndex = state::NOTHING;
     spawnEvent(MouseMoveScanEvt{});
+
+    if (btn == Input::LEFT && action == Input::PRESS)
+    {
+        windowState_->clickedId = windowState_->hoveredId;
+        spawnEvent(MouseLeftClickEvt{});
+    }
+    else if (btn == Input::LEFT && action == Input::RELEASE)
+    {
+        spawnEvent(MouseLeftReleaseEvt{});
+        windowState_->isDragging = false;
+        windowState_->clickedId = state::NOTHING;
+    }
 
     windowState_->mouseButton = btn;
     windowState_->mouseAction = action;

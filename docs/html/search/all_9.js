@@ -1,15 +1,10 @@
 var searchData=
 [
-  ['makecontextcurrent_0',['makeContextCurrent',['../classsrc_1_1windowmanagement_1_1NativeWindow.html#aace803c1dcc78ac84dc7178889fb2945',1,'src::windowmanagement::NativeWindow']]],
-  ['mesh_1',['Mesh',['../classsrc_1_1resourceloaders_1_1Mesh.html',1,'src::resourceloaders']]],
-  ['meshloader_2',['MeshLoader',['../classsrc_1_1resourceloaders_1_1MeshLoader.html',1,'src::resourceloaders']]],
-  ['model_3',['Box model',['../index.html#autotoc_md4',1,'']]],
-  ['model_20and_20definitions_4',['General box model and definitions',['../index.html#autotoc_md3',1,'']]],
-  ['mousebuttonevt_5',['MouseButtonEvt',['../structsrc_1_1elementcomposable_1_1MouseButtonEvt.html',1,'src::elementcomposable']]],
-  ['mousedragevt_6',['MouseDragEvt',['../structsrc_1_1elementcomposable_1_1MouseDragEvt.html',1,'src::elementcomposable']]],
-  ['mouseenterevt_7',['MouseEnterEvt',['../structsrc_1_1elementcomposable_1_1MouseEnterEvt.html',1,'src::elementcomposable']]],
-  ['mouseexitevt_8',['MouseExitEvt',['../structsrc_1_1elementcomposable_1_1MouseExitEvt.html',1,'src::elementcomposable']]],
-  ['mousemoveevt_9',['MouseMoveEvt',['../structsrc_1_1elementcomposable_1_1MouseMoveEvt.html',1,'src::elementcomposable']]],
-  ['mousemovescanevt_10',['MouseMoveScanEvt',['../structsrc_1_1elementcomposable_1_1MouseMoveScanEvt.html',1,'src::elementcomposable']]],
-  ['mousescrollevt_11',['MouseScrollEvt',['../structsrc_1_1elementcomposable_1_1MouseScrollEvt.html',1,'src::elementcomposable']]]
+  ['layout_0',['layout',['../classsrc_1_1uielements_1_1UIBase.html#a15027faa4603a02225002150b85da007',1,'src::uielements::UIBase']]],
+  ['layout_20calculator_20for_20gui_1',['Layout Calculator for GUI',['../index.html',1,'']]],
+  ['layout_20type_2',['layout type',['../index.html#autotoc_md7',1,'Calculating generic element position (horizontal/vertical layout type)'],['../index.html#autotoc_md6',1,'Calculating generic element scale (horizontal/vertical layout type)']]],
+  ['layoutbase_3',['LayoutBase',['../classsrc_1_1elementcomposable_1_1LayoutBase.html',1,'src::elementcomposable']]],
+  ['layoutnext_4',['layoutNext',['../classsrc_1_1uielements_1_1UIBase.html#adf992b123c36e8beaa0d6207b5ab7175',1,'src::uielements::UIBase']]],
+  ['listento_5',['listenTo',['../classsrc_1_1elementcomposable_1_1Events.html#aaa53f2b53ecfbc5b8a3d714302d1bc7d',1,'src::elementcomposable::Events']]],
+  ['logger_6',['Logger',['../classsrc_1_1utils_1_1Logger.html',1,'src::utils']]]
 ];

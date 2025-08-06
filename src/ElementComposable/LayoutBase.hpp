@@ -89,6 +89,11 @@ public:
     /** @brief Represents a generic structure containing values for the 4 general directions. */
     struct TBLR
     {
+        TBLR(int32_t vt, int32_t vb, int32_t vl, int32_t vr) : top{vt}, bot{vb}, left{vl}, right{vr} {}
+        TBLR(int32_t vtb, int32_t vlr) : top{vtb}, bot{vtb}, left{vlr}, right{vlr} {}
+        TBLR(int32_t v) : top{v}, bot{v}, left{v}, right{v} {}
+        operator glm::vec4() const { return glm::vec4{top, bot, left, right}; }
+
         int32_t top{0};
         int32_t bot{};
         int32_t left{0};
@@ -212,6 +217,7 @@ LayoutBase::Scale operator"" _px(unsigned long long value);
 // Layout::GridDistrib operator"" _fr(unsigned long long value);
 
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
+auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;
 
 } // namespace src::elementcomposable
 

@@ -112,7 +112,7 @@ $(document).ready(function(){initNavTree('classsrc_1_1layoutcalculator_1_1BasicC
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5c4643eab48408d52ec9eb12326e1ed0" id="r_a5c4643eab48408d52ec9eb12326e1ed0"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsrc_1_1layoutcalculator_1_1BasicCalculator.html#a5c4643eab48408d52ec9eb12326e1ed0">calculateScaleForGenericElement</a> (<a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *parent, const glm::vec2 shrinkScaleBy={}) const -&gt; glm::vec2</td></tr>
-<tr class="memdesc:a5c4643eab48408d52ec9eb12326e1ed0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the computed scale for the elements of this parent element &amp; get the total scale.  <br /></td></tr>
+<tr class="memdesc:a5c4643eab48408d52ec9eb12326e1ed0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the computed scale for the elements of this parent element and the total scale occupied.  <br /></td></tr>
 <tr class="separator:a5c4643eab48408d52ec9eb12326e1ed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb552d3b2358ab55bb92a4c0de50e015" id="r_abb552d3b2358ab55bb92a4c0de50e015"><td class="memItemLeft" align="right" valign="top">auto&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classsrc_1_1layoutcalculator_1_1BasicCalculator.html#abb552d3b2358ab55bb92a4c0de50e015">calculatePositionForGenericElement</a> (<a class="el" href="classsrc_1_1uielements_1_1UIPane.html">uielements::UIPane</a> *parent, const glm::vec2 maxScale, const glm::vec2 shrinkScaleBy={}) const -&gt; void</td></tr>
 <tr class="memdesc:abb552d3b2358ab55bb92a4c0de50e015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the computed position for the elements of this parent element.  <br /></td></tr>
@@ -138,9 +138,9 @@ auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcElementsScale</b>
 <tr class="memitem:ad4286b1f825791b149ceb02496984455" id="r_ad4286b1f825791b149ceb02496984455"><td class="memItemLeft" align="right" valign="top"><a id="ad4286b1f825791b149ceb02496984455" name="ad4286b1f825791b149ceb02496984455"></a>
 auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcSplitPaneElements</b> (<a class="el" href="classsrc_1_1uielements_1_1UISplitPane.html">uielements::UISplitPane</a> *parent) const -&gt; void</td></tr>
 <tr class="separator:ad4286b1f825791b149ceb02496984455"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19ff503303525e5428ab9f75ad0dc8b4" id="r_a19ff503303525e5428ab9f75ad0dc8b4"><td class="memItemLeft" align="right" valign="top"><a id="a19ff503303525e5428ab9f75ad0dc8b4" name="a19ff503303525e5428ab9f75ad0dc8b4"></a>
-auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcOverflow</b> (<a class="el" href="classsrc_1_1uielements_1_1UIBase.html">uielements::UIBase</a> *parent, const glm::vec2 shrinkScaleBy) const -&gt; glm::vec2</td></tr>
-<tr class="separator:a19ff503303525e5428ab9f75ad0dc8b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fcb0c20a71ca5894df2859a4d803170" id="r_a4fcb0c20a71ca5894df2859a4d803170"><td class="memItemLeft" align="right" valign="top"><a id="a4fcb0c20a71ca5894df2859a4d803170" name="a4fcb0c20a71ca5894df2859a4d803170"></a>
+auto&#160;</td><td class="memItemRight" valign="bottom"><b>calcElementOverflow</b> (<a class="el" href="classsrc_1_1uielements_1_1UIBase.html">uielements::UIBase</a> *parent, const glm::vec2 shrinkScaleBy) const -&gt; glm::vec2</td></tr>
+<tr class="separator:a4fcb0c20a71ca5894df2859a4d803170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -270,10 +270,20 @@ Ex of explained: in calculator: castedParent-&gt;getSomeInternalUIElementShared(
       </table>
 </div><div class="memdoc">
 
-<p>Calculate the computed scale for the elements of this parent element &amp; get the total scale. </p>
-<p>Function calculates the required <code>computedScale</code> based on the user supplied <code>scaleType</code> and <code>value</code> set via <code>setScale</code>.</p>
-<p>Parameters such as <code>margin</code>, <code>padding</code> and <code>border</code> are taken into consideration when calculating the <code>computedScale</code>.</p>
-<p>Refer to LayoutBase for more details.</p>
+<p>Calculate the computed scale for the elements of this parent element and the total scale occupied. </p>
+<dl class="section note"><dt>Note</dt><dd>This pass needs to be done before the positioning pass. </dd>
+<dd>
+Slider nodes with scrollbar role are ignored.</dd></dl>
+<p>Function calculates the required <code>computedScale</code> based on the user supplied <code>scaleType</code> and <code>value</code> set via <code>setScale</code>. Refer to LayoutBase for more details.</p>
+<p>Scaling can be of 4 types: PX, REL, FIT and FILL on each axis. This will determine the computedScale of the element.</p>
+<p>PX - Scale of the element expressed in plain pixel values (i.e 50_px)</p>
+<p>REL - Scale relative to the parent element and expressed in (0, 1] percentage range (i.e 0.4_rel). The parent element scale is affected by: space taken by scroll bars (if any), padding and borders (of the parent). Additionally, the computedScale of the element will be also affected by the element's margins.</p>
+<p>FIT - A Fit element will try to "gift-wrap" around it's OWN child elements such that they fit perfectly inside of the parent. The fit space necessary is increased by the padding and borders of the element itself and by any margins of it's OWN child elements. Constraints for FIT element children on an arbitrary axis:</p><ul>
+<li>Cannot be of type FILL/REL as that requires element computedScale to be already know but it's not yet. We try to compute it in FIT.</li>
+<li><p class="startli">FIT elements can be FIT on their own but the leaf nodes MUST be of type PX, otherwise it's impossible to find a size to fit around.</p>
+<p class="startli">FILL - Scale of the element will be an equal part (between it and other fill elements of parent) of what's left after the PX/REL/FIT nodes aquire their computedScale. A FILL element computedScale is affected (shrunk) by it's parent padding and border scale and also by it's own margins.</p>
+</li>
+</ul>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">parent</td><td>Element for which the subelements need to be calculated </td></tr>
@@ -281,7 +291,7 @@ Ex of explained: in calculator: castedParent-&gt;getSomeInternalUIElementShared(
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Total scale on each axis. The the elements of the parent element will now have the required computed scale. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Total scale on each axis. The elements of the parent element will now have the required computed scale. </dd></dl>
 
 </div>
 </div>

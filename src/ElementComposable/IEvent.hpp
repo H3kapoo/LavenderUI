@@ -46,6 +46,12 @@ struct MouseButtonEvt : public IEventCRTP<MouseButtonEvt>
     uint8_t action{0};
 };
 
+struct MouseLeftClickEvt : public IEventCRTP<MouseLeftClickEvt>
+{};
+
+struct MouseLeftReleaseEvt : public IEventCRTP<MouseLeftReleaseEvt>
+{};
+
 struct MouseEnterEvt : public IEventCRTP<MouseEnterEvt>
 {
     MouseEnterEvt() {}

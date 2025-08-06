@@ -35,6 +35,9 @@ private:
 
 protected:
     TextAttribs textAttribs_;
+    glm::vec4 originalColor_{utils::hexToVec4("#c73e3eff")};
+    glm::vec4 onEnterColor_{utils::hexToVec4("#c95959ff")};
+    glm::vec4 onClickColor_{utils::hexToVec4("#c41c1cff")};
 };
 using UIButtonPtr = std::shared_ptr<UIButton>;
 using UIButtonWPtr = std::weak_ptr<UIButton>;

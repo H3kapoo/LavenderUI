@@ -118,14 +118,18 @@ User Requirements</h1>
 <li>Custom Z index (if <code>2. Position</code> is not auto computed)</li>
 </ol>
 </li>
+<li>User has the ability to add or remove child elements on demand to and from GUI elements that support this operation.</li>
+<li>User set scale actually represents the final element's scale which includes the margins the object. The whole element's area is used to position other elements of the same parent.</li>
+<li>The inside content area of the element is shrunk by it's padding and borders. The content area is used to place child elements inside of the element.</li>
+<li>Children of elements outside of the user's view shall not be rendered nor calculated as that would be pointless.</li>
+<li>Scrollbars will always sit an <code>offset</code> amount of Z indices higher than the container they scroll. Stacking child elements inside the element can increase the Z index above the scrollbar's index and have them render on top of it, which is not desireable.</li>
 <li>GUI elements that support scroll bars have the ability to interact with the user via common manipulation techniques:<ol type="a">
 <li>Mouse scrolling up and down changes the sub-view the user can see from the bigger layout.</li>
 <li>Clicking outside the scrollbar's knob will scroll the view such that the mouse position is always in the middle of the knob's scale. See Exception 1</li>
 <li>Clicking and dragging the mouse up and down has the effect of changing the sub-view by the same amount the user has dragged. The mouse will not jump up and down in order to be located at the center of the knob's scale as in point 2. An offset from the knob's center and the mouse position shall be used instead.</li>
 </ol>
 </li>
-<li>User set scale actually represents the final element's scale which includes the margins the object. The whole element's area is used to position other elements of the same parent.</li>
-<li>The inside content area of the element is shrunk by it's padding and borders. The content area is used to place child elements inside of the element.</li>
+<li>GUI elements that support recycling shall efficiently use memory such that only the the viewable area is populated by child elements and the rest of the items reside in memory ready to be swapped in and out as needed when scrolling or resizing the parent element.</li>
 </ol>
 <h1><a class="anchor" id="autotoc_md2"></a>
 Exceptions</h1>
@@ -150,25 +154,125 @@ Box model</h2>
 </blockquote>
 <h2><a class="anchor" id="autotoc_md5"></a>
 Definitions</h2>
-<p><code>user scale</code> Refers to the user set preferred whole scale which includes margins.</p>
 <blockquote class="doxtable">
-<p>&zwj;user scale = margins + borders + padding + content area </p>
+<p>&zwj;<code>user scale</code> Refers to the user set preferred whole scale which includes margins. <br  />
+ =&gt; user scale = margins + borders + padding + content area </p>
 </blockquote>
-<p><code>user pos</code> Refers to the user set preferred element start position which includes margins.</p>
 <blockquote class="doxtable">
-<p>&zwj;user pos = content area - borders - padding - margins </p>
+<p>&zwj;<code>user pos</code> Refers to the user set preferred element start position which includes margins. <br  />
+ =&gt; user pos = content area - borders - padding - margins </p>
 </blockquote>
-<p><code>computed scale</code> Refers to the scale that will be sent to the GPU for rendering. It does not contain the margins. This is what the layout calculator actually computes.</p>
 <blockquote class="doxtable">
-<p>&zwj;computed scale = borders + padding + content area </p>
+<p>&zwj;<code>computed scale</code> Refers to the scale that will be sent to the GPU for rendering. It does not contain the margins. This is what the layout calculator actually computes. <br  />
+ =&gt; computed scale = borders + padding + content area </p>
 </blockquote>
-<p><code>computed pos</code> Refers to the pos that the mesh that will be sent to GPU for rendering starts from. It does not contain the margins. This is what the layout calculator also computes.</p>
 <blockquote class="doxtable">
-<p>&zwj;computed pos = content area - borders - padding </p>
+<p>&zwj;<code>computed pos</code> Refers to the pos that the mesh that will be sent to GPU for rendering starts from. It does not contain the margins. This is what the layout calculator also computes. <br  />
+ =&gt; computed pos = content area - borders - padding </p>
 </blockquote>
-<p><img src="../../assets/textures/wall.jpg" alt="" width="200" height="200" class="inline"/></p>
+<blockquote class="doxtable">
+<p>&zwj;<code>content scale</code> Refers to the scale of the available content area. <br  />
+ =&gt; content scale = user scale - borders - padding - margins. </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<code>PX scale</code> Means the scale on that axis is represented by fixed pixel values. </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<code>REL scale</code> Means the scale of the element is relative to the content size of it's parent (0 to 1 value). </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<code>FIT scale</code> Means the scale of the element will try to fit around the child elements as best as possible just like a "gift wrap". </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<code>FILL scale</code> Means the element will occupy an equal part with other fill scale elements inside the parent's content scale. The equal part is calculated with the remaining space after all the other scale types are dealt with. </p>
+</blockquote>
 <h1><a class="anchor" id="autotoc_md6"></a>
+Calculating generic element scale (horizontal/vertical layout type)</h1>
+<p>By calculating the element's scale we mean the <code>computed scale</code> (renderable area) of that element. <br  />
+ The calculator will receive the element <code>(parent)</code> who's child elements need to be calculated. <br  />
+</p>
+<blockquote class="doxtable">
+<p>&zwj;<b>Warning:</b> If the parent element is an element that can host a scrollbar then scale calculations for it shall be skipped (it will be calculated separately). </p>
+</blockquote>
+<p>The following pseudocode encapsulates both the X and Y axis in the same algorithm. When implementing be sure to do calculations per each axis. Any futher optimizations are left for the implementer:</p>
+<div class="fragment"><div class="line">runningTotal = 0</div>
+<div class="line">fillElementCount = 0</div>
+<div class="line"><span class="keywordflow">for</span> element <span class="keywordflow">in</span> parent.elements:</div>
+<div class="line">   <span class="keywordflow">if</span> element.isPX:</div>
+<div class="line">      element.computedScale.x = element.userScale - element.margin</div>
+<div class="line">   <span class="keywordflow">elif</span> element.isREL:</div>
+<div class="line">      element.computedScale = parent.contentScale * element.userScale - element.margin</div>
+<div class="line">   <span class="keywordflow">elif</span> element.isFIT:</div>
+<div class="line">      element.computedScale = getFitScale(element) - element.margin</div>
+<div class="line">   <span class="keywordflow">elif</span> element.isFILL:</div>
+<div class="line">      fillElementCount += 1</div>
+<div class="line"> </div>
+<div class="line">   runningTotal += element.computedScale</div>
+<div class="line"> </div>
+<div class="line"><span class="keywordflow">if</span> <span class="keywordflow">not</span> fillElementCount:</div>
+<div class="line">   <span class="keywordflow">return</span></div>
+<div class="line"> </div>
+<div class="line">equalFillPart = (parent.contentScale - runningTotal) / fillElementCount</div>
+<div class="line"><span class="keywordflow">for</span> element <span class="keywordflow">in</span> parent.elements:</div>
+<div class="line">   <span class="keywordflow">if</span> <span class="keywordflow">not</span> element.isFILL:</div>
+<div class="line">      <span class="keywordflow">continue</span></div>
+<div class="line"> </div>
+<div class="line">   element.computedScale = equalFillPart - element.margin</div>
+</div><!-- fragment --><p><br  />
+</p>
+<p>Computing the fitting scale of around the parent's elements is a bit tricky as they can be <code>FIT</code> themselves. The algorithm returns the scale that thighly best fits all the child elements and takes into account parent's margins, border and padding. From the caller perspective it looks like it returns a userScale-like value as if the parent had only one child element.</p>
+<blockquote class="doxtable">
+<p>&zwj;<b>Warning:</b> Scrollbars must be skipped here as well in case there are any. </p>
+</blockquote>
+<blockquote class="doxtable">
+<p>&zwj;<b>Warning:</b> If the parent is FIT on one axis then the leaf child elements on that axis must be of scale type PX. Otherwise it is impossible to fit around them. </p>
+</blockquote>
+<div class="fragment"><div class="line"><span class="keyword">def </span>getFitScale(parent):</div>
+<div class="line">   <span class="keywordflow">if</span> parent.elements.size == 0:</div>
+<div class="line">      <span class="keywordflow">return</span> <span class="comment"># ERROR, No elements to fit around</span></div>
+<div class="line"> </div>
+<div class="line">   fitScale = {0, 0}</div>
+<div class="line">   <span class="keywordflow">for</span> element <span class="keywordflow">in</span> parent.elements:</div>
+<div class="line">      computedValue = {0, 0}</div>
+<div class="line">      <span class="keywordflow">if</span> parent.isXAxisFIT:</div>
+<div class="line">         <span class="keywordflow">if</span> element.isXAxisPX:</div>
+<div class="line">            computedValue.x = element.userScale.x</div>
+<div class="line">         <span class="keywordflow">elif</span> element.isXAxisFIT:</div>
+<div class="line">            computedValue.x = getFitScale(element).x</div>
+<div class="line">         <span class="keywordflow">else</span>: <span class="comment"># ERROR</span></div>
+<div class="line"> </div>
+<div class="line">         fitScale.x = max(fitScale.x, computedValue.x) <span class="keywordflow">if</span> parent.isVertical <span class="keywordflow">else</span> fitScale.x + computedValue.x</div>
+<div class="line"> </div>
+<div class="line">      <span class="keywordflow">if</span> parent.isYAxisFITX:</div>
+<div class="line">         <span class="keywordflow">if</span> element.isYAxisPX:</div>
+<div class="line">            computedValue.y = element.userScale.y</div>
+<div class="line">         <span class="keywordflow">elif</span> element.isYAxisFIT:</div>
+<div class="line">            computedValue.y = getFitScale(element).y</div>
+<div class="line">         <span class="keywordflow">else</span>: <span class="comment"># ERROR</span></div>
+<div class="line"> </div>
+<div class="line">         fitScale.y = max(fitScale.y, computedValue.y) <span class="keywordflow">if</span> parent.isHorizontal <span class="keywordflow">else</span> fitScale.y + computedValue.y</div>
+<div class="line"> </div>
+<div class="line">   fitScale += parent.border + parent.padding + parent.margin</div>
+<div class="line">   <span class="keywordflow">return</span> fitScale</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md7"></a>
+Calculating generic element position (horizontal/vertical layout type)</h1>
+<p>By calculating the element's position we mean the <code>computed pos</code> (start of renderable area) of that element. <br  />
+ The calculator will receive the element <code>(parent)</code> who's child elements need to be calculated. <br  />
+</p>
+<blockquote class="doxtable">
+<p>&zwj; </p>
+</blockquote>
+<h1><a class="anchor" id="autotoc_md8"></a>
 Objects that support scrolling</h1>
+<ol type="1">
+<li>UIPane</li>
+<li>UITreeView</li>
+</ol>
+<h1><a class="anchor" id="autotoc_md9"></a>
+Objects that support recycling</h1>
+<ol type="1">
+<li>UITreeView </li>
+</ol>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 </div><!-- doc-content -->

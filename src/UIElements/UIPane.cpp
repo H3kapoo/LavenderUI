@@ -51,17 +51,17 @@ auto UIPane::layout() -> void
     do
     {
         const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
-        const auto maxElemScale = calculator.calculateScaleForGenericElement(this, sliderImpact);
-        calculator.calculatePositionForGenericElement(this, maxElemScale, sliderImpact);
+        calculator.calculateScaleForGenericElement(this, sliderImpact);
+        calculator.calculatePositionForGenericElement(this, sliderImpact);
 
-        overflow = calculator.calcOverflow(this, sliderImpact);
+        overflow = calculator.calculateElementOverflow(this, sliderImpact);
         calculator.calculateAlignmentForElements(this, overflow);
 
         ++updateTriesCount_;
         /* Adding new elements (slides in this case) invalidates the calculations. */
     } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
 
-    calculator.calcPaneElementsAddScrollToPos(this, {
+    calculator.calculateElementsOffsetDueToScroll(this, {
         hSlider_ ? hSlider_->getScrollValue() : 0,
         vSlider_ ? vSlider_->getScrollValue() : 0});
 
@@ -119,8 +119,7 @@ auto UIPane::updateClosestSlider(state::UIWindowStatePtr& state) -> void
     /* Get the closest scrollbar available in this pane and prioritize the verical direction. Mouse needs
         to be inside the pane. If the mouse is not on the slider, assume closest is the vertical one, if
         available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the
-        closest one.
-    */
+        closest one. */
     if (state->currentEventId != MouseMoveScanEvt::eventId) {return; }
     if (state->hoveredId != id_) {return; }
     if (!isPointInsideView(state->mousePos)) {return; }
@@ -155,9 +154,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
         vSlider_->setInvertAxis(true);
         vSlider_->setCustomTagId(UISlider::scrollTagId);
         vSlider_->setType(LayoutBase::Type::VERTICAL)
-            .setScale({20_px, 1.0_rel})
-            .setEnableCustomIndex(true)
-            .setIndex(4);
+            .setScale({20_px, 1.0_rel});
     }
     else { vSlider_.reset(); }
 
@@ -167,9 +164,7 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
         // hSlider_->setColor(utils::hexToVec4("#ffffffff"));
         hSlider_->setCustomTagId(UISlider::scrollTagId);
         hSlider_->setType(LayoutBase::Type::HORIZONTAL)
-            .setScale({1.0_rel, 20_px})
-            .setEnableCustomIndex(true)
-            .setIndex(4);
+            .setScale({1.0_rel, 20_px});
     }
     else { hSlider_.reset(); }
 

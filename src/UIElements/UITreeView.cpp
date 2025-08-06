@@ -3,6 +3,7 @@
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/UIElements/UIButton.hpp"
+#include "src/UIElements/UISlider.hpp"
 #include "src/WindowManagement/Input.hpp"
 
 namespace src::uielements
@@ -23,7 +24,7 @@ auto UITreeView::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uColor", getColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == 1000; };
+    static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == UISlider::scrollTagId; };
     renderNextExcept(projection, l);
     renderNextSingle(projection, vSlider_);
     renderNextSingle(projection, hSlider_);
@@ -40,14 +41,15 @@ auto UITreeView::layout() -> void
     do
     {
         const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
-        calculator.calcPaneElements(this, sliderImpact);
-    
-        overflow = calculator.calcOverflow(this, sliderImpact);
+        calculator.calculateScaleForGenericElement(this, sliderImpact);
+        calculator.calculatePositionForGenericElement(this, sliderImpact);
+
+        overflow = calculator.calculateElementOverflow(this, sliderImpact);
         overflow.y = flatItems_.size() * rowSize_ - getComputedScale().y;
     
     } while (updateSlidersWithOverflow(overflow));
 
-    calculator.calcPaneElementsAddScrollToPos(this, {
+    calculator.calculateElementsOffsetDueToScroll(this, {
         hSlider_ ? hSlider_->getScrollValue() : 0,
         vSlider_ ? (uint32_t)vSlider_->getScrollValue() % rowSize_ : 0});
 

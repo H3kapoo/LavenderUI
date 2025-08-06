@@ -1,5 +1,6 @@
 #include "LayoutBase.hpp"
 
+#include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/vector_float2.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 #include "vendor/glm/trigonometric.hpp"
@@ -116,8 +117,8 @@ auto LayoutBase::setMaxScale(const glm::ivec2 val) -> LayoutBase& { maxScale = v
 auto LayoutBase::setWrap(const bool val) -> LayoutBase& { wrap = val; return *this; }
 auto LayoutBase::setPos(const PositionXY& val) -> LayoutBase& { userPos_ = val; return *this; }
 auto LayoutBase::setScale(const ScaleXY& val) -> LayoutBase& { userScale_ = val; return *this; }
-auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = val; return *this; }
-auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = val;return *this;}
+auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = utils::round(val); return *this; }
+auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = utils::round(val) ;return *this;}
 auto LayoutBase::setViewPos(const glm::vec2& val) -> LayoutBase& { viewPos_ = val; return *this; }
 auto LayoutBase::setViewScale(const glm::vec2& val) -> LayoutBase& { viewScale_ = val; return *this; }
 auto LayoutBase::setIndex(uint32_t val) -> LayoutBase& { index_ = val;  return *this; }
@@ -154,5 +155,10 @@ auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
 {
     return {lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2
+{
+    return {lhs.x / rhs, lhs.y / rhs};
 }
 } // namespace src::elementcomposable

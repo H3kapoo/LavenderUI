@@ -21,7 +21,8 @@ UIBase::UIBase(const std::type_index& typeIndex)
     , log_("{}/{}", demangleName(typeIndex.name()), id_)
     , mesh_(resourceloaders::MeshLoader::get().loadQuad())
     , shader_(resourceloaders::ShaderLoader::get().load(
-        "assets/shaders/basicVert.glsl", "assets/shaders/basicFrag.glsl"))
+        // "assets/shaders/basicVert.glsl", "assets/shaders/basicFrag.glsl"))
+        "assets/shaders/elemVert.glsl", "assets/shaders/elemFrag.glsl"))
     , isParented_(false)
 {}
 
@@ -163,7 +164,7 @@ auto UIBase::layoutNext() -> void
             /* It's a pane scrollbar and it will have a higher custom zIndex */
             if (e->getTypeId() == UISlider::typeId && e->getCustomTagId() == UISlider::scrollTagId)
             {
-                e->setIndex(getIndex() + UISlider::scrollIndexOffset);
+                e->setIndex(UISlider::scrollIndexOffset - getIndex());
             }
 
             /* Depth is used mostly for printing. */

@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
+# All this needs glm, glew, glfw3 and freetype2
 project(toying)
 
 set(CXX_STANDARD 23)
@@ -57,7 +58,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         ${CMAKE_SOURCE_DIR}
     )
 
-    # Link libs
+    # Link libs directories
     target_link_directories(${PROJECT_NAME} PUBLIC
         ${GLEW_LIB_PATH}
         ${GLFW_LIB_PATH}
