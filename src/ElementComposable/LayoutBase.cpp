@@ -52,46 +52,49 @@ auto LayoutBase::getTransform() -> const glm::mat4&
 
 auto LayoutBase::getLRMargin() const -> int32_t
 {
-    return margin.left + margin.right;
+    return margin_.left + margin_.right;
 }
 
 auto LayoutBase::getTBMargin() const -> int32_t
 {
-    return margin.top + margin.bot;
+    return margin_.top + margin_.bot;
 }
 
 auto LayoutBase::getFullBoxPos() const -> glm::vec2
 {
-    return {computedPos_.x - margin.left, computedPos_.y - margin.top};
+    return {computedPos_.x - margin_.left, computedPos_.y - margin_.top};
 }
 
 auto LayoutBase::getFullBoxScale() const -> glm::vec2
 {
-    return {computedScale_.x + margin.left + margin.right, computedScale_.y + margin.top + margin.bot};
+    return {computedScale_.x + margin_.left + margin_.right, computedScale_.y + margin_.top + margin_.bot};
 }
 
 auto LayoutBase::getContentBoxPos() const -> glm::vec2
 {
-    return {computedPos_.x + padding.left + border.left, computedPos_.y + padding.top + border.top};
+    return {computedPos_.x + padding_.left + border_.left, computedPos_.y + padding_.top + border_.top};
 }
 
 auto LayoutBase::getContentBoxScale() const -> glm::vec2
 {
-    return {computedScale_.x - padding.left - padding.right - border.left - border.right,
-        computedScale_.y - padding.top - padding.bot - border.top - border.bot};
+    return {computedScale_.x - padding_.left - padding_.right - border_.left - border_.right,
+        computedScale_.y - padding_.top - padding_.bot - border_.top - border_.bot};
 }
 
 auto LayoutBase::getType() const -> Type { return layoutType_; }
-auto LayoutBase::getMargin() const -> const TBLR& { return margin; }
-auto LayoutBase::getPadding() const -> const TBLR& { return padding; }
-auto LayoutBase::getBorder() const -> const TBLR& { return border; }
-auto LayoutBase::getBorderRadius() const -> const TBLR& { return borderRadius; }
-auto LayoutBase::getShadow() const -> const TBLR& { return shadow; }
+auto LayoutBase::getMargin() const -> const TBLR& { return margin_; }
+auto LayoutBase::getPadding() const -> const TBLR& { return padding_; }
+auto LayoutBase::getBorder() const -> const TBLR& { return border_; }
+auto LayoutBase::getBorderRadius() const -> const TBLR& { return borderRadius_; }
+auto LayoutBase::getShadow() const -> const TBLR& { return shadow_; }
 auto LayoutBase::getSelfAlign() const -> const Align& { return selfAlign_; }
 auto LayoutBase::getAlign() const -> const Align& { return align_; }
 auto LayoutBase::getSpacing() const -> const Spacing& { return spacing_; }
-auto LayoutBase::getMinScale() const -> const glm::ivec2& { return minScale; }
-auto LayoutBase::getMaxScale() const -> const glm::ivec2& { return maxScale; }
+auto LayoutBase::getGrid() -> GridPolicyXY& { return gridPolicy_; }
+auto LayoutBase::getGridPos() const -> GridRC { return gridPos_; }
+auto LayoutBase::getGridSpan() const -> GridRC { return gridSpan_; }
+auto LayoutBase::getMinScale() const -> const glm::ivec2& { return minScale_; }
+auto LayoutBase::getMaxScale() const -> const glm::ivec2& { return maxScale_; }
 auto LayoutBase::getWrap() const -> bool { return wrap; }
 auto LayoutBase::getPos() const -> const PositionXY& { return userPos_; }
 auto LayoutBase::getScale() const -> const ScaleXY& { return userScale_; }
@@ -104,16 +107,19 @@ auto LayoutBase::getAngle() const -> float { return angle_; }
 auto LayoutBase::isCustomIndex() const -> bool { return isCustomIndex_; }
 
 auto LayoutBase::setType(Type val) -> LayoutBase& { layoutType_ = val; return *this; }
-auto LayoutBase::setMargin(const TBLR& val) -> LayoutBase& { margin = val; return *this; }
-auto LayoutBase::setPadding(const TBLR& val) -> LayoutBase& { padding = val; return *this; }
-auto LayoutBase::setBorder(const TBLR& val) -> LayoutBase& { border = val; return *this; }
-auto LayoutBase::setBorderRadius(const TBLR& val) -> LayoutBase& { borderRadius = val; return *this;}
-auto LayoutBase::setShadow(const TBLR& val) -> LayoutBase& { shadow = val; return *this; }
+auto LayoutBase::setMargin(const TBLR& val) -> LayoutBase& { margin_ = val; return *this; }
+auto LayoutBase::setPadding(const TBLR& val) -> LayoutBase& { padding_ = val; return *this; }
+auto LayoutBase::setBorder(const TBLR& val) -> LayoutBase& { border_ = val; return *this; }
+auto LayoutBase::setBorderRadius(const TBLR& val) -> LayoutBase& { borderRadius_ = val; return *this;}
+auto LayoutBase::setShadow(const TBLR& val) -> LayoutBase& { shadow_ = val; return *this; }
 auto LayoutBase::setSelfAlign(const Align val) -> LayoutBase& { selfAlign_ = val; return *this; }
 auto LayoutBase::setAlign(const Align val) -> LayoutBase& { align_ = val; return *this; }
 auto LayoutBase::setSpacing(const Spacing val) -> LayoutBase& { spacing_ = val; return *this; }
-auto LayoutBase::setMinScale(const glm::ivec2 val) -> LayoutBase& { minScale = val; return *this; }
-auto LayoutBase::setMaxScale(const glm::ivec2 val) -> LayoutBase& { maxScale = val; return *this; }
+auto LayoutBase::setGrid(const GridPolicyXY value) -> LayoutBase& { gridPolicy_ = value; return *this; }
+auto LayoutBase::setGridPos(const GridRC value) -> LayoutBase& { gridPos_ = value; return *this; }
+auto LayoutBase::setGridSpan(const GridRC value) -> LayoutBase& { gridSpan_ = value; return *this; }
+auto LayoutBase::setMinScale(const glm::ivec2 val) -> LayoutBase& { minScale_ = val; return *this; }
+auto LayoutBase::setMaxScale(const glm::ivec2 val) -> LayoutBase& { maxScale_ = val; return *this; }
 auto LayoutBase::setWrap(const bool val) -> LayoutBase& { wrap = val; return *this; }
 auto LayoutBase::setPos(const PositionXY& val) -> LayoutBase& { userPos_ = val; return *this; }
 auto LayoutBase::setScale(const ScaleXY& val) -> LayoutBase& { userScale_ = val; return *this; }
@@ -145,6 +151,12 @@ LayoutBase::Scale operator"" _rel(long double value)
 {
     /* Loss of precision justified. */
     return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::REL};
+}
+
+LayoutBase::Scale operator"" _fr(unsigned long long value)
+{
+    /* Loss of precision justified. */
+    return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::FR};
 }
 
 auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2

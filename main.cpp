@@ -45,27 +45,36 @@ int main()
 
     UIPanePtr p = utils::make<UIPane>();
     p->setColor(utils::hexToVec4("#5c5c5cff"));
-    p->setAlign(LayoutBase::CENTER);
+    // p->setAlign(LayoutBase::CENTER);
+    p->setType(LayoutBase::Type::GRID);
     // p->setWrap(true);
-    p->setScrollEnabled(true, true);
+    // p->setScrollEnabled(true, true);
     p->setScale({1_fill, 1_fill});
+
+    // p->setGrid({{1_fr, 60_px}, {40_px, 2_fr}});
+    p->setGrid({{1_fr, 100_px, 1_fr}, {1_fr, 1_fr, 200_px}});
+
     window.lock()->add(p);
 
-    for (int32_t i = 0; i < 5; ++i)
+    for (uint32_t i = 0; i < 3; ++i)
     {
-        UIButtonPtr b = utils::make<UIButton>();
-        b->setText(std::format("ceva {}", i));
-        b->setBorderRadius(4).setMargin({4}).setBorder({1});
-        b->setColor(utils::hexToVec4("#c73e3eff"));
-        b->listenTo<MouseLeftClickEvt>([&log, i](const auto&)
+        for (uint32_t j = 0; j < 3; ++j)
         {
-            log.warn("clicked on me {}", i);
-        });
-        b->listenTo<MouseLeftReleaseEvt>([&log, i](const auto&)
-        {
-            log.warn("released on me {}", i);
-        });
-        p->add(b);
+            if (i == 1 && j == 1) { continue; }
+            UIButtonPtr b = utils::make<UIButton>();
+            b->setText(std::format("ceva {}", i));
+            b->setBorderRadius(4).setMargin({0}).setBorder({1}).setGridPos({i, j}).setGridSpan({1, 1});
+            b->setColor(utils::hexToVec4("#c73e3eff"));
+            b->listenTo<MouseLeftClickEvt>([&log, i](const auto&)
+            {
+                log.warn("clicked on me {}", i);
+            });
+            b->listenTo<MouseLeftReleaseEvt>([&log, i](const auto&)
+            {
+                log.warn("released on me {}", i);
+            });
+            p->add(b);
+        }
     }
     // // // p->setScale({0.5_rel, 400_px});
     // for (int32_t i = 0; i < 4; ++i)

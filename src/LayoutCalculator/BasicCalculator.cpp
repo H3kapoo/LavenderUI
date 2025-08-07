@@ -25,9 +25,17 @@ auto BasicCalculator::get() -> BasicCalculator&
 auto BasicCalculator::calculateScaleForGenericElement(uielements::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {
+    const auto& elements = parent->getElements();
+    if (elements.empty()) { return; }
+
+    const auto& pType = parent->getType();
+    if (pType == LayoutBase::Type::GRID)
+    {
+        return calculateScaleForGenericElementOfTypeGrid(parent, shrinkScaleBy);
+    }
+
     /* Part of the parent area could be occupied by a scroll bar. We need to account for it. */
     const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
-    const auto& elements = parent->getElements();
 
     glm::vec2 nonFillRunningTotal{0, 0};
     glm::vec2 fillsNeededPerAxis{0, 0};
@@ -102,12 +110,19 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIBase* parent
 auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {
+    const auto& elements = parent->getElements();
+    if (elements.empty()) { return; }
+
+    const auto& pType = parent->getType();
+    if (pType == LayoutBase::Type::GRID)
+    {
+        return calculatePosForGenericElementOfTypeGrid(parent, shrinkScaleBy);
+    }
+
     const auto& pContentBoxPos = parent->getContentBoxPos();
     const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
     const auto& pContentBoxMaxPoint = pContentBoxPos + pContentBoxScale;
-    const auto& pLayoutType = parent->getType();
     const auto& pWrap = parent->getWrap();
-    const auto& elements = parent->getElements();
 
     SpacingDetails spacingDetails = calculateSpacingOnAxis(parent, shrinkScaleBy);
 
@@ -125,7 +140,7 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* par
         const glm::vec2 marginPush = glm::vec2{margins.left, margins.top};
 
         /* Note: `nextPos` starts at the end of the previous' element margin end. */
-        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+        if (pType == LayoutBase::Type::HORIZONTAL)
         {
             if (pWrap && nextMaxPoint.x > pContentBoxMaxPoint.x)
             {
@@ -137,7 +152,7 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* par
             computedPos = nextPos + marginPush;
             nextPos.x = computedPos.x + compScale.x + margins.right + spacingDetails.spaceBetween.x;
         }
-        else if (pLayoutType == LayoutBase::Type::VERTICAL)
+        else if (pType == LayoutBase::Type::VERTICAL)
         {
             if (pWrap && nextMaxPoint.y > pContentBoxMaxPoint.y)
             {
@@ -462,6 +477,93 @@ auto BasicCalculator::calculateFitScale(uielements::UIBase* parent) const -> glm
     fitScale.x += pBorder.left + pBorder.right + pPadding.left + pPadding.right + pMarginLR;
     fitScale.y += pBorder.top + pBorder.bot + pPadding.top + pPadding.bot + pMarginTB;
     return fitScale;
+}
+
+auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uielements::UIBase* parent,
+    const glm::vec2 shrinkScaleBy) const -> void
+{
+    auto& gridPolicy = parent->getGrid();
+    if (gridPolicy.rows.empty() || gridPolicy.cols.empty()) { return; }
+
+    /* Note for future: this precomputation doesn't need to be done each time, only when the grid policy changes. */
+    /* Compute the amound of PX occupied space and FR parts in order to compute how much a FR part is worth. */
+    glm::vec2 totalPx{0, 0};
+    glm::vec2 totalFrac{0, 0};
+
+    /* Columns "eat" space on X axis and rows on y axis. */
+    for (const auto& col : gridPolicy.cols)
+    {
+        if (col.type == LayoutBase::ScaleType::PX) { totalPx.x += col.val; }
+        if (col.type == LayoutBase::ScaleType::FR) { totalFrac.x += col.val; }
+    }
+
+    for (const auto& row : gridPolicy.rows)
+    {
+        if (row.type == LayoutBase::ScaleType::PX) { totalPx.y += row.val; }
+        if (row.type == LayoutBase::ScaleType::FR) { totalFrac.y += row.val; }
+    }
+
+    const auto& pContentScale = parent->getContentBoxScale()- shrinkScaleBy;
+    const float wFrac = (pContentScale.x - totalPx.x) / std::max(1.0f, totalFrac.x);
+    const float hFrac = (pContentScale.y - totalPx.y) / std::max(1.0f, totalFrac.y);
+
+    /* Fill the precomputed spots where each row/col starts. We only need to save the starts for one row and col.
+    All the data is mashed in a flat array like this [cols_start.., rows_start..] */
+    const uint32_t nRow = gridPolicy.rows.size();
+    const uint32_t nCol = gridPolicy.cols.size();
+
+    gridPolicy.precompStart.clear();
+    gridPolicy.precompStart.reserve(nCol + nRow);
+
+    glm::vec2 precompStart{parent->getContentBoxPos()};
+    for (const auto& col : gridPolicy.cols)
+    {
+        gridPolicy.precompStart.push_back(std::round(precompStart.x));
+        if (col.type == LayoutBase::ScaleType::PX) { precompStart.x += col.val; }
+        if (col.type == LayoutBase::ScaleType::FR) { precompStart.x += col.val * wFrac; }
+    }
+
+    for (const auto& row : gridPolicy.rows)
+    {
+        gridPolicy.precompStart.push_back(std::round(precompStart.y));
+        if (row.type == LayoutBase::ScaleType::PX) { precompStart.y += row.val; }
+        if (row.type == LayoutBase::ScaleType::FR) { precompStart.y += row.val * hFrac; }
+    }
+
+    /* Scale elements based on precomputed position */
+    const auto& elements = parent->getElements();
+    for (auto& element : elements)
+    {
+        const auto& gridPos = element->getGridPos();
+        const glm::vec2 gridPosStart{
+            gridPolicy.precompStart[gridPos.col],
+            gridPolicy.precompStart[nCol + gridPos.row]
+        };
+
+        const glm::vec2 gridPosEnd{
+            gridPos.col + 1 < nCol ? gridPolicy.precompStart[gridPos.col + 1] : pContentScale.x,
+            gridPos.row + 1 < nRow ? gridPolicy.precompStart[nCol + gridPos.row + 1] : pContentScale.y,
+        };
+
+        element->setComputedScale(gridPosEnd - gridPosStart);
+    }
+
+    /* Put elements into position */
+    for (auto& element : elements)
+    {
+        const auto& gridPos = element->getGridPos();
+        element->setComputedPos(
+            {
+                gridPolicy.precompStart[gridPos.col],
+                gridPolicy.precompStart[nCol + gridPos.row]
+            });
+    }
+}
+
+auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
+    const glm::vec2 shrinkScaleBy) const -> void
+{
+
 }
 
 } // namespace src::layoutcalculator

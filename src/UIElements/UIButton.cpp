@@ -77,7 +77,7 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
         MouseLeftClickEvt e;
         return emitEvent<MouseLeftClickEvt>(e);
     }
-    else if (eId == MouseLeftReleaseEvt::eventId && state->clickedId == id_)
+    else if (eId == MouseLeftReleaseEvt::eventId && state->selectedId == id_)
     {
         setColor(originalColor_);
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sstream>
+#include <vector>
 
 #include "vendor/glm/glm.hpp"
 
@@ -45,7 +46,9 @@ public:
     /** @brief Represents the scale type applied to the element. */
     enum class ScaleType : uint8_t
     {
-        PX, REL, FIT, FILL
+        REL, FIT, FILL, /* Only for non-GRID layouts */
+        PX,             /* For both grid and non-GRID layouts */
+        FR              /* Only for GRID layouts only */
     };
 
     /** @brief Represents the scale type and value of the element. */
@@ -86,6 +89,23 @@ public:
         Position y;
     };
 
+    /** @brief Represents Grid's position indices or span sizes across axis. */
+    struct GridRC
+    {
+        uint32_t row{0};
+        uint32_t col{1};
+    };
+
+    /** @brief Represents the Grid policy on each axis. */
+    struct GridPolicyXY
+    {
+        std::vector<Scale> rows{};
+        std::vector<Scale> cols{};
+
+        /* Stores precomputed start positions on each axis for rows and colum boundaries in a flat array */
+        std::vector<float> precompStart{};
+    };
+
     /** @brief Represents a generic structure containing values for the 4 general directions. */
     struct TBLR
     {
@@ -123,6 +143,9 @@ public:
     auto getSelfAlign() const -> const Align&;
     auto getAlign() const -> const Align&;
     auto getSpacing() const -> const Spacing&;
+    auto getGrid() -> GridPolicyXY&; /* TODO: Special exception for not using const? */
+    auto getGridPos() const -> GridRC;
+    auto getGridSpan() const -> GridRC;
     auto getMinScale() const -> const glm::ivec2&;
     auto getMaxScale() const -> const glm::ivec2&;
     auto getWrap() const -> bool;
@@ -145,6 +168,9 @@ public:
     auto setSelfAlign(const Align value) -> LayoutBase&;
     auto setAlign(const Align value) -> LayoutBase&;
     auto setSpacing(const Spacing value) -> LayoutBase&;
+    auto setGrid(const GridPolicyXY value) -> LayoutBase&;
+    auto setGridPos(const GridRC value) -> LayoutBase&;
+    auto setGridSpan(const GridRC value) -> LayoutBase&;
     auto setMinScale(const glm::ivec2 value) -> LayoutBase&;
     auto setMaxScale(const glm::ivec2 value) -> LayoutBase&;
     auto setWrap(const bool value) -> LayoutBase&;
@@ -160,22 +186,21 @@ public:
 
     friend auto operator-(const glm::vec2 lhs, const TBLR rhs) -> glm::vec2;
 
-// for now
-public:
-    glm::vec2 tempPosOffset{0, 0};
-
 protected:
     Type layoutType_{Type::HORIZONTAL};
-    TBLR margin{0};
-    TBLR padding{0};
-    TBLR border{0};
-    TBLR borderRadius{0};
-    TBLR shadow{0};
+    TBLR margin_{0};
+    TBLR padding_{0};
+    TBLR border_{0};
+    TBLR borderRadius_{0};
+    TBLR shadow_{0};
     Align selfAlign_{Align::TOP_LEFT};
     Align align_{Align::TOP_LEFT};
     Spacing spacing_{Spacing::TIGHT};
-    glm::ivec2 minScale{10, 10};
-    glm::ivec2 maxScale{10'000, 10'000};
+    GridPolicyXY gridPolicy_{{Scale(1, ScaleType::FR)}, {Scale(1, ScaleType::FR)}};
+    GridRC gridPos_{0, 0};
+    GridRC gridSpan_{1, 1};
+    glm::ivec2 minScale_{10, 10};
+    glm::ivec2 maxScale_{10'000, 10'000};
     bool wrap{false};
 
     /** @brief User supplied position details. This is NOT the actual render start position since it
@@ -213,8 +238,7 @@ LayoutBase::Scale operator"" _fill(unsigned long long);
 LayoutBase::Scale operator"" _fit(unsigned long long);
 LayoutBase::Scale operator"" _rel(long double value);
 LayoutBase::Scale operator"" _px(unsigned long long value);
-// Layout::GridDistrib operator"" _gpx(unsigned long long value);
-// Layout::GridDistrib operator"" _fr(unsigned long long value);
+LayoutBase::Scale operator"" _fr(unsigned long long value);
 
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;

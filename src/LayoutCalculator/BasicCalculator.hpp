@@ -36,7 +36,7 @@ public:
 
         @details Function calculates the required `computedScale` based on the user supplied `scaleType` and
             `value` set via `setScale`. Refer to LayoutBase for more details.
-        @details Scaling can be of 4 types: PX, REL, FIT and FILL on each axis. This will determine the computedScale
+        @details Scaling can be of 4 types: PX, REL, FIT, FILL and FR on each axis. This will determine the computedScale
             of the element.
         @details PX  - Scale of the element expressed in plain pixel values (i.e 50_px)
         @details REL - Scale relative to the parent element and expressed in (0, 1] percentage range (i.e 0.4_rel). The parent
@@ -54,6 +54,18 @@ public:
                    after the PX/REL/FIT nodes aquire their computedScale.
                    A FILL element computedScale is affected (shrunk) by it's parent padding and border scale and also by it's
                    own margins.
+        @details FR - Scale type specific only for GRID layouts. Grid cell will span exatly "fr" fractional parts. Fractional
+                    parts are equal in size and are computed after subtracting all the PX grid cell sizes.
+                    Example for column axis:
+                        2_fr, 100_px, 1_fr
+                    Second cell will occupy exactly 100PX on the X axis.
+                    Total fractional parts of the column axis will be: 2_fr + 1_fr = 3_fr.
+                    First cell will get 2 parts of the remaining space after subtracting the pixel occupied cells while
+                    the third cell will get only 1 part.
+                    Simply put the first cell will always be 2 times bigger than the third cell while the second cell remains
+                    constant in size.
+                    Child elements can be self aligned inside the cell(s) at the following positions via `selfAlign` setting.
+                    Child elements can only be of scaleType PX, REL or FILL.
 
         @param parent Element for which the subelements need to be calculated
         @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
@@ -75,7 +87,6 @@ public:
         @details Refer to LayoutBase for more details.
 
         @param parent Element for which the subelements need to be calculated
-        @param maxScale Max scale on each axis for the calculated elements (as a unit)
         @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
             (usually used to make room for scroll bars)
 
@@ -158,21 +169,32 @@ private:
         const glm::vec2 shrinkScaleBy) const -> SpacingDetails;
 
 
-    /** @brief Calculate the minimum computedScale needed for the parent element to perfectly fit around it's children.
-
-        @note This function WILL NOT set any computedScale for any element, it just tries to compute the minimum
-            gift-wrapped scale needed elsewhere.
-
-        @details Function will try to compute the scale required for `parent` such that the child elements of it
-            fit perfectly inside. Parent's padding/borders/margins are taken into consideration for this calculation.
-            If a child element is itself of scale type FIT, then this function will recurse down on it until the end.
-        @details Leaf child elements are REQUIRED to be of scale type PX, otherwise it is impossible to compute
-            the FIT scale of the initial node.
-
-        @param parent Parent element to wrap it's children around
-
-        @return Minimum fit scale needed.
-    */
     auto calculateFitScale(uielements::UIBase* parent) const -> glm::vec2;
+
+
+    /** @brief Calculate the `computedScale` of parent child elements when the parent is of type GRID.
+
+        @note This pass needs to be done before the positioning pass.
+        @note Slider nodes with scrollbar role are ignored.
+
+        @param parent Element for which the subelements need to be calculated
+        @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
+            (usually used to make room for scroll bars)
+    */
+    auto calculateScaleForGenericElementOfTypeGrid(uielements::UIBase* parent,
+        const glm::vec2 shrinkScaleBy) const -> void;
+
+
+    /** @brief Calculate the `computedPos` of parent child elements when the parent is of type GRID.
+
+        @note This pass needs to be done after the scaling pass.
+        @note Slider nodes with scrollbar role are ignored.
+
+        @param parent Element for which the subelements need to be calculated
+        @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
+            (usually used to make room for scroll bars)
+    */
+    auto calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
+        const glm::vec2 shrinkScaleBy) const -> void;
 };
 } // namespace src::layoutcalculator

@@ -164,13 +164,14 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
     if (btn == Input::LEFT && action == Input::PRESS)
     {
         windowState_->clickedId = windowState_->hoveredId;
+        windowState_->selectedId = windowState_->hoveredId;
         spawnEvent(MouseLeftClickEvt{});
     }
     else if (btn == Input::LEFT && action == Input::RELEASE)
     {
-        spawnEvent(MouseLeftReleaseEvt{});
         windowState_->isDragging = false;
         windowState_->clickedId = state::NOTHING;
+        spawnEvent(MouseLeftReleaseEvt{});
     }
 
     windowState_->mouseButton = btn;
