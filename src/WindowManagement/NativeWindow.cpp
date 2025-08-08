@@ -1,6 +1,7 @@
 #include "NativeWindow.hpp"
 
 #include "src/Utils/Misc.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace src::windowmanagement
 {
@@ -200,6 +201,11 @@ auto NativeWindow::pollEvents() -> void
     isWaitingEvents_ ? glfwWaitEvents() : glfwPollEvents();
 }
 
+auto NativeWindow::setClipboardData(const std::string& data) -> void
+{
+    glfwSetClipboardString(nullptr, data.c_str());
+}
+
 auto NativeWindow::enableDepthTest(const bool enable) -> void
 {
     enable ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
@@ -250,6 +256,8 @@ auto NativeWindow::updateViewport(const glm::ivec2 size) -> void
 auto NativeWindow::getInitGlfwHandle() -> GLFWwindow* { return initWindowHandle_; }
 
 auto NativeWindow::getTime() -> double { return glfwGetTime(); }
+
+auto NativeWindow::getClipboardData() -> std::string { return glfwGetClipboardString(initWindowHandle_); }
 
 auto NativeWindow::maskEvents() -> void
 {

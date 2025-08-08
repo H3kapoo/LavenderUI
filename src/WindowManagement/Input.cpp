@@ -1,6 +1,7 @@
 #include "Input.hpp"
 
 #include "vendor/glfw/include/GLFW/glfw3.h"
+#include "src/Utils/Logger.hpp"
 
 namespace src::windowmanagement
 {
@@ -11,11 +12,13 @@ auto Input::cbName(const cbType_& callback) -> void\
 }\
 
 SETUP_CALLBACK(setKeyCallback, KeyCallback, keyCallback_);
+SETUP_CALLBACK(setCharacterCallback, CharacterCallback, characterCallback_);
 SETUP_CALLBACK(setMouseMoveCallback, MouseMoveCallback, mouseMoveCallback_);
 SETUP_CALLBACK(setMouseBtnCallback, MouseButtonCallback, mouseBtnCallback_);
 SETUP_CALLBACK(setMouseScrollCallback, MouseScrollCallback, mouseScrollCallback_);
 SETUP_CALLBACK(setWindowSizeCallback, WindowSizeCallback, windowSizeCallback_);
 SETUP_CALLBACK(setWindowMouseEnterCallback, WindowMouseEnterCallback, windowMouseEntered_);
+SETUP_CALLBACK(setWindowFileDropCallback, WindowFileDropCallback, windowFileDrop_);
 
 auto Input::bindWindow(GLFWwindow* windowHandle) -> void
 {
@@ -26,6 +29,13 @@ auto Input::bindWindow(GLFWwindow* windowHandle) -> void
         {
             const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
             input->keyCallback_(key, scanCode, action, mods);
+        });
+
+    glfwSetCharCallback(windowHandle,
+        [](GLFWwindow* win, uint32_t codepoint)
+        {
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->characterCallback_(codepoint);
         });
 
     glfwSetWindowSizeCallback(windowHandle,
@@ -61,6 +71,14 @@ auto Input::bindWindow(GLFWwindow* windowHandle) -> void
         {
             const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
             input->windowMouseEntered_(entered);
+        });
+
+    glfwSetDropCallback(windowHandle,
+        [](GLFWwindow* win, int32_t count, const char** paths)
+        {
+            utils::Logger("input").warn("pe aici");
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->windowFileDrop_(count, paths);
         });
 }
 

@@ -7,11 +7,13 @@
 namespace src::windowmanagement
 {
 using KeyCallback = std::function<void(int32_t key, int32_t scanCode, int32_t action, int32_t mods)>;
+using CharacterCallback = std::function<void(uint32_t codepoint)>;
 using MouseButtonCallback = std::function<void(uint8_t btn, uint8_t action)>;
 using MouseMoveCallback = std::function<void(int32_t x, int32_t y)>;
 using MouseScrollCallback = std::function<void(int8_t xOffset, int8_t yOffset)>;
 using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
 using WindowMouseEnterCallback = std::function<void(bool entered)>;
+using WindowFileDropCallback = std::function<void(int32_t count, const char** paths)>;
 
 class NativeWindow;
 
@@ -31,11 +33,13 @@ public:
     auto operator=(Input&&) -> Input& = delete;
 
     auto setKeyCallback(const KeyCallback& callback) -> void;
+    auto setCharacterCallback(const CharacterCallback& callback) -> void;
     auto setMouseMoveCallback(const MouseMoveCallback& callback) -> void;
     auto setMouseBtnCallback(const MouseButtonCallback& callback) -> void;
     auto setMouseScrollCallback(const MouseScrollCallback& callback) -> void;
     auto setWindowSizeCallback(const WindowSizeCallback& callback) -> void;
     auto setWindowMouseEnterCallback(const WindowMouseEnterCallback& callback) -> void;
+    auto setWindowFileDropCallback(const WindowFileDropCallback& callback) -> void;
 
 private:
     /* Only meant to be used by NativeWindow */
@@ -44,11 +48,13 @@ private:
 
 private:
     KeyCallback keyCallback_{[](auto, auto, auto, auto){}};
+    CharacterCallback characterCallback_{[](auto){}};
     MouseMoveCallback mouseMoveCallback_{[](auto, auto){}};
     MouseButtonCallback mouseBtnCallback_{[](auto, auto){}};
     MouseScrollCallback mouseScrollCallback_{[](auto, auto){}};
     WindowSizeCallback windowSizeCallback_{[](auto, auto){}};
-    WindowMouseEnterCallback windowMouseEntered_{[](bool){}};
+    WindowMouseEnterCallback windowMouseEntered_{[](auto){}};
+    WindowFileDropCallback windowFileDrop_{[](auto, auto){}};
 
 public:
     enum Action

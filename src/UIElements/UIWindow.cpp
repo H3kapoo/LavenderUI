@@ -9,6 +9,8 @@
 #include "src/WindowManagement/Input.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
+#include <codecvt>
+#include <string>
 
 namespace src::uielements
 {
@@ -33,7 +35,18 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
 
     window_.getInput().setWindowMouseEnterCallback(
         [this](bool entered) { windowMouseEnterHook(entered); });
-    
+
+    window_.getInput().setWindowFileDropCallback(
+        [this](int32_t count, const char** paths)
+        {
+            for (int32_t i = 0; i < count; ++i)
+            {
+            }
+        });
+
+    window_.getInput().setCharacterCallback(
+        [this](uint32_t cp){});
+
     window_.getInput().setKeyCallback(
         [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods) { keyHook(key, sc, action, mods); });
 

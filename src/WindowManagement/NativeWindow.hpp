@@ -96,6 +96,7 @@ public:
     auto getDeltaTime() -> double;
     auto getInput() -> Input&;
 
+    static auto setClipboardData(const std::string& data) -> void;
     static auto enableDepthTest(const bool enable = true) -> void;
     static auto enableScissorsTest(const bool enable = true) -> void;
     static auto enableAlphaBlending(const bool enable = true) -> void;
@@ -106,6 +107,7 @@ public:
     static auto updateViewport(const glm::ivec2 size) -> void;
     static auto getInitGlfwHandle() -> GLFWwindow*;
     static auto getTime() -> double;
+    static auto getClipboardData() -> std::string;
 
 private:
     auto maskEvents() -> void;
