@@ -45,7 +45,7 @@ int main()
 
     UIPanePtr p = utils::make<UIPane>();
     p->setColor(utils::hexToVec4("#5c5c5cff"));
-    // p->setAlign(LayoutBase::CENTER);
+    // p->setAlign(LayoutBase::BOTTOM_RIGHT);
     p->setType(LayoutBase::Type::GRID);
     // p->setWrap(true);
     // p->setScrollEnabled(true, true);
@@ -60,7 +60,6 @@ int main()
     {
         for (uint32_t j = 0; j < 3; ++j)
         {
-            if (i == 1 && j == 1) { continue; }
             UIButtonPtr b = utils::make<UIButton>();
             b->setText(std::format("ceva {}", i));
             b->setBorderRadius(4).setMargin({0}).setBorder({1}).setGridPos({i, j}).setGridSpan({1, 1});
@@ -72,6 +71,10 @@ int main()
             b->listenTo<MouseLeftReleaseEvt>([&log, i](const auto&)
             {
                 log.warn("released on me {}", i);
+            });
+            b->listenTo<MouseExitEvt>([&log, i](const auto&)
+            {
+                log.warn("mouse exited me {}", i);
             });
             p->add(b);
         }

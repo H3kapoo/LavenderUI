@@ -51,6 +51,7 @@ private:
     auto spawnEvent(const elementcomposable::IEvent& event) -> void;
     auto updateProjection() -> void;
     auto windowResizeHook(const uint32_t newX, const uint32_t newY) -> void;
+    auto windowMouseEnterHook(const bool entered) -> void;
     auto keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
         const uint32_t mods) -> void;
     auto mouseMoveHook(const int32_t newX, const int32_t newY) -> void;

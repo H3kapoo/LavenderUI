@@ -482,11 +482,64 @@ auto BasicCalculator::calculateFitScale(uielements::UIBase* parent) const -> glm
 auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uielements::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    auto& gridPolicy = parent->getGrid();
+    const auto& gridPolicy = parent->getGrid();
     if (gridPolicy.rows.empty() || gridPolicy.cols.empty()) { return; }
 
     /* Note for future: this precomputation doesn't need to be done each time, only when the grid policy changes. */
+    calculatePrecomputedGridStartPos(parent, shrinkScaleBy);
+
+    const auto& pContentScale = parent->getContentBoxScale()- shrinkScaleBy;
+    const uint32_t nRow = gridPolicy.rows.size();
+    const uint32_t nCol = gridPolicy.cols.size();
+    const auto& elements = parent->getElements();
+    for (auto& element : elements)
+    {
+        const auto& gridPos = element->getGridPos();
+        const auto& gridSpan = element->getGridSpan();
+
+        if (gridPos.col >= nCol) { continue; }
+        if (gridPos.row >= nRow) { continue; }
+
+        const glm::vec2 gridPosStart{
+            gridPolicy.precompStart[gridPos.col],
+            gridPolicy.precompStart[nCol + gridPos.row]
+        };
+
+        const glm::vec2 gridPosEnd{
+            gridPos.col + gridSpan.col < nCol
+                ? gridPolicy.precompStart[gridPos.col + gridSpan.col]
+                : pContentScale.x,
+            gridPos.row + gridSpan.row < nRow
+                ? gridPolicy.precompStart[nCol + gridPos.row + gridSpan.row]
+                : pContentScale.y,
+        };
+
+        element->setComputedScale(gridPosEnd - gridPosStart);
+    }
+}
+
+auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
+    const glm::vec2 shrinkScaleBy) const -> void
+{
+    const auto& gridPolicy = parent->getGrid();
+    const auto& elements = parent->getElements();
+    const uint32_t nCol = gridPolicy.cols.size();
+    for (auto& element : elements)
+    {
+        const auto& gridPos = element->getGridPos();
+        element->setComputedPos(
+            {
+                gridPolicy.precompStart[gridPos.col],
+                gridPolicy.precompStart[nCol + gridPos.row]
+            });
+    }
+}
+
+auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* parent,
+    const glm::vec2 shrinkScaleBy) const -> void
+{
     /* Compute the amound of PX occupied space and FR parts in order to compute how much a FR part is worth. */
+    auto& gridPolicy = parent->getGrid();
     glm::vec2 totalPx{0, 0};
     glm::vec2 totalFrac{0, 0};
 
@@ -529,41 +582,5 @@ auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uielements::UIBa
         if (row.type == LayoutBase::ScaleType::PX) { precompStart.y += row.val; }
         if (row.type == LayoutBase::ScaleType::FR) { precompStart.y += row.val * hFrac; }
     }
-
-    /* Scale elements based on precomputed position */
-    const auto& elements = parent->getElements();
-    for (auto& element : elements)
-    {
-        const auto& gridPos = element->getGridPos();
-        const glm::vec2 gridPosStart{
-            gridPolicy.precompStart[gridPos.col],
-            gridPolicy.precompStart[nCol + gridPos.row]
-        };
-
-        const glm::vec2 gridPosEnd{
-            gridPos.col + 1 < nCol ? gridPolicy.precompStart[gridPos.col + 1] : pContentScale.x,
-            gridPos.row + 1 < nRow ? gridPolicy.precompStart[nCol + gridPos.row + 1] : pContentScale.y,
-        };
-
-        element->setComputedScale(gridPosEnd - gridPosStart);
-    }
-
-    /* Put elements into position */
-    for (auto& element : elements)
-    {
-        const auto& gridPos = element->getGridPos();
-        element->setComputedPos(
-            {
-                gridPolicy.precompStart[gridPos.col],
-                gridPolicy.precompStart[nCol + gridPos.row]
-            });
-    }
 }
-
-auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
-    const glm::vec2 shrinkScaleBy) const -> void
-{
-
-}
-
 } // namespace src::layoutcalculator

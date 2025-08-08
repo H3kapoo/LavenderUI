@@ -15,6 +15,7 @@ SETUP_CALLBACK(setMouseMoveCallback, MouseMoveCallback, mouseMoveCallback_);
 SETUP_CALLBACK(setMouseBtnCallback, MouseButtonCallback, mouseBtnCallback_);
 SETUP_CALLBACK(setMouseScrollCallback, MouseScrollCallback, mouseScrollCallback_);
 SETUP_CALLBACK(setWindowSizeCallback, WindowSizeCallback, windowSizeCallback_);
+SETUP_CALLBACK(setWindowMouseEnterCallback, WindowMouseEnterCallback, windowMouseEntered_);
 
 auto Input::bindWindow(GLFWwindow* windowHandle) -> void
 {
@@ -53,6 +54,13 @@ auto Input::bindWindow(GLFWwindow* windowHandle) -> void
         {
             const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
             input->mouseScrollCallback_(xOffset, yOffset);
+        });
+
+    glfwSetCursorEnterCallback(windowHandle,
+        [](GLFWwindow* win, int32_t entered)
+        {
+            const Input* input = static_cast<Input*>(glfwGetWindowUserPointer(win));
+            input->windowMouseEntered_(entered);
         });
 }
 

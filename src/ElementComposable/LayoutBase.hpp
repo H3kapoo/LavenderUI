@@ -247,6 +247,17 @@ auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;
 
 /* Custom formatters */
 template<>
+struct std::formatter<glm::ivec2> : std::formatter<std::string_view>
+{
+    auto format(const glm::ivec2& obj, format_context& ctx) const
+    {
+        std::ostringstream os;
+        os << std::format("({}, {})", obj.x, obj.y);
+        return std::formatter<std::string_view>::format(std::move(os).str(), ctx);
+    }
+};
+
+template<>
 struct std::formatter<glm::vec2> : std::formatter<std::string_view>
 {
     auto format(const glm::vec2& obj, format_context& ctx) const

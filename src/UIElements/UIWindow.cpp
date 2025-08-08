@@ -31,6 +31,9 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     window_.getInput().setWindowSizeCallback(
         [this](uint32_t x, uint32_t y) { windowResizeHook(x, y); });
 
+    window_.getInput().setWindowMouseEnterCallback(
+        [this](bool entered) { windowMouseEnterHook(entered); });
+    
     window_.getInput().setKeyCallback(
         [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods) { keyHook(key, sc, action, mods); });
 
@@ -100,6 +103,13 @@ auto UIWindow::windowResizeHook(const uint32_t, const uint32_t) -> void
     updateProjection();
 }
 
+auto UIWindow::windowMouseEnterHook(const bool entered) -> void
+{
+    entered
+        ? mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y)
+        : mouseMoveHook(-1, -1);
+}
+
 auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
     const uint32_t mods) -> void
 {
@@ -121,10 +131,11 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32
 
 auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 {
-    windowState_->mousePos = {newX, newY};
-    windowState_->hoveredZIndex = state::NOTHING;
-
     uint32_t prevHoveredId = windowState_->hoveredId;
+    windowState_->hoveredId = state::NOTHING;
+    windowState_->hoveredZIndex = state::NOTHING;
+    windowState_->mousePos = {newX, newY};
+
     spawnEvent(MouseMoveScanEvt{});
     uint32_t currentHoveredId = windowState_->hoveredId;
 

@@ -169,6 +169,21 @@ private:
         const glm::vec2 shrinkScaleBy) const -> SpacingDetails;
 
 
+    /** @brief Calculate the minimum computedScale needed for the parent element to perfectly fit around it's children.
+
+        @note This function WILL NOT set any computedScale for any element, it just tries to compute the minimum
+            gift-wrapped scale needed elsewhere.
+
+        @details Function will try to compute the scale required for `parent` such that the child elements of it
+            fit perfectly inside. Parent's padding/borders/margins are taken into consideration for this calculation.
+            If a child element is itself of scale type FIT, then this function will recurse down on it until the end.
+        @details Leaf child elements are REQUIRED to be of scale type PX, otherwise it is impossible to compute
+            the FIT scale of the initial node.
+
+        @param parent Parent element to wrap it's children around
+
+        @return Minimum fit scale needed.
+    */
     auto calculateFitScale(uielements::UIBase* parent) const -> glm::vec2;
 
 
@@ -190,11 +205,26 @@ private:
         @note This pass needs to be done after the scaling pass.
         @note Slider nodes with scrollbar role are ignored.
 
-        @param parent Element for which the subelements need to be calculated
+        @param parent Element for which the child elements need to be calculated
         @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
             (usually used to make room for scroll bars)
     */
     auto calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
+        const glm::vec2 shrinkScaleBy) const -> void;
+
+
+    /** @brief Calculates the start positions at which each row and column need to be placed at.
+
+        @details Precomputed value will be used to know where to place each element in the grid
+            and how much that element needs to be scaled by.
+        @details Values are stored in a 1D array representing only the first column and row of the grid.
+            Every other cell precomputed value can be extracted from that.
+
+        @param parent Element for which the grid needs to be precomputed
+        @param shrinkScaleBy Optional parameter to shrink the parent computed scale area if needed
+            (usually used to make room for scroll bars)
+    */
+    auto calculatePrecomputedGridStartPos(uielements::UIBase* parent,
         const glm::vec2 shrinkScaleBy) const -> void;
 };
 } // namespace src::layoutcalculator
