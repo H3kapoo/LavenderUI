@@ -9,8 +9,6 @@
 #include "src/WindowManagement/Input.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
-#include <codecvt>
-#include <string>
 
 namespace src::uielements
 {
@@ -39,13 +37,13 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     window_.getInput().setWindowFileDropCallback(
         [this](int32_t count, const char** paths)
         {
-            for (int32_t i = 0; i < count; ++i)
-            {
-            }
+            (void)count;
+            (void)paths;
+            for (int32_t i = 0; i < count; ++i) {}
         });
 
     window_.getInput().setCharacterCallback(
-        [this](uint32_t cp){});
+        [this](uint32_t cp){ (void)cp; });
 
     window_.getInput().setKeyCallback(
         [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods) { keyHook(key, sc, action, mods); });
@@ -118,9 +116,16 @@ auto UIWindow::windowResizeHook(const uint32_t, const uint32_t) -> void
 
 auto UIWindow::windowMouseEnterHook(const bool entered) -> void
 {
-    entered
-        ? mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y)
-        : mouseMoveHook(-1, -1);
+    if (entered)
+    {
+        mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y);
+    }
+    else
+    {
+        mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y);
+
+        // mouseMoveHook(-1, -1);
+    }
 }
 
 auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
@@ -144,10 +149,13 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32
 
 auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 {
+    const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, window_.getSize());
+    // const glm::ivec2 newMouse{newX, newY};
     uint32_t prevHoveredId = windowState_->hoveredId;
     windowState_->hoveredId = state::NOTHING;
     windowState_->hoveredZIndex = state::NOTHING;
-    windowState_->mousePos = {newX, newY};
+    windowState_->mouseDiff = newMouse - windowState_->mousePos;
+    windowState_->mousePos = newMouse;
 
     spawnEvent(MouseMoveScanEvt{});
     uint32_t currentHoveredId = windowState_->hoveredId;
@@ -185,6 +193,10 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
     windowState_->hoveredZIndex = state::NOTHING;
     spawnEvent(MouseMoveScanEvt{});
 
+    windowState_->mouseButton = btn;
+    windowState_->mouseAction = action;
+    spawnEvent(MouseButtonEvt{});
+
     if (btn == Input::LEFT && action == Input::PRESS)
     {
         windowState_->clickedId = windowState_->hoveredId;
@@ -197,10 +209,6 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
         windowState_->clickedId = state::NOTHING;
         spawnEvent(MouseLeftReleaseEvt{});
     }
-
-    windowState_->mouseButton = btn;
-    windowState_->mouseAction = action;
-    spawnEvent(MouseButtonEvt{});
 }
 
 auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -> void

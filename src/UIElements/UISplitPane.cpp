@@ -22,6 +22,10 @@ auto UISplitPane::render(const glm::mat4& projection) -> void
     shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", getTransform());
     shader_.uploadVec4f("uColor", getColor());
+    shader_.uploadVec2f("uResolution", getComputedScale());
+    shader_.uploadVec4f("uBorderSize", getBorder());
+    shader_.uploadVec4f("uBorderRadii", getBorderRadius());
+    shader_.uploadVec4f("uBorderColor", getBorderColor());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     renderNext(projection);
@@ -32,10 +36,16 @@ auto UISplitPane::layout() -> void
     const auto& calculator = BasicCalculator::get();
 
     using namespace layoutcalculator;
-    BasicCalculator::get().calcSplitPaneElements(this);
-    // BasicCalculator::get().calcElementsScale(this);
-    // BasicCalculator::get().calcElementsPos(this);
+    BasicCalculator::get().calculateSplitPaneElements(this);
 
+    const auto diff = mousePos_ - (elements_[1]->getComputedPos() + elements_[1]->getComputedScale() * 0.5f);
+    // const auto diff2 = (mousePos_ - mouseDiff_) - (elements_[1]->getComputedPos() + elements_[1]->getComputedScale() * 0.0f);
+
+    log_.debug("diff {}", diff);
+    if (locked.leftReached)
+    {
+        adjustPane(diff, 1);
+    }
     layoutNext();
 }
 
@@ -44,6 +54,11 @@ auto UISplitPane::event(state::UIWindowStatePtr& state) -> void
     /* Let the base do the generic stuff like mouse move pre-pass. */
     UIBase::event(state);
 
+    if (state->currentEventId == MouseMoveEvt::eventId)
+    {
+        mouseDiff_ = state->mouseDiff;
+        mousePos_ = state->mousePos;
+    }
     eventNext(state);
 }
 
@@ -76,28 +91,13 @@ auto UISplitPane::createPanes(const std::vector<float> startFractions) -> void
 
     for (uint32_t i = 0; i < size - 1; ++i)
     {
-        log_.debug("id {}", i);
-        const uint32_t lPaneIdx = i * 2 + 0;
         const uint32_t handleIdx = i * 2 + 1;
-        const uint32_t rPaneIdx = i * 2 + 2;
 
         utils::as<UIButton>(elements_[handleIdx])
-            ->listenTo<MouseDragEvt>([this, handleIdx, lPaneIdx, rPaneIdx](const auto& e)
+            ->listenTo<MouseDragEvt>([this, handleIdx](const auto&)
                 {
-                    const int32_t offset = prevMousePos.x == -1 ? 0 : e.x - prevMousePos.x;
-                    prevMousePos.x = e.x;
-
-                    {
-                        auto scale = elements_[lPaneIdx]->getScale();
-                        scale.x.val += offset / getComputedScale().x;
-                        elements_[lPaneIdx]->setScale(scale);
-                    }
-
-                    {
-                        auto scale = elements_[rPaneIdx]->getScale();
-                        scale.x.val -= offset / getComputedScale().x;
-                        elements_[rPaneIdx]->setScale(scale);
-                    }
+                    locked.leftReached = true;
+                    // adjustPane(mouseDiff_, handleIdx);
                 })
             .listenTo<MouseButtonEvt>(
                 [this](const auto& e)
@@ -106,19 +106,85 @@ auto UISplitPane::createPanes(const std::vector<float> startFractions) -> void
                     if (e.btn == Input::LEFT && e.action == Input::RELEASE)
                     {
                         log_.debug("RELEASED");
-                        prevMousePos.x = -1;
+                        locked.leftReached = false;
+                        mousePrevPos_.x = 0;
                     }
                 });
     }
-    /*
-        P H P H P
-        0 1 2 3 4
-    */
+}
+
+auto UISplitPane::adjustPane(glm::ivec2 mouseDiff, const uint32_t handleIdx) -> void
+{
+    const uint32_t lPaneIdx = handleIdx - 1;
+    const uint32_t rPaneIdx = handleIdx + 1;
+
+    const auto& contentScale = getContentBoxScale() - glm::vec2{40, 0};
+
+    float wantedOffsetRel = mouseDiff.x / contentScale.x;
+
+    const glm::vec2 lpMinScaleRel = elements_[lPaneIdx]->getMinScale() / contentScale;
+    const glm::vec2 lpMaxScaleRel = elements_[lPaneIdx]->getMaxScale() / contentScale;
+    const glm::vec2 rpMinScaleRel = elements_[rPaneIdx]->getMinScale() / contentScale;
+    const glm::vec2 rpMaxScaleRel = elements_[rPaneIdx]->getMaxScale() / contentScale;
+
+    // assumption: only one IF can be true at any given time
+    if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel < lpMinScaleRel.x)
+    {
+        // log_.warn("Fucked up {}", wantedOffsetRel);
+        // log_.warn("Can only take {}", lpMinScaleRel.x - elements_[lPaneIdx]->getScale().x.val);
+        wantedOffsetRel = lpMinScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
+    }
+
+    if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel < rpMinScaleRel.x)
+    {
+        // log_.warn("Fucked up 2 {}", wantedOffsetRel);
+        // log_.warn("Can only take 2 {}", (elements_[rPaneIdx]->getScale().x.val - rpMinScaleRel.x));
+        wantedOffsetRel = (elements_[rPaneIdx]->getScale().x.val - rpMinScaleRel.x);
+    }
+
+    if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel > lpMaxScaleRel.x)
+    {
+        log_.warn("Fucked up {}", wantedOffsetRel);
+        log_.warn("Can only take {}", lpMaxScaleRel.x - elements_[lPaneIdx]->getScale().x.val);
+        wantedOffsetRel = lpMaxScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
+    }
+
+    if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel > rpMaxScaleRel.x)
+    {
+        log_.warn("Fucked up {}", wantedOffsetRel);
+        log_.warn("Can only take {}", rpMaxScaleRel.x - elements_[rPaneIdx]->getScale().x.val);
+        wantedOffsetRel = rpMaxScaleRel.x - elements_[rPaneIdx]->getScale().x.val;
+    }
+    /* Min/Max bounds checks shall go here. */
+    // if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel >= lpMinScaleRel.x &&
+    //     elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel >= rpMinScaleRel.x &&
+    // if(    elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel <= lpMaxScaleRel.x &&
+    //     elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel <= rpMaxScaleRel.x
+    // )
+    {
+        // mousePrevPos_ = mousePos;
+        /* Apply the relative offsets. */
+        {
+            auto scale = elements_[lPaneIdx]->getScale();
+            scale.x.val += wantedOffsetRel;
+            elements_[lPaneIdx]->setScale(scale);
+        }
+
+        {
+            auto scale = elements_[rPaneIdx]->getScale();
+            scale.x.val -= wantedOffsetRel;
+            elements_[rPaneIdx]->setScale(scale);
+        }
+    }
 }
 
 auto UISplitPane::getPaneIdx(const uint32_t idx) -> UIPaneWPtr
 {
-    // return panes_.at(0);
-    return std::weak_ptr<UIPane>();
+    return utils::as<UIPane>(elements_.at(idx * 2));
+}
+
+auto UISplitPane::getHandleIdx(const uint32_t idx) -> UIButtonWPtr
+{
+    return utils::as<UIButton>(elements_.at(idx * 2 + 1));
 }
 } // namespace src::uielements

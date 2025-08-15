@@ -206,5 +206,20 @@ inline auto roundInPlace(glm::vec2& vec) -> void
     vec.x = std::round(vec.x);
     vec.y = std::round(vec.y);
 }
+
+/**
+    @brief Clamp vector between two other vector
+
+    @param vec Vector to clamp
+    @param min Minimum vector
+    @param max Maximum vector
+
+    @return Clamped vector components
+*/
+inline auto clamp(const glm::vec2& vec, const glm::vec2& min, const glm::vec2& max) -> glm::vec2
+{
+    return {std::clamp(vec.x, min.x, max.x), std::clamp(vec.y, min.y, max.y)};
+}
+
 } // namespace src::utils
 

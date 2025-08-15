@@ -1,5 +1,6 @@
 #include "LayoutBase.hpp"
 
+#include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/vector_float2.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
@@ -19,25 +20,36 @@ auto LayoutBase::isPointInsideView(const glm::ivec2& p) const -> bool
         && (p.y >= viewPos_.y && p.y <= viewPos_.y + viewScale_.y);
 }
 
+auto LayoutBase::computeOffsetToCenter(const glm::ivec2& p) const -> glm::ivec2
+{
+    const glm::vec2 center = computedPos_ + computedScale_ / 2;
+    return p - center;
+}
+
+auto LayoutBase::distanceToCenter(const glm::ivec2& p) const -> float
+{
+    const glm::vec2 center = computedPos_ + computedScale_ / 2;
+    // return std::sqrt(std::pow(p.x - center.x, 2) + std::pow(p.y - center.y, 2));
+    return std::abs(p.x - center.x);
+}
+
 auto LayoutBase::computeViewBox(const LayoutBase& parentAttribs) -> void
 {
     /* Take the intersection between this object's pos+scale & parent's already computed
         viewable area box minus parent borders.*/
-    const glm::ivec2 pBorderPos = {parentAttribs.getBorder().left, parentAttribs.getBorder().top};
+    const glm::vec2 pBorderPos = { parentAttribs.getBorder().left, parentAttribs.getBorder().top };
+    const glm::ivec2 pBorderScale = { parentAttribs.getLRBorder(), parentAttribs.getTBBorder()};
 
     viewPos_ = {
-        std::max(parentAttribs.viewPos_.x + pBorderPos.x, (int32_t)computedPos_.x),
-        std::max(parentAttribs.viewPos_.y + pBorderPos.y, (int32_t)computedPos_.y)
+        std::max((float)parentAttribs.viewPos_.x + pBorderPos.x, computedPos_.x),
+        std::max((float)parentAttribs.viewPos_.y + pBorderPos.y, computedPos_.y)
     };
 
-    const glm::ivec2 pBorderScale = {
-        parentAttribs.getBorder().left + parentAttribs.getBorder().right,
-        parentAttribs.getBorder().top + parentAttribs.getBorder().bot};
-    const glm::ivec2 pComposed = parentAttribs.viewPos_ + pBorderPos + parentAttribs.viewScale_ - pBorderScale;
-    const glm::ivec2 thisComposed = computedPos_ + computedScale_;
+    const glm::vec2 pViewEnd = parentAttribs.viewPos_ + pBorderPos + parentAttribs.viewScale_ - pBorderScale;
+    const glm::vec2 thisEnd = computedPos_ + computedScale_;
     viewScale_ = {
-        std::max(0, std::min(pComposed.x, thisComposed.x) - viewPos_.x),
-        std::max(0, std::min(pComposed.y, thisComposed.y) - viewPos_.y)
+        std::round(std::max(0.0f, std::min(pViewEnd.x, thisEnd.x) - viewPos_.x)),
+        std::round(std::max(0.0f, std::min(pViewEnd.y, thisEnd.y) - viewPos_.y))
     };
 }
 
@@ -58,6 +70,26 @@ auto LayoutBase::getLRMargin() const -> int32_t
 auto LayoutBase::getTBMargin() const -> int32_t
 {
     return margin_.top + margin_.bot;
+}
+
+auto LayoutBase::getLRBorder() const -> int32_t
+{
+    return border_.left + border_.right;
+}
+
+auto LayoutBase::getTBBorder() const -> int32_t
+{
+    return border_.top + border_.bot;
+}
+
+auto LayoutBase::getLRPadding() const -> int32_t
+{
+    return padding_.left + padding_.right;
+}
+
+auto LayoutBase::getTBPadding() const -> int32_t
+{
+    return padding_.top + padding_.bot;
 }
 
 auto LayoutBase::getFullBoxPos() const -> glm::vec2
@@ -123,8 +155,10 @@ auto LayoutBase::setMaxScale(const glm::ivec2 val) -> LayoutBase& { maxScale_ = 
 auto LayoutBase::setWrap(const bool val) -> LayoutBase& { wrap = val; return *this; }
 auto LayoutBase::setPos(const PositionXY& val) -> LayoutBase& { userPos_ = val; return *this; }
 auto LayoutBase::setScale(const ScaleXY& val) -> LayoutBase& { userScale_ = val; return *this; }
-auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = utils::round(val); return *this; }
-auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = utils::round(val) ;return *this;}
+// auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = utils::round(val); return *this; }
+// auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = utils::round(val) ;return *this;}
+auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = val; return *this; }
+auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = val ;return *this;}
 auto LayoutBase::setViewPos(const glm::vec2& val) -> LayoutBase& { viewPos_ = val; return *this; }
 auto LayoutBase::setViewScale(const glm::vec2& val) -> LayoutBase& { viewScale_ = val; return *this; }
 auto LayoutBase::setIndex(uint32_t val) -> LayoutBase& { index_ = val;  return *this; }
@@ -164,6 +198,11 @@ auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
     return {lhs.x - (rhs.left + rhs.right), lhs.y - (rhs.top + rhs.bot)};
 }
 
+auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
 {
     return {lhs.x - rhs.x, lhs.y - rhs.y};
@@ -172,5 +211,10 @@ auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
 auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2
 {
     return {lhs.x / rhs, lhs.y / rhs};
+}
+
+auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x / rhs.x, lhs.y / rhs.y};
 }
 } // namespace src::elementcomposable

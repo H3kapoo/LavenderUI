@@ -313,12 +313,18 @@ auto BasicCalculator::calculateSpacingOnAxis(uielements::UIBase* parent,
     return SpacingDetails{};
 }
 
-auto BasicCalculator::calcSplitPaneElements(uielements::UISplitPane* parent) const -> void
+auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent) const -> void
 {
+    /* The preferred user scale and min/max values have already been set by this point, but it's
+        our job to spread those scale values to satisfy those min/max requirements before
+        doing any actual scaling/positioning. */
+    tryToBestFitPaneElementsOfSplitPane(parent);
+
     const auto& pLayoutType = parent->getType();
-    const auto& pComputedScale = parent->getComputedScale();
+    const auto& pContentScale = parent->getContentBoxScale();
     const auto& elements = parent->getElements();
 
+    /* calc size of handles */
     glm::vec2 handlesSize{0, 0};
     for (const auto& element : elements)
     {
@@ -330,14 +336,16 @@ auto BasicCalculator::calcSplitPaneElements(uielements::UISplitPane* parent) con
         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
             cScale.x = userScale.x.val;
-            cScale.y = pComputedScale.y * userScale.y.val;
+            cScale.y = pContentScale.y * userScale.y.val;
         }
 
         handlesSize += cScale;
         element->setComputedScale(cScale);
     }
 
-    const auto& reducedPComputedScale = pComputedScale - handlesSize;
+    /* calc size of panes */
+    float perc{0};
+    const auto& reducedPContentScale = pContentScale - handlesSize;
     for (const auto& element : elements)
     {
         if (element->getTypeId() != uielements::UIPane::typeId) { continue; }
@@ -347,17 +355,32 @@ auto BasicCalculator::calcSplitPaneElements(uielements::UISplitPane* parent) con
 
         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
-            cScale.x = reducedPComputedScale.x * userScale.x.val;
-            cScale.y = pComputedScale.y * userScale.y.val;
+            cScale.x = reducedPContentScale.x * userScale.x.val;
+            cScale.y = pContentScale.y * userScale.y.val;
         }
-
+        cScale = utils::clamp(cScale, element->getMinScale(), element->getMaxScale());
+        perc += cScale.x;// / reducedPContentScale.x;
         element->setComputedScale(cScale);
     }
 
-    // pos
-    const auto& pComputedPos = parent->getComputedPos();
+    // if there's more > 1 then it means the min scale is not sat
+    // if there's less < 1 then it means the max scale is not sat
+    float minToSatisfy = perc - 1.0f;
+    float maxToSatisfy = 1.0f - perc;
+    // utils::Logger("calc").warn("unresolved min {} max {}", minToSatisfy, maxToSatisfy);
+    // utils::Logger("calc").warn("perc {}", perc);
+    for (const auto& element : elements)
+    {
+        if (element->getTypeId() != uielements::UIPane::typeId) { continue; }
+        const float relMinX = element->getMinScale().x / reducedPContentScale.x;
+        const float relMaxX = element->getMaxScale().x / reducedPContentScale.x;
+        const float distanceToMinX = element->getScale().x.val - relMinX;
+        const float distanceToMaxX = relMaxX - element->getScale().x.val;
+    }
 
-    glm::vec2 nextPos{pComputedPos};
+    /* position all */
+    const auto& pContentPos = parent->getContentBoxPos();
+    glm::vec2 nextPos{pContentPos};
     glm::vec2 pos{0, 0};
     for (auto& element : elements)
     {
@@ -377,8 +400,8 @@ auto BasicCalculator::calcSplitPaneElements(uielements::UISplitPane* parent) con
 
         element->setComputedPos(pos);
     }
-}
 
+}
 
 auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2
 {
@@ -582,5 +605,10 @@ auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* paren
         if (row.type == LayoutBase::ScaleType::PX) { precompStart.y += row.val; }
         if (row.type == LayoutBase::ScaleType::FR) { precompStart.y += row.val * hFrac; }
     }
+}
+
+auto BasicCalculator::tryToBestFitPaneElementsOfSplitPane(uielements::UISplitPane* parent) const -> void
+{
+
 }
 } // namespace src::layoutcalculator

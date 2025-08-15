@@ -63,15 +63,17 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     UIBase::event(state);
 
     const auto eId = state->currentEventId;
-    if (eId == MouseButtonEvt::eventId && (state->hoveredId == id_ || state->clickedId == id_))
+    if (eId == MouseButtonEvt::eventId
+        && (state->hoveredId == id_ || state->clickedId == id_ || state->prevHoveredId == id_))
     {
+        log_.debug("here?");
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         return emitEvent<MouseButtonEvt>(e);
     }
     else if (eId == MouseLeftClickEvt::eventId && state->clickedId == id_)
     {
-        setColor(onClickColor_);
+        // setColor(onClickColor_);
 
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseLeftClickEvt e;
@@ -79,7 +81,7 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     }
     else if (eId == MouseLeftReleaseEvt::eventId && state->selectedId == id_)
     {
-        setColor(originalColor_);
+        // setColor(originalColor_);
 
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         MouseLeftReleaseEvt e;
@@ -93,7 +95,7 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     }
     else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
     {
-        setColor(onEnterColor_);
+        // setColor(onEnterColor_);
 
         MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
@@ -101,7 +103,7 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     }
     else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
     {
-        if (state->clickedId != id_) { setColor(originalColor_); }
+        // if (state->clickedId != id_) { setColor(originalColor_); }
 
         MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */

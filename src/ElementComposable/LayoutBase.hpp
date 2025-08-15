@@ -65,6 +65,9 @@ public:
     /** @brief Represents the Scale on each axis. */
     struct ScaleXY
     {
+        ScaleXY(Scale v) : x{v}, y{v} {}
+        ScaleXY(Scale vx, Scale vy) : x{vx}, y{vy} {}
+
         Scale x;
         Scale y;
     };
@@ -126,9 +129,15 @@ public:
 
     auto isPointInside(const glm::ivec2& p) const -> bool;
     auto isPointInsideView(const glm::ivec2& p) const -> bool;
+    auto computeOffsetToCenter(const glm::ivec2& p) const -> glm::ivec2;
+    auto distanceToCenter(const glm::ivec2& p) const -> float;
     auto computeViewBox(const LayoutBase& parentAttribs) -> void;
     auto getLRMargin() const -> int32_t;
     auto getTBMargin() const -> int32_t;
+    auto getLRBorder() const -> int32_t;
+    auto getTBBorder() const -> int32_t;
+    auto getLRPadding() const -> int32_t;
+    auto getTBPadding() const -> int32_t;
     auto getFullBoxPos() const -> glm::vec2;
     auto getFullBoxScale() const -> glm::vec2;
     auto getContentBoxPos() const -> glm::vec2;
@@ -240,8 +249,10 @@ LayoutBase::Scale operator"" _rel(long double value);
 LayoutBase::Scale operator"" _px(unsigned long long value);
 LayoutBase::Scale operator"" _fr(unsigned long long value);
 
+auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;
+auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 
 } // namespace src::elementcomposable
 

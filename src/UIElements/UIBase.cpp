@@ -152,9 +152,6 @@ auto UIBase::layoutNext() -> void
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
-            /* After calculating my elements, compute how much of them is still visible inside of the parent. */
-            e->computeViewBox(*this);
-
             /* Index is used for layer rendering order. Can be custom. Otherwise it is just 1 + parentIndex. */
             if (!e->isCustomIndex())
             {
@@ -170,6 +167,9 @@ auto UIBase::layoutNext() -> void
             /* Depth is used mostly for printing. */
             e->depth_ = depth_ + 1;
             e->layout();
+
+            /* After calculating my elements, compute how much of them is still visible inside of the parent. */
+            e->computeViewBox(*this);
         });
 }
 

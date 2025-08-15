@@ -143,9 +143,16 @@ public:
     */
     auto calculateElementsOffsetDueToScroll(uielements::UIPane* parent, const glm::ivec2 offset) const -> void;
 
-    /** @brief TODO
+
+    /** @brief Calculates the `computedPos` and `computedScale` of a UISPlitPane element.
+
+        @details Function calculates position and scale according to `setScale` relative values
+            provided by the user and also take into account `minScale` and `maxScale` of each element.
+            This will try to resize elements to fulfill min/max and scale as best as possible.
+
+        @param parent Element for which split pane elements need to be calculated
     */
-    auto calcSplitPaneElements(uielements::UISplitPane* parent) const -> void;
+    auto calculateSplitPaneElements(uielements::UISplitPane* parent) const -> void;
 
 private:
     struct SpacingDetails
@@ -226,5 +233,15 @@ private:
     */
     auto calculatePrecomputedGridStartPos(uielements::UIBase* parent,
         const glm::vec2 shrinkScaleBy) const -> void;
+
+
+    /** @brief Try to satisfy as best as possible the min/max of each pane of this split pane element.
+        
+        @details Function will check if there is any pane with unsatisfied min/max and it will try to
+            spread that unwanted scale to other panes that can take it without violating their constraints.
+        
+        @param parent SplitPane element for which to satisfy constranints.
+    */
+    auto tryToBestFitPaneElementsOfSplitPane(uielements::UISplitPane* parent) const -> void;
 };
 } // namespace src::layoutcalculator

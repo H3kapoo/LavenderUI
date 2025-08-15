@@ -4,6 +4,7 @@
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIPane.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace src::uielements
 {
@@ -26,6 +27,7 @@ public:
     auto createPanes(const std::vector<float> startFractions) -> void;
 
     auto getPaneIdx(const uint32_t idx) -> UIPaneWPtr;
+    auto getHandleIdx(const uint32_t idx) -> UIButtonWPtr;
 
     /* Mandatory typeinfo */
     INSERT_TYPEINFO(UISplitPane);
@@ -35,8 +37,21 @@ private:
     auto layout() -> void override;
     auto event(state::UIWindowStatePtr& state) -> void override;
 
+    auto adjustPane(glm::ivec2 mouseDiff, const uint32_t handleIdx) -> void;
+
 private:
-    glm::ivec2 prevMousePos{-1, -1};
+    glm::ivec2 mouseDiff_{-1, -1};
+    glm::ivec2 mousePrevPos_{-1, -1};
+    glm::ivec2 mousePos_{-1, -1};
+    bool outsideControlArea_{false};
+    struct Locked
+    {
+        bool leftReached{false};
+        bool unblockLeft{false};
+        bool right{false};
+    } locked;
+
+    bool retry{true};
 };
 using UISplitPanePtr = std::shared_ptr<UISplitPane>;
 using UISplitPaneWPtr = std::weak_ptr<UISplitPane>;

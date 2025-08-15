@@ -1,6 +1,7 @@
 #include "UITreeView.hpp"
 
 #include "src/ElementComposable/IEvent.hpp"
+#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/LayoutCalculator/BasicCalculator.hpp"
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UISlider.hpp"
@@ -100,7 +101,7 @@ auto UITreeView::resolveVisibleItems() -> void
         // auto itemObj = utils::make<UISlider>();
         itemObj->setColor(flatItems_[index]->color);
         itemObj->setText(flatItems_[index]->text);
-        itemObj->setScale({.x = 200_px, .y = {(float)rowSize_}})
+        itemObj->setScale({200_px, LayoutBase::Scale(rowSize_, LayoutBase::ScaleType::PX)})
             .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
 
         itemObj->listenTo<elementcomposable::MouseButtonEvt>(

@@ -11,7 +11,6 @@
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/Input.hpp"
-#include <memory>
 
 using namespace src::windowmanagement;
 using namespace src::uielements;
@@ -33,52 +32,26 @@ int main()
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    // UISplitPanePtr sp = utils::make<UISplitPane>();
+    UISplitPanePtr sp = utils::make<UISplitPane>();
 
-    // const float frac = 1.0f / 5;
-    // // sp->createPanes({frac, frac});
+    const float frac = 1.0f / 3;
+    // sp->createPanes({frac, frac});
+    sp->createPanes({frac, frac, frac});
     // sp->createPanes({frac, frac, frac, frac, frac});
-    // sp->setColor(utils::hexToVec4("#290303ff"));
-    // sp->setScale({1.0_rel, 1.0_rel});
-    // // window.lock()->tempPosOffset = {30, 40};
-    
+    sp->setColor(utils::hexToVec4("#290303ff"))
+        .setBorderColor(utils::hexToVec4("#ffffffff"));
+    // sp->setBorder({1});
+    sp->setScale({1.0_rel});
 
-    UIPanePtr p = utils::make<UIPane>();
-    p->setColor(utils::hexToVec4("#5c5c5cff"));
-    // p->setAlign(LayoutBase::BOTTOM_RIGHT);
-    p->setType(LayoutBase::Type::GRID);
-    // p->setWrap(true);
-    // p->setScrollEnabled(true, true);
-    p->setScale({1_fill, 1_fill});
+    sp->getPaneIdx(0).lock()->setMaxScale({400, 2000});
+    sp->getPaneIdx(1).lock()->setMaxScale({4000, 2000});
+    sp->getPaneIdx(2).lock()->setMaxScale({400, 2000});
+    sp->getPaneIdx(0).lock()->setMinScale({200, 20});
+    sp->getPaneIdx(1).lock()->setMinScale({20, 20});
+    sp->getPaneIdx(2).lock()->setMinScale({20, 20});
 
-    // p->setGrid({{1_fr, 60_px}, {40_px, 2_fr}});
-    p->setGrid({{1_fr, 100_px, 1_fr}, {1_fr, 1_fr, 200_px}});
+    window.lock()->add(sp);
 
-    window.lock()->add(p);
-
-    for (uint32_t i = 0; i < 3; ++i)
-    {
-        for (uint32_t j = 0; j < 3; ++j)
-        {
-            UIButtonPtr b = utils::make<UIButton>();
-            b->setText(std::format("ceva {}", i));
-            b->setBorderRadius(4).setMargin({0}).setBorder({1}).setGridPos({i, j}).setGridSpan({1, 1});
-            b->setColor(utils::hexToVec4("#c73e3eff"));
-            b->listenTo<MouseLeftClickEvt>([&log, i](const auto&)
-            {
-                log.warn("clicked on me {}", i);
-            });
-            b->listenTo<MouseLeftReleaseEvt>([&log, i](const auto&)
-            {
-                log.warn("released on me {}", i);
-            });
-            b->listenTo<MouseExitEvt>([&log, i](const auto&)
-            {
-                log.warn("mouse exited me {}", i);
-            });
-            p->add(b);
-        }
-    }
     // // // p->setScale({0.5_rel, 400_px});
     // for (int32_t i = 0; i < 4; ++i)
     // {
