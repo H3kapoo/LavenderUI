@@ -40,18 +40,8 @@ private:
     auto adjustPane(glm::ivec2 mouseDiff, const uint32_t handleIdx) -> void;
 
 private:
-    glm::ivec2 mouseDiff_{-1, -1};
-    glm::ivec2 mousePrevPos_{-1, -1};
     glm::ivec2 mousePos_{-1, -1};
-    bool outsideControlArea_{false};
-    struct Locked
-    {
-        bool leftReached{false};
-        bool unblockLeft{false};
-        bool right{false};
-    } locked;
-
-    bool retry{true};
+    int32_t draggedHandle_{-1};
 };
 using UISplitPanePtr = std::shared_ptr<UISplitPane>;
 using UISplitPaneWPtr = std::weak_ptr<UISplitPane>;

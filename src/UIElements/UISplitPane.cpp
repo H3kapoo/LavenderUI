@@ -38,13 +38,11 @@ auto UISplitPane::layout() -> void
     using namespace layoutcalculator;
     BasicCalculator::get().calculateSplitPaneElements(this);
 
-    const auto diff = mousePos_ - (elements_[1]->getComputedPos() + elements_[1]->getComputedScale() * 0.5f);
-    // const auto diff2 = (mousePos_ - mouseDiff_) - (elements_[1]->getComputedPos() + elements_[1]->getComputedScale() * 0.0f);
-
-    log_.debug("diff {}", diff);
-    if (locked.leftReached)
+    if (draggedHandle_ != -1)
     {
-        adjustPane(diff, 1);
+        const auto diff = mousePos_ - (elements_[draggedHandle_]->getComputedPos() + elements_[draggedHandle_]->getComputedScale() * 0.5f);
+        log_.debug("diff {}", diff);
+        adjustPane(diff, draggedHandle_);
     }
     layoutNext();
 }
@@ -56,7 +54,6 @@ auto UISplitPane::event(state::UIWindowStatePtr& state) -> void
 
     if (state->currentEventId == MouseMoveEvt::eventId)
     {
-        mouseDiff_ = state->mouseDiff;
         mousePos_ = state->mousePos;
     }
     eventNext(state);
@@ -96,7 +93,7 @@ auto UISplitPane::createPanes(const std::vector<float> startFractions) -> void
         utils::as<UIButton>(elements_[handleIdx])
             ->listenTo<MouseDragEvt>([this, handleIdx](const auto&)
                 {
-                    locked.leftReached = true;
+                    draggedHandle_ = handleIdx;
                     // adjustPane(mouseDiff_, handleIdx);
                 })
             .listenTo<MouseButtonEvt>(
@@ -106,8 +103,7 @@ auto UISplitPane::createPanes(const std::vector<float> startFractions) -> void
                     if (e.btn == Input::LEFT && e.action == Input::RELEASE)
                     {
                         log_.debug("RELEASED");
-                        locked.leftReached = false;
-                        mousePrevPos_.x = 0;
+                        draggedHandle_ = -1;
                     }
                 });
     }
@@ -130,51 +126,36 @@ auto UISplitPane::adjustPane(glm::ivec2 mouseDiff, const uint32_t handleIdx) -> 
     // assumption: only one IF can be true at any given time
     if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel < lpMinScaleRel.x)
     {
-        // log_.warn("Fucked up {}", wantedOffsetRel);
-        // log_.warn("Can only take {}", lpMinScaleRel.x - elements_[lPaneIdx]->getScale().x.val);
         wantedOffsetRel = lpMinScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
     }
 
     if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel < rpMinScaleRel.x)
     {
-        // log_.warn("Fucked up 2 {}", wantedOffsetRel);
-        // log_.warn("Can only take 2 {}", (elements_[rPaneIdx]->getScale().x.val - rpMinScaleRel.x));
         wantedOffsetRel = (elements_[rPaneIdx]->getScale().x.val - rpMinScaleRel.x);
     }
 
     if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel > lpMaxScaleRel.x)
     {
-        log_.warn("Fucked up {}", wantedOffsetRel);
-        log_.warn("Can only take {}", lpMaxScaleRel.x - elements_[lPaneIdx]->getScale().x.val);
         wantedOffsetRel = lpMaxScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
     }
 
     if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel > rpMaxScaleRel.x)
     {
-        log_.warn("Fucked up {}", wantedOffsetRel);
-        log_.warn("Can only take {}", rpMaxScaleRel.x - elements_[rPaneIdx]->getScale().x.val);
-        wantedOffsetRel = rpMaxScaleRel.x - elements_[rPaneIdx]->getScale().x.val;
+        // wantedOffsetRel = rpMaxScaleRel.x - elements_[rPaneIdx]->getScale().x.val;
+        wantedOffsetRel =  elements_[rPaneIdx]->getScale().x.val - rpMaxScaleRel.x;
     }
-    /* Min/Max bounds checks shall go here. */
-    // if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel >= lpMinScaleRel.x &&
-    //     elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel >= rpMinScaleRel.x &&
-    // if(    elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel <= lpMaxScaleRel.x &&
-    //     elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel <= rpMaxScaleRel.x
-    // )
-    {
-        // mousePrevPos_ = mousePos;
-        /* Apply the relative offsets. */
-        {
-            auto scale = elements_[lPaneIdx]->getScale();
-            scale.x.val += wantedOffsetRel;
-            elements_[lPaneIdx]->setScale(scale);
-        }
 
-        {
-            auto scale = elements_[rPaneIdx]->getScale();
-            scale.x.val -= wantedOffsetRel;
-            elements_[rPaneIdx]->setScale(scale);
-        }
+    /* Apply the relative offsets. */
+    {
+        auto scale = elements_[lPaneIdx]->getScale();
+        scale.x.val += wantedOffsetRel;
+        elements_[lPaneIdx]->setScale(scale);
+    }
+
+    {
+        auto scale = elements_[rPaneIdx]->getScale();
+        scale.x.val -= wantedOffsetRel;
+        elements_[rPaneIdx]->setScale(scale);
     }
 }
 
