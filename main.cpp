@@ -35,20 +35,18 @@ int main()
     UISplitPanePtr sp = utils::make<UISplitPane>();
 
     const float frac = 1.0f / 3;
-    // sp->createPanes({frac, frac});
     sp->createPanes({frac, frac, frac});
-    // sp->createPanes({frac, frac, frac, frac, frac});
-    sp->setColor(utils::hexToVec4("#290303ff"))
+    sp->setColor(utils::hexToVec4("#dbdbdbff"))
         .setBorderColor(utils::hexToVec4("#ffffffff"));
     // sp->setBorder({1});
-    sp->setScale({1.0_rel});
+    sp->setScale({1.0_rel}).setType(LayoutBase::Type::VERTICAL);
 
-    sp->getPaneIdx(0).lock()->setMaxScale({400, 2000});
-    sp->getPaneIdx(1).lock()->setMaxScale({4000, 2000});
-    sp->getPaneIdx(2).lock()->setMaxScale({400, 2000});
-    sp->getPaneIdx(0).lock()->setMinScale({200, 20});
-    sp->getPaneIdx(1).lock()->setMinScale({20, 20});
-    sp->getPaneIdx(2).lock()->setMinScale({20, 20});
+    // sp->getPaneIdx(0).lock()->setMaxScale({700, 2000});
+    // sp->getPaneIdx(1).lock()->setMaxScale({4000, 2000});
+    // sp->getPaneIdx(2).lock()->setMaxScale({700, 2000});
+    // sp->getPaneIdx(0).lock()->setMinScale({200, 20});
+    // sp->getPaneIdx(1).lock()->setMinScale({100, 20});
+    // sp->getPaneIdx(2).lock()->setMinScale({20, 20});
 
     window.lock()->add(sp);
 

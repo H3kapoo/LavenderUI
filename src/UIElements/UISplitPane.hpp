@@ -1,10 +1,8 @@
 #pragma once
 
-#include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIPane.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace src::uielements
 {
@@ -12,7 +10,7 @@ using namespace elementcomposable;
 
 /**
     @brief Splitter GUI element used as a container manager holding multiple UIPanes
-        that can be resize on mouse drag.
+        that can be resized on mouse drag.
 */
 class UISplitPane : public UIBase
 {
@@ -37,11 +35,11 @@ private:
     auto layout() -> void override;
     auto event(state::UIWindowStatePtr& state) -> void override;
 
-    auto adjustPane(glm::ivec2 mouseDiff, const uint32_t handleIdx) -> void;
+    auto adjustPane(const glm::vec2 handlesOccupiedSpace, const uint32_t handleIdx) -> void;
 
 private:
     glm::ivec2 mousePos_{-1, -1};
-    int32_t draggedHandle_{-1};
+    uint32_t draggedHandleId_{0};
 };
 using UISplitPanePtr = std::shared_ptr<UISplitPane>;
 using UISplitPaneWPtr = std::weak_ptr<UISplitPane>;

@@ -313,7 +313,7 @@ auto BasicCalculator::calculateSpacingOnAxis(uielements::UIBase* parent,
     return SpacingDetails{};
 }
 
-auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent) const -> void
+auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent) const -> glm::vec2
 {
     /* The preferred user scale and min/max values have already been set by this point, but it's
         our job to spread those scale values to satisfy those min/max requirements before
@@ -338,6 +338,11 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
             cScale.x = userScale.x.val;
             cScale.y = pContentScale.y * userScale.y.val;
         }
+        else if (pLayoutType == LayoutBase::Type::VERTICAL)
+        {
+            cScale.y = userScale.y.val;
+            cScale.x = pContentScale.x * userScale.x.val;
+        }
 
         handlesSize += cScale;
         element->setComputedScale(cScale);
@@ -357,26 +362,35 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
         {
             cScale.x = reducedPContentScale.x * userScale.x.val;
             cScale.y = pContentScale.y * userScale.y.val;
+
+            perc += cScale.x;
         }
+        else if (pLayoutType == LayoutBase::Type::VERTICAL)
+        {
+            cScale.y = reducedPContentScale.y * userScale.y.val;
+            cScale.x = pContentScale.x * userScale.x.val;
+    
+            perc += cScale.x;
+        }
+
         cScale = utils::clamp(cScale, element->getMinScale(), element->getMaxScale());
-        perc += cScale.x;// / reducedPContentScale.x;
         element->setComputedScale(cScale);
     }
 
-    // if there's more > 1 then it means the min scale is not sat
-    // if there's less < 1 then it means the max scale is not sat
-    float minToSatisfy = perc - 1.0f;
-    float maxToSatisfy = 1.0f - perc;
-    // utils::Logger("calc").warn("unresolved min {} max {}", minToSatisfy, maxToSatisfy);
-    // utils::Logger("calc").warn("perc {}", perc);
-    for (const auto& element : elements)
-    {
-        if (element->getTypeId() != uielements::UIPane::typeId) { continue; }
-        const float relMinX = element->getMinScale().x / reducedPContentScale.x;
-        const float relMaxX = element->getMaxScale().x / reducedPContentScale.x;
-        const float distanceToMinX = element->getScale().x.val - relMinX;
-        const float distanceToMaxX = relMaxX - element->getScale().x.val;
-    }
+    // // if there's more > 1 then it means the min scale is not sat
+    // // if there's less < 1 then it means the max scale is not sat
+    // float minToSatisfy = perc - 1.0f;
+    // float maxToSatisfy = 1.0f - perc;
+    // // utils::Logger("calc").warn("unresolved min {} max {}", minToSatisfy, maxToSatisfy);
+    // // utils::Logger("calc").warn("perc {}", perc);
+    // for (const auto& element : elements)
+    // {
+    //     if (element->getTypeId() != uielements::UIPane::typeId) { continue; }
+    //     const float relMinX = element->getMinScale().x / reducedPContentScale.x;
+    //     const float relMaxX = element->getMaxScale().x / reducedPContentScale.x;
+    //     const float distanceToMinX = element->getScale().x.val - relMinX;
+    //     const float distanceToMaxX = relMaxX - element->getScale().x.val;
+    // }
 
     /* position all */
     const auto& pContentPos = parent->getContentBoxPos();
@@ -401,6 +415,7 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
         element->setComputedPos(pos);
     }
 
+    return handlesSize;
 }
 
 auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2

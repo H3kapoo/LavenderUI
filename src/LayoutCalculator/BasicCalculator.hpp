@@ -151,8 +151,10 @@ public:
             This will try to resize elements to fulfill min/max and scale as best as possible.
 
         @param parent Element for which split pane elements need to be calculated
+
+        @return Space occupied by the active handles
     */
-    auto calculateSplitPaneElements(uielements::UISplitPane* parent) const -> void;
+    auto calculateSplitPaneElements(uielements::UISplitPane* parent) const -> glm::vec2;
 
 private:
     struct SpacingDetails

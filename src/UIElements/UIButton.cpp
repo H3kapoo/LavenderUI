@@ -66,7 +66,6 @@ auto UIButton::event(state::UIWindowStatePtr& state) -> void
     if (eId == MouseButtonEvt::eventId
         && (state->hoveredId == id_ || state->clickedId == id_ || state->prevHoveredId == id_))
     {
-        log_.debug("here?");
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         return emitEvent<MouseButtonEvt>(e);
