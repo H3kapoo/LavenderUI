@@ -35,10 +35,12 @@ private:
     auto layout() -> void override;
     auto event(state::UIWindowStatePtr& state) -> void override;
 
-    auto adjustPane(const glm::vec2 handlesOccupiedSpace, const uint32_t handleIdx) -> void;
+    auto adjustPane(const glm::vec2 handlesOccupiedSpace, const uint32_t handleIdx,
+        const bool fromResize = false) -> void;
 
 private:
     glm::ivec2 mousePos_{-1, -1};
+    glm::ivec2 wsDelta_{-1, -1};
     uint32_t draggedHandleId_{0};
 };
 using UISplitPanePtr = std::shared_ptr<UISplitPane>;

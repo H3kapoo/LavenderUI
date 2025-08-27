@@ -332,7 +332,6 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
 
         glm::vec2 cScale;
         const auto& userScale = element->getScale();
-
         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
         {
             cScale.x = userScale.x.val;
@@ -362,35 +361,114 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
         {
             cScale.x = reducedPContentScale.x * userScale.x.val;
             cScale.y = pContentScale.y * userScale.y.val;
-
-            perc += cScale.x;
         }
         else if (pLayoutType == LayoutBase::Type::VERTICAL)
         {
             cScale.y = reducedPContentScale.y * userScale.y.val;
             cScale.x = pContentScale.x * userScale.x.val;
-    
-            perc += cScale.x;
         }
 
-        cScale = utils::clamp(cScale, element->getMinScale(), element->getMaxScale());
+        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+        {
+            cScale.x = std::clamp(cScale.x, (float)element->getMinScale().x, (float)element->getMaxScale().x);
+        }
+        else if (pLayoutType == LayoutBase::Type::VERTICAL)
+        {
+            cScale.y = std::clamp(cScale.y, (float)element->getMinScale().y, (float)element->getMaxScale().y);
+        }
         element->setComputedScale(cScale);
     }
 
-    // // if there's more > 1 then it means the min scale is not sat
-    // // if there's less < 1 then it means the max scale is not sat
-    // float minToSatisfy = perc - 1.0f;
-    // float maxToSatisfy = 1.0f - perc;
-    // // utils::Logger("calc").warn("unresolved min {} max {}", minToSatisfy, maxToSatisfy);
-    // // utils::Logger("calc").warn("perc {}", perc);
-    // for (const auto& element : elements)
-    // {
-    //     if (element->getTypeId() != uielements::UIPane::typeId) { continue; }
-    //     const float relMinX = element->getMinScale().x / reducedPContentScale.x;
-    //     const float relMaxX = element->getMaxScale().x / reducedPContentScale.x;
-    //     const float distanceToMinX = element->getScale().x.val - relMinX;
-    //     const float distanceToMaxX = relMaxX - element->getScale().x.val;
-    // }
+    for (int32_t handleIdx = 0; handleIdx < elements.size() - 1; ++handleIdx)
+    {
+        if (elements[handleIdx]->getTypeId() != uielements::UIButton::typeId) { continue; }
+
+        glm::vec2 wantedOffsetRel{0, 0};
+
+        const uint32_t lPaneIdx = handleIdx - 1;
+        const uint32_t rPaneIdx = handleIdx + 1;
+        const glm::vec2 lpMinScaleRel = elements[lPaneIdx]->getMinScale() / reducedPContentScale;
+        const glm::vec2 lpMaxScaleRel = elements[lPaneIdx]->getMaxScale() / reducedPContentScale;
+        const glm::vec2 rpMinScaleRel = elements[rPaneIdx]->getMinScale() / reducedPContentScale;
+        const glm::vec2 rpMaxScaleRel = elements[rPaneIdx]->getMaxScale() / reducedPContentScale;
+
+        auto lScale = elements[lPaneIdx]->getScale();
+        auto rScale = elements[rPaneIdx]->getScale();
+        if (parent->getType() == LayoutBase::Type::HORIZONTAL)
+        {
+            if (lScale.x.val < lpMinScaleRel.x)
+            {
+                wantedOffsetRel.x = lpMinScaleRel.x - lScale.x.val;
+            }
+
+            if (rScale.x.val < rpMinScaleRel.x)
+            {
+                wantedOffsetRel.x = rScale.x.val - rpMinScaleRel.x;
+            }
+
+            if (lScale.x.val > lpMaxScaleRel.x)
+            {
+                wantedOffsetRel.x = lpMaxScaleRel.x - lScale.x.val;
+            }
+
+            if (rScale.x.val > rpMaxScaleRel.x)
+            {
+                wantedOffsetRel.x = rScale.x.val - rpMaxScaleRel.x;
+            }
+
+            /* Apply the relative offsets. */
+            lScale.x.val += wantedOffsetRel.x;
+            elements[lPaneIdx]->setScale(lScale);
+
+            rScale.x.val -= wantedOffsetRel.x;
+            elements[rPaneIdx]->setScale(rScale);
+
+            auto lCompScale = elements[lPaneIdx]->getComputedScale();
+            lCompScale.x = lScale.x.val * reducedPContentScale.x;
+            elements[lPaneIdx]->setComputedScale(lCompScale);
+
+            auto rCompScale = elements[rPaneIdx]->getComputedScale();
+            rCompScale.x = rScale.x.val * reducedPContentScale.x;
+            elements[rPaneIdx]->setComputedScale(rCompScale);
+        }
+        else if (parent->getType() == LayoutBase::Type::VERTICAL)
+        {
+            if (lScale.y.val < lpMinScaleRel.y)
+            {
+                wantedOffsetRel.y = lpMinScaleRel.y - lScale.y.val;
+            }
+
+            if (rScale.y.val < rpMinScaleRel.y)
+            {
+                wantedOffsetRel.y = rScale.y.val - rpMinScaleRel.y;
+            }
+
+            if (lScale.y.val > lpMaxScaleRel.y)
+            {
+                wantedOffsetRel.y = lpMaxScaleRel.y - lScale.y.val;
+            }
+
+            if (rScale.y.val > rpMaxScaleRel.y)
+            {
+                wantedOffsetRel.y = rScale.y.val - rpMaxScaleRel.y;
+            }
+
+            /* Apply the relative offsets. */
+            lScale.y.val += wantedOffsetRel.y;
+            elements[lPaneIdx]->setScale(lScale);
+
+            rScale.y.val -= wantedOffsetRel.y;
+            elements[rPaneIdx]->setScale(rScale);
+
+            auto lCompScale = elements[lPaneIdx]->getComputedScale();
+            lCompScale.y = lScale.y.val * reducedPContentScale.y;
+            elements[lPaneIdx]->setComputedScale(lCompScale);
+
+            auto rCompScale = elements[rPaneIdx]->getComputedScale();
+            rCompScale.y = rScale.y.val * reducedPContentScale.y;
+            elements[rPaneIdx]->setComputedScale(rCompScale);
+        }
+    }
 
     /* position all */
     const auto& pContentPos = parent->getContentBoxPos();

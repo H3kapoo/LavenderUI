@@ -86,4 +86,11 @@ struct SliderEvt : public IEventCRTP<SliderEvt>
     SliderEvt(float valueIn) : value{valueIn} {}
     float value{0};
 };
+
+struct WindowResizeEvt : public IEventCRTP<WindowResizeEvt>
+{
+    WindowResizeEvt() {}
+    WindowResizeEvt(uint32_t xIn, uint32_t yIn) : x{xIn}, y{yIn} {}
+    uint32_t x{0}, y{0};
+};
 } // namespace src::elementcomposable

@@ -6,7 +6,6 @@
 #include "src/UIElements/UIButton.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/Input.hpp"
 
 namespace src::uielements
 {
@@ -39,10 +38,11 @@ auto UISplitPane::layout() -> void
     const auto& calculator = BasicCalculator::get();
     const auto& handlesSize = calculator.calculateSplitPaneElements(this);
 
+    if (draggedHandleId_)
+    {
+        adjustPane(handlesSize, draggedHandleId_);
+    }
     layoutNext();
-
-    if (!draggedHandleId_) { return; }
-    adjustPane(handlesSize, draggedHandleId_);
 }
 
 auto UISplitPane::event(state::UIWindowStatePtr& state) -> void
@@ -53,6 +53,10 @@ auto UISplitPane::event(state::UIWindowStatePtr& state) -> void
     if (state->currentEventId == MouseMoveEvt::eventId)
     {
         mousePos_ = state->mousePos;
+    }
+    else if (state->currentEventId == WindowResizeEvt::eventId)
+    {
+        // log_.warn("delta ws {}", state->windowSizeDelta);
     }
     eventNext(state);
 }
@@ -116,12 +120,12 @@ auto UISplitPane::createPanes(const std::vector<float> startFractions) -> void
 }
 
 auto UISplitPane::adjustPane(const glm::vec2 handlesOccupiedSpace,
-    const uint32_t handleIdx) -> void
+    const uint32_t handleIdx, const bool fromResize) -> void
 {
     /* Calculate difference between the current mouse position and the handle's center. */
     const auto handleCenter = elements_[draggedHandleId_]->getComputedPos()
         + elements_[draggedHandleId_]->getComputedScale() * 0.5f;
-    const auto mouseDiff = mousePos_ - handleCenter;
+    const glm::vec2 mouseDiff = mousePos_ - handleCenter;
 
     const uint32_t lPaneIdx = handleIdx - 1;
     const uint32_t rPaneIdx = handleIdx + 1;
@@ -135,77 +139,74 @@ auto UISplitPane::adjustPane(const glm::vec2 handlesOccupiedSpace,
     const glm::vec2 rpMinScaleRel = elements_[rPaneIdx]->getMinScale() / contentScale;
     const glm::vec2 rpMaxScaleRel = elements_[rPaneIdx]->getMaxScale() / contentScale;
 
+    /* Add the maximum amount of offset to the two panes without violating any constraints. */
+    auto lScale = elements_[lPaneIdx]->getScale();
+    auto rScale = elements_[rPaneIdx]->getScale();
     if (layoutType_ == LayoutBase::Type::HORIZONTAL)
     {
-        // assumption: only one IF can be true at any given time
-        if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel.x < lpMinScaleRel.x)
+        /* If left pane will go under min scale by adding the offset then cap the wanted
+            offset to the maximum possible value to add. */
+        if (lScale.x.val + wantedOffsetRel.x < lpMinScaleRel.x)
         {
-            wantedOffsetRel.x = lpMinScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
+            wantedOffsetRel.x = lpMinScaleRel.x - lScale.x.val;
         }
 
-        if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel.x < rpMinScaleRel.x)
+        /* If right pane will go under min scale by subtracting the offset then cap the wanted
+            offset to the maximum possible value to subtract. */
+        if (rScale.x.val - wantedOffsetRel.x < rpMinScaleRel.x)
         {
-            wantedOffsetRel.x = (elements_[rPaneIdx]->getScale().x.val - rpMinScaleRel.x);
+            wantedOffsetRel.x = rScale.x.val - rpMinScaleRel.x;
         }
 
-        if (elements_[lPaneIdx]->getScale().x.val + wantedOffsetRel.x > lpMaxScaleRel.x)
+        /* If left pane will go above max scale by adding the offset then cap the wanted
+            offset to the maximum possible value to add. */
+        if (lScale.x.val + wantedOffsetRel.x > lpMaxScaleRel.x)
         {
-            wantedOffsetRel.x = lpMaxScaleRel.x - elements_[lPaneIdx]->getScale().x.val;
+            wantedOffsetRel.x = lpMaxScaleRel.x - lScale.x.val;
         }
 
-        if (elements_[rPaneIdx]->getScale().x.val - wantedOffsetRel.x > rpMaxScaleRel.x)
+        /* If right pane will go above max scale by subtracting the offset then cap the wanted
+            offset to the maximum possible value to subtract. */
+        if (rScale.x.val - wantedOffsetRel.x > rpMaxScaleRel.x)
         {
-            wantedOffsetRel.x =  elements_[rPaneIdx]->getScale().x.val - rpMaxScaleRel.x;
+            wantedOffsetRel.x = rScale.x.val - rpMaxScaleRel.x;
         }
 
         /* Apply the relative offsets. */
-        {
-            auto scale = elements_[lPaneIdx]->getScale();
-            scale.x.val += wantedOffsetRel.x;
-            elements_[lPaneIdx]->setScale(scale);
-        }
+        lScale.x.val += wantedOffsetRel.x;
+        elements_[lPaneIdx]->setScale(lScale);
 
-        {
-            auto scale = elements_[rPaneIdx]->getScale();
-            scale.x.val -= wantedOffsetRel.x;
-            elements_[rPaneIdx]->setScale(scale);
-        }
+        rScale.x.val -= wantedOffsetRel.x;
+        elements_[rPaneIdx]->setScale(rScale);
     }
     else if (layoutType_ == LayoutBase::Type::VERTICAL)
     {
-        // assumption: only one IF can be true at any given time
-        if (elements_[lPaneIdx]->getScale().y.val + wantedOffsetRel.y < lpMinScaleRel.y)
+        if (lScale.y.val + wantedOffsetRel.y < lpMinScaleRel.y)
         {
-            wantedOffsetRel.y = lpMinScaleRel.y - elements_[lPaneIdx]->getScale().y.val;
+            wantedOffsetRel.y = lpMinScaleRel.y - lScale.y.val;
         }
 
-        if (elements_[rPaneIdx]->getScale().y.val - wantedOffsetRel.y < rpMinScaleRel.y)
+        if (rScale.y.val - wantedOffsetRel.y < rpMinScaleRel.y)
         {
-            wantedOffsetRel.y = (elements_[rPaneIdx]->getScale().y.val - rpMinScaleRel.y);
+            wantedOffsetRel.y = rScale.y.val - rpMinScaleRel.y;
         }
 
-        if (elements_[lPaneIdx]->getScale().y.val + wantedOffsetRel.y > lpMaxScaleRel.y)
+        if (lScale.y.val + wantedOffsetRel.y > lpMaxScaleRel.y)
         {
-            wantedOffsetRel.y = lpMaxScaleRel.y - elements_[lPaneIdx]->getScale().y.val;
+            wantedOffsetRel.y = lpMaxScaleRel.y - lScale.y.val;
         }
 
-        if (elements_[rPaneIdx]->getScale().y.val - wantedOffsetRel.y > rpMaxScaleRel.y)
+        if (rScale.y.val - wantedOffsetRel.y > rpMaxScaleRel.y)
         {
-            wantedOffsetRel.y =  elements_[rPaneIdx]->getScale().y.val - rpMaxScaleRel.y;
+            wantedOffsetRel.y = rScale.y.val - rpMaxScaleRel.y;
         }
 
         /* Apply the relative offsets. */
-        {
-            auto scale = elements_[lPaneIdx]->getScale();
-            scale.y.val += wantedOffsetRel.y;
-            elements_[lPaneIdx]->setScale(scale);
-        }
+        lScale.y.val += wantedOffsetRel.y;
+        elements_[lPaneIdx]->setScale(lScale);
 
-        {
-            auto scale = elements_[rPaneIdx]->getScale();
-            scale.y.val -= wantedOffsetRel.y;
-            elements_[rPaneIdx]->setScale(scale);
-        }
+        rScale.y.val -= wantedOffsetRel.y;
+        elements_[rPaneIdx]->setScale(rScale);
     }
 }
 

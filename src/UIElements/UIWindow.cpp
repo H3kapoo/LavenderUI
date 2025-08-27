@@ -25,6 +25,8 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
 {
     isFirstWindow_ = false;
 
+    windowState_->windowSize = window_.getSize();
+
     updateProjection();
 
     /* Setup hooks into events */
@@ -107,11 +109,14 @@ auto UIWindow::event(state::UIWindowStatePtr& state) -> void
     eventNext(state);
 }
 
-auto UIWindow::windowResizeHook(const uint32_t, const uint32_t) -> void
+auto UIWindow::windowResizeHook(const uint32_t x, const uint32_t y) -> void
 {
     /* Note: use framebuffer size to set viewport in case DPI is not a default
        one aka we have some artificial scaling. */
     updateProjection();
+    windowState_->windowSizeDelta = glm::ivec2{x, y} - windowState_->windowSize;
+    windowState_->windowSize = {x, y};
+    spawnEvent(WindowResizeEvt{});
 }
 
 auto UIWindow::windowMouseEnterHook(const bool entered) -> void

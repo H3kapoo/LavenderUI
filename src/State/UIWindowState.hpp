@@ -26,6 +26,8 @@ struct UIWindowState
     glm::ivec2 mousePos{0, 0};
     glm::ivec2 mouseDiff{0, 0};
     glm::ivec2 scrollOffset{0, 0};
+    glm::ivec2 windowSize{0, 0};
+    glm::ivec2 windowSizeDelta{0, 0};
     bool isDragging{false};
     uint32_t currentEventId{0};
 };
