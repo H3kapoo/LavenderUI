@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/UIElements/UIBase.hpp"
 #include "src/ElementComposable/TextAttribs.hpp"
+#include "src/UIElements/UIBase.hpp"
 
 namespace src::uielements
 {

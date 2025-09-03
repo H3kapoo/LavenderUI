@@ -8,6 +8,7 @@
 #include "src/Utils/Misc.hpp"
 #include "src/WindowManagement/Input.hpp"
 #include "src/WindowManagement/NativeWindow.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 
 namespace src::uielements
@@ -15,15 +16,30 @@ namespace src::uielements
 using namespace windowmanagement;
 using namespace elementcomposable;
 
-bool UIWindow::isFirstWindow_ = true;
 int32_t UIWindow::MAX_LAYERS = 1000;
+bool UIWindow::isFirstWindow_ = true;
+std::unordered_map<windowmanagement::Input::Cursor, GLFWcursor*> UIWindow::cursors_ = {};
 
 UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     : UIBase(getTypeInfo())
     , window_(title, size)
     , isMainWindow_(isFirstWindow_)
 {
-    isFirstWindow_ = false;
+    if (isFirstWindow_)
+    {
+        /* Create all available cursors at main window start. */
+        cursors_[Input::Cursor::ARROW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+        cursors_[Input::Cursor::IBEAM] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+        cursors_[Input::Cursor::CROSSHAIR] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
+        cursors_[Input::Cursor::HAND] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+        cursors_[Input::Cursor::HRESIZE] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+        cursors_[Input::Cursor::VRESIZE] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+        cursors_[Input::Cursor::ALLRESIZE] = glfwCreateStandardCursor(GLFW_RESIZE_ALL_CURSOR);
+        cursors_[Input::Cursor::NOT_ALLOWED] = glfwCreateStandardCursor(GLFW_NOT_ALLOWED_CURSOR);
+
+        glfwSetCursor(window_.getGlfwHandle(), cursors_[Input::Cursor::ARROW]);
+        isFirstWindow_ = false;
+    }
 
     windowState_->windowSize = window_.getSize();
 
@@ -63,6 +79,15 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     // NativeWindow::enableDepthTest(false);
 }
 
+UIWindow::~UIWindow()
+{
+    for (auto&[key, cursor] : cursors_)
+    {
+        glfwDestroyCursor(cursor);
+    }
+    cursors_.clear();
+}
+
 auto UIWindow::run() -> bool
 {
     const glm::ivec2& size = window_.getSize();
@@ -77,6 +102,13 @@ auto UIWindow::run() -> bool
 
     layout();
     render(projection_);
+
+    if (windowState_->wantedCursorType.has_value())
+    {
+        glfwSetCursor(window_.getGlfwHandle(), cursors_[windowState_->wantedCursorType.value()]);
+        windowState_->currentCursorType = windowState_->wantedCursorType;
+        windowState_->wantedCursorType.reset();
+    }
 
     window_.swapBuffers();
 
@@ -97,6 +129,8 @@ auto UIWindow::layout() -> void
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 
+    const auto overflow = calculator.calculateElementOverflow(this, {0, 0});
+    calculator.calculateAlignmentForElements(this, overflow);
     layoutNext();
 }
 
@@ -105,6 +139,13 @@ auto UIWindow::event(state::UIWindowStatePtr& state) -> void
     /* Do mandatory handling of base events. */
     UIBase::event(state);
 
+    const auto eId = state->currentEventId;
+    if (eId == MouseLeftClickEvt::eventId && state->clickedId == id_)
+    {
+        /* We can safely ignore bubbling down the tree as we found the clicked element. */
+        MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        return emitEvent<MouseLeftClickEvt>(e);
+    }
     /* Bubble event down the tree. */
     eventNext(state);
 }
@@ -121,16 +162,8 @@ auto UIWindow::windowResizeHook(const uint32_t x, const uint32_t y) -> void
 
 auto UIWindow::windowMouseEnterHook(const bool entered) -> void
 {
-    if (entered)
-    {
-        mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y);
-    }
-    else
-    {
-        mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y);
-
-        // mouseMoveHook(-1, -1);
-    }
+    (void)entered;
+    mouseMoveHook(windowState_->mousePos.x, windowState_->mousePos.y);
 }
 
 auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
@@ -155,7 +188,6 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32
 auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 {
     const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, window_.getSize());
-    // const glm::ivec2 newMouse{newX, newY};
     uint32_t prevHoveredId = windowState_->hoveredId;
     windowState_->hoveredId = state::NOTHING;
     windowState_->hoveredZIndex = state::NOTHING;
@@ -198,8 +230,8 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
     windowState_->hoveredZIndex = state::NOTHING;
     spawnEvent(MouseMoveScanEvt{});
 
-    windowState_->mouseButton = btn;
-    windowState_->mouseAction = action;
+    windowState_->mouseButton = static_cast<Input::Mouse>(btn);
+    windowState_->mouseAction = static_cast<Input::Action>(action);
     spawnEvent(MouseButtonEvt{});
 
     if (btn == Input::LEFT && action == Input::PRESS)

@@ -150,7 +150,6 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     if (enableV)
     {
         vSlider_ = utils::make<UISlider>();
-        // vSlider_->setColor(utils::hexToVec4("#ffffffff"));
         vSlider_->setInvertAxis(true);
         vSlider_->setCustomTagId(UISlider::scrollTagId);
         vSlider_->setType(LayoutBase::Type::VERTICAL)
@@ -161,7 +160,6 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     if (enableH)
     {
         hSlider_ = utils::make<UISlider>();
-        // hSlider_->setColor(utils::hexToVec4("#ffffffff"));
         hSlider_->setCustomTagId(UISlider::scrollTagId);
         hSlider_->setType(LayoutBase::Type::HORIZONTAL)
             .setScale({1.0_rel, 20_px});

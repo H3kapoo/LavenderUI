@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/WindowManagement/NativeWindow.hpp"
 #include "src/ElementComposable/LayoutBase.hpp"
 #include "src/ElementComposable/PropsBase.hpp"
 #include "src/ResourceLoaders/Mesh.hpp"
@@ -148,7 +149,7 @@ protected:
         @param filterFunc Function specifying what elements shall be filterd
     */
     auto renderNextExcept(const glm::mat4& projection,
-        const std::function<bool(const UIBasePtr&)> filterFunc) -> void;
+        const std::function<bool(const UIBasePtr)>& filterFunc) -> void;
 
     /**
         @brief Render only this single passed element.

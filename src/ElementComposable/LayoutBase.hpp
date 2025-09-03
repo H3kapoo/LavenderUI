@@ -81,6 +81,10 @@ public:
     /** @brief Represents the position type and value of the element. */
     struct Position
     {
+        Position(int32_t v) : val{(float)v} {}
+        Position(float v) : val{v} {}
+        Position(int32_t v, PositionType t) : val{(float)v}, type{t} {}
+
         float val{0.0f};
         PositionType type{PositionType::COMPUTED};
     };
@@ -88,6 +92,9 @@ public:
     /** @brief Represents the Position on each axis. */
     struct PositionXY
     {
+        PositionXY(Position v) : x{v}, y{v} {}
+        PositionXY(Position vx, Position vy) : x{vx}, y{vy} {}
+
         Position x;
         Position y;
     };
@@ -214,7 +221,7 @@ protected:
 
     /** @brief User supplied position details. This is NOT the actual render start position since it
         includes margins as well. This is the start position of the whole object. */
-    PositionXY userPos_;
+    PositionXY userPos_{{1.0f}, {1.0f}};
 
     /** @brief User supplied scale details. This is NOT the actual rendered scale but the size of
         the element's content area + padding + border + margins.
@@ -248,6 +255,9 @@ LayoutBase::Scale operator"" _fit(unsigned long long);
 LayoutBase::Scale operator"" _rel(long double value);
 LayoutBase::Scale operator"" _px(unsigned long long value);
 LayoutBase::Scale operator"" _fr(unsigned long long value);
+
+LayoutBase::Position operator"" _abs(unsigned long long value);
+LayoutBase::Position operator"" _comp(unsigned long long value);
 
 auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;

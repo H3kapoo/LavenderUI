@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIPane.hpp"
+#include "src/UIElements/UIBase.hpp"
 
 namespace src::uielements
 {

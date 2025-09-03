@@ -1,9 +1,11 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "src/ElementComposable/IEvent.hpp"
+#include "src/WindowManagement/NativeWindow.hpp"
 #include "src/State/UIWindowState.hpp"
 #include "src/UIElements/UIBase.hpp"
-#include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
@@ -17,7 +19,7 @@ class UIWindow : public UIBase
 {
 public:
     UIWindow(const std::string& title, const glm::ivec2& size);
-    virtual ~UIWindow() = default;
+    virtual ~UIWindow();
     UIWindow(const UIWindow&) = delete;
     UIWindow(UIWindow&&) = delete;
     auto operator=(UIWindow&&) -> UIWindow& = delete;
@@ -65,8 +67,9 @@ private:
     bool isMainWindow_{false};
     glm::mat4 projection_;
 
-    static bool isFirstWindow_;
     static int32_t MAX_LAYERS;
+    static bool isFirstWindow_;
+    static std::unordered_map<windowmanagement::Input::Cursor, GLFWcursor*> cursors_;
 };
 using UIWindowPtr = std::shared_ptr<UIWindow>;
 using UIWindowWPtr = std::weak_ptr<UIWindow>;

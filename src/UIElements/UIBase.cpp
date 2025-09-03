@@ -12,7 +12,6 @@
 #include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/NativeWindow.hpp"
 
 namespace src::uielements
 {
@@ -108,11 +107,11 @@ auto UIBase::remove(UIBasePtrVec&& elements) -> void
 
 auto UIBase::renderNext(const glm::mat4& projection) -> void
 {
-    renderNextExcept(projection, [](auto&){ return false; });
+    renderNextExcept(projection, [](auto){ return false; });
 }
 
 auto UIBase::renderNextExcept(const glm::mat4& projection,
-        const std::function<bool(const UIBasePtr&)> filterFunc) -> void
+        const std::function<bool(const UIBasePtr)>& filterFunc) -> void
 {
     std::ranges::for_each(elements_, [this, &projection, &filterFunc](const auto& e)
     {

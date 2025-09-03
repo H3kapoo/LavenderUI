@@ -32,37 +32,34 @@ int main()
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
-    UISplitPanePtr sp = utils::make<UISplitPane>();
+    window.lock()->setAlign(LayoutBase::Align::CENTER);
 
-    const float frac = 1.0f / 3;
-    sp->setColor(utils::hexToVec4("#dbdbdbff"))
-        .setBorderColor(utils::hexToVec4("#ffffffff"));
-    sp->setScale({1_fill})
-        .setType(LayoutBase::Type::VERTICAL)
-        ;
-    sp->createPanes({frac, frac, frac});
+    UIButtonPtr btn = utils::make<UIButton>();
+    btn->setScale({200_px, 34_px})
+        .setPos({200_abs, 200_abs});
+    btn->setText("Testing..");
 
-    sp->getPaneIdx(0).lock()->setMaxScale({400, 2000});
-    sp->getPaneIdx(1).lock()->setMaxScale({4000, 2000});
-    sp->getPaneIdx(2).lock()->setMaxScale({7000, 2000});
-    sp->getPaneIdx(0).lock()->setMinScale({20, 20});
-    sp->getPaneIdx(1).lock()->setMinScale({20, 20});
-    sp->getPaneIdx(2).lock()->setMinScale({20, 20});
+    for (int i = 0; i < 4; ++i)
+    {
+        UIButtonPtr b = utils::make<UIButton>();
+        b->setScale({150, 34_px});
+        b->setText("Not Testing..");
+        window.lock()->add(b);
+    }
+    window.lock()->add(btn);
+    window.lock()->listenTo<MouseLeftClickEvt>([&log, btn](const auto& e)
+    {
+        log.error("pos {} {}", e.x, e.y);
+        btn->setPos({{e.x, LayoutBase::PositionType::ABS}, {e.y, LayoutBase::PositionType::ABS}});
+    });
 
-    UISplitPanePtr sp2 = utils::make<UISplitPane>();
-    sp->getPaneIdx(0).lock()->add(sp2);
-    sp2->createPanes({frac, frac, frac});
-    sp2->setScale({1_fill});
-    sp2->getPaneIdx(0).lock()->setMaxScale({400, 2000});
-    sp2->getPaneIdx(1).lock()->setMaxScale({4000, 2000});
-    sp2->getPaneIdx(2).lock()->setMaxScale({7000, 2000});
-    sp2->getPaneIdx(0).lock()->setMinScale({20, 20});
-    sp2->getPaneIdx(1).lock()->setMinScale({20, 20});
-    sp2->getPaneIdx(2).lock()->setMinScale({20, 20});
-
-    window.lock()->add(sp);
-    log.debug("{}", window.lock());
-
+    for (int i = 0; i < 4; ++i)
+    {
+        UIButtonPtr b = utils::make<UIButton>();
+        b->setScale({150, 34_px});
+        b->setText("Not Testing..");
+        window.lock()->add(b);
+    }
     /* Blocks */
     app.run();
     return 0;

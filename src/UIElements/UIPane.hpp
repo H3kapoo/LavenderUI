@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UISlider.hpp"
+#include "src/UIElements/UIBase.hpp"
 
 namespace src::uielements
 {

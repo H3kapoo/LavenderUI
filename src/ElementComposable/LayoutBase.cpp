@@ -193,6 +193,17 @@ LayoutBase::Scale operator"" _fr(unsigned long long value)
     return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::FR};
 }
 
+LayoutBase::Position operator"" _abs(unsigned long long value)
+{
+    return LayoutBase::Position(value, LayoutBase::PositionType::ABS);
+}
+
+LayoutBase::Position operator"" _comp(unsigned long long value)
+{
+    /* Won't really matter much as computed is the default and anything the user puts here is discared. */
+    return LayoutBase::Position(value, LayoutBase::PositionType::COMPUTED);
+}
+
 auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
 {
     return {lhs.x - (rhs.left + rhs.right), lhs.y - (rhs.top + rhs.bot)};

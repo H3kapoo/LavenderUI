@@ -57,14 +57,14 @@ private:
     WindowFileDropCallback windowFileDrop_{[](auto, auto){}};
 
 public:
-    enum Action
+    enum Action : uint8_t
     {
         RELEASE = GLFW_RELEASE,
         PRESS = GLFW_PRESS,
         REPEAT = GLFW_REPEAT
     };
 
-    enum Mouse
+    enum Mouse : uint8_t
     {
         LEFT = GLFW_MOUSE_BUTTON_LEFT,
         RIGHT = GLFW_MOUSE_BUTTON_RIGHT,
@@ -76,7 +76,19 @@ public:
         AUX_5 = GLFW_MOUSE_BUTTON_8,
     };
 
-    enum Key
+    enum Cursor : uint32_t
+    {
+        ARROW = GLFW_ARROW_CURSOR,
+        IBEAM = GLFW_IBEAM_CURSOR,
+        CROSSHAIR = GLFW_CROSSHAIR_CURSOR,
+        HAND = GLFW_HAND_CURSOR,
+        HRESIZE = GLFW_HRESIZE_CURSOR,
+        VRESIZE = GLFW_VRESIZE_CURSOR,
+        ALLRESIZE = GLFW_RESIZE_ALL_CURSOR,
+        NOT_ALLOWED = GLFW_NOT_ALLOWED_CURSOR
+    };
+
+    enum Key : uint32_t
     {
         ESC = GLFW_KEY_ESCAPE,
         C = GLFW_KEY_C,
