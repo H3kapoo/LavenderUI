@@ -62,9 +62,9 @@ protected:
     auto updateClosestSlider(state::UIWindowStatePtr& state) -> void;
 
 private:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(state::UIWindowStatePtr& state) -> void override;
+    virtual auto render(const glm::mat4& projection) -> void override;
+    virtual auto layout() -> void override;
+    virtual auto event(state::UIWindowStatePtr& state) -> void override;
 
 protected:
     UISliderPtr hSlider_;

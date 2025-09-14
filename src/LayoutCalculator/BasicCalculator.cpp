@@ -2,6 +2,7 @@
 #include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UIButton.hpp"
+#include "src/UIElements/UIDropdown.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
@@ -346,6 +347,35 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
     {
         calculateSplitPaneRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
     }
+}
+
+auto BasicCalculator::calculatePositionForDropdownElement(uielements::UIDropdown* element) const -> void
+{
+    if (element->getElements().empty()) { return; }
+
+    const glm::ivec2& eBoxPos = element->getFullBoxPos();
+    const glm::ivec2& eBoxScale = element->getFullBoxScale();
+    const auto& optionsHolder = element->getElements().at(0);
+    const auto openDir = element->getOpenDirection();
+
+    if (openDir == uielements::UIDropdown::OpenDir::BOTTOM)
+    {
+        optionsHolder->setPos(
+            {
+                {eBoxPos.x, LayoutBase::PositionType::ABS},
+                {eBoxPos.y + eBoxScale.y, LayoutBase::PositionType::ABS}
+            });
+    }
+    if (openDir == uielements::UIDropdown::OpenDir::RIGHT)
+    {
+        optionsHolder->setPos(
+            {
+                {eBoxPos.x + eBoxScale.x, LayoutBase::PositionType::ABS},
+                {eBoxPos.y, LayoutBase::PositionType::ABS}
+            });
+    }
+
+    calculatePositionForGenericElement(element);
 }
 
 auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2

@@ -9,6 +9,7 @@
 #include "src/ResourceLoaders/MeshLoader.hpp"
 #include "src/ResourceLoaders/Shader.hpp"
 #include "src/ResourceLoaders/ShaderLoader.hpp"
+#include "src/UIElements/UIDropdown.hpp"
 #include "src/UIElements/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
@@ -151,8 +152,18 @@ auto UIBase::layoutNext() -> void
     std::ranges::for_each(elements_,
         [this](const auto& e)
         {
-            /* After calculating my elements, compute how much of them is still visible inside of the parent. */
-            e->computeViewBox(*this);
+            /* After calculating my elements, compute how much of them is still visible inside of the parent.
+                The elements of a dropdown will always be fully visible aka their view scale and pos is their
+                actual computed scale and pos. */
+            if (getTypeId() == UIDropdown::typeId)
+            {
+                e->setViewPos(e->getComputedPos());
+                e->setViewScale(e->getComputedScale());
+            }
+            else
+            {
+                e->computeViewBox(*this);
+            }
 
             /* Index is used for layer rendering order. Can be custom. Otherwise it is just 1 + parentIndex. */
             if (!e->isCustomIndex())
@@ -169,7 +180,6 @@ auto UIBase::layoutNext() -> void
             /* Depth is used mostly for printing. */
             e->depth_ = depth_ + 1;
             e->layout();
-
         });
 }
 
@@ -228,6 +238,8 @@ auto UIBase::isParented() -> bool { return isParented_; }
 auto UIBase::getCustomTagId() -> uint32_t { return customTagid_; }
 
 auto UIBase::getId() -> uint32_t { return id_; }
+
+auto UIBase::getParent() -> UIBaseWPtr { return parent_; }
 
 auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
 

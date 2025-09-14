@@ -115,6 +115,8 @@ auto UIWindow::run() -> bool
     return window_.shouldWindowClose() || forcedQuit_;
 }
 
+auto UIWindow::quit() -> void { forcedQuit_ = true; }
+
 auto UIWindow::render(const glm::mat4& projection) -> void
 {
     /* UIWindow has a mesh available if need be. For now no need to render anything, skip to rendering

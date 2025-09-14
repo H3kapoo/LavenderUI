@@ -15,6 +15,9 @@ UIButton::UIButton() : UIBase(getTypeInfo())
     setScale({100_px, 36_px});
 }
 
+UIButton::UIButton(const std::type_index& type) : UIBase(type)
+{}
+
 auto UIButton::render(const glm::mat4& projection) -> void
 {
     mesh_.bind();

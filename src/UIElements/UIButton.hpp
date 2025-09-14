@@ -16,6 +16,7 @@ class UIButton : public UIBase
 {
 public:
     UIButton();
+    UIButton(const std::type_index& type);
     ~UIButton() = default;
     UIButton(const UIButton&) = delete;
     UIButton(UIBase&&) = delete;
@@ -29,9 +30,9 @@ public:
     INSERT_TYPEINFO(UIButton);
 
 private:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(state::UIWindowStatePtr& state) -> void override;
+    virtual auto render(const glm::mat4& projection) -> void override;
+    virtual auto layout() -> void override;
+    virtual auto event(state::UIWindowStatePtr& state) -> void override;
 
 protected:
     TextAttribs textAttribs_;

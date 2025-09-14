@@ -36,6 +36,11 @@ public:
     */
     auto run() -> bool;
 
+    /**
+        @brief Quit this window or quit the whole program if this window is the primary one.
+    */
+    auto quit() -> void;
+
     auto setTitle(std::string title, const bool updateInteralText = true) -> void;
     auto getDeltaTime() -> double;
     auto getTitle() -> std::string;

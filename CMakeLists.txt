@@ -44,6 +44,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/UIElements/UIButton.cpp
         src/UIElements/UISlider.cpp
         src/UIElements/UITreeView.cpp
+        src/UIElements/UIDropdown.cpp
         # src/UIElements/UIImage.cpp
         src/WindowManagement/NativeWindow.cpp
         src/WindowManagement/Input.cpp

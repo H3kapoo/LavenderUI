@@ -3,6 +3,7 @@
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/ElementComposable/LayoutBase.hpp"
 #include "src/UIElements/UIButton.hpp"
+#include "src/UIElements/UIDropdown.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UIBase.hpp"
 #include "src/UIElements/UISplitPane.hpp"
@@ -28,38 +29,67 @@ int main()
     if (!app.init()) { return 1; }
     app.enableTitleWithFPS();
 
-    // uielements::UIFrameWPtr win = app.createFrame("myWindow", glm::ivec2{1280, 720});
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    // uielements::UIFrameWPtr frame2 = app.createFrame("myWindow 2", glm::ivec2{680, 720});
 
     window.lock()->setAlign(LayoutBase::Align::CENTER);
 
-    UIButtonPtr btn = utils::make<UIButton>();
-    btn->setScale({200_px, 34_px})
+    UIDropdownPtr dd = utils::make<UIDropdown>();
+    dd->setScale({200_px, 34_px})
         .setPos({200_abs, 200_abs});
-    btn->setText("Testing..");
+    dd->setText("Testing..");
 
-    for (int i = 0; i < 4; ++i)
-    {
-        UIButtonPtr b = utils::make<UIButton>();
-        b->setScale({150, 34_px});
-        b->setText("Not Testing..");
-        window.lock()->add(b);
-    }
-    window.lock()->add(btn);
-    window.lock()->listenTo<MouseLeftClickEvt>([&log, btn](const auto& e)
-    {
-        log.error("pos {} {}", e.x, e.y);
-        btn->setPos({{e.x, LayoutBase::PositionType::ABS}, {e.y, LayoutBase::PositionType::ABS}});
-    });
+    UIButtonWPtr opt1 = dd->addOption("Test");
+    UIButtonWPtr opt2 = dd->addOption("Test2");
+    UIButtonWPtr opt3 = dd->addOption("Test3");
 
-    for (int i = 0; i < 4; ++i)
     {
-        UIButtonPtr b = utils::make<UIButton>();
-        b->setScale({150, 34_px});
-        b->setText("Not Testing..");
-        window.lock()->add(b);
+        UIDropdownPtr dd2 = dd->addSubMenu("Submenu").lock();
+        dd2->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+        UIButtonWPtr opt4 = dd2->addOption("SubOption_1");
+        UIButtonWPtr opt5 = dd2->addOption("SubOption_2");
+
+        opt5.lock()->listenTo<MouseLeftReleaseEvt>(
+        [&log](const auto&)
+        {
+            log.error("clicked me deep");
+        });
+
+        UIDropdownPtr dd3 = dd2->addSubMenu("Submenu Deep").lock();
+        dd3->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+
+        UIButtonWPtr opt6 = dd3->addOption("SubOption_3");
+        UIButtonWPtr opt7 = dd3->addOption("SubOption_4");
+
+        opt7.lock()->listenTo<MouseLeftReleaseEvt>(
+        [&log, &window](const auto&)
+        {
+            log.error("clicked me deeply");
+            window.lock()->quit();
+        });
+
     }
+
+    opt3.lock()->listenTo<MouseLeftReleaseEvt>(
+        [&log](const auto&)
+        {
+            log.error("clicked me");
+        });
+    window.lock()->add(dd);
+    // window.lock()->listenTo<MouseLeftClickEvt>([&log, btn](const auto& e)
+    // {
+    //     log.error("pos {} {}", e.x, e.y);
+    //     btn->setPos({{e.x, LayoutBase::PositionType::ABS}, {e.y, LayoutBase::PositionType::ABS}});
+    // });
+
+    /*
+        - Dropdown
+            - Pane (floating pos)
+                - Buttons inside for clicking
+                - Buttons inside for clicking
+                - Dropdown_2
+                    - Pane (floating pos)
+                    - etc
+    */
     /* Blocks */
     app.run();
     return 0;

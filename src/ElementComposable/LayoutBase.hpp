@@ -81,11 +81,10 @@ public:
     /** @brief Represents the position type and value of the element. */
     struct Position
     {
-        Position(int32_t v) : val{(float)v} {}
-        Position(float v) : val{v} {}
-        Position(int32_t v, PositionType t) : val{(float)v}, type{t} {}
+        Position(int32_t v) : val{v} {}
+        Position(int32_t v, PositionType t) : val{v}, type{t} {}
 
-        float val{0.0f};
+        int32_t val{0};
         PositionType type{PositionType::COMPUTED};
     };
 
@@ -221,7 +220,7 @@ protected:
 
     /** @brief User supplied position details. This is NOT the actual render start position since it
         includes margins as well. This is the start position of the whole object. */
-    PositionXY userPos_{{1.0f}, {1.0f}};
+    PositionXY userPos_{{1}, {1}};
 
     /** @brief User supplied scale details. This is NOT the actual rendered scale but the size of
         the element's content area + padding + border + margins.

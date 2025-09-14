@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/UIElements/UIDropdown.hpp"
 #include "src/UIElements/UIPane.hpp"
 #include "src/UIElements/UISplitPane.hpp"
 #include "src/UIElements/UIBase.hpp"
@@ -158,6 +159,13 @@ public:
     */
     auto calculateSplitPaneElements(uielements::UISplitPane* parent, const uint32_t handleIdx,
         const glm::vec2 mousePos) const -> void;
+
+
+    /** @brief Calculates the `computedPos` of the child container of the dropdown.
+
+        @param element Element for which to calculate child position
+    */
+    auto calculatePositionForDropdownElement(uielements::UIDropdown* element) const -> void;
 
 private:
     struct SpacingDetails
