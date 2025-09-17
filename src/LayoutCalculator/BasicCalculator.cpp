@@ -145,6 +145,8 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* par
         const auto& userPos = element->getPos();
         if (userPos.x.type == LayoutBase::PositionType::ABS || userPos.y.type == LayoutBase::PositionType::ABS)
         {
+            // TODO: Take into consideration element's margins.
+            // Margins will push the computed position inwards.
             element->setComputedPos({userPos.x.val, userPos.y.val});
             continue;
         }
@@ -349,33 +351,61 @@ auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent
     }
 }
 
-auto BasicCalculator::calculatePositionForDropdownElement(uielements::UIDropdown* element) const -> void
+auto BasicCalculator::calculatePositionForDropdownElement(uielements::UIDropdown* dropdown) const -> void
 {
-    if (element->getElements().empty()) { return; }
+    if (dropdown->getElements().empty()) { return; }
 
-    const glm::ivec2& eBoxPos = element->getFullBoxPos();
-    const glm::ivec2& eBoxScale = element->getFullBoxScale();
-    const auto& optionsHolder = element->getElements().at(0);
-    const auto openDir = element->getOpenDirection();
+    const auto gp = dropdown->getGrandParent().lock();
+    const bool isNestedDropdown = gp != nullptr && gp->getTypeId() == uielements::UIDropdown::typeId;
 
-    if (openDir == uielements::UIDropdown::OpenDir::BOTTOM)
+    /* If this dropdown is nested, refer to bounds of the container Pane.
+        Otherwise refer to bounds of the dropdown itself. */
+    const auto& optionsHolder = dropdown->getElements().at(0);
+    const auto openDir = dropdown->getOpenDirection();
+    const glm::ivec2 ddBoxPos = dropdown->getFullBoxPos();
+    const glm::ivec2 ddBoxScale = dropdown->getFullBoxScale();
+
+    glm::ivec2 hostPanePos{0, 0};
+    glm::ivec2 hostPaneScale{0, 0};
+    if (isNestedDropdown)
     {
-        optionsHolder->setPos(
-            {
-                {eBoxPos.x, LayoutBase::PositionType::ABS},
-                {eBoxPos.y + eBoxScale.y, LayoutBase::PositionType::ABS}
-            });
-    }
-    if (openDir == uielements::UIDropdown::OpenDir::RIGHT)
-    {
-        optionsHolder->setPos(
-            {
-                {eBoxPos.x + eBoxScale.x, LayoutBase::PositionType::ABS},
-                {eBoxPos.y, LayoutBase::PositionType::ABS}
-            });
+        const auto ddHostPane = dropdown->getParent().lock();
+        hostPanePos = ddHostPane->getFullBoxPos();
+        hostPaneScale = ddHostPane->getFullBoxScale();
     }
 
-    calculatePositionForGenericElement(element);
+    LayoutBase::PositionXY finalPos{{0, LayoutBase::PositionType::ABS}, {0, LayoutBase::PositionType::ABS}};
+    switch (openDir)
+    {
+        case uielements::UIDropdown::OpenDir::TOP:
+        {
+            finalPos.x.val = ddBoxPos.x;
+            finalPos.y.val = ddBoxPos.y - optionsHolder->getFullBoxScale().y;
+            break;
+        }
+        case uielements::UIDropdown::OpenDir::BOTTOM:
+        {
+            finalPos.x.val = ddBoxPos.x;
+            finalPos.y.val = ddBoxPos.y + ddBoxScale.y;
+            break;
+        }
+        case uielements::UIDropdown::OpenDir::LEFT:
+        {
+            finalPos.x.val = isNestedDropdown ? hostPanePos.x - hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
+            finalPos.y.val = ddBoxPos.y;
+            break;
+        }
+        case uielements::UIDropdown::OpenDir::RIGHT:
+        {
+            finalPos.x.val = isNestedDropdown ? hostPanePos.x + hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
+            finalPos.y.val = ddBoxPos.y;
+            break;
+        }
+    }
+
+    optionsHolder->setPos(finalPos);
+
+    calculatePositionForGenericElement(dropdown);
 }
 
 auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2

@@ -1,7 +1,9 @@
 #include "UIBase.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <cxxabi.h>
+#include <memory>
 
 #include "src/ElementComposable/IEvent.hpp"
 #include "src/ElementComposable/PropsBase.hpp"
@@ -240,6 +242,12 @@ auto UIBase::getCustomTagId() -> uint32_t { return customTagid_; }
 auto UIBase::getId() -> uint32_t { return id_; }
 
 auto UIBase::getParent() -> UIBaseWPtr { return parent_; }
+
+auto UIBase::getGrandParent() -> UIBaseWPtr
+{
+    if (const auto p = getParent().lock()) { return p->getParent(); }
+    return std::weak_ptr<UIBase>();
+}
 
 auto UIBase::getElements() -> UIBasePtrVec& { return elements_; }
 

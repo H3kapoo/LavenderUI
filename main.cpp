@@ -31,65 +31,98 @@ int main()
 
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
 
-    window.lock()->setAlign(LayoutBase::Align::CENTER);
-
-    UIDropdownPtr dd = utils::make<UIDropdown>();
-    dd->setScale({200_px, 34_px})
-        .setPos({200_abs, 200_abs});
-    dd->setText("Testing..");
-
-    UIButtonWPtr opt1 = dd->addOption("Test");
-    UIButtonWPtr opt2 = dd->addOption("Test2");
-    UIButtonWPtr opt3 = dd->addOption("Test3");
+    // window.lock()->setAlign(LayoutBase::Align::CENTER);
 
     {
-        UIDropdownPtr dd2 = dd->addSubMenu("Submenu").lock();
-        dd2->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
-        UIButtonWPtr opt4 = dd2->addOption("SubOption_1");
-        UIButtonWPtr opt5 = dd2->addOption("SubOption_2");
+        UIDropdownPtr dd = utils::make<UIDropdown>();
+        dd->setPreferredOpenDir(UIDropdown::OpenDir::BOTTOM);
+        dd->setScale({200_px, 34_px});
+        dd->setText("Testing..");
 
-        opt5.lock()->listenTo<MouseLeftReleaseEvt>(
-        [&log](const auto&)
+        UIButtonWPtr opt1 = dd->addOption("Test");
+        UIButtonWPtr opt2 = dd->addOption("Test2");
+        UIButtonWPtr opt3 = dd->addOption("Test3");
+
         {
-            log.error("clicked me deep");
-        });
+            UIDropdownPtr dd2 = dd->addSubMenu("Submenu").lock();
+            dd2->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+            UIButtonWPtr opt4 = dd2->addOption("SubOption_1");
+            UIButtonWPtr opt5 = dd2->addOption("SubOption_2");
 
-        UIDropdownPtr dd3 = dd2->addSubMenu("Submenu Deep").lock();
-        dd3->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+            opt5.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log](const auto&)
+            {
+                log.error("clicked me deep");
+            });
 
-        UIButtonWPtr opt6 = dd3->addOption("SubOption_3");
-        UIButtonWPtr opt7 = dd3->addOption("SubOption_4");
+            UIDropdownPtr dd3 = dd2->addSubMenu("Submenu Deep").lock();
+            dd3->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
 
-        opt7.lock()->listenTo<MouseLeftReleaseEvt>(
-        [&log, &window](const auto&)
-        {
-            log.error("clicked me deeply");
-            window.lock()->quit();
-        });
+            UIButtonWPtr opt6 = dd3->addOption("SubOption_3");
+            UIButtonWPtr opt7 = dd3->addOption("SubOption_4");
 
+            opt7.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log, &window](const auto&)
+            {
+                log.error("clicked me deeply");
+                window.lock()->quit();
+            });
+
+        }
+
+        opt3.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log](const auto&)
+            {
+                log.error("clicked me");
+            });
+        window.lock()->add(dd);
     }
 
-    opt3.lock()->listenTo<MouseLeftReleaseEvt>(
-        [&log](const auto&)
-        {
-            log.error("clicked me");
-        });
-    window.lock()->add(dd);
-    // window.lock()->listenTo<MouseLeftClickEvt>([&log, btn](const auto& e)
-    // {
-    //     log.error("pos {} {}", e.x, e.y);
-    //     btn->setPos({{e.x, LayoutBase::PositionType::ABS}, {e.y, LayoutBase::PositionType::ABS}});
-    // });
+    {
+        UIDropdownPtr dd = utils::make<UIDropdown>();
+        dd->setPreferredOpenDir(UIDropdown::OpenDir::BOTTOM);
+        dd->setScale({200_px, 34_px});
+        dd->setText("Testing..");
 
-    /*
-        - Dropdown
-            - Pane (floating pos)
-                - Buttons inside for clicking
-                - Buttons inside for clicking
-                - Dropdown_2
-                    - Pane (floating pos)
-                    - etc
-    */
+        UIButtonWPtr opt1 = dd->addOption("Test");
+        UIButtonWPtr opt2 = dd->addOption("Test2");
+        UIButtonWPtr opt3 = dd->addOption("Test3");
+
+        {
+            UIDropdownPtr dd2 = dd->addSubMenu("Submenu").lock();
+            dd2->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+            UIButtonWPtr opt4 = dd2->addOption("SubOption_1");
+            UIButtonWPtr opt5 = dd2->addOption("SubOption_2");
+
+            opt5.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log](const auto&)
+            {
+                log.error("clicked me deep");
+            });
+
+            UIDropdownPtr dd3 = dd2->addSubMenu("Submenu Deep").lock();
+            dd3->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+
+            UIButtonWPtr opt6 = dd3->addOption("SubOption_3");
+            UIButtonWPtr opt7 = dd3->addOption("SubOption_4");
+
+            opt7.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log, &window](const auto&)
+            {
+                log.error("clicked me deeply");
+                window.lock()->quit();
+            });
+
+        }
+
+        opt3.lock()->listenTo<MouseLeftReleaseEvt>(
+            [&log](const auto&)
+            {
+                log.error("clicked me");
+            });
+        window.lock()->add(dd);
+    }
+
     /* Blocks */
     app.run();
     return 0;

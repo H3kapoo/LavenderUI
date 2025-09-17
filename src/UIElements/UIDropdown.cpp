@@ -17,7 +17,9 @@ UIDropdown::UIDropdown() : UIBase(getTypeInfo())
 {
     setScale({100_px, 36_px});
     optionsHolder_ = utils::make<UIPane>();
-    optionsHolder_->setScale({1_fit}).setType(LayoutBase::Type::VERTICAL);
+    optionsHolder_->setScale({1_fit})
+        .setBorder({4})
+        .setType(LayoutBase::Type::VERTICAL);
 }
 
 auto UIDropdown::render(const glm::mat4& projection) -> void

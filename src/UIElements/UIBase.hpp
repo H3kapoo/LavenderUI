@@ -58,6 +58,7 @@ public:
     auto getCustomTagId() -> uint32_t;
     auto getId() -> uint32_t;
     auto getParent() -> UIBaseWPtr;
+    auto getGrandParent() -> UIBaseWPtr;
     auto getElements() -> UIBasePtrVec&;
 
     virtual auto getTypeInfo() const -> std::type_index = 0;
