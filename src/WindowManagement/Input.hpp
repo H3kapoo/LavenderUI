@@ -32,14 +32,14 @@ public:
     auto operator=(const Input&) -> Input& = delete;
     auto operator=(Input&&) -> Input& = delete;
 
-    auto setKeyCallback(const KeyCallback& callback) -> void;
-    auto setCharacterCallback(const CharacterCallback& callback) -> void;
-    auto setMouseMoveCallback(const MouseMoveCallback& callback) -> void;
-    auto setMouseBtnCallback(const MouseButtonCallback& callback) -> void;
-    auto setMouseScrollCallback(const MouseScrollCallback& callback) -> void;
-    auto setWindowSizeCallback(const WindowSizeCallback& callback) -> void;
-    auto setWindowMouseEnterCallback(const WindowMouseEnterCallback& callback) -> void;
-    auto setWindowFileDropCallback(const WindowFileDropCallback& callback) -> void;
+    auto setKeyCallback(const KeyCallback& callback) -> Input&;
+    auto setCharacterCallback(const CharacterCallback& callback) -> Input&;
+    auto setMouseMoveCallback(const MouseMoveCallback& callback) -> Input&;
+    auto setMouseBtnCallback(const MouseButtonCallback& callback) -> Input&;
+    auto setMouseScrollCallback(const MouseScrollCallback& callback) -> Input&;
+    auto setWindowSizeCallback(const WindowSizeCallback& callback) -> Input&;
+    auto setWindowMouseEnterCallback(const WindowMouseEnterCallback& callback) -> Input&;
+    auto setWindowFileDropCallback(const WindowFileDropCallback& callback) -> Input&;
 
 private:
     /* Only meant to be used by NativeWindow */

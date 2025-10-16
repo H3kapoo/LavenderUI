@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "src/UIElements/UIWindow.hpp"
+#include "src/UINodes/UIWindow.hpp"
 #include "src/Utils/Logger.hpp"
 
 namespace src
@@ -45,7 +45,7 @@ public:
 
         @return Weak reference to the newly created window.
     */
-    auto createWindow(const std::string& title, const glm::ivec2 size) -> uielements::UIWindowWPtr;
+    auto createWindow(const std::string& title, const glm::ivec2 size) -> uinodes::UIWindowWPtr;
 
     /**
         @brief Find a window of specified id.
@@ -56,7 +56,7 @@ public:
 
         @return Weak reference to the newly created window.
     */
-    auto findWindow(const uint64_t windowId) -> uielements::UIWindowWPtr;
+    auto findWindow(const uint64_t windowId) -> uinodes::UIWindowWPtr;
 
     /**
         @brief Starts the GUI loop.
@@ -93,11 +93,11 @@ private:
     App();
     ~App();
 
-    auto runPerWindow(const uielements::UIWindowPtr& frame) -> bool;
+    auto runPerWindow(const uinodes::UIWindowPtr& frame) -> bool;
 
 private:
     utils::Logger log_{"App"};
-    std::vector<uielements::UIWindowPtr> windows_;
+    std::vector<uinodes::UIWindowPtr> windows_;
     bool keepRunning_{true};
     bool shouldUpdateTitle_{false};
     bool showFps_{false};

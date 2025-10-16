@@ -170,7 +170,7 @@ public:
     auto getComputedScale() const -> const glm::vec2&;
     auto getViewPos() const -> const glm::ivec2&;
     auto getViewScale() const -> const glm::ivec2&;
-    auto getIndex() const -> uint32_t;
+    auto getZIndex() const -> uint32_t;
     auto getAngle() const -> float;
     auto isCustomIndex() const -> bool;
 
@@ -195,7 +195,7 @@ public:
     auto setComputedScale(const glm::vec2& value) -> LayoutBase&;
     auto setViewPos(const glm::vec2& value) -> LayoutBase&;
     auto setViewScale(const glm::vec2& value) -> LayoutBase&;
-    auto setIndex(uint32_t value) -> LayoutBase&;
+    auto setZIndex(uint32_t value) -> LayoutBase&;
     auto setEnableCustomIndex(const bool val) -> LayoutBase&;
     auto setAngle(float value) -> LayoutBase&;
 

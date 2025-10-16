@@ -1,10 +1,10 @@
 #include "BasicCalculator.hpp"
 #include "src/ElementComposable/LayoutBase.hpp"
-#include "src/UIElements/UIBase.hpp"
-#include "src/UIElements/UIButton.hpp"
-#include "src/UIElements/UIDropdown.hpp"
-#include "src/UIElements/UIPane.hpp"
-#include "src/UIElements/UISlider.hpp"
+#include "src/UINodes/UIBase.hpp"
+#include "src/UINodes/UIButton.hpp"
+// #include "src/Uinodes/UIDropdown.hpp"
+// #include "src/Uinodes/UIPane.hpp"
+// #include "src/Uinodes/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 
@@ -13,9 +13,9 @@ namespace src::layoutcalculator
 using namespace elementcomposable;
 
 #define SKIP_SLIDER(element)\
-    if (element->getTypeId() == uielements::UISlider::typeId\
-    && element->getCustomTagId() == uielements::UISlider::scrollTagId)\
-    { continue; }\
+    // if (element->getTypeId() == uinodes::UISlider::typeId\
+    // && element->getCustomTagId() == uinodes::UISlider::scrollTagId)\
+    // { continue; }\
 
 #define SKIP_ABS_ELEMENT(element)\
     const auto& userPos = element->getPos();\
@@ -30,31 +30,33 @@ auto BasicCalculator::get() -> BasicCalculator&
     return instance;
 }
 
-auto BasicCalculator::calculateScaleForGenericElement(uielements::UIBase* parent,
+auto BasicCalculator::calculateScaleForGenericElement(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& elements = parent->getElements();
-    if (elements.empty()) { return; }
+    const auto& childNodes = node->getElements();
+    if (childNodes.empty()) { return; }
 
-    const auto& pType = parent->getType();
-    if (pType == LayoutBase::Type::GRID)
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nType = nLayout.getType();
+    if (nType == LayoutBase::Type::GRID)
     {
-        return calculateScaleForGenericElementOfTypeGrid(parent, shrinkScaleBy);
+        return calculateScaleForGenericElementOfTypeGrid(node, shrinkScaleBy);
     }
 
     /* Part of the parent area could be occupied by a scroll bar. We need to account for it. */
-    const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
+    const auto& nContentBoxScale = nLayout.getContentBoxScale() - shrinkScaleBy;
 
     glm::vec2 nonFillRunningTotal{0, 0};
     glm::vec2 fillsNeededPerAxis{0, 0};
     glm::vec2 cScale{0, 0};
-    for (const auto& element : elements)
+    for (const auto& childNode : childNodes)
     {
-        SKIP_SLIDER(element);
+        SKIP_SLIDER(childNode);
 
-        const auto& userScale = element->getScale();
-        const auto& marginTB = element->getTBMargin();
-        const auto& marginLR = element->getLRMargin();
+        auto& chLayout = childNode->getBaseLayoutData();
+        const auto& userScale = chLayout.getScale();
+        const auto& marginTB = chLayout.getTBMargin();
+        const auto& marginLR = chLayout.getLRMargin();
         const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
         const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
         const bool isXRel = userScale.x.type == LayoutBase::ScaleType::REL;
@@ -65,42 +67,43 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIBase* parent
         const bool isYFit = userScale.y.type == LayoutBase::ScaleType::FIT;
 
         if (isXPx) { cScale.x = userScale.x.val - marginLR; }
-        else if (isXRel) { cScale.x = pContentBoxScale.x * userScale.x.val - marginLR; }
+        else if (isXRel) { cScale.x = nContentBoxScale.x * userScale.x.val - marginLR; }
         else if (isXFill) { ++fillsNeededPerAxis.x; }
 
         if (isYPx) { cScale.y = userScale.y.val - marginTB; }
-        else if (isYRel) { cScale.y = pContentBoxScale.y * userScale.y.val - marginTB; }
+        else if (isYRel) { cScale.y = nContentBoxScale.y * userScale.y.val - marginTB; }
         else if (isYFill) { ++fillsNeededPerAxis.y; }
 
         if (isXFit || isYFit)
         {
             /* Returns a mock `userScale` like value calculating what scale the element would be
                 if it wrapped all it's children tightly. */
-            const glm::vec2 fitScale = calculateFitScale(element.get());
+            const glm::vec2 fitScale = calculateFitScale(childNode.get());
             if (isXFit) { cScale.x = fitScale.x - marginLR; }
             if (isYFit) { cScale.y = fitScale.y - marginTB; }
         }
 
-        element->setComputedScale(cScale);
+        chLayout.setComputedScale(cScale);
 
         nonFillRunningTotal += cScale;
     }
 
     /* Process the FILL nodes. */
-    const glm::vec2 equalFillSpace = (pContentBoxScale - nonFillRunningTotal) / fillsNeededPerAxis;
-    for (const auto& element : elements)
+    const glm::vec2 equalFillSpace = (nContentBoxScale - nonFillRunningTotal) / fillsNeededPerAxis;
+    for (const auto& childNode : childNodes)
     {
-        SKIP_SLIDER(element);
+        SKIP_SLIDER(childNode);
 
-        const auto& userScale = element->getScale();
+        auto& chLayout = childNode->getBaseLayoutData();
+        const auto& userScale = chLayout.getScale();
         const bool isXFill = userScale.x.type == LayoutBase::ScaleType::FILL;
         const bool isYFill = userScale.y.type == LayoutBase::ScaleType::FILL;
 
         if (!isXFill && !isYFill) { continue; }
 
-        const auto& marginTB = element->getTBMargin();
-        const auto& marginLR = element->getLRMargin();
-        cScale = element->getComputedScale();
+        const auto& marginTB = chLayout.getTBMargin();
+        const auto& marginLR = chLayout.getLRMargin();
+        cScale = chLayout.getComputedScale();
         if (isXFill)
         {
             cScale.x = equalFillSpace.x - marginLR;
@@ -111,70 +114,72 @@ auto BasicCalculator::calculateScaleForGenericElement(uielements::UIBase* parent
             cScale.y = equalFillSpace.y - marginTB;
         }
 
-        element->setComputedScale(cScale);
+        chLayout.setComputedScale(cScale);
     }
 }
 
-auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* parent,
+auto BasicCalculator::calculatePositionForGenericElement(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& elements = parent->getElements();
-    if (elements.empty()) { return; }
+    const auto& childNodes = node->getElements();
+    if (childNodes.empty()) { return; }
 
-    const auto& pType = parent->getType();
-    if (pType == LayoutBase::Type::GRID)
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nType = nLayout.getType();
+    if (nType == LayoutBase::Type::GRID)
     {
-        return calculatePosForGenericElementOfTypeGrid(parent, shrinkScaleBy);
+        return calculatePosForGenericElementOfTypeGrid(node, shrinkScaleBy);
     }
 
-    const auto& pContentBoxPos = parent->getContentBoxPos();
-    const auto& pContentBoxScale = parent->getContentBoxScale() - shrinkScaleBy;
-    const auto& pContentBoxMaxPoint = pContentBoxPos + pContentBoxScale;
-    const auto& pWrap = parent->getWrap();
+    const auto& nContentBoxPos = nLayout.getContentBoxPos();
+    const auto& nContentBoxScale = nLayout.getContentBoxScale() - shrinkScaleBy;
+    const auto& nContentBoxMaxPoint = nContentBoxPos + nContentBoxScale;
+    const auto& nWrap = nLayout.getWrap();
 
-    SpacingDetails spacingDetails = calculateSpacingOnAxis(parent, shrinkScaleBy);
+    SpacingDetails spacingDetails = calculateSpacingOnAxis(node, shrinkScaleBy);
 
-    glm::vec2 nextPos{pContentBoxPos + spacingDetails.additionalStartPush};
+    glm::vec2 nextPos{nContentBoxPos + spacingDetails.additionalStartPush};
     glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
-    for (auto& element : elements)
+    for (auto& childNode : childNodes)
     {
-        SKIP_SLIDER(element);
+        SKIP_SLIDER(childNode);
 
-        const auto& margins = element->getMargin();
-        const auto& userPos = element->getPos();
+        auto& chLayout = childNode->getBaseLayoutData();
+        const auto& margins = chLayout.getMargin();
+        const auto& userPos = chLayout.getPos();
         if (userPos.x.type == LayoutBase::PositionType::ABS || userPos.y.type == LayoutBase::PositionType::ABS)
         {
             // TODO: Take into consideration element's margins.
             // Margins will push the computed position inwards.
-            element->setComputedPos({userPos.x.val, userPos.y.val});
+            chLayout.setComputedPos({userPos.x.val, userPos.y.val});
             continue;
         }
 
-        const auto& compScale = element->getComputedScale();
-        const glm::vec2 fullBoxScale = element->getFullBoxScale();
+        const auto& compScale = chLayout.getComputedScale();
+        const glm::vec2 fullBoxScale = chLayout.getFullBoxScale();
         const glm::vec2 nextMaxPoint = nextPos + fullBoxScale;
         const glm::vec2 marginPush = glm::vec2{margins.left, margins.top};
 
         /* Note: `nextPos` starts at the end of the previous' element margin end. */
-        if (pType == LayoutBase::Type::HORIZONTAL)
+        if (nType == LayoutBase::Type::HORIZONTAL)
         {
-            if (pWrap && nextMaxPoint.x > pContentBoxMaxPoint.x)
+            if (nWrap && nextMaxPoint.x > nContentBoxMaxPoint.x)
             {
                 nextPos.y += maxOnAxis.y;
-                nextPos.x = pContentBoxPos.x;
+                nextPos.x = nContentBoxPos.x;
                 maxOnAxis.y = 0;
             }
 
             computedPos = nextPos + marginPush;
             nextPos.x = computedPos.x + compScale.x + margins.right + spacingDetails.spaceBetween.x;
         }
-        else if (pType == LayoutBase::Type::VERTICAL)
+        else if (nType == LayoutBase::Type::VERTICAL)
         {
-            if (pWrap && nextMaxPoint.y > pContentBoxMaxPoint.y)
+            if (nWrap && nextMaxPoint.y > nContentBoxMaxPoint.y)
             {
                 nextPos.x += maxOnAxis.x;
-                nextPos.y = pContentBoxPos.y;
+                nextPos.y = nContentBoxPos.y;
                 maxOnAxis.x = 0;
             }
 
@@ -183,28 +188,29 @@ auto BasicCalculator::calculatePositionForGenericElement(uielements::UIBase* par
         }
         maxOnAxis = utils::max(maxOnAxis, fullBoxScale);
 
-        element->setComputedPos(computedPos);
+        chLayout.setComputedPos(computedPos);
     }
 }
 
-auto BasicCalculator::calculateAlignmentForElements(uielements::UIBase* parent,
+auto BasicCalculator::calculateAlignmentForElements(uinodes::UIBase* node,
     const glm::vec2 overflow) const -> void
 {
     if (overflow.x >= 0 && overflow.y >= 0) { return; }
 
     /* Note: negative overflow means there's `-overflow` pixels left until an overflow occurs.
         We can leverage that to align elements.*/
-    const auto& elements = parent->getElements();
-    const auto& pAlign = parent->getAlign();
-    const auto& pType = parent->getType();
-    const auto& isTightSpacing = parent->getSpacing() == LayoutBase::Spacing::TIGHT;
-    for (auto& element : elements)
+    const auto& childNodes = node->getElements();
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nAlign = nLayout.getAlign();
+    const auto& nType = nLayout.getType();
+    const auto& isTightSpacing = nLayout.getSpacing() == LayoutBase::Spacing::TIGHT;
+    for (auto& childNode : childNodes)
     {
-        SKIP_SLIDER(element);
-        SKIP_ABS_ELEMENT(element);
+        SKIP_SLIDER(childNode);
+        // SKIP_ABS_ELEMENT(childNode);
 
         glm::vec2 offset{0, 0};
-        switch (pAlign)
+        switch (nAlign)
         {
             case LayoutBase::TOP_LEFT:
                 break;
@@ -238,37 +244,38 @@ auto BasicCalculator::calculateAlignmentForElements(uielements::UIBase* parent,
                 break;
         }
 
-        if (pType == LayoutBase::Type::HORIZONTAL && !isTightSpacing)
+        if (nType == LayoutBase::Type::HORIZONTAL && !isTightSpacing)
         {
             offset.x = 0;
         }
-        else if (pType == LayoutBase::Type::VERTICAL && !isTightSpacing)
+        else if (nType == LayoutBase::Type::VERTICAL && !isTightSpacing)
         {
             offset.y = 0;
         }
 
-        element->setComputedPos(element->getComputedPos() + offset);
+        auto& chLayout = childNode->getBaseLayoutData();
+        chLayout.setComputedPos(chLayout.getComputedPos() + offset);
     }
 }
 
-auto BasicCalculator::calculateElementOverflow(uielements::UIBase* parent,
+auto BasicCalculator::calculateElementOverflow(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> glm::vec2
 {
     glm::vec2 boxScale{0, 0};
-    const auto& pContentPos = parent->getContentBoxPos();
-    const auto& pContentScale = parent->getContentBoxScale() - shrinkScaleBy;
-    const auto& elements = parent->getElements();
-    for (const auto& element : elements)
+    const auto& childNodes = node->getElements();
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& pContentPos = nLayout.getContentBoxPos();
+    const auto& pContentScale = nLayout.getContentBoxScale() - shrinkScaleBy;
+    for (const auto& childNode : childNodes)
     {
-        SKIP_ABS_ELEMENT(element);
+        // SKIP_ABS_ELEMENT(element);
 
         /* Shall not be taken into consideration for overflow */
-        if (element->getTypeId() == uielements::UISlider::typeId
-            && element->getCustomTagId() == uielements::UISlider::scrollTagId)
-        { continue; }
+        SKIP_SLIDER(childNode);
 
-        const auto& fullPos = element->getFullBoxPos();
-        const auto& fullScale = element->getFullBoxScale();
+        const auto& chLayout = childNode->getBaseLayoutData();
+        const auto& fullPos = chLayout.getFullBoxPos();
+        const auto& fullScale = chLayout.getFullBoxScale();
         boxScale.x = std::max(boxScale.x, fullPos.x + fullScale.x);
         boxScale.y = std::max(boxScale.y, fullPos.y + fullScale.y);
     }
@@ -276,13 +283,14 @@ auto BasicCalculator::calculateElementOverflow(uielements::UIBase* parent,
     return boxScale - (pContentPos + pContentScale);
 }
 
-auto BasicCalculator::calculateSpacingOnAxis(uielements::UIBase* parent,
+auto BasicCalculator::calculateSpacingOnAxis(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> SpacingDetails
 {
-    const auto& elements = parent->getElements();
-    const auto& pLayoutType = parent->getType();
-    const auto& pSpacing = parent->getSpacing();
-    const auto& pContentBoxScale = parent->getContentBoxScale();
+    const auto& childNodes = node->getElements();
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nLayoutType = nLayout.getType();
+    const auto& nSpacing = nLayout.getSpacing();
+    const auto& nContentBoxScale = nLayout.getContentBoxScale();
 
     glm::vec2 computedSpacing{0, 0};
     glm::vec2 additionalStartPush{0,};
@@ -290,40 +298,40 @@ auto BasicCalculator::calculateSpacingOnAxis(uielements::UIBase* parent,
     /* Calculate max running scale and valid elements for spacing calculations. */
     glm::vec2 maxRunningScale{shrinkScaleBy};
     int32_t elementCountForSpacing{0};
-    for (const auto& element : elements)
+    for (const auto& childNode : childNodes)
     {
         SKIP_SLIDER(element);
-        maxRunningScale += element->getFullBoxScale();
+        maxRunningScale += childNode->getBaseLayoutData().getFullBoxScale();
         ++elementCountForSpacing;
     }
 
-    glm::vec2 nextPos{parent->getContentBoxPos()};
+    glm::vec2 nextPos{nLayout.getContentBoxPos()};
     glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
 
-    switch (pSpacing)
+    switch (nSpacing)
     {
         case LayoutBase::Spacing::TIGHT:
             // Do nothing
             break;
         case LayoutBase::Spacing::EVEN_NO_GAP:
-            computedSpacing = (pContentBoxScale - maxRunningScale) / (elementCountForSpacing - 1);
+            computedSpacing = (nContentBoxScale - maxRunningScale) / (elementCountForSpacing - 1);
             computedSpacing = utils::max({0, 0}, computedSpacing);
             break;
         case LayoutBase::Spacing::EVEN_GAP:
-            computedSpacing = (pContentBoxScale - maxRunningScale) / elementCountForSpacing;
+            computedSpacing = (nContentBoxScale - maxRunningScale) / elementCountForSpacing;
             computedSpacing = utils::max({0, 0}, computedSpacing);
             additionalStartPush += computedSpacing * 0.5f;
             break;
     }
 
-    if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+    if (nLayoutType == LayoutBase::Type::HORIZONTAL)
     {
         computedSpacing.y = 0;
         additionalStartPush.y = 0;
         return SpacingDetails{additionalStartPush, computedSpacing};
     }
-    else if (pLayoutType == LayoutBase::Type::VERTICAL)
+    else if (nLayoutType == LayoutBase::Type::VERTICAL)
     {
         computedSpacing.x = 0;
         additionalStartPush.x = 0;
@@ -333,147 +341,148 @@ auto BasicCalculator::calculateSpacingOnAxis(uielements::UIBase* parent,
     return SpacingDetails{};
 }
 
-auto BasicCalculator::calculateSplitPaneElements(uielements::UISplitPane* parent, const uint32_t handleIdx,
-    const glm::vec2 mousePos) const -> void
+// auto BasicCalculator::calculateSplitPaneElements(uinodes::UISplitPane* parent, const uint32_t handleIdx,
+//     const glm::vec2 mousePos) const -> void
+// {
+//     const auto handlesSize = calculateSplitPaneHandlesScale(parent);
+
+//     calculateSplitPaneNonHandleScale(parent, handlesSize);
+
+//     /* Mostly used when resizing the split pane. Otherwise the `if handle` function will do the constraint checks. */
+//     applySplitPaneElementsScaleCorrection(parent, handlesSize);
+
+//     calculateSplitPaneElementsPos(parent);
+
+//     if (handleIdx)
+//     {
+//         calculateSplitPaneRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
+//     }
+// }
+
+// auto BasicCalculator::calculatePositionForDropdownElement(uinodes::UIDropdown* dropdown) const -> void
+// {
+//     if (dropdown->getElements().empty()) { return; }
+
+//     const auto gp = dropdown->getGrandParent().lock();
+//     const bool isNestedDropdown = gp != nullptr && gp->getTypeId() == uinodes::UIDropdown::typeId;
+
+//     /* If this dropdown is nested, refer to bounds of the container Pane.
+//         Otherwise refer to bounds of the dropdown itself. */
+//     const auto& optionsHolder = dropdown->getElements().at(0);
+//     const auto openDir = dropdown->getOpenDirection();
+//     const glm::ivec2 ddBoxPos = dropdown->getFullBoxPos();
+//     const glm::ivec2 ddBoxScale = dropdown->getFullBoxScale();
+
+//     glm::ivec2 hostPanePos{0, 0};
+//     glm::ivec2 hostPaneScale{0, 0};
+//     if (isNestedDropdown)
+//     {
+//         const auto ddHostPane = dropdown->getParent().lock();
+//         hostPanePos = ddHostPane->getFullBoxPos();
+//         hostPaneScale = ddHostPane->getFullBoxScale();
+//     }
+
+//     LayoutBase::PositionXY finalPos{{0, LayoutBase::PositionType::ABS}, {0, LayoutBase::PositionType::ABS}};
+//     switch (openDir)
+//     {
+//         case uinodes::UIDropdown::OpenDir::TOP:
+//         {
+//             finalPos.x.val = ddBoxPos.x;
+//             finalPos.y.val = ddBoxPos.y - optionsHolder->getFullBoxScale().y;
+//             break;
+//         }
+//         case uinodes::UIDropdown::OpenDir::BOTTOM:
+//         {
+//             finalPos.x.val = ddBoxPos.x;
+//             finalPos.y.val = ddBoxPos.y + ddBoxScale.y;
+//             break;
+//         }
+//         case uinodes::UIDropdown::OpenDir::LEFT:
+//         {
+//             finalPos.x.val = isNestedDropdown ? hostPanePos.x - hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
+//             finalPos.y.val = ddBoxPos.y;
+//             break;
+//         }
+//         case uinodes::UIDropdown::OpenDir::RIGHT:
+//         {
+//             finalPos.x.val = isNestedDropdown ? hostPanePos.x + hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
+//             finalPos.y.val = ddBoxPos.y;
+//             break;
+//         }
+//     }
+
+//     optionsHolder->setPos(finalPos);
+
+//     calculatePositionForGenericElement(dropdown);
+// }
+
+// auto BasicCalculator::calculateSlidersScaleAndPos(uinodes::UIPane* parent) const -> glm::vec2
+// {
+//     glm::vec2 sliderImpact{0, 0};
+//     const auto& pComputedPos = parent->  getContentBoxPos();
+//     const auto& pComputedScale = parent->getContentBoxScale();
+//     if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
+//     {
+//         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
+//         sliderImpact.x = vSlider->getScale().x.val;
+//         vSlider->setComputedPos({
+//             pComputedPos.x + pComputedScale.x - sliderImpact.x,
+//             pComputedPos.y
+//         });
+//         vSlider->setComputedScale({sliderImpact.x, pComputedScale.y});
+//     }
+
+//     if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
+//     {
+//         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
+//         sliderImpact.y = hSlider->getScale().y.val;
+//         hSlider->setComputedPos({
+//             pComputedPos.x,
+//             pComputedPos.y + pComputedScale.y - sliderImpact.y,
+//         });
+//         hSlider->setComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
+//     }
+
+//     return sliderImpact;
+// }
+
+// auto BasicCalculator::calculateElementsOffsetDueToScroll(uinodes::UIPane* parent,
+//     const glm::ivec2 offset) const -> void
+// {
+//     const auto& elements = parent->getElements();
+//     for (const auto& element : elements)
+//     {
+//         SKIP_SLIDER(element);
+//         element->setComputedPos(element->getComputedPos() - offset);
+//     }
+// }
+
+auto BasicCalculator::calculateFitScale(uinodes::UIBase* node) const -> glm::vec2
 {
-    const auto handlesSize = calculateSplitPaneHandlesScale(parent);
-
-    calculateSplitPaneNonHandleScale(parent, handlesSize);
-
-    /* Mostly used when resizing the split pane. Otherwise the `if handle` function will do the constraint checks. */
-    applySplitPaneElementsScaleCorrection(parent, handlesSize);
-
-    calculateSplitPaneElementsPos(parent);
-
-    if (handleIdx)
-    {
-        calculateSplitPaneRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
-    }
-}
-
-auto BasicCalculator::calculatePositionForDropdownElement(uielements::UIDropdown* dropdown) const -> void
-{
-    if (dropdown->getElements().empty()) { return; }
-
-    const auto gp = dropdown->getGrandParent().lock();
-    const bool isNestedDropdown = gp != nullptr && gp->getTypeId() == uielements::UIDropdown::typeId;
-
-    /* If this dropdown is nested, refer to bounds of the container Pane.
-        Otherwise refer to bounds of the dropdown itself. */
-    const auto& optionsHolder = dropdown->getElements().at(0);
-    const auto openDir = dropdown->getOpenDirection();
-    const glm::ivec2 ddBoxPos = dropdown->getFullBoxPos();
-    const glm::ivec2 ddBoxScale = dropdown->getFullBoxScale();
-
-    glm::ivec2 hostPanePos{0, 0};
-    glm::ivec2 hostPaneScale{0, 0};
-    if (isNestedDropdown)
-    {
-        const auto ddHostPane = dropdown->getParent().lock();
-        hostPanePos = ddHostPane->getFullBoxPos();
-        hostPaneScale = ddHostPane->getFullBoxScale();
-    }
-
-    LayoutBase::PositionXY finalPos{{0, LayoutBase::PositionType::ABS}, {0, LayoutBase::PositionType::ABS}};
-    switch (openDir)
-    {
-        case uielements::UIDropdown::OpenDir::TOP:
-        {
-            finalPos.x.val = ddBoxPos.x;
-            finalPos.y.val = ddBoxPos.y - optionsHolder->getFullBoxScale().y;
-            break;
-        }
-        case uielements::UIDropdown::OpenDir::BOTTOM:
-        {
-            finalPos.x.val = ddBoxPos.x;
-            finalPos.y.val = ddBoxPos.y + ddBoxScale.y;
-            break;
-        }
-        case uielements::UIDropdown::OpenDir::LEFT:
-        {
-            finalPos.x.val = isNestedDropdown ? hostPanePos.x - hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
-            finalPos.y.val = ddBoxPos.y;
-            break;
-        }
-        case uielements::UIDropdown::OpenDir::RIGHT:
-        {
-            finalPos.x.val = isNestedDropdown ? hostPanePos.x + hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
-            finalPos.y.val = ddBoxPos.y;
-            break;
-        }
-    }
-
-    optionsHolder->setPos(finalPos);
-
-    calculatePositionForGenericElement(dropdown);
-}
-
-auto BasicCalculator::calculateSlidersScaleAndPos(uielements::UIPane* parent) const -> glm::vec2
-{
-    glm::vec2 sliderImpact{0, 0};
-    const auto& pComputedPos = parent->  getContentBoxPos();
-    const auto& pComputedScale = parent->getContentBoxScale();
-    if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
-    {
-        // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-        sliderImpact.x = vSlider->getScale().x.val;
-        vSlider->setComputedPos({
-            pComputedPos.x + pComputedScale.x - sliderImpact.x,
-            pComputedPos.y
-        });
-        vSlider->setComputedScale({sliderImpact.x, pComputedScale.y});
-    }
-
-    if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
-    {
-        // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-        sliderImpact.y = hSlider->getScale().y.val;
-        hSlider->setComputedPos({
-            pComputedPos.x,
-            pComputedPos.y + pComputedScale.y - sliderImpact.y,
-        });
-        hSlider->setComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
-    }
-
-    return sliderImpact;
-}
-
-auto BasicCalculator::calculateElementsOffsetDueToScroll(uielements::UIPane* parent,
-    const glm::ivec2 offset) const -> void
-{
-    const auto& elements = parent->getElements();
-    for (const auto& element : elements)
-    {
-        SKIP_SLIDER(element);
-        element->setComputedPos(element->getComputedPos() - offset);
-    }
-}
-
-auto BasicCalculator::calculateFitScale(uielements::UIBase* parent) const -> glm::vec2
-{
-    const auto& elements = parent->getElements();
-    if (elements.empty())
+    const auto& childNodes = node->getElements();
+    if (childNodes.empty())
     {
         utils::Logger("calc").warn("no elements for fit");
         return {0, 0};
     }
 
-    const auto& pMarginLR = parent->getLRMargin();
-    const auto& pMarginTB = parent->getTBMargin();
-    const auto& pBorder = parent->getBorder();
-    const auto& pPadding = parent->getPadding();
-    const auto& pType = parent->getType();
-    const auto& pUserScale = parent->getScale();
-    const bool pIsXFit = pUserScale.x.type == LayoutBase::ScaleType::FIT;
-    const bool pIsYFit = pUserScale.y.type == LayoutBase::ScaleType::FIT;
-    const bool pIsHori = pType == LayoutBase::Type::HORIZONTAL;
-    const bool pIsVert = pType == LayoutBase::Type::VERTICAL;
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nMarginLR = nLayout.getLRMargin();
+    const auto& nMarginTB = nLayout.getTBMargin();
+    const auto& nBorder = nLayout.getBorder();
+    const auto& nPadding = nLayout.getPadding();
+    const auto& nType = nLayout.getType();
+    const auto& nUserScale = nLayout.getScale();
+    const bool nIsXFit = nUserScale.x.type == LayoutBase::ScaleType::FIT;
+    const bool nIsYFit = nUserScale.y.type == LayoutBase::ScaleType::FIT;
+    const bool nIsHori = nType == LayoutBase::Type::HORIZONTAL;
+    const bool nIsVert = nType == LayoutBase::Type::VERTICAL;
 
     glm::vec2 fitScale{0, 0};
-    for (const auto& element : elements)
+    for (const auto& childNode : childNodes)
     {
         SKIP_SLIDER(element);
-        const auto& userScale = element->getScale();
+        const auto& userScale = childNode->getBaseLayoutData().getScale();
         const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
         const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
         const bool isXFit = userScale.x.type == LayoutBase::ScaleType::FIT;
@@ -482,48 +491,50 @@ auto BasicCalculator::calculateFitScale(uielements::UIBase* parent) const -> glm
         glm::vec2 internalFitScale{0, 0};
         if (isXFit || isYFit)
         {
-            internalFitScale = calculateFitScale(element.get());
+            internalFitScale = calculateFitScale(childNode.get());
         }
 
         float value{0};
-        if (pIsXFit)
+        if (nIsXFit)
         {
             if (isXPx) { value = userScale.x.val; }
             else if (isXFit) { value = internalFitScale.x; }
-            fitScale.x = pIsVert ? std::max(fitScale.x, value) : value + fitScale.x;
+            fitScale.x = nIsVert ? std::max(fitScale.x, value) : value + fitScale.x;
         }
 
-        if (pIsYFit)
+        if (nIsYFit)
         {
             if (isYPx) { value = userScale.y.val; }
             else if (isYFit) { value = internalFitScale.y; }
-            fitScale.y = pIsHori ? std::max(fitScale.y, value) : value + fitScale.y;
+            fitScale.y = nIsHori ? std::max(fitScale.y, value) : value + fitScale.y;
         }
     }
 
     /* Adjust for border and padding of the parent */
-    fitScale.x += pBorder.left + pBorder.right + pPadding.left + pPadding.right + pMarginLR;
-    fitScale.y += pBorder.top + pBorder.bot + pPadding.top + pPadding.bot + pMarginTB;
+    fitScale.x += nBorder.left + nBorder.right + nPadding.left + nPadding.right + nMarginLR;
+    fitScale.y += nBorder.top + nBorder.bot + nPadding.top + nPadding.bot + nMarginTB;
     return fitScale;
 }
 
-auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uielements::UIBase* parent,
+auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& gridPolicy = parent->getGrid();
+    auto& nLayout = node->getBaseLayoutData();
+    const auto& gridPolicy = nLayout.getGrid();
     if (gridPolicy.rows.empty() || gridPolicy.cols.empty()) { return; }
 
     /* Note for future: this precomputation doesn't need to be done each time, only when the grid policy changes. */
-    calculatePrecomputedGridStartPos(parent, shrinkScaleBy);
+    calculatePrecomputedGridStartPos(node, shrinkScaleBy);
 
-    const auto& pContentScale = parent->getContentBoxScale()- shrinkScaleBy;
+    const auto& nContentScale = nLayout.getContentBoxScale()- shrinkScaleBy;
     const uint32_t nRow = gridPolicy.rows.size();
     const uint32_t nCol = gridPolicy.cols.size();
-    const auto& elements = parent->getElements();
-    for (auto& element : elements)
+    const auto& childNodes = node->getElements();
+    for (auto& childNode : childNodes)
     {
-        const auto& gridPos = element->getGridPos();
-        const auto& gridSpan = element->getGridSpan();
+        auto& chLayout = childNode->getBaseLayoutData();
+        const auto& gridPos = chLayout.getGridPos();
+        const auto& gridSpan = chLayout.getGridSpan();
 
         if (gridPos.col >= nCol) { continue; }
         if (gridPos.row >= nRow) { continue; }
@@ -536,26 +547,27 @@ auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(uielements::UIBa
         const glm::vec2 gridPosEnd{
             gridPos.col + gridSpan.col < nCol
                 ? gridPolicy.precompStart[gridPos.col + gridSpan.col]
-                : pContentScale.x,
+                : nContentScale.x,
             gridPos.row + gridSpan.row < nRow
                 ? gridPolicy.precompStart[nCol + gridPos.row + gridSpan.row]
-                : pContentScale.y,
+                : nContentScale.y,
         };
 
-        element->setComputedScale(gridPosEnd - gridPosStart);
+        chLayout.setComputedScale(gridPosEnd - gridPosStart);
     }
 }
 
-auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uielements::UIBase* parent,
+auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& gridPolicy = parent->getGrid();
-    const auto& elements = parent->getElements();
+    auto& gridPolicy = node->getBaseLayoutData().getGrid();
     const uint32_t nCol = gridPolicy.cols.size();
-    for (auto& element : elements)
+    const auto& childNodes = node->getElements();
+    for (auto& childNode : childNodes)
     {
-        const auto& gridPos = element->getGridPos();
-        element->setComputedPos(
+        auto& chLayout = childNode->getBaseLayoutData();
+        const auto& gridPos = chLayout.getGridPos();
+        chLayout.setComputedPos(
             {
                 gridPolicy.precompStart[gridPos.col],
                 gridPolicy.precompStart[nCol + gridPos.row]
@@ -563,11 +575,12 @@ auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(uielements::UIBase
     }
 }
 
-auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* parent,
+auto BasicCalculator::calculatePrecomputedGridStartPos(uinodes::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
     /* Compute the amound of PX occupied space and FR parts in order to compute how much a FR part is worth. */
-    auto& gridPolicy = parent->getGrid();
+    auto& nLayout = node->getBaseLayoutData();
+    auto& gridPolicy = nLayout.getGrid();
     glm::vec2 totalPx{0, 0};
     glm::vec2 totalFrac{0, 0};
 
@@ -584,7 +597,7 @@ auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* paren
         if (row.type == LayoutBase::ScaleType::FR) { totalFrac.y += row.val; }
     }
 
-    const auto& pContentScale = parent->getContentBoxScale()- shrinkScaleBy;
+    const auto& pContentScale = nLayout.getContentBoxScale()- shrinkScaleBy;
     const float wFrac = (pContentScale.x - totalPx.x) / std::max(1.0f, totalFrac.x);
     const float hFrac = (pContentScale.y - totalPx.y) / std::max(1.0f, totalFrac.y);
 
@@ -596,7 +609,7 @@ auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* paren
     gridPolicy.precompStart.clear();
     gridPolicy.precompStart.reserve(nCol + nRow);
 
-    glm::vec2 precompStart{parent->getContentBoxPos()};
+    glm::vec2 precompStart{nLayout.getContentBoxPos()};
     for (const auto& col : gridPolicy.cols)
     {
         gridPolicy.precompStart.push_back(std::round(precompStart.x));
@@ -612,246 +625,246 @@ auto BasicCalculator::calculatePrecomputedGridStartPos(uielements::UIBase* paren
     }
 }
 
-auto BasicCalculator::calculateSplitPaneHandlesScale(uielements::UISplitPane* parent) const -> glm::vec2
-{
-    const auto& pLayoutType = parent->getType();
-    const auto& pContentScale = parent->getContentBoxScale();
-    const auto& elements = parent->getElements();
+// auto BasicCalculator::calculateSplitPaneHandlesScale(uinodes::UISplitPane* parent) const -> glm::vec2
+// {
+//     const auto& pLayoutType = parent->getType();
+//     const auto& pContentScale = parent->getContentBoxScale();
+//     const auto& elements = parent->getElements();
 
-    glm::vec2 handlesSize{0, 0};
-    for (const auto& element : elements)
-    {
-        if (element->getTypeId() != uielements::UIButton::typeId) { continue; }
+//     glm::vec2 handlesSize{0, 0};
+//     for (const auto& element : elements)
+//     {
+//         if (element->getTypeId() != uinodes::UIButton::typeId) { continue; }
 
-        glm::vec2 cScale;
-        const auto& userScale = element->getScale();
-        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
-        {
-            cScale.x = userScale.x.val;
-            cScale.y = pContentScale.y * userScale.y.val;
-        }
-        else if (pLayoutType == LayoutBase::Type::VERTICAL)
-        {
-            cScale.y = userScale.y.val;
-            cScale.x = pContentScale.x * userScale.x.val;
-        }
+//         glm::vec2 cScale;
+//         const auto& userScale = element->getScale();
+//         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+//         {
+//             cScale.x = userScale.x.val;
+//             cScale.y = pContentScale.y * userScale.y.val;
+//         }
+//         else if (pLayoutType == LayoutBase::Type::VERTICAL)
+//         {
+//             cScale.y = userScale.y.val;
+//             cScale.x = pContentScale.x * userScale.x.val;
+//         }
 
-        handlesSize += cScale;
-        element->setComputedScale(cScale);
-    }
+//         handlesSize += cScale;
+//         element->setComputedScale(cScale);
+//     }
 
-    return handlesSize;
-}
+//     return handlesSize;
+// }
 
-auto BasicCalculator::calculateSplitPaneNonHandleScale(uielements::UISplitPane* parent,
-    const glm::vec2 handlesSize) const -> void
-{
-    const auto& elements = parent->getElements();
-    const auto& pLayoutType = parent->getType();
-    const auto& pContentScale = parent->getContentBoxScale();
-    const auto& reducedPContentScale = pContentScale - handlesSize;
-    for (const auto& element : elements)
-    {
-        if (element->getTypeId() == uielements::UIButton::typeId) { continue; }
+// auto BasicCalculator::calculateSplitPaneNonHandleScale(uinodes::UISplitPane* parent,
+//     const glm::vec2 handlesSize) const -> void
+// {
+//     const auto& elements = parent->getElements();
+//     const auto& pLayoutType = parent->getType();
+//     const auto& pContentScale = parent->getContentBoxScale();
+//     const auto& reducedPContentScale = pContentScale - handlesSize;
+//     for (const auto& element : elements)
+//     {
+//         if (element->getTypeId() == uinodes::UIButton::typeId) { continue; }
 
-        const auto& userScale = element->getScale();
-        glm::vec2 cScale;
+//         const auto& userScale = element->getScale();
+//         glm::vec2 cScale;
 
-        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
-        {
-            cScale.x = reducedPContentScale.x * userScale.x.val;
-            cScale.y = pContentScale.y * userScale.y.val;
-            cScale.x = std::clamp(cScale.x, (float)element->getMinScale().x, (float)element->getMaxScale().x);
-        }
-        else if (pLayoutType == LayoutBase::Type::VERTICAL)
-        {
-            cScale.y = reducedPContentScale.y * userScale.y.val;
-            cScale.x = pContentScale.x * userScale.x.val;
-            cScale.y = std::clamp(cScale.y, (float)element->getMinScale().y, (float)element->getMaxScale().y);
-        }
+//         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+//         {
+//             cScale.x = reducedPContentScale.x * userScale.x.val;
+//             cScale.y = pContentScale.y * userScale.y.val;
+//             cScale.x = std::clamp(cScale.x, (float)element->getMinScale().x, (float)element->getMaxScale().x);
+//         }
+//         else if (pLayoutType == LayoutBase::Type::VERTICAL)
+//         {
+//             cScale.y = reducedPContentScale.y * userScale.y.val;
+//             cScale.x = pContentScale.x * userScale.x.val;
+//             cScale.y = std::clamp(cScale.y, (float)element->getMinScale().y, (float)element->getMaxScale().y);
+//         }
 
-        element->setComputedScale(cScale);
-    }
-}
+//         element->setComputedScale(cScale);
+//     }
+// }
 
-auto BasicCalculator::applySplitPaneElementsScaleCorrection(uielements::UISplitPane* parent,
-    const glm::vec2 handlesSize) const -> void
-{
-    const auto& elements = parent->getElements();
-    const auto& pContentScale = parent->getContentBoxScale();
-    const auto& reducedPContentScale = pContentScale - handlesSize;
-    for (int32_t handleIdx = 0; handleIdx < (int32_t)elements.size() - 1; ++handleIdx)
-    {
-        if (elements[handleIdx]->getTypeId() != uielements::UIButton::typeId) { continue; }
+// auto BasicCalculator::applySplitPaneElementsScaleCorrection(uinodes::UISplitPane* parent,
+//     const glm::vec2 handlesSize) const -> void
+// {
+//     const auto& elements = parent->getElements();
+//     const auto& pContentScale = parent->getContentBoxScale();
+//     const auto& reducedPContentScale = pContentScale - handlesSize;
+//     for (int32_t handleIdx = 0; handleIdx < (int32_t)elements.size() - 1; ++handleIdx)
+//     {
+//         if (elements[handleIdx]->getTypeId() != uinodes::UIButton::typeId) { continue; }
 
-        glm::vec2 wantedOffsetRel{0, 0};
+//         glm::vec2 wantedOffsetRel{0, 0};
 
-        const uint32_t lPaneIdx = handleIdx - 1;
-        const uint32_t rPaneIdx = handleIdx + 1;
-        const glm::vec2 lpMinScaleRel = elements[lPaneIdx]->getMinScale() / reducedPContentScale;
-        const glm::vec2 lpMaxScaleRel = elements[lPaneIdx]->getMaxScale() / reducedPContentScale;
-        const glm::vec2 rpMinScaleRel = elements[rPaneIdx]->getMinScale() / reducedPContentScale;
-        const glm::vec2 rpMaxScaleRel = elements[rPaneIdx]->getMaxScale() / reducedPContentScale;
+//         const uint32_t lPaneIdx = handleIdx - 1;
+//         const uint32_t rPaneIdx = handleIdx + 1;
+//         const glm::vec2 lpMinScaleRel = elements[lPaneIdx]->getMinScale() / reducedPContentScale;
+//         const glm::vec2 lpMaxScaleRel = elements[lPaneIdx]->getMaxScale() / reducedPContentScale;
+//         const glm::vec2 rpMinScaleRel = elements[rPaneIdx]->getMinScale() / reducedPContentScale;
+//         const glm::vec2 rpMaxScaleRel = elements[rPaneIdx]->getMaxScale() / reducedPContentScale;
 
-        auto lScale = elements[lPaneIdx]->getScale();
-        auto rScale = elements[rPaneIdx]->getScale();
-        if (parent->getType() == LayoutBase::Type::HORIZONTAL)
-        {
-            if (lScale.x.val < lpMinScaleRel.x)
-            {
-                wantedOffsetRel.x = lpMinScaleRel.x - lScale.x.val;
-            }
+//         auto lScale = elements[lPaneIdx]->getScale();
+//         auto rScale = elements[rPaneIdx]->getScale();
+//         if (parent->getType() == LayoutBase::Type::HORIZONTAL)
+//         {
+//             if (lScale.x.val < lpMinScaleRel.x)
+//             {
+//                 wantedOffsetRel.x = lpMinScaleRel.x - lScale.x.val;
+//             }
 
-            if (rScale.x.val < rpMinScaleRel.x)
-            {
-                wantedOffsetRel.x = rScale.x.val - rpMinScaleRel.x;
-            }
+//             if (rScale.x.val < rpMinScaleRel.x)
+//             {
+//                 wantedOffsetRel.x = rScale.x.val - rpMinScaleRel.x;
+//             }
 
-            if (lScale.x.val > lpMaxScaleRel.x)
-            {
-                wantedOffsetRel.x = lpMaxScaleRel.x - lScale.x.val;
-            }
+//             if (lScale.x.val > lpMaxScaleRel.x)
+//             {
+//                 wantedOffsetRel.x = lpMaxScaleRel.x - lScale.x.val;
+//             }
 
-            if (rScale.x.val > rpMaxScaleRel.x)
-            {
-                wantedOffsetRel.x = rScale.x.val - rpMaxScaleRel.x;
-            }
+//             if (rScale.x.val > rpMaxScaleRel.x)
+//             {
+//                 wantedOffsetRel.x = rScale.x.val - rpMaxScaleRel.x;
+//             }
 
-            /* Apply the relative offsets correction. */
-            lScale.x.val += wantedOffsetRel.x;
-            elements[lPaneIdx]->setScale(lScale);
+//             /* Apply the relative offsets correction. */
+//             lScale.x.val += wantedOffsetRel.x;
+//             elements[lPaneIdx]->setScale(lScale);
 
-            rScale.x.val -= wantedOffsetRel.x;
-            elements[rPaneIdx]->setScale(rScale);
+//             rScale.x.val -= wantedOffsetRel.x;
+//             elements[rPaneIdx]->setScale(rScale);
 
-            auto lCompScale = elements[lPaneIdx]->getComputedScale();
-            lCompScale.x = lScale.x.val * reducedPContentScale.x;
-            elements[lPaneIdx]->setComputedScale(lCompScale);
+//             auto lCompScale = elements[lPaneIdx]->getComputedScale();
+//             lCompScale.x = lScale.x.val * reducedPContentScale.x;
+//             elements[lPaneIdx]->setComputedScale(lCompScale);
 
-            auto rCompScale = elements[rPaneIdx]->getComputedScale();
-            rCompScale.x = rScale.x.val * reducedPContentScale.x;
-            elements[rPaneIdx]->setComputedScale(rCompScale);
-        }
-        else if (parent->getType() == LayoutBase::Type::VERTICAL)
-        {
-            if (lScale.y.val < lpMinScaleRel.y)
-            {
-                wantedOffsetRel.y = lpMinScaleRel.y - lScale.y.val;
-            }
+//             auto rCompScale = elements[rPaneIdx]->getComputedScale();
+//             rCompScale.x = rScale.x.val * reducedPContentScale.x;
+//             elements[rPaneIdx]->setComputedScale(rCompScale);
+//         }
+//         else if (parent->getType() == LayoutBase::Type::VERTICAL)
+//         {
+//             if (lScale.y.val < lpMinScaleRel.y)
+//             {
+//                 wantedOffsetRel.y = lpMinScaleRel.y - lScale.y.val;
+//             }
 
-            if (rScale.y.val < rpMinScaleRel.y)
-            {
-                wantedOffsetRel.y = rScale.y.val - rpMinScaleRel.y;
-            }
+//             if (rScale.y.val < rpMinScaleRel.y)
+//             {
+//                 wantedOffsetRel.y = rScale.y.val - rpMinScaleRel.y;
+//             }
 
-            if (lScale.y.val > lpMaxScaleRel.y)
-            {
-                wantedOffsetRel.y = lpMaxScaleRel.y - lScale.y.val;
-            }
+//             if (lScale.y.val > lpMaxScaleRel.y)
+//             {
+//                 wantedOffsetRel.y = lpMaxScaleRel.y - lScale.y.val;
+//             }
 
-            if (rScale.y.val > rpMaxScaleRel.y)
-            {
-                wantedOffsetRel.y = rScale.y.val - rpMaxScaleRel.y;
-            }
+//             if (rScale.y.val > rpMaxScaleRel.y)
+//             {
+//                 wantedOffsetRel.y = rScale.y.val - rpMaxScaleRel.y;
+//             }
 
-            /* Apply the relative offsets correction. */
-            lScale.y.val += wantedOffsetRel.y;
-            elements[lPaneIdx]->setScale(lScale);
+//             /* Apply the relative offsets correction. */
+//             lScale.y.val += wantedOffsetRel.y;
+//             elements[lPaneIdx]->setScale(lScale);
 
-            rScale.y.val -= wantedOffsetRel.y;
-            elements[rPaneIdx]->setScale(rScale);
+//             rScale.y.val -= wantedOffsetRel.y;
+//             elements[rPaneIdx]->setScale(rScale);
 
-            auto lCompScale = elements[lPaneIdx]->getComputedScale();
-            lCompScale.y = lScale.y.val * reducedPContentScale.y;
-            elements[lPaneIdx]->setComputedScale(lCompScale);
+//             auto lCompScale = elements[lPaneIdx]->getComputedScale();
+//             lCompScale.y = lScale.y.val * reducedPContentScale.y;
+//             elements[lPaneIdx]->setComputedScale(lCompScale);
 
-            auto rCompScale = elements[rPaneIdx]->getComputedScale();
-            rCompScale.y = rScale.y.val * reducedPContentScale.y;
-            elements[rPaneIdx]->setComputedScale(rCompScale);
-        }
-    }
-}
+//             auto rCompScale = elements[rPaneIdx]->getComputedScale();
+//             rCompScale.y = rScale.y.val * reducedPContentScale.y;
+//             elements[rPaneIdx]->setComputedScale(rCompScale);
+//         }
+//     }
+// }
 
-auto BasicCalculator::calculateSplitPaneElementsPos(uielements::UISplitPane* parent) const -> void
-{
-    const auto& elements = parent->getElements();
-    const auto& pLayoutType = parent->getType();
-    const auto& pContentPos = parent->getContentBoxPos();
-    glm::vec2 nextPos{pContentPos};
-    glm::vec2 pos{0, 0};
-    for (auto& element : elements)
-    {
-        const auto& margins = element->getMargin();
-        const auto& compScale = element->getComputedScale();
-        if (pLayoutType == LayoutBase::Type::HORIZONTAL)
-        {
-            pos = nextPos + glm::vec2{margins.left, margins.top};
-            nextPos.x = pos.x + compScale.x + margins.right;
-        }
-        else if (pLayoutType == LayoutBase::Type::VERTICAL)
-        {
-            pos = nextPos + glm::vec2{margins.left, margins.top};
-            nextPos.y = pos.y + compScale.y + margins.bot;
-        }
+// auto BasicCalculator::calculateSplitPaneElementsPos(uinodes::UISplitPane* parent) const -> void
+// {
+//     const auto& elements = parent->getElements();
+//     const auto& pLayoutType = parent->getType();
+//     const auto& pContentPos = parent->getContentBoxPos();
+//     glm::vec2 nextPos{pContentPos};
+//     glm::vec2 pos{0, 0};
+//     for (auto& element : elements)
+//     {
+//         const auto& margins = element->getMargin();
+//         const auto& compScale = element->getComputedScale();
+//         if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+//         {
+//             pos = nextPos + glm::vec2{margins.left, margins.top};
+//             nextPos.x = pos.x + compScale.x + margins.right;
+//         }
+//         else if (pLayoutType == LayoutBase::Type::VERTICAL)
+//         {
+//             pos = nextPos + glm::vec2{margins.left, margins.top};
+//             nextPos.y = pos.y + compScale.y + margins.bot;
+//         }
 
-        element->setComputedPos(pos);
-    }
-}
+//         element->setComputedPos(pos);
+//     }
+// }
 
-auto BasicCalculator::calculateSplitPaneRelativeValuesDueToDrag(uielements::UISplitPane* parent,
-    const uint32_t handleIdx, const glm::vec2 handlesSize, const glm::vec2 mousePos) const -> void
-{
-    const auto& elements = parent->getElements();
-    const auto& pContentBoxScale = parent->getContentBoxScale();
-    const auto& pLayoutType = parent->getType();
+// auto BasicCalculator::calculateSplitPaneRelativeValuesDueToDrag(uinodes::UISplitPane* parent,
+//     const uint32_t handleIdx, const glm::vec2 handlesSize, const glm::vec2 mousePos) const -> void
+// {
+//     const auto& elements = parent->getElements();
+//     const auto& pContentBoxScale = parent->getContentBoxScale();
+//     const auto& pLayoutType = parent->getType();
 
-    /* Calculate difference between the current mouse position and the handle's center. */
-    const auto handleCenter = elements[handleIdx]->getComputedPos()
-        + elements[handleIdx]->getComputedScale() * 0.5f;
-    const glm::vec2 mouseDiff = mousePos - handleCenter;
+//     /* Calculate difference between the current mouse position and the handle's center. */
+//     const auto handleCenter = elements[handleIdx]->getComputedPos()
+//         + elements[handleIdx]->getComputedScale() * 0.5f;
+//     const glm::vec2 mouseDiff = mousePos - handleCenter;
 
-    const uint32_t lPaneIdx = handleIdx - 1;
-    const uint32_t rPaneIdx = handleIdx + 1;
+//     const uint32_t lPaneIdx = handleIdx - 1;
+//     const uint32_t rPaneIdx = handleIdx + 1;
 
-    const auto& contentScale = pContentBoxScale - handlesSize;
+//     const auto& contentScale = pContentBoxScale - handlesSize;
 
-    glm::vec2 wantedOffsetRel = mouseDiff / contentScale;
+//     glm::vec2 wantedOffsetRel = mouseDiff / contentScale;
 
-    const glm::vec2 lpMinScaleRel = elements[lPaneIdx]->getMinScale() / contentScale;
-    const glm::vec2 lpMaxScaleRel = elements[lPaneIdx]->getMaxScale() / contentScale;
-    const glm::vec2 rpMinScaleRel = elements[rPaneIdx]->getMinScale() / contentScale;
-    const glm::vec2 rpMaxScaleRel = elements[rPaneIdx]->getMaxScale() / contentScale;
+//     const glm::vec2 lpMinScaleRel = elements[lPaneIdx]->getMinScale() / contentScale;
+//     const glm::vec2 lpMaxScaleRel = elements[lPaneIdx]->getMaxScale() / contentScale;
+//     const glm::vec2 rpMinScaleRel = elements[rPaneIdx]->getMinScale() / contentScale;
+//     const glm::vec2 rpMaxScaleRel = elements[rPaneIdx]->getMaxScale() / contentScale;
 
-    /* Add the maximum amount of offset to the two panes without violating any constraints. */
-    auto lScale = elements[lPaneIdx]->getScale();
-    auto rScale = elements[rPaneIdx]->getScale();
-    if (pLayoutType == LayoutBase::Type::HORIZONTAL)
-    {
-        wantedOffsetRel.x = constrainOffset(wantedOffsetRel.x,
-            lScale.x.val, lpMinScaleRel.x, lpMaxScaleRel.x,
-            rScale.x.val, rpMinScaleRel.x, rpMaxScaleRel.x);
+//     /* Add the maximum amount of offset to the two panes without violating any constraints. */
+//     auto lScale = elements[lPaneIdx]->getScale();
+//     auto rScale = elements[rPaneIdx]->getScale();
+//     if (pLayoutType == LayoutBase::Type::HORIZONTAL)
+//     {
+//         wantedOffsetRel.x = constrainOffset(wantedOffsetRel.x,
+//             lScale.x.val, lpMinScaleRel.x, lpMaxScaleRel.x,
+//             rScale.x.val, rpMinScaleRel.x, rpMaxScaleRel.x);
 
-        /* Apply the relative offsets. */
-        lScale.x.val += wantedOffsetRel.x;
-        elements[lPaneIdx]->setScale(lScale);
+//         /* Apply the relative offsets. */
+//         lScale.x.val += wantedOffsetRel.x;
+//         elements[lPaneIdx]->setScale(lScale);
 
-        rScale.x.val -= wantedOffsetRel.x;
-        elements[rPaneIdx]->setScale(rScale);
-    }
-    else if (pLayoutType == LayoutBase::Type::VERTICAL)
-    {
-        wantedOffsetRel.y = constrainOffset(wantedOffsetRel.y,
-            lScale.y.val, lpMinScaleRel.y, lpMaxScaleRel.y,
-            rScale.y.val, rpMinScaleRel.y, rpMaxScaleRel.y);
+//         rScale.x.val -= wantedOffsetRel.x;
+//         elements[rPaneIdx]->setScale(rScale);
+//     }
+//     else if (pLayoutType == LayoutBase::Type::VERTICAL)
+//     {
+//         wantedOffsetRel.y = constrainOffset(wantedOffsetRel.y,
+//             lScale.y.val, lpMinScaleRel.y, lpMaxScaleRel.y,
+//             rScale.y.val, rpMinScaleRel.y, rpMaxScaleRel.y);
 
-        /* Apply the relative offsets. */
-        lScale.y.val += wantedOffsetRel.y;
-        elements[lPaneIdx]->setScale(lScale);
+//         /* Apply the relative offsets. */
+//         lScale.y.val += wantedOffsetRel.y;
+//         elements[lPaneIdx]->setScale(lScale);
 
-        rScale.y.val -= wantedOffsetRel.y;
-        elements[rPaneIdx]->setScale(rScale);
-    }
-}
+//         rScale.y.val -= wantedOffsetRel.y;
+//         elements[rPaneIdx]->setScale(rScale);
+//     }
+// }
 
 auto BasicCalculator::constrainOffset(float wantedOffset,
     const float lpScale, const float lpMin, const float lpMax,

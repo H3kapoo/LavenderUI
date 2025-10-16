@@ -8,7 +8,7 @@
 
 
 /* Fwd declaration for UIBase */
-namespace src::uielements
+namespace src::uinodes
 {
     class UIBase;
 }
@@ -166,7 +166,7 @@ inline auto make(Args&&... args) -> std::shared_ptr<T>
     @return Newly cast T object
 */
 template<typename T>
-inline auto as(std::shared_ptr<src::uielements::UIBase>& val) -> std::shared_ptr<T>
+inline auto as(std::shared_ptr<src::uinodes::UIBase>& val) -> std::shared_ptr<T>
 {
     return std::static_pointer_cast<T>(val);
 }

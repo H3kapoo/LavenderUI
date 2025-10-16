@@ -134,7 +134,7 @@ auto LayoutBase::getComputedPos() const -> const glm::vec2& { return computedPos
 auto LayoutBase::getComputedScale() const -> const glm::vec2& { return computedScale_; }
 auto LayoutBase::getViewPos() const -> const glm::ivec2& { return viewPos_; }
 auto LayoutBase::getViewScale() const -> const glm::ivec2& { return viewScale_; }
-auto LayoutBase::getIndex() const -> uint32_t { return index_; }
+auto LayoutBase::getZIndex() const -> uint32_t { return index_; }
 auto LayoutBase::getAngle() const -> float { return angle_; }
 auto LayoutBase::isCustomIndex() const -> bool { return isCustomIndex_; }
 
@@ -161,7 +161,7 @@ auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedP
 auto LayoutBase::setComputedScale(const glm::vec2& val) -> LayoutBase& {computedScale_ = val ;return *this;}
 auto LayoutBase::setViewPos(const glm::vec2& val) -> LayoutBase& { viewPos_ = val; return *this; }
 auto LayoutBase::setViewScale(const glm::vec2& val) -> LayoutBase& { viewScale_ = val; return *this; }
-auto LayoutBase::setIndex(uint32_t val) -> LayoutBase& { index_ = val;  return *this; }
+auto LayoutBase::setZIndex(uint32_t val) -> LayoutBase& { index_ = val;  return *this; }
 auto LayoutBase::setEnableCustomIndex(const bool val) -> LayoutBase& { isCustomIndex_ = val;  return *this; }
 auto LayoutBase::setAngle(float val) -> LayoutBase& { angle_ = val; return *this; }
 

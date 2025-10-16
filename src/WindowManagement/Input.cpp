@@ -6,9 +6,10 @@
 namespace src::windowmanagement
 {
 #define SETUP_CALLBACK(cbName, cbType_, cbVarName_)\
-auto Input::cbName(const cbType_& callback) -> void\
+auto Input::cbName(const cbType_& callback) -> Input&\
 {\
     cbVarName_ = callback;\
+    return *this;\
 }\
 
 SETUP_CALLBACK(setKeyCallback, KeyCallback, keyCallback_);

@@ -35,16 +35,16 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/ResourceLoaders/FontLoader.cpp
         src/ElementComposable/TextAttribs.cpp
         src/ElementComposable/LayoutBase.cpp
-        src/ElementComposable/PropsBase.cpp
         src/LayoutCalculator/BasicCalculator.cpp
-        src/UIElements/UIBase.cpp
-        src/UIElements/UIWindow.cpp
-        src/UIElements/UIPane.cpp
-        src/UIElements/UISplitPane.cpp
-        src/UIElements/UIButton.cpp
-        src/UIElements/UISlider.cpp
-        src/UIElements/UITreeView.cpp
-        src/UIElements/UIDropdown.cpp
+        src/UINodes/UIBase.cpp
+        src/UINodes/UIWindow.cpp
+        src/UINodes/UIButton.cpp
+        src/UINodes/UILabel.cpp
+        # src/UIElements/UIPane.cpp
+        # src/UIElements/UISplitPane.cpp
+        # src/UIElements/UISlider.cpp
+        # src/UIElements/UITreeView.cpp
+        # src/UIElements/UIDropdown.cpp
         # src/UIElements/UIImage.cpp
         src/WindowManagement/NativeWindow.cpp
         src/WindowManagement/Input.cpp

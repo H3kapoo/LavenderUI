@@ -20,19 +20,19 @@ auto App::init() -> bool
     return NativeWindow::init();
 }
 
-auto App::createWindow(const std::string& title, const glm::ivec2 size) -> uielements::UIWindowWPtr
+auto App::createWindow(const std::string& title, const glm::ivec2 size) -> uinodes::UIWindowWPtr
 {
-    uielements::UIWindowPtr frame = std::make_shared<uielements::UIWindow>(title, size);
+    uinodes::UIWindowPtr frame = std::make_shared<uinodes::UIWindow>(title, size);
     return windows_.emplace_back(frame);
 }
 
-auto App::findWindow(const uint64_t windowId) -> uielements::UIWindowWPtr
+auto App::findWindow(const uint64_t windowId) -> uinodes::UIWindowWPtr
 {
     const auto it = std::ranges::find_if(windows_,
         [windowId](const uint64_t id) { return id == windowId; }, // pred
-        [](const uielements::UIWindowPtr& w) { return w->getId(); }); // proj
+        [](const uinodes::UIWindowPtr& w) { return w->getId(); }); // proj
 
-    return it != windows_.end() ? *it : std::weak_ptr<uielements::UIWindow>{};
+    return it != windows_.end() ? *it : std::weak_ptr<uinodes::UIWindow>{};
 }
 
 auto App::run() -> void
@@ -70,7 +70,7 @@ auto App::setWaitEvents(const bool waitEvents) -> void
 
 auto App::enableTitleWithFPS(const bool enable) -> void { showFps_ = enable; }
 
-auto App::runPerWindow(const uielements::UIWindowPtr& window) -> bool
+auto App::runPerWindow(const uinodes::UIWindowPtr& window) -> bool
 {
     const bool shouldFrameBeRemoved = window->run();
     if (shouldFrameBeRemoved && window->isMainWindow())
