@@ -52,8 +52,8 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
                 for (int32_t i = 0; i < count; ++i) {}
             });
 
-    NativeWindow::enableScissorsTest(false);
-    NativeWindow::enableDepthTest(false);
+    // NativeWindow::enableScissorsTest(false);
+    // NativeWindow::enableDepthTest(false);
 }
 
 UIWindow::~UIWindow()
@@ -161,7 +161,6 @@ auto UIWindow::windowResizeHook(const uint32_t x, const uint32_t y) -> void
     /* Note: use framebuffer size to set viewport in case DPI is not a default
        one aka we have some artificial scaling. */
     updateWindowSizeAndProjection(glm::ivec2{x, y});
-
     propagateEventTo(WindowResizeEvt{}, std::nullopt);
 }
 
@@ -175,7 +174,6 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32
     const uint32_t mods) -> void
 {
     if (action == Input::RELEASE || action == Input::REPEAT) { return; }
-    log_.debug("window: {} | {} {} {} {}", window_.getId(), key, scancode, action, mods);
     if (key == Input::ESC)
     {
         window_.close();
@@ -186,7 +184,7 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32
     }
     else if (key == Input::P)
     {
-        std::println("{}", shared_from_this());
+        log_.debug("\n{}", shared_from_this());
     }
 }
 
@@ -210,7 +208,6 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
     else if (prevHoveredId != currHoveredId)
     {
         uiState_->prevHoveredId = prevHoveredId;
-        log_.debug("do enter on {}", currHoveredId);
         propagateEventTo(MouseEnterEvt{}, currHoveredId);
         propagateEventTo(MouseExitEvt{}, prevHoveredId);
     }
