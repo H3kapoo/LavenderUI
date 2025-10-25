@@ -257,7 +257,7 @@ auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -
     uiState_->scrollOffset = {0, 0};
 }
 
-auto UIWindow::initializeDefaultCursors() -> void
+auto UIWindow::initializeDefaultCursors() -> void 
 {
     if (!isFirstWindow_) { return; }
 
