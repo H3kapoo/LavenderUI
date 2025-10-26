@@ -11,7 +11,7 @@ App::~App()
 {
     windows_.clear();
     core::NativeWindow::terminate();
-}
+} 
 
 auto App::init() -> bool
 {
