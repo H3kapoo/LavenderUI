@@ -8,12 +8,12 @@
 
 
 /* Fwd declaration for UIBase */
-namespace src::uinodes
+namespace lav::node
 {
     class UIBase;
-}
+} // namespace lav::node
 
-namespace src::utils
+namespace lav::utils
 {
 /**
     @brief Generate a new Id.
@@ -166,7 +166,7 @@ inline auto make(Args&&... args) -> std::shared_ptr<T>
     @return Newly cast T object
 */
 template<typename T>
-inline auto as(std::shared_ptr<src::uinodes::UIBase>& val) -> std::shared_ptr<T>
+inline auto as(std::shared_ptr<lav::node::UIBase>& val) -> std::shared_ptr<T>
 {
     return std::static_pointer_cast<T>(val);
 }
@@ -221,5 +221,5 @@ inline auto clamp(const glm::vec2& vec, const glm::vec2& min, const glm::vec2& m
     return {std::clamp(vec.x, min.x, max.x), std::clamp(vec.y, min.y, max.y)};
 }
 
-} // namespace src::utils
+} // namespace lav::utils
 

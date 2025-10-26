@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "src/UINodes/UIWindow.hpp"
+#include "src/Node/UIWindow.hpp"
 #include "src/Utils/Logger.hpp"
 
-namespace src
+namespace lav
 {
 /**
     @brief Main app management entry point responsible for the lifetime of the GUI's windows.
@@ -45,7 +45,7 @@ public:
 
         @return Weak reference to the newly created window.
     */
-    auto createWindow(const std::string& title, const glm::ivec2 size) -> uinodes::UIWindowWPtr;
+    auto createWindow(const std::string& title, const glm::ivec2 size) -> node::UIWindowWPtr;
 
     /**
         @brief Find a window of specified id.
@@ -56,7 +56,7 @@ public:
 
         @return Weak reference to the newly created window.
     */
-    auto findWindow(const uint64_t windowId) -> uinodes::UIWindowWPtr;
+    auto findWindow(const uint64_t windowId) -> node::UIWindowWPtr;
 
     /**
         @brief Starts the GUI loop.
@@ -93,13 +93,13 @@ private:
     App();
     ~App();
 
-    auto runPerWindow(const uinodes::UIWindowPtr& frame) -> bool;
+    auto runPerWindow(const node::UIWindowPtr& frame) -> bool;
 
 private:
     utils::Logger log_{"App"};
-    std::vector<uinodes::UIWindowPtr> windows_;
+    std::vector<node::UIWindowPtr> windows_;
     bool keepRunning_{true};
     bool shouldUpdateTitle_{false};
     bool showFps_{false};
 };
-} // namespace src
+} // namespace lav

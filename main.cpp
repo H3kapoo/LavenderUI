@@ -1,18 +1,17 @@
 
 #include "src/App.hpp"
-#include "src/ElementComposable/IEvent.hpp"
-#include "src/ElementComposable/LayoutBase.hpp"
-#include "src/UINodes/UIButton.hpp"
-#include "src/UINodes/UIBase.hpp"
-#include "src/UINodes/UIWindow.hpp"
+#include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Node/UIButton.hpp"
+#include "src/Node/UIBase.hpp"
+#include "src/Node/UIWindow.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/Input.hpp"
+#include "src/Core/WindowHandler/Input.hpp"
 
-using namespace src::windowmanagement;
-using namespace src::uinodes;
-using namespace src::elementcomposable;
-using namespace src;
+using namespace lav::core;
+using namespace lav::node;
+using namespace lav;
 
 int main()
 {

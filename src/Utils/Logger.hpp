@@ -9,7 +9,7 @@
 #include <print>
 #include <chrono>
 
-namespace src::utils
+namespace lav::utils
 {
 /**
     @brief Simple colored logger than can output to either the console of a text file.
@@ -106,4 +106,4 @@ private:
     static const char* INFO_COLOR_;
     std::string name_;
 };
-} // namespace src::utils
+} // namespace lav::utils

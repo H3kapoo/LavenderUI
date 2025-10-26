@@ -28,26 +28,26 @@ if(${PLATFORM_NAME} MATCHES "Linux")
     add_executable(${PROJECT_NAME}
         main.cpp
         src/App.cpp
-        src/ResourceLoaders/Mesh.cpp
-        src/ResourceLoaders/Shader.cpp
-        src/ResourceLoaders/MeshLoader.cpp
-        src/ResourceLoaders/ShaderLoader.cpp
-        src/ResourceLoaders/FontLoader.cpp
-        src/ElementComposable/TextAttribs.cpp
-        src/ElementComposable/LayoutBase.cpp
-        src/LayoutCalculator/BasicCalculator.cpp
-        src/UINodes/UIBase.cpp
-        src/UINodes/UIWindow.cpp
-        src/UINodes/UIButton.cpp
-        src/UINodes/UILabel.cpp
+        src/Core/ResourceHandler/Mesh.cpp
+        src/Core/ResourceHandler/Shader.cpp
+        src/Core/ResourceHandler/MeshLoader.cpp
+        src/Core/ResourceHandler/ShaderLoader.cpp
+        src/Core/ResourceHandler/FontLoader.cpp
+        src/Core/TextHandler/TextAttribs.cpp
+        src/Core/LayoutHandler/LayoutBase.cpp
+        src/Core/LayoutHandler/BasicCalculator.cpp
+        src/Node/UIBase.cpp
+        src/Node/UIWindow.cpp
+        src/Node/UIButton.cpp
+        src/Node/UILabel.cpp
         # src/UIElements/UIPane.cpp
         # src/UIElements/UISplitPane.cpp
         # src/UIElements/UISlider.cpp
         # src/UIElements/UITreeView.cpp
         # src/UIElements/UIDropdown.cpp
         # src/UIElements/UIImage.cpp
-        src/WindowManagement/NativeWindow.cpp
-        src/WindowManagement/Input.cpp
+        src/Core/WindowHandler/NativeWindow.cpp
+        src/Core/WindowHandler/Input.cpp
         src/Utils/Logger.cpp
     )
 

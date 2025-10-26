@@ -1,7 +1,7 @@
 #include "Logger.hpp"
 #include <filesystem>
 
-namespace src::utils
+namespace lav::utils
 {
 std::ostream* Logger::outStream_ = &std::cout;
 std::ofstream Logger::fileStream_ = std::ofstream{std::filesystem::current_path() / "test.txt"};
@@ -23,4 +23,4 @@ auto Logger::setMaxAllowedLevel(const Level lvl) -> void
 {
     maxAllowedLevel_ = lvl;
 }
-} // namespace src::utils
+} // namespace lav::utils

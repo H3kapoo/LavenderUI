@@ -2,46 +2,44 @@
 
 #include <algorithm>
 
-namespace src
+namespace lav
 {
-using namespace windowmanagement;
-
 App::App()
 {}
 
 App::~App()
 {
     windows_.clear();
-    NativeWindow::terminate();
+    core::NativeWindow::terminate();
 }
 
 auto App::init() -> bool
 {
-    return NativeWindow::init();
+    return core::NativeWindow::init();
 }
 
-auto App::createWindow(const std::string& title, const glm::ivec2 size) -> uinodes::UIWindowWPtr
+auto App::createWindow(const std::string& title, const glm::ivec2 size) -> node::UIWindowWPtr
 {
-    uinodes::UIWindowPtr frame = std::make_shared<uinodes::UIWindow>(title, size);
+    node::UIWindowPtr frame = std::make_shared<node::UIWindow>(title, size);
     return windows_.emplace_back(frame);
 }
 
-auto App::findWindow(const uint64_t windowId) -> uinodes::UIWindowWPtr
+auto App::findWindow(const uint64_t windowId) -> node::UIWindowWPtr
 {
     const auto it = std::ranges::find_if(windows_,
         [windowId](const uint64_t id) { return id == windowId; }, // pred
-        [](const uinodes::UIWindowPtr& w) { return w->getId(); }); // proj
+        [](const node::UIWindowPtr& w) { return w->getId(); }); // proj
 
-    return it != windows_.end() ? *it : std::weak_ptr<uinodes::UIWindow>{};
+    return it != windows_.end() ? *it : std::weak_ptr<node::UIWindow>{};
 }
 
 auto App::run() -> void
 {
     static uint32_t ONE_SECOND = 1.0f;
-    double startTime{NativeWindow::getTime()};
+    double startTime{core::NativeWindow::getTime()};
     while (keepRunning_)
     {
-        if (const double nowTime = NativeWindow::getTime(); nowTime - startTime >= ONE_SECOND)
+        if (const double nowTime = core::NativeWindow::getTime(); nowTime - startTime >= ONE_SECOND)
         {
             shouldUpdateTitle_ = true;
             startTime = nowTime;
@@ -53,7 +51,7 @@ auto App::run() -> void
 
         if (windows_.empty()) { break; }
 
-        NativeWindow::pollEvents();
+        core::NativeWindow::pollEvents();
     }
 }
 
@@ -65,12 +63,12 @@ auto App::get() -> App&
 
 auto App::setWaitEvents(const bool waitEvents) -> void
 {
-    NativeWindow::setWaitEvents(waitEvents);
+    core::NativeWindow::setWaitEvents(waitEvents);
 }
 
 auto App::enableTitleWithFPS(const bool enable) -> void { showFps_ = enable; }
 
-auto App::runPerWindow(const uinodes::UIWindowPtr& window) -> bool
+auto App::runPerWindow(const node::UIWindowPtr& window) -> bool
 {
     const bool shouldFrameBeRemoved = window->run();
     if (shouldFrameBeRemoved && window->isMainWindow())
@@ -87,4 +85,4 @@ auto App::runPerWindow(const uinodes::UIWindowPtr& window) -> bool
 
     return shouldFrameBeRemoved;
 }
-} // namespace src
+} // namespace lav
