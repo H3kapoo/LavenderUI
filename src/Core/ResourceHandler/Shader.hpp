@@ -13,10 +13,9 @@ class Shader
 public:
     Shader(const uint32_t programId);
     ~Shader() = default;
-    //TODO: Needs to be decided how are we gonna switch shaders at runtime with new ones
-    // Shader(Shader&&) = delete;
+    Shader(Shader&&) = delete;
     Shader& operator=(const Shader&) = default;
-    // Shader& operator=(Shader&&) = delete;
+    Shader& operator=(Shader&&) = delete;
 
     auto uploadMat4(const std::string& name, const glm::mat4& val) const -> void;
     auto uploadMat4v(const std::string& name, const std::vector<glm::mat4>& vals) const -> void;
@@ -24,7 +23,9 @@ public:
     auto uploadVec4f(const std::string& name, const glm::vec4& val) const -> void;
     auto uploadInt(const std::string& name, const int32_t val) const -> void;
     auto uploadIntv(const std::string& name, const std::vector<int32_t>& val) const -> void;
-    auto uploadTexture2DArray(const std::string& name, const uint32_t texUnit,
+    auto uploadTexture2D(const std::string& name, const uint32_t texSlot,
+        const uint32_t texId) const -> void;
+    auto uploadTexture2DArray(const std::string& name, const uint32_t texSlot,
         const uint32_t texId) const -> void;
 
     auto bind() const -> void;
@@ -32,7 +33,7 @@ public:
     auto getId() const -> uint32_t;
 
 private:
-    auto getLocation(const std::string& name) const -> int32_t;
+    auto reportFailure(const std::string& name, const bool success) const -> void;
 
 private:
     uint32_t programId_;

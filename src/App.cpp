@@ -1,4 +1,6 @@
 #include "App.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Core/Binders/WindowBinder.hpp"
 
 #include <algorithm>
 
@@ -10,12 +12,12 @@ App::App()
 App::~App()
 {
     windows_.clear();
-    core::NativeWindow::terminate();
-} 
+    core::WindowBinder::get().terminate();
+}
 
 auto App::init() -> bool
 {
-    return core::NativeWindow::init();
+    return core::WindowBinder::get().init() && core::GPUBinder::get().init();
 }
 
 auto App::createWindow(const std::string& title, const glm::ivec2 size) -> node::UIWindowWPtr
@@ -36,14 +38,14 @@ auto App::findWindow(const uint64_t windowId) -> node::UIWindowWPtr
 auto App::run() -> void
 {
     static uint32_t ONE_SECOND = 1.0f;
-    double startTime{core::NativeWindow::getTime()};
+    // double startTime{core::WindowHandle::getTime()};
     while (keepRunning_)
     {
-        if (const double nowTime = core::NativeWindow::getTime(); nowTime - startTime >= ONE_SECOND)
-        {
-            shouldUpdateTitle_ = true;
-            startTime = nowTime;
-        }
+        // if (const double nowTime = core::WindowHandle::getTime(); nowTime - startTime >= ONE_SECOND)
+        // {
+        //     shouldUpdateTitle_ = true;
+        //     startTime = nowTime;
+        // }
 
         std::erase_if(windows_, [this](const auto& w) { return runPerWindow(w); });
 
@@ -51,7 +53,7 @@ auto App::run() -> void
 
         if (windows_.empty()) { break; }
 
-        core::NativeWindow::pollEvents();
+        core::WindowBinder::get().pollEvents();
     }
 }
 
@@ -63,7 +65,7 @@ auto App::get() -> App&
 
 auto App::setWaitEvents(const bool waitEvents) -> void
 {
-    core::NativeWindow::setWaitEvents(waitEvents);
+    core::WindowBinder::get().setPollWaitForEvents(waitEvents);
 }
 
 auto App::enableTitleWithFPS(const bool enable) -> void { showFps_ = enable; }

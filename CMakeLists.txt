@@ -33,6 +33,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/ResourceHandler/MeshLoader.cpp
         src/Core/ResourceHandler/ShaderLoader.cpp
         src/Core/ResourceHandler/FontLoader.cpp
+        src/Core/ResourceHandler/TextureLoader.cpp
         src/Core/TextHandler/TextAttribs.cpp
         src/Core/LayoutHandler/LayoutBase.cpp
         src/Core/LayoutHandler/BasicCalculator.cpp
@@ -45,9 +46,10 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         # src/UIElements/UISlider.cpp
         # src/UIElements/UITreeView.cpp
         # src/UIElements/UIDropdown.cpp
-        # src/UIElements/UIImage.cpp
-        src/Core/WindowHandler/NativeWindow.cpp
-        src/Core/WindowHandler/Input.cpp
+        src/Node/UIImage.cpp
+        src/Core/Binders/WindowBinder.cpp
+        src/Core/Binders/GPUBinder.cpp
+        src/Core/Binders/FileResourceBinder.cpp
         src/Utils/Logger.cpp
     )
 

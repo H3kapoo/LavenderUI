@@ -2,9 +2,9 @@
 
 #include <optional>
 
+#include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/WindowHandler/Input.hpp"
 
 namespace lav::node
 {
@@ -20,27 +20,27 @@ UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
 
 auto UILabel::render(const glm::mat4& projection) -> void
 {
-    // mesh_.bind();
-    // shader_.bind();
-    // shader_.uploadMat4("uMatrixProjection", projection);
-    // shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    // shader_.uploadVec4f("uColor", overrideColor_ ? *overrideColor_ : getColor());
-    // shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
-    // shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
-    // shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
-    // shader_.uploadVec4f("uBorderColor", getBorderColor());
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    mesh_.bind();
+    shader_.bind();
+    shader_.uploadMat4("uMatrixProjection", projection);
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
+    shader_.uploadVec4f("uColor", overrideColor_ ? *overrideColor_ : getColor());
+    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
+    shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
+    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
+    shader_.uploadVec4f("uBorderColor", getBorderColor());
+    core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
     const auto& textShader_ = textAttribs_.getShader();
     const auto& textBuffer = textAttribs_.getBuffer();
     textShader_.bind();
     textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
-    textShader_.uploadTexture2DArray("uTextureArray", GL_TEXTURE0, textAttribs_.getFont()->textureId);
     textShader_.uploadMat4("uMatrixProjection", projection);
     textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
     textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, textAttribs_.getText().size());
+    textShader_.uploadTexture2DArray("uTextureArray", 0, textAttribs_.getFont()->textureId);
+    core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
 }
 
 auto UILabel::layout() -> void

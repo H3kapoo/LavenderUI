@@ -3,10 +3,10 @@
 #include <queue>
 #include <unordered_map>
 
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/WindowHandler/NativeWindow.hpp"
-#include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/UIBase.hpp"
+#include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Node/Helpers/UIState.hpp"
+#include "src/Core/Binders/WindowBinder.hpp"
 
 namespace lav::node
 {
@@ -46,7 +46,7 @@ public:
     auto setTitle(std::string title, const bool updateInteralText = true) -> void;
     auto getDeltaTime() -> double;
     auto getTitle() -> std::string;
-    auto getWindow() -> core::NativeWindow&;
+    auto getWindow() -> core::WindowHandle;
     auto isMainWindow() -> bool;
 
     /* Mandatory typeinfo */
@@ -76,16 +76,17 @@ private:
     auto postLayoutActions(const UIBasePtr& node) -> void;
 
 private:
-    core::NativeWindow window_;
+    core::WindowHandle window_;
+    std::string title_;
+    glm::mat4 projection_;
+    std::queue<UIBasePtr> processingQueue_;
     UIStatePtr uiState_{utils::make<UIState>()};
     bool forcedQuit_{false};
     bool isMainWindow_{false};
-    glm::mat4 projection_;
-    std::queue<UIBasePtr> processingQueue_;
+    core::WindowBinder::InputCallbacks cbs_;
 
     static int32_t MAX_LAYERS;
     static bool isFirstWindow_;
-    static std::unordered_map<core::Input::Cursor, GLFWcursor*> cursors_;
 };
 using UIWindowPtr = std::shared_ptr<UIWindow>;
 using UIWindowWPtr = std::weak_ptr<UIWindow>;

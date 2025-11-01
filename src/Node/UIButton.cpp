@@ -4,8 +4,8 @@
 
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/WindowHandler/Input.hpp"
 #include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
 
 namespace lav::node
 {
@@ -33,7 +33,7 @@ auto UIButton::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
     shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", getBorderColor());
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    core::GPUBinder::get().renderBoundQuad();
 }
 
 auto UIButton::layout() -> void

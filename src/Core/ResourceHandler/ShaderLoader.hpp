@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "src/Utils/Logger.hpp"
-#include "vendor/glew/include/GL/glew.h"
+#include "src/Core/Binders/GPUBinder.hpp"
 
 namespace lav::core
 {
@@ -13,25 +13,12 @@ namespace fs = std::filesystem;
 class ShaderLoader
 {
 public:
+    static auto get() -> ShaderLoader&;
+
     auto load(const fs::path& vertexPath, const fs::path& fragPath) -> uint32_t;
     auto checkCacheFirst(const bool value) -> void;
 
-public:
-    static auto get() -> ShaderLoader&;
-
 private:
-    enum ShaderType
-    {
-        VERTEX = GL_VERTEX_SHADER,
-        FRAG = GL_FRAGMENT_SHADER
-    };
-
-    enum ShaderStatus
-    {
-        COMPILE = GL_COMPILE_STATUS,
-        LINK = GL_LINK_STATUS
-    };
-
     ShaderLoader();
     ~ShaderLoader() = default;
     ShaderLoader(const ShaderLoader&) = delete;
@@ -39,8 +26,7 @@ private:
     ShaderLoader& operator=(const ShaderLoader&) = delete;
     ShaderLoader& operator=(ShaderLoader&&) = delete;
 
-    auto loadPart(const ShaderType type, const fs::path& partPath) -> uint32_t;
-    auto checkStatus(const uint32_t id, const ShaderStatus status) -> bool;
+    auto loadPart(const core::GPUBinder::ShaderPartType type, const fs::path& partPath) -> uint32_t;
 
 private:
     utils::Logger log_;

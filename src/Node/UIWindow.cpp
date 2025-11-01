@@ -3,74 +3,75 @@
 #include <algorithm>
 
 #include "src/App.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/BasicCalculator.hpp"
 #include "src/Node/UIBase.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/WindowHandler/Input.hpp"
-#include "src/Core/WindowHandler/NativeWindow.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 
 namespace lav::node
 {
+/* Static declarations */
+int32_t UIWindow::MAX_LAYERS = 1000;
+bool UIWindow::isFirstWindow_ = true;
+
 UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     : UIBase({"UIWindow", "elemVert.glsl", "elemFrag.glsl"})
-    , window_(title, size)
+    , window_(core::WindowBinder::get().createWindow(title, size))
+    , title_(title)
     , isMainWindow_(isFirstWindow_)
 {
     initializeDefaultCursors();
 
-    updateWindowSizeAndProjection(window_.getSize());
+    updateWindowSizeAndProjection(size);
 
     /* Setup hooks into events */
-    window_.getInput()
-        .setWindowSizeCallback(
-            [this](uint32_t x, uint32_t y) { windowResizeHook(x, y); })
-        .setWindowMouseEnterCallback(
-            [this](bool entered) { windowMouseEnterHook(entered); })
-        .setCharacterCallback(
-            [this](uint32_t cp){ (void)cp; })
-        .setKeyCallback(
-            [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
-            { keyHook(key, sc, action, mods); })
-        .setMouseMoveCallback(
-            [this](int32_t x, int32_t y) { mouseMoveHook(x, y); })
-        .setMouseBtnCallback(
-            [this](uint8_t btn, uint8_t action) { mouseButtonHook(btn, action); })
-        .setMouseScrollCallback(
-            [this](int8_t xOffset, int8_t yOffset) { mouseScrollHook(xOffset, yOffset); })
-        .setWindowFileDropCallback(
+    cbs_ = {
+        .keyCallback =  [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
+            { keyHook(key, sc, action, mods); },
+        .characterCallback = 
+            [this](uint32_t cp){ (void)cp; },
+        .mouseMoveCallback = 
+            [this](int32_t x, int32_t y) { mouseMoveHook(x, y); },
+        .mouseBtnCallback = 
+            [this](uint8_t btn, uint8_t action) { mouseButtonHook(btn, action); },
+        .mouseScrollCallback = 
+            [this](int8_t xOffset, int8_t yOffset) { mouseScrollHook(xOffset, yOffset); },
+        .windowSizeCallback = 
+            [this](uint32_t x, uint32_t y) { windowResizeHook(x, y); },
+        .windowMouseEntered = 
+            [this](bool entered) { windowMouseEnterHook(entered); },
+        .windowFileDrop =
             [this](int32_t count, const char** paths)
             {
                 (void)count;
                 (void)paths;
                 for (int32_t i = 0; i < count; ++i) {}
-            });
+            }
+    };
 
-    // NativeWindow::enableScissorsTest(false);
-    // NativeWindow::enableDepthTest(false);
+    core::WindowBinder::get().setInputCallbacks(window_, cbs_);
+
+    // core::GPUBinder::get().enable(core::GPUBinder::Function::SCISSORS, false);
+    // core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
 }
 
 UIWindow::~UIWindow()
 {
-    for (auto&[key, cursor] : cursors_)
-    {
-        glfwDestroyCursor(cursor);
-    }
-    cursors_.clear();
+    core::WindowBinder::get().destroyWindow(window_);
+    log_.debug("Window destroyed");
 }
 
 auto UIWindow::run() -> bool
 {
-    const glm::ivec2& size = window_.getSize();
-
-    window_.makeContextCurrent();
-    core::NativeWindow::updateViewport(size);
-    core::NativeWindow::updateScissors({0, 0, size.x, size.y});
-    core::NativeWindow::clearColor(utils::hexToVec4("#3d3d3dff"));
-    core::NativeWindow::clearAllBuffers();
+    const auto& size = uiState_->windowSize;
+    core::WindowBinder::get().makeContextCurrent(window_);
+    core::GPUBinder::get().setViewportArea({0, 0, size.x, size.y});
+    core::GPUBinder::get().setScissorsArea({0, 0, size.x, size.y});
+    core::GPUBinder::get().clearColor(utils::hexToVec4("#3d3d3dff"));
+    core::GPUBinder::get().clearAllBufferBits();
 
     processingQueue_.push(shared_from_this());
     while (!processingQueue_.empty())
@@ -97,14 +98,14 @@ auto UIWindow::run() -> bool
 
     if (uiState_->wantedCursorType.has_value())
     {
-        glfwSetCursor(window_.getGlfwHandle(), cursors_[uiState_->wantedCursorType.value()]);
+        core::WindowBinder::get().setStandardCursor(window_, uiState_->wantedCursorType.value());
         uiState_->currentCursorType = uiState_->wantedCursorType;
         uiState_->wantedCursorType.reset();
     }
 
-    window_.swapBuffers();
+    core::WindowBinder::get().swapBuffers(window_);
 
-    return window_.shouldWindowClose() || forcedQuit_;
+    return core::WindowBinder::get().shouldWindowClose(window_) || forcedQuit_;
 }
 
 auto UIWindow::quit() -> void { forcedQuit_ = true; }
@@ -167,20 +168,20 @@ auto UIWindow::windowMouseEnterHook(const bool entered) -> void
     mouseMoveHook(uiState_->mousePos.x, uiState_->mousePos.y);
 }
 
-auto UIWindow::keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
-    const uint32_t mods) -> void
+auto UIWindow::keyHook(const uint32_t key, const uint32_t, const uint32_t action,
+    const uint32_t) -> void
 {
     using namespace core;
-    if (action == Input::RELEASE || action == Input::REPEAT) { return; }
-    if (key == Input::ESC)
+    if (action == Action::RELEASE || action == Action::REPEAT) { return; }
+    if (key == Key::ESC)
     {
-        window_.close();
+        core::WindowBinder::get().close(window_);
     }
-    else if (key == Input::C)
+    else if (key == Key::C)
     {
         App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
     }
-    else if (key == Input::P)
+    else if (key == Key::P)
     {
         log_.debug("\n{}", shared_from_this());
     }
@@ -190,7 +191,7 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 {
     using namespace core;
 
-    const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, window_.getSize());
+    const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, uiState_->windowSize);
     uint32_t prevHoveredId = uiState_->hoveredId;
     uiState_->hoveredId = node::NOTHING;
     uiState_->mouseDiff = newMouse - uiState_->mousePos;
@@ -214,8 +215,8 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 
     /* Handle dragging on the clicked id */
     if (uiState_->clickedId != node::NOTHING
-        && uiState_->mouseAction == Input::PRESS
-        && uiState_->mouseButton == Input::LEFT)
+        && uiState_->mouseAction == Action::PRESS
+        && uiState_->mouseButton == Mouse::LEFT)
     {
         uiState_->isDragging = true;
         propagateEventTo(MouseDragEvt{}, uiState_->clickedId);
@@ -234,17 +235,17 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
     uiState_->hoveredZIndex = node::NOTHING;
     propagateHoverScanEvent();
 
-    uiState_->mouseButton = static_cast<Input::Mouse>(btn);
-    uiState_->mouseAction = static_cast<Input::Action>(action);
+    uiState_->mouseButton = static_cast<lav::Mouse>(btn);
+    uiState_->mouseAction = static_cast<lav::Action>(action);
     propagateEventTo(MouseButtonEvt{}, std::nullopt);
 
-    if (btn == Input::LEFT && action == Input::PRESS)
+    if (btn == Mouse::LEFT && action == Action::PRESS)
     {
         uiState_->clickedId = uiState_->hoveredId;
         uiState_->selectedId = uiState_->hoveredId;
         propagateEventTo(MouseLeftClickEvt{}, uiState_->clickedId);
     }
-    else if (btn == Input::LEFT && action == Input::RELEASE)
+    else if (btn == Mouse::LEFT && action == Action::RELEASE)
     {
         uiState_->isDragging = false;
         uiState_->clickedId = node::NOTHING;
@@ -263,18 +264,8 @@ auto UIWindow::initializeDefaultCursors() -> void
 {
     if (!isFirstWindow_) { return; }
 
-    /* Create all available cursors at main window start. */
-    using namespace core;
-    cursors_[Input::Cursor::ARROW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
-    cursors_[Input::Cursor::IBEAM] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
-    cursors_[Input::Cursor::CROSSHAIR] = glfwCreateStandardCursor(GLFW_CROSSHAIR_CURSOR);
-    cursors_[Input::Cursor::HAND] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
-    cursors_[Input::Cursor::HRESIZE] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
-    cursors_[Input::Cursor::VRESIZE] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
-    cursors_[Input::Cursor::ALLRESIZE] = glfwCreateStandardCursor(GLFW_RESIZE_ALL_CURSOR);
-    cursors_[Input::Cursor::NOT_ALLOWED] = glfwCreateStandardCursor(GLFW_NOT_ALLOWED_CURSOR);
+    core::WindowBinder::get().setStandardCursor(window_, lav::Cursor::ARROW);
 
-    glfwSetCursor(window_.getGlfwHandle(), cursors_[Input::Cursor::ARROW]);
     isFirstWindow_ = false;
 }
 
@@ -324,7 +315,7 @@ auto UIWindow::preRenderSetup(const UIBasePtr& node, const glm::mat4& projection
     const auto& nLayout = node->getBaseLayoutData();
     const auto& viewPos = nLayout.getViewPos();
     const auto& viewScale = nLayout.getViewScale();
-    core::NativeWindow::updateScissors(
+    core::GPUBinder::get().setScissorsArea(
         {
             viewPos.x,
             std::round((-2.0f / projection[1][1])) - viewPos.y - viewScale.y,
@@ -405,19 +396,17 @@ auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
 
 auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void
 {
-    window_.setTitle(std::move(title), onlyForShow);
+    title_ = std::move(title);
+    core::WindowBinder::get().setTitle(window_, title);
 }
 
-auto UIWindow::getDeltaTime() -> double { return window_.getDeltaTime(); }
+auto UIWindow::getDeltaTime() -> double { return 0; }
 
-auto UIWindow::getTitle() -> std::string { return window_.getTitle(); }
+auto UIWindow::getTitle() -> std::string { return title_; }
 
-auto UIWindow::getWindow() -> core::NativeWindow& { return window_; }
+auto UIWindow::getWindow() -> core::WindowHandle { return window_; }
 
 auto UIWindow::isMainWindow() -> bool { return isMainWindow_; }
 
-/* Static declarations */
-int32_t UIWindow::MAX_LAYERS = 1000;
-bool UIWindow::isFirstWindow_ = true;
-std::unordered_map<core::Input::Cursor, GLFWcursor*> UIWindow::cursors_ = {};
+
 } // namespace lav::node

@@ -5,6 +5,8 @@ uniform vec4 uBorderColor = vec4(0.0, 0.0, 1.0, 1.0);
 uniform vec4 uBorderSize = vec4(0);
 uniform vec4 uBorderRadii = vec4(0);
 uniform vec2 uResolution;
+uniform int uUseTexture = 0;
+uniform sampler2D uTexture;
 
 in vec2 vTexCoords;
 out vec4 fragColor;
@@ -62,7 +64,7 @@ void main()
     if (outerBoxSdf >= 1) { discard; }
 
     /* Set the color of the inner content */
-    vec4 finalColor = mix(uColor, vec4(0.0), innerBoxSdf);
+    vec4 finalColor = uUseTexture == 1 ? texture(uTexture, vTexCoords) : mix(uColor, vec4(0.0), innerBoxSdf);
 
     /* Set the color of the border */
     finalColor += mix(vec4(0.0), uBorderColor, inOutDiffSdf);
