@@ -1,4 +1,6 @@
 #include "FontLoader.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Core/ResourceHandler/Font.hpp"
 
 namespace lav::core
 {
@@ -69,28 +71,24 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
 
     FT_Set_Pixel_Sizes(ftFace, fontSize, fontSize);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    glGenTextures(1, &font->textureId);
+    // /* Generate MAX_GLYPHS levels deep texture. */
+    GPUBinder::get().unpackAlignment();
+    font->textureId = GPUBinder::get().createTexture(
+        fontSize,
+        fontSize,
+        MAX_GLYPHS,
+        GPUBinder::TextureType::Array2D,
+        GPUBinder::ColorType::MONO,
+        GPUBinder::TextureOptions{},
+        nullptr);
 
     if (!font->textureId)
     {
-        log_.warn(
-            "No failures but font texture id is zero. Are you loading incorrectly from another openGL context?");
+        log_.error("Texture Id returned is zero!");
         return font;
     }
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, font->textureId);
-
-    /* Generate MAX_GLYPHS levels deep texture. */
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RED, fontSize, fontSize, MAX_GLYPHS, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
-
-    /* Wrapping, mag & min settings. */
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GPUBinder::get().bindIdToTextureType(GPUBinder::TextureType::Array2D, font->textureId);
 
     FT_Int32 load_flags = FT_LOAD_RENDER;
     for (int32_t i = 32; i < MAX_GLYPHS; i++)
@@ -102,8 +100,13 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
             continue;
         }
 
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, ftFace->glyph->bitmap.width, ftFace->glyph->bitmap.rows, 1,
-            GL_RED, GL_UNSIGNED_BYTE, ftFace->glyph->bitmap.buffer);
+        GPUBinder::get().bufferTextureData(
+            ftFace->glyph->bitmap.width,
+            ftFace->glyph->bitmap.rows,
+            i,
+            GPUBinder::TextureType::Array2D,
+            GPUBinder::ColorType::MONO,
+            ftFace->glyph->bitmap.buffer);
 
         Font::GlyphData ch =
         {
@@ -117,10 +120,10 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
         font->glyphData[i] = ch;
     }
 
-    log_.info("Loaded font texture {} with size {} from \"{}\"", font->textureId, fontSize, fontPath);
+    log_.debug("Loaded font texture {} with size {} from \"{}\"", font->textureId, fontSize, fontPath);
 
     /* Unbind texture and free FreeType resources */
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    GPUBinder::get().bindIdToTextureType(GPUBinder::TextureType::Array2D, 0);
     FT_Done_Face(ftFace);
 
     return font;

@@ -21,11 +21,7 @@ public:
         Array2D
     };
 
-    enum class ColorType
-    {
-        RGB,
-        RGBA
-    };
+    enum class ColorType { MONO, RGB, RGBA};
 
     enum class TextureWrap { CLAMP_TO_EDGE };
 
@@ -50,13 +46,15 @@ public:
     auto init() -> bool;
     auto setViewportArea(const glm::ivec4& area) -> void;
     auto setScissorsArea(const glm::ivec4& area) -> void;
+    auto enable(const Function func, const bool enable = true) -> void;
+
+    /* Rendering */
     auto clearColor(const glm::vec4& color) -> void;
     auto clearAllBufferBits() -> void;
-    auto enable(const Function func, const bool enable = true) -> void;
     auto renderBoundQuad() const -> void;
     auto renderBoundQuadInstanced(const uint32_t size) const -> void;
-    auto createTexture(const uint32_t width, const uint32_t height, const TextureType texType,
-        const ColorType colType, const TextureOptions texOpts, unsigned char* data) const -> uint32_t;
+
+    /* Shader */
     auto createProgram() const -> uint32_t;
     auto loadShaderPartType(const ShaderPartType type, const std::string& data) const -> uint32_t;
     auto linkPartsToProgram(const uint32_t programId, const uint32_t vertexId, const uint32_t fragId) -> bool;
@@ -66,13 +64,27 @@ public:
     auto uploadUniformTexture(const uint32_t programId, const std::string& name, const TextureType type,
         const uint32_t texSlot, const uint32_t texId) const -> bool;
     auto getUniformLocation(const uint32_t programId, const std::string& name) const -> int32_t;
-    auto getMaxTextureSlots() const -> uint32_t;
-    auto convertTextureType(const TextureType type) const -> uint32_t;
-    auto convertColorType(const ColorType type) const -> uint32_t;
+
+    /* Textures */
+    auto generateTexture() const -> uint32_t;
+    auto activateTextureSlot(const uint8_t textureSlot) const -> void;
+    auto bindIdToTextureType(const TextureType texType, const uint32_t texId) const -> void;
+    auto createTexture(const uint32_t width, const uint32_t height, const uint32_t sliceCount,
+        const TextureType texType, const ColorType colType, const TextureOptions texOpts,
+        unsigned char* data) const -> uint32_t;
+    auto bufferTextureData(const uint32_t width, const uint32_t height, const uint32_t sliceCount,
+        const TextureType texType, const ColorType colType, unsigned char* data) -> void;
+    auto unpackAlignment(const uint32_t bytes = 1) const -> void;
+
+    /* Meshes */
     auto useVao(const uint32_t vao) const -> void;
     auto loadMeshData(const std::vector<float> eboData,
         const std::vector<uint32_t> indexData,
         const std::vector<uint32_t> eboComponentsSize) const -> uint32_t;
+
+    auto convertTextureType(const TextureType type) const -> uint32_t;
+    auto convertColorType(const ColorType type) const -> uint32_t;
+    auto getMaxTextureSlots() const -> uint32_t;
 
 private:
     GPUBinder() = default;

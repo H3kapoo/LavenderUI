@@ -29,6 +29,7 @@ auto UILabel::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
     shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", getBorderColor());
+    shader_.uploadInt("uUseTexture", 0);
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */

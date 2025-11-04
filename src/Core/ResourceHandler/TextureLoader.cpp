@@ -52,6 +52,7 @@ auto TextureLoader::loadInternal(const std::filesystem::path& texPath, const Tex
     texture.id = GPUBinder::get().createTexture(
         texture.width,
         texture.height,
+        0, /* No slices. One texture. */
         GPUBinder::TextureType::Single2D,
         colorType,
         GPUBinder::TextureOptions{},

@@ -27,17 +27,18 @@ int main()
 
     UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
 
-    // UIImagePtr img = utils::make<UIImage>();
-    // img->setImage("/home/hekapoo/Documents/probe/move_stuff/assets/textures/awesomeface.png");
-    // img->getBaseLayoutData().setScale({1_fill});
+    UIImagePtr img = utils::make<UIImage>();
+    img->setImage("/home/hekapoo/Documents/probe/move_stuff/assets/textures/awesomeface.png");
+    img->getBaseLayoutData().setScale({1_fill});
 
     UILabelPtr lab = utils::make<UILabel>();
     lab->setText("Some text");
 
     lab->getBaseLayoutData().setScale({300_px, 200_px});
 
-    // window.lock()->add({img, lab});
-    window.lock()->add(lab);
+    window.lock()->add({img, lab});
+    // window.lock()->add(img);
+    // window.lock()->add(lab);
 
     /* Blocks */
     app.run();

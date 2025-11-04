@@ -2,7 +2,6 @@
 
 #include "vendor/glew/include/GL/glew.h"
 #include "vendor/glm/gtc/type_ptr.hpp"
-#include <GL/glext.h>
 #include <numeric>
 #include <type_traits>
 
@@ -99,41 +98,121 @@ auto GPUBinder::renderBoundQuadInstanced(const uint32_t size) const -> void
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, size);
 }
 
-auto GPUBinder::createTexture(const uint32_t width, const uint32_t height, const TextureType texType,
-    const ColorType colType, const TextureOptions texOpts, unsigned char* data) const -> uint32_t
+auto GPUBinder::generateTexture() const -> uint32_t
 {
-    uint32_t id;
-    glGenTextures(1, &id);
+    uint32_t texId;
+    glGenTextures(1, &texId);
+    return texId;
+}
+
+auto GPUBinder::activateTextureSlot(const uint8_t textureSlot) const -> void
+{
+    const uint8_t maxSlots = getMaxTextureSlots();
+    if (textureSlot + 1 > maxSlots)
+    {
+        log_.warn("Max slots is '{}' but tried to activate slot '{}'", maxSlots, textureSlot);
+        return;
+    }
+
+    /* Active unit needs to be indeed [GL_TEXTURE0..maxGL_TEXTURE] */
+    glActiveTexture(GL_TEXTURE0 + textureSlot);
+}
+
+auto GPUBinder::bindIdToTextureType(const TextureType texType, const uint32_t texId) const -> void
+{
+    glBindTexture(convertTextureType(texType), texId);
+}
+
+auto GPUBinder::createTexture(const uint32_t width, const uint32_t height, const uint32_t sliceCount,
+    const TextureType texType, const ColorType colType, const TextureOptions texOpts,
+    unsigned char* data) const -> uint32_t
+{
+    uint32_t id{generateTexture()};
 
     /* Always bind to first texture slot while creating the texture on the GPU. */
-    glActiveTexture(GL_TEXTURE0);
+    activateTextureSlot(0);
 
     const auto convertedTexType = convertTextureType(texType);
     const auto convertedColorType = convertColorType(colType);
     if (!convertedTexType || !convertedColorType) { return 0; }
 
-    glBindTexture(convertedTexType, id);
+    bindIdToTextureType(texType, id);
 
     /* Wrapping, mag & min settings. */
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(convertedTexType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertedTexType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(convertedTexType, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(convertedTexType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(
-        convertedTexType,
-        0, /* Level */
-        convertedColorType,
-        width,
-        height,
-        0 /* Border */,
-        convertedColorType,
-        GL_UNSIGNED_BYTE,
-        data);
+    /* Single 2D Image. */
+    if (texType == GPUBinder::TextureType::Single2D)
+    {
+        glTexImage2D(
+            convertedTexType,
+            0, /* Level */
+            convertedColorType,
+            width,
+            height,
+            0 /* Border */,
+            convertedColorType,
+            GL_UNSIGNED_BYTE,
+            data);
+    }
+    /* Multiple 2D Image slices of same properties. */
+    else if (texType == GPUBinder::TextureType::Array2D)
+    {
+        glTexImage3D(
+            convertedTexType,
+            0, /* Level */
+            convertedColorType,
+            width,
+            height,
+            sliceCount,
+            0, /* Border */
+            convertedColorType,
+            GL_UNSIGNED_BYTE,
+            data);
+    }
 
+    /* Warning. This shall be rebound whenever it is needed! */
     glBindTexture(convertedTexType, 0);
 
     return id;
+}
+
+auto GPUBinder::bufferTextureData(const uint32_t width, const uint32_t height, const uint32_t sliceDepth,
+    const TextureType texType, const ColorType colType, unsigned char* data) -> void
+{
+    /* Note: Using this assumes the texture is bound to the needed type and a texture slot is in use. */
+    const auto convertedTexType = convertTextureType(texType);
+    const auto convertedColorType = convertColorType(colType);
+    if (!convertedTexType || !convertedColorType) { return; }
+
+    if (texType == GPUBinder::TextureType::Single2D)
+    {
+        log_.error("Not implemented Single2D yet {}", __func__);
+        return;
+    }
+    else if (texType == GPUBinder::TextureType::Array2D)
+    {
+        glTexSubImage3D(
+            convertedTexType,
+            0, /* Level */
+            0, /* X Offset */
+            0, /* Y Offset */
+            sliceDepth,
+            width,
+            height,
+            1, /* Depth */
+            convertedColorType,
+            GL_UNSIGNED_BYTE,
+            data);
+    }
+}
+
+auto GPUBinder::unpackAlignment(const uint32_t bytes) const -> void
+{
+    glPixelStorei(GL_UNPACK_ALIGNMENT, bytes);
 }
 
 auto GPUBinder::createProgram() const -> uint32_t
@@ -229,8 +308,7 @@ auto GPUBinder::uploadUniformTexture(const uint32_t programId, const std::string
     /* Shader needs texture slot location in range from [0..maxSlot], not from [GL_TEXTURE0..maxGL_TEXTURE] */
     uploadUniform(programId, name, texSlot);
 
-    /* Active unit needs to be indeed [GL_TEXTURE0..maxGL_TEXTURE] */
-    glActiveTexture(GL_TEXTURE0 + texSlot);
+    activateTextureSlot(texSlot);
 
     const auto& convertedType = convertTextureType(type);
     glBindTexture(convertedType, texId);
@@ -267,6 +345,8 @@ auto GPUBinder::convertColorType(const ColorType type) const -> uint32_t
 {
     switch (type)
     {
+        case ColorType::MONO:
+            return GL_RED;
         case ColorType::RGBA:
             return GL_RGBA;
         case ColorType::RGB:

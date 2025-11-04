@@ -7,7 +7,6 @@
 #include "src/Core/ResourceHandler/Font.hpp"
 #include "vendor/glm/glm.hpp"
 #include "vendor/freetype/include/freetype/freetype.h"
-#include "vendor/glew/include/GL/glew.h"
 
 namespace lav::core
 {
