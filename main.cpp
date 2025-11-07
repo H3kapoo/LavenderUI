@@ -1,6 +1,7 @@
 
 #include "src/App.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LavParser/LavParser.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Node/UIBase.hpp"
@@ -23,20 +24,23 @@ int main()
     App& app = App::get();
 
     if (!app.init()) { return 1; }
+
+
     app.enableTitleWithFPS();
 
-    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
+    UIWindowWPtr window = app.loadView("views/test.xml");
+    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
 
-    UIImagePtr img = utils::make<UIImage>();
-    img->setImage("/home/hekapoo/Documents/probe/move_stuff/assets/textures/awesomeface.png");
-    img->getBaseLayoutData().setScale({1_fill});
+    // UIImagePtr img = utils::make<UIImage>();
+    // // img->setImage("assets/textures/awesomeface.png");
+    // // img->getBaseLayoutData().setScale({1_fill, 1_fill});
 
-    UILabelPtr lab = utils::make<UILabel>();
-    lab->setText("Some text");
+    // UILabelPtr lab = utils::make<UILabel>();
+    // // lab->setText("Some text");
 
-    lab->getBaseLayoutData().setScale({300_px, 200_px});
+    // // lab->getBaseLayoutData().setScale({1_fill, 1_fill});
 
-    window.lock()->add({img, lab});
+    // window.lock()->add({img, lab});
     // window.lock()->add(img);
     // window.lock()->add(lab);
 

@@ -1,8 +1,11 @@
 #include "App.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/Binders/WindowBinder.hpp"
 
 #include <algorithm>
+
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Core/Binders/WindowBinder.hpp"
+#include "src/Core/LavParser/LavParser.hpp"
+#include "src/Node/UIBase.hpp"
 
 namespace lav
 {
@@ -20,9 +23,22 @@ auto App::init() -> bool
     return core::WindowBinder::get().init() && core::GPUBinder::get().init();
 }
 
+auto App::loadView(const std::filesystem::path& viewPath) -> node::UIWindowWPtr
+{
+    node::UIBasePtrVec windowElements = core::LavParser::get().parseFromFile(viewPath);
+    auto window = utils::as<node::UIWindow>(windowElements[0]);
+    windows_.emplace_back(window);
+    return window;
+    // node::UIBasePtrVec windowElements = core::LavParser::get().parseFromFile(viewPath);
+    // node::UIWindowWPtr window = createWindow("myWindow", {1280, 720});
+    // window.lock()->add(windowElements);
+    // return window;
+
+}
+
 auto App::createWindow(const std::string& title, const glm::ivec2 size) -> node::UIWindowWPtr
 {
-    node::UIWindowPtr frame = std::make_shared<node::UIWindow>(title, size);
+    node::UIWindowPtr frame = utils::make<node::UIWindow>(title, size);
     return windows_.emplace_back(frame);
 }
 

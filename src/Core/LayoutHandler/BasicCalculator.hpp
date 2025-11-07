@@ -4,6 +4,7 @@
 // #include "src/Node/UIPane.hpp"
 // #include "src/Node/UISplitPane.hpp"
 #include "src/Node/UIBase.hpp"
+#include "src/Utils/Logger.hpp"
 
 namespace lav::core
 {
@@ -313,5 +314,8 @@ private:
     auto constrainOffset(float wantedOffset,
         const float lpScale, const float lpMin, const float lpMax,
         const float rpScale, const float rpMin, const float rpMax) const -> float;
+
+private:
+    utils::Logger log_{"BasicCalculator"};
 };
 } // namespace lav::core

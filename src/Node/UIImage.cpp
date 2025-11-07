@@ -8,7 +8,10 @@ namespace lav::node
 {
 UIImage::UIImage()
     : UIBase({"UIImage", "elemVert.glsl", "elemFrag.glsl" })
-{}
+{
+    using namespace lav::core;
+    layoutBase_.setScale({200_px, 50_px});
+}
 
 auto UIImage::render(const glm::mat4& projection) -> void
 {

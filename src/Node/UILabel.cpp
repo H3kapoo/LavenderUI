@@ -8,10 +8,10 @@
 
 namespace lav::node
 {
-using namespace core;
 UILabel::UILabel() : UIBase({"UILabel", "elemVert.glsl", "elemFrag.glsl"})
 {
-    layoutBase_.setScale({100_px, 36_px});
+    using namespace lav::core;
+    layoutBase_.setScale({200_px, 50_px});
     setIgnoreEvents();
 }
 

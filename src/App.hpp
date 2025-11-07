@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <vector>
 
 #include "src/Node/UIWindow.hpp"
@@ -34,6 +35,8 @@ public:
         @return True on success. False otherwise.
     */
     auto init() -> bool;
+
+    auto loadView(const std::filesystem::path& viewPath) -> node::UIWindowWPtr;
 
     /**
         @brief Create a new window of specified parameters.

@@ -60,6 +60,8 @@ public:
     auto operator=(const UIBase&) -> UIBase& = delete;
     auto operator=(UIBase&&) -> UIBase& = delete;
 
+    auto unparentMyElements() -> void;
+
     //TODO: Not needed, UISlider can have custom setting to play as a scrollbar or as a normal slider
     auto setCustomTagId(const uint32_t id) -> void;
     auto setIgnoreEvents(const bool ignore = true) -> void;
@@ -79,7 +81,7 @@ public:
     /* Print overload */
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
-protected:
+// protected:
     /**
         @brief Add a new UI child element to this element.
 
@@ -139,6 +141,7 @@ protected:
     */
     auto remove(UIBasePtrVec&& elements) -> void;
 
+protected:
     /**
         @brief Render this element.
 

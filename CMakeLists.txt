@@ -28,6 +28,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
     add_executable(${PROJECT_NAME}
         main.cpp
         src/App.cpp
+        src/Core/LavParser/LavParser.cpp
         src/Core/ResourceHandler/Mesh.cpp
         src/Core/ResourceHandler/Shader.cpp
         src/Core/ResourceHandler/MeshLoader.cpp
@@ -51,6 +52,9 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/Binders/GPUBinder.cpp
         src/Core/Binders/FileResourceBinder.cpp
         src/Utils/Logger.cpp
+
+        vendor/xml/HkXml.cpp
+        vendor/xml/Utility.cpp
     )
 
     # Compile features

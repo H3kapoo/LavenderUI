@@ -6,6 +6,7 @@
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/UIBase.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
 #include "src/Utils/Misc.hpp"
@@ -29,7 +30,8 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
 
     /* Setup hooks into events */
     cbs_ = {
-        .keyCallback =  [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
+        .keyCallback =
+            [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
             { keyHook(key, sc, action, mods); },
         .characterCallback = 
             [this](uint32_t cp){ (void)cp; },
@@ -164,8 +166,16 @@ auto UIWindow::windowResizeHook(const uint32_t x, const uint32_t y) -> void
 
 auto UIWindow::windowMouseEnterHook(const bool entered) -> void
 {
-    (void)entered;
-    mouseMoveHook(uiState_->mousePos.x, uiState_->mousePos.y);
+    if (entered)
+    {
+        mouseMoveHook(uiState_->mousePos.x, uiState_->mousePos.y);
+    }
+    else
+    {
+        propagateEventTo(core::MouseExitEvt{}, uiState_->hoveredId);
+        uiState_->hoveredId = node::NOTHING;
+        uiState_->prevHoveredId = node::NOTHING;
+    }
 }
 
 auto UIWindow::keyHook(const uint32_t key, const uint32_t, const uint32_t action,

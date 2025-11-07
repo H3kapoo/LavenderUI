@@ -89,6 +89,16 @@ auto UIBase::remove(UIBasePtrVec&& elements) -> void
     std::ranges::for_each(std::move(elements), [this](const UIBasePtr& e){ remove(e); });
 }
 
+auto UIBase::unparentMyElements() -> void
+{
+    // std::ranges::for_each(elements_, [this](const UIBasePtr& e){ remove(e); });
+
+    // if (auto p = parent_.lock())
+    // {
+    //     p->remove(shared_from_this());
+    // }
+}
+
 auto UIBase::setCustomTagId(const uint32_t id) -> void { customTagid_ = id; }
 
 auto UIBase::setIgnoreEvents(const bool ignore) -> void { isIgnoringEvents_ = ignore; }

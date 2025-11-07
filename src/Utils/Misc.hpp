@@ -185,6 +185,19 @@ inline auto max(const glm::vec2& a, const glm::vec2& b) -> glm::vec2
 }
 
 /**
+    @brief Return min between 2 glm vec2s.
+
+    @param a First vector
+    @param b Second vector
+
+    @return Min between the 2 vectors.
+*/
+inline auto min(const glm::vec2& a, const glm::vec2& b) -> glm::vec2
+{
+    return glm::vec2{(a.x < b.x) ? a.x : b.x, (a.y < b.y) ? a.y : b.y};
+}
+
+/**
     @brief Round vector to nearest integer.
 
     @param vec Vector to round components of

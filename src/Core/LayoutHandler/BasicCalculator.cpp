@@ -66,11 +66,11 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
 
         if (isXPx) { cScale.x = userScale.x.val - marginLR; }
         else if (isXRel) { cScale.x = nContentBoxScale.x * userScale.x.val - marginLR; }
-        else if (isXFill) { ++fillsNeededPerAxis.x; }
+        else if (isXFill && nType == LayoutBase::Type::HORIZONTAL) { ++fillsNeededPerAxis.x; continue; }
 
         if (isYPx) { cScale.y = userScale.y.val - marginTB; }
         else if (isYRel) { cScale.y = nContentBoxScale.y * userScale.y.val - marginTB; }
-        else if (isYFill) { ++fillsNeededPerAxis.y; }
+        else if (isYFill && nType == LayoutBase::Type::VERTICAL) { ++fillsNeededPerAxis.y; continue; }
 
         if (isXFit || isYFit)
         {
@@ -85,6 +85,8 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
 
         nonFillRunningTotal += cScale;
     }
+
+    fillsNeededPerAxis = utils::max(fillsNeededPerAxis, {1, 1});
 
     /* Process the FILL nodes. */
     const glm::vec2 equalFillSpace = (nContentBoxScale - nonFillRunningTotal) / fillsNeededPerAxis;
