@@ -8,15 +8,13 @@
 
 namespace lav::node
 {
-UILabel::UILabel() : UIBase({"UILabel", "elemVert.glsl", "elemFrag.glsl"})
+
+UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
 {
     using namespace lav::core;
     layoutBase_.setScale({200_px, 50_px});
     setIgnoreEvents();
 }
-
-UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
-{}
 
 auto UILabel::render(const glm::mat4& projection) -> void
 {
@@ -41,7 +39,9 @@ auto UILabel::render(const glm::mat4& projection) -> void
     textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
     textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
     textShader_.uploadTexture2DArray("uTextureArray", 0, textAttribs_.getFont()->textureId);
+    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
     core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
+    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
 }
 
 auto UILabel::layout() -> void
@@ -82,10 +82,6 @@ auto UILabel::event(UIStatePtr& state) -> void
     }
 }
 
-auto UILabel::setColor(const glm::vec4& value) -> UILabel& { baseColor_ = value; return *this; }
 auto UILabel::setText(const std::string& text) -> UILabel& { textAttribs_.setText(text); return *this; }
-auto UILabel::setFont(const std::filesystem::path& fontPath) -> void {}
-
-auto UILabel::getColor() const -> const glm::vec4& { return baseColor_; }
-auto UILabel::getBorderColor() const -> const glm::vec4& { return borderColor_; }
+auto UILabel::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
 } // namespace src::uinodes

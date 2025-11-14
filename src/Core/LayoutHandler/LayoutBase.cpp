@@ -165,6 +165,10 @@ auto LayoutBase::setZIndex(uint32_t val) -> LayoutBase& { index_ = val;  return 
 auto LayoutBase::setEnableCustomIndex(const bool val) -> LayoutBase& { isCustomIndex_ = val;  return *this; }
 auto LayoutBase::setAngle(float val) -> LayoutBase& { angle_ = val; return *this; }
 
+auto LayoutBase::isVertical() const -> bool { return layoutType_ == Type::VERTICAL; }
+auto LayoutBase::isHorizontal() const -> bool { return layoutType_ == Type::HORIZONTAL; }
+auto LayoutBase::isGrid() const -> bool { return layoutType_ == Type::GRID; }
+
 LayoutBase::Scale operator"" _fill(unsigned long long)
 {
     return LayoutBase::Scale{1.0f, LayoutBase::ScaleType::FILL};

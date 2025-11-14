@@ -72,6 +72,7 @@ public:
     auto setTitle(WindowHandle handle, const std::string& title) -> void;
     auto setPollWaitForEvents(const bool wait) -> void;
     auto pollEvents() -> void;
+    auto getTime() -> double;
     auto destroyWindow(WindowHandle handle) -> void;
 
     auto setInputCallbacks(WindowHandle handle, const InputCallbacks& cbs) -> void;

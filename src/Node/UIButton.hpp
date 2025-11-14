@@ -17,24 +17,14 @@ class UIButton : public UIBase
 {
 public:
     /* Mandatory typeinfo */
-    INSERT_TYPEINFO(UIButton);
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIButton, "elemVert.glsl", "elemFrag.glsl");
+    INSERT_ADD_REMOVE_NOT_ALLOWED(UIScroll);
 
-    UIButton();
-    UIButton(UIBaseInitData&& data);
-    ~UIButton() = default;
-    UIButton(const UIButton&) = delete;
-    UIButton(UIBase&&) = delete;
-    auto operator=(const UIButton&) -> UIButton& = delete;
-    auto operator=(UIButton&&) -> UIButton& = delete;
-
-    auto setColor(const glm::vec4& value) -> UIButton&;
-    auto setBorderColor(const glm::vec4& value) -> UIButton&;
     auto setClickedColor(const glm::vec4& color) -> UIButton&;
     auto setHoveredColor(const glm::vec4& color) -> UIButton&;
     auto setEnabled() -> UIButton&;
     auto setDisabled() -> UIButton&;
     auto setText(const std::string& text) -> UIButton&;
-    auto setFont(const std::filesystem::path& fontPath) -> void;
 
     auto isEnabled() -> bool;
     auto getColor() const -> const glm::vec4&;
@@ -48,8 +38,6 @@ private:
 protected:
     UILabelPtr label_{utils::make<UILabel>()};
     std::optional<glm::vec4> overrideColor_{std::nullopt};
-    glm::vec4 baseColor_{utils::hexToVec4("#979797ff")};
-    glm::vec4 borderColor_{utils::hexToVec4("#979797ff")};
     glm::vec4 clickedColor_{utils::hexToVec4("#c95959ff")};
     glm::vec4 hoveredColor_{utils::hexToVec4("#c41c1cff")};
     bool isBtnEnabled_{true};

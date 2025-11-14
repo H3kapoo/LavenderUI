@@ -5,25 +5,20 @@
 
 namespace lav::node
 {
+
 class UIImage : public UIBase
 {
 public:
-    UIImage();
-    ~UIImage() = default;
-    UIImage(const UIImage&) = delete;
-    UIImage(UIBase&&) = delete;
-    UIImage& operator=(const UIImage&) = delete;
-    UIImage& operator=(UIImage&&) = delete;
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIImage, "elemVert.glsl", "elemFrag.glsl");
 
     auto setImage(const std::filesystem::path& path) -> bool;
-
-    /* Mandatory define */
-    INSERT_TYPEINFO(UIImage);
 
 protected:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
     auto event(UIStatePtr& state) -> void override;
+
+    INSERT_ADD_REMOVE_NOT_ALLOWED(UImage);
 
 private:
     core::Texture imgTexData_;

@@ -199,6 +199,10 @@ public:
     auto setEnableCustomIndex(const bool val) -> LayoutBase&;
     auto setAngle(float value) -> LayoutBase&;
 
+    auto isVertical() const -> bool;
+    auto isHorizontal() const -> bool;
+    auto isGrid() const -> bool;
+
     friend auto operator-(const glm::vec2 lhs, const TBLR rhs) -> glm::vec2;
 
 protected:

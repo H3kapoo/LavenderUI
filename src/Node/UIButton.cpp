@@ -11,16 +11,13 @@ namespace lav::node
 {
 using namespace core;
 
-UIButton::UIButton() : UIBase({"UIButton", "elemVert.glsl", "elemFrag.glsl"})
+UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
 {
     layoutBase_.setScale({100_px, 36_px});
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
     label_->setColor(utils::hexToVec4("#ffffff7d"));
     add(label_);
 }
-
-UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
-{}
 
 auto UIButton::render(const glm::mat4& projection) -> void
 {
@@ -33,6 +30,7 @@ auto UIButton::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
     shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", getBorderColor());
+    shader_.uploadInt("uUseTexture", 0);
     core::GPUBinder::get().renderBoundQuad();
 }
 
@@ -85,8 +83,6 @@ auto UIButton::event(UIStatePtr& state) -> void
     }
 }
 
-auto UIButton::setColor(const glm::vec4& value) -> UIButton& { baseColor_ = value; return *this; }
-auto UIButton::setBorderColor(const glm::vec4& value) -> UIButton& { borderColor_ = value; return *this; }
 auto UIButton::setClickedColor(const glm::vec4& color) -> UIButton& { clickedColor_ = color; return *this; }
 auto UIButton::setHoveredColor(const glm::vec4& color) -> UIButton& { hoveredColor_ = color; return *this; }
 auto UIButton::setEnabled() -> UIButton& { isBtnEnabled_ = true; overrideColor_.reset(); return *this; }
@@ -97,8 +93,6 @@ auto UIButton::setDisabled() -> UIButton&
     return *this;
 }
 auto UIButton::setText(const std::string& text) -> UIButton& { label_->setText(text); return *this; }
-auto UIButton::setFont(const std::filesystem::path& fontPath) -> void {}
-
 auto UIButton::isEnabled() -> bool { return isBtnEnabled_; }
 auto UIButton::getColor() const -> const glm::vec4& { return baseColor_; }
 auto UIButton::getBorderColor() const -> const glm::vec4& { return borderColor_; }

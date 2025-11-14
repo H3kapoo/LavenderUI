@@ -1,4 +1,5 @@
 #include "WindowBinder.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 
 namespace lav::core
 {
@@ -32,6 +33,7 @@ auto WindowBinder::init() -> bool
 
     glfwWindowHint(GLFW_VISIBLE, true);
     glfwMakeContextCurrent(initWindowHandle_);
+    enableVSync(true);
 
 #ifdef __linux__
     initDisplay_ = glfwGetX11Display();
@@ -87,7 +89,29 @@ auto WindowBinder::makeContextCurrent(WindowHandle handle) -> void
 #endif
 }
 
-auto WindowBinder::enableVSync(const bool) -> void {}
+auto WindowBinder::enableVSync(const bool enable) -> void
+{
+#ifdef __linux__
+    /* Unfortunately due to drivers or my limited knowledge we can only have the main window obey
+    the vSync rule. As soon as there are 2 or more windows it looks like it doesn't want to apply anymore. */
+
+    typedef int (*PFNGLXSWAPINTERVALMESAPROC)(unsigned int);
+    PFNGLXSWAPINTERVALMESAPROC glXSwapIntervalMESA = reinterpret_cast<PFNGLXSWAPINTERVALMESAPROC>(
+    glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXSwapIntervalMESA")));
+
+    if (glXSwapIntervalMESA)
+    {
+        glXSwapIntervalMESA(enable);
+    }
+    else
+    {
+        log_.error("Not found {}", __func__);
+    }
+
+#else
+    glfwSwapInterval(enable);
+#endif
+}
 
 auto WindowBinder::maskEvents(WindowHandle handle) -> void
 {
@@ -164,6 +188,11 @@ auto WindowBinder::pollEvents() -> void
 auto WindowBinder::destroyWindow(WindowHandle handle) -> void
 {
     glfwDestroyWindow(handle);
+}
+
+auto WindowBinder::getTime() -> double
+{
+    return glfwGetTime();
 }
 
 auto WindowBinder::setUserPointer(WindowHandle handle, void* data) -> void

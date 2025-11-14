@@ -1,9 +1,10 @@
 #pragma once
 
-#include "src/UIElements/UISlider.hpp"
-#include "src/UIElements/UIBase.hpp"
+#include "src/Node/InternalUse/UIScroll.hpp"
+#include "src/Node/UIBase.hpp"
+#include "src/Utils/Misc.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
 /**
     @brief Pane GUI element that can be used as a container for other elements.
@@ -16,13 +17,7 @@ namespace src::uielements
 class UIPane : public UIBase
 {
 public:
-    UIPane();
-    UIPane(const std::type_index& type);
-    virtual ~UIPane() = default;
-    UIPane(const UIPane&) = delete;
-    UIPane(UIBase&&) = delete;
-    auto operator=(const UIPane&) -> UIPane& = delete;
-    auto operator=(UIPane&&) -> UIPane& = delete;
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIPane, "elemVert.glsl", "elemFrag.glsl");
 
     auto setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&;
     auto setScrollSensitivityMultiplier(const float value) -> UIPane&;
@@ -30,10 +25,6 @@ public:
     auto isHorizontalOverflow() const -> bool;
     auto getHorizontalSlider() const -> UISliderWPtr;
     auto getVerticalSlider() const -> UISliderWPtr;
-
-    /* Mandatory typeinfo */
-    INSERT_TYPEINFO(UIPane);
-    BASE_ALLOW_ADD_REMOVE;
 
 protected:
     /**
@@ -59,16 +50,16 @@ protected:
 
         @param state - Window state that will be updated if needed
     */
-    auto updateClosestSlider(state::UIStatePtr& state) -> void;
+    auto updateClosestSlider(node::UIStatePtr& state) -> void;
 
 private:
     virtual auto render(const glm::mat4& projection) -> void override;
     virtual auto layout() -> void override;
-    virtual auto event(state::UIStatePtr& state) -> void override;
+    virtual auto event(node::UIStatePtr& state) -> void override;
 
 protected:
-    UISliderPtr hSlider_;
-    UISliderPtr vSlider_;
+    UIScrollPtr hScroll_;
+    UIScrollPtr vScroll_;
 
 private:
     /** Note: Ideally layout will not be recalculated due to slider addition/removal more than once,
@@ -79,4 +70,4 @@ private:
 using UIPanePtr = std::shared_ptr<UIPane>;
 using UIPaneWPtr = std::weak_ptr<UIPane>;
 using UIPanePtrVec = std::vector<UIPanePtr>;
-} // namespace src::uielements
+} // namespace lav::node

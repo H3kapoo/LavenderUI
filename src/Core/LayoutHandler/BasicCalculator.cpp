@@ -1,5 +1,6 @@
 #include "BasicCalculator.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
@@ -11,9 +12,8 @@
 namespace lav::core
 {
 #define SKIP_SLIDER(element)\
-    // if (element->getTypeId() == node::UISlider::typeId\
-    // && element->getCustomTagId() == node::UISlider::scrollTagId)\
-    // { continue; }\
+    if (element->getTypeId() == node::UIScroll::typeId)\
+    { continue; }\
 
 #define SKIP_ABS_ELEMENT(element)\
     const auto& userPos = element->getPos();\
@@ -28,17 +28,17 @@ auto BasicCalculator::get() -> BasicCalculator&
     return instance;
 }
 
-auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
+auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& childNodes = node->getElements();
-    if (childNodes.empty()) { return; }
+    const auto& elements = parent->getElements();
+    if (elements.empty()) { return; }
 
-    const auto& nLayout = node->getBaseLayoutData();
+    const auto& nLayout = parent->getBaseLayoutData();
     const auto& nType = nLayout.getType();
     if (nType == LayoutBase::Type::GRID)
     {
-        return calculateScaleForGenericElementOfTypeGrid(node, shrinkScaleBy);
+        return calculateScaleForGenericElementOfTypeGrid(parent, shrinkScaleBy);
     }
 
     /* Part of the parent area could be occupied by a scroll bar. We need to account for it. */
@@ -46,15 +46,15 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
 
     glm::vec2 nonFillRunningTotal{0, 0};
     glm::vec2 fillsNeededPerAxis{0, 0};
-    glm::vec2 cScale{0, 0};
-    for (const auto& childNode : childNodes)
+    for (const auto& element : elements)
     {
-        SKIP_SLIDER(childNode);
+        SKIP_SLIDER(element);
 
-        auto& chLayout = childNode->getBaseLayoutData();
-        const auto& userScale = chLayout.getScale();
-        const auto& marginTB = chLayout.getTBMargin();
-        const auto& marginLR = chLayout.getLRMargin();
+        glm::vec2 cScale{0, 0};
+        auto& eLayout = element->getBaseLayoutData();
+        const auto& userScale = eLayout.getScale();
+        const auto& marginTB = eLayout.getTBMargin();
+        const auto& marginLR = eLayout.getLRMargin();
         const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
         const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
         const bool isXRel = userScale.x.type == LayoutBase::ScaleType::REL;
@@ -66,22 +66,22 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
 
         if (isXPx) { cScale.x = userScale.x.val - marginLR; }
         else if (isXRel) { cScale.x = nContentBoxScale.x * userScale.x.val - marginLR; }
-        else if (isXFill && nType == LayoutBase::Type::HORIZONTAL) { ++fillsNeededPerAxis.x; continue; }
+        else if (isXFill && nType == LayoutBase::Type::HORIZONTAL) { ++fillsNeededPerAxis.x; }
 
         if (isYPx) { cScale.y = userScale.y.val - marginTB; }
         else if (isYRel) { cScale.y = nContentBoxScale.y * userScale.y.val - marginTB; }
-        else if (isYFill && nType == LayoutBase::Type::VERTICAL) { ++fillsNeededPerAxis.y; continue; }
+        else if (isYFill && nType == LayoutBase::Type::VERTICAL) { ++fillsNeededPerAxis.y; }
 
         if (isXFit || isYFit)
         {
             /* Returns a mock `userScale` like value calculating what scale the element would be
                 if it wrapped all it's children tightly. */
-            const glm::vec2 fitScale = calculateFitScale(childNode.get());
+            const glm::vec2 fitScale = calculateFitScale(element.get());
             if (isXFit) { cScale.x = fitScale.x - marginLR; }
             if (isYFit) { cScale.y = fitScale.y - marginTB; }
         }
 
-        chLayout.setComputedScale(cScale);
+        eLayout.setComputedScale(cScale);
 
         nonFillRunningTotal += cScale;
     }
@@ -90,20 +90,21 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
 
     /* Process the FILL nodes. */
     const glm::vec2 equalFillSpace = (nContentBoxScale - nonFillRunningTotal) / fillsNeededPerAxis;
-    for (const auto& childNode : childNodes)
+    for (const auto& element : elements)
     {
-        SKIP_SLIDER(childNode);
+        SKIP_SLIDER(element);
 
-        auto& chLayout = childNode->getBaseLayoutData();
-        const auto& userScale = chLayout.getScale();
+        glm::vec2 cScale{0, 0};
+        auto& eLayout = element->getBaseLayoutData();
+        const auto& userScale = eLayout.getScale();
         const bool isXFill = userScale.x.type == LayoutBase::ScaleType::FILL;
         const bool isYFill = userScale.y.type == LayoutBase::ScaleType::FILL;
 
         if (!isXFill && !isYFill) { continue; }
 
-        const auto& marginTB = chLayout.getTBMargin();
-        const auto& marginLR = chLayout.getLRMargin();
-        cScale = chLayout.getComputedScale();
+        const auto& marginTB = eLayout.getTBMargin();
+        const auto& marginLR = eLayout.getLRMargin();
+        cScale = eLayout.getComputedScale();
         if (isXFill)
         {
             cScale.x = equalFillSpace.x - marginLR;
@@ -114,8 +115,9 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* node,
             cScale.y = equalFillSpace.y - marginTB;
         }
 
-        chLayout.setComputedScale(cScale);
+        eLayout.setComputedScale(cScale);
     }
+    // log_.error("scale is {}", cScale);
 }
 
 auto BasicCalculator::calculatePositionForGenericElement(node::UIBase* node,
@@ -283,14 +285,13 @@ auto BasicCalculator::calculateElementOverflow(node::UIBase* node,
     return boxScale - (pContentPos + pContentScale);
 }
 
-auto BasicCalculator::calculateSpacingOnAxis(node::UIBase* node,
+auto BasicCalculator::calculateSpacingOnAxis(node::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> SpacingDetails
 {
-    const auto& childNodes = node->getElements();
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& nLayoutType = nLayout.getType();
-    const auto& nSpacing = nLayout.getSpacing();
-    const auto& nContentBoxScale = nLayout.getContentBoxScale();
+    const auto& elements = parent->getElements();
+    const auto& pLayout = parent->getBaseLayoutData();
+    const auto& pSpacing = pLayout.getSpacing();
+    const auto& nContentBoxScale = pLayout.getContentBoxScale();
 
     glm::vec2 computedSpacing{0, 0};
     glm::vec2 additionalStartPush{0,};
@@ -298,18 +299,18 @@ auto BasicCalculator::calculateSpacingOnAxis(node::UIBase* node,
     /* Calculate max running scale and valid elements for spacing calculations. */
     glm::vec2 maxRunningScale{shrinkScaleBy};
     int32_t elementCountForSpacing{0};
-    for (const auto& childNode : childNodes)
+    for (const auto& element : elements)
     {
         SKIP_SLIDER(element);
-        maxRunningScale += childNode->getBaseLayoutData().getFullBoxScale();
+        maxRunningScale += element->getBaseLayoutData().getFullBoxScale();
         ++elementCountForSpacing;
     }
 
-    glm::vec2 nextPos{nLayout.getContentBoxPos()};
+    glm::vec2 nextPos{pLayout.getContentBoxPos()};
     glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
 
-    switch (nSpacing)
+    switch (pSpacing)
     {
         case LayoutBase::Spacing::TIGHT:
             // Do nothing
@@ -325,13 +326,13 @@ auto BasicCalculator::calculateSpacingOnAxis(node::UIBase* node,
             break;
     }
 
-    if (nLayoutType == LayoutBase::Type::HORIZONTAL)
+    if (pLayout.isHorizontal())
     {
         computedSpacing.y = 0;
         additionalStartPush.y = 0;
         return SpacingDetails{additionalStartPush, computedSpacing};
     }
-    else if (nLayoutType == LayoutBase::Type::VERTICAL)
+    else if (pLayout.isVertical())
     {
         computedSpacing.x = 0;
         additionalStartPush.x = 0;
@@ -416,73 +417,74 @@ auto BasicCalculator::calculateSpacingOnAxis(node::UIBase* node,
 //     calculatePositionForGenericElement(dropdown);
 // }
 
-// auto BasicCalculator::calculateSlidersScaleAndPos(node::UIPane* parent) const -> glm::vec2
-// {
-//     glm::vec2 sliderImpact{0, 0};
-//     const auto& pComputedPos = parent->  getContentBoxPos();
-//     const auto& pComputedScale = parent->getContentBoxScale();
-//     if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
-//     {
-//         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-//         sliderImpact.x = vSlider->getScale().x.val;
-//         vSlider->setComputedPos({
-//             pComputedPos.x + pComputedScale.x - sliderImpact.x,
-//             pComputedPos.y
-//         });
-//         vSlider->setComputedScale({sliderImpact.x, pComputedScale.y});
-//     }
-
-//     if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
-//     {
-//         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
-//         sliderImpact.y = hSlider->getScale().y.val;
-//         hSlider->setComputedPos({
-//             pComputedPos.x,
-//             pComputedPos.y + pComputedScale.y - sliderImpact.y,
-//         });
-//         hSlider->setComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
-//     }
-
-//     return sliderImpact;
-// }
-
-// auto BasicCalculator::calculateElementsOffsetDueToScroll(node::UIPane* parent,
-//     const glm::ivec2 offset) const -> void
-// {
-//     const auto& elements = parent->getElements();
-//     for (const auto& element : elements)
-//     {
-//         SKIP_SLIDER(element);
-//         element->setComputedPos(element->getComputedPos() - offset);
-//     }
-// }
-
-auto BasicCalculator::calculateFitScale(node::UIBase* node) const -> glm::vec2
+auto BasicCalculator::calculateSlidersScaleAndPos(node::UIPane* parent) const -> glm::vec2
 {
-    const auto& childNodes = node->getElements();
-    if (childNodes.empty())
+    glm::vec2 sliderImpact{0, 0};
+    const auto& pLayout = parent->getBaseLayoutData();
+    const auto& pComputedPos = pLayout.getContentBoxPos();
+    const auto& pComputedScale = pLayout.getContentBoxScale();
+    if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
     {
-        utils::Logger("calc").warn("no elements for fit");
+        // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
+        auto& vLayout = vSlider->getBaseLayoutData();
+        sliderImpact.x = vLayout.getScale().x.val;
+        vLayout.setComputedPos({
+            pComputedPos.x + pComputedScale.x - sliderImpact.x,
+            pComputedPos.y
+        });
+        vLayout.setComputedScale({sliderImpact.x, pComputedScale.y});
+    }
+
+    if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
+    {
+        // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
+        auto& hLayout = hSlider->getBaseLayoutData();
+        sliderImpact.y = hLayout.getScale().y.val;
+        hLayout.setComputedPos({
+            pComputedPos.x,
+            pComputedPos.y + pComputedScale.y - sliderImpact.y,
+        });
+        hLayout.setComputedScale({pComputedScale.x - sliderImpact.x, sliderImpact.y});
+    }
+
+    return sliderImpact;
+}
+
+auto BasicCalculator::calculateElementsOffsetDueToScroll(node::UIPane* parent,
+    const glm::ivec2 offset) const -> void
+{
+    const auto& elements = parent->getElements();
+    for (const auto& element : elements)
+    {
+        SKIP_SLIDER(element);
+        auto& eLayout = element->getBaseLayoutData();
+        eLayout.setComputedPos(eLayout.getComputedPos() - offset);
+    }
+}
+
+auto BasicCalculator::calculateFitScale(node::UIBase* parent) const -> glm::vec2
+{
+    const auto& elements = parent->getElements();
+    if (elements.empty())
+    {
+        log_.warn("no elements for fit");
         return {0, 0};
     }
 
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& nMarginLR = nLayout.getLRMargin();
-    const auto& nMarginTB = nLayout.getTBMargin();
-    const auto& nBorder = nLayout.getBorder();
-    const auto& nPadding = nLayout.getPadding();
-    const auto& nType = nLayout.getType();
-    const auto& nUserScale = nLayout.getScale();
-    const bool nIsXFit = nUserScale.x.type == LayoutBase::ScaleType::FIT;
-    const bool nIsYFit = nUserScale.y.type == LayoutBase::ScaleType::FIT;
-    const bool nIsHori = nType == LayoutBase::Type::HORIZONTAL;
-    const bool nIsVert = nType == LayoutBase::Type::VERTICAL;
+    const auto& pLayout = parent->getBaseLayoutData();
+    const auto& pMarginLR = pLayout.getLRMargin();
+    const auto& pMarginTB = pLayout.getTBMargin();
+    const auto& pBorder = pLayout.getBorder();
+    const auto& pPadding = pLayout.getPadding();
+    const auto& pUserScale = pLayout.getScale();
+    const bool nIsXFit = pUserScale.x.type == LayoutBase::ScaleType::FIT;
+    const bool nIsYFit = pUserScale.y.type == LayoutBase::ScaleType::FIT;
 
     glm::vec2 fitScale{0, 0};
-    for (const auto& childNode : childNodes)
+    for (const auto& element : elements)
     {
         SKIP_SLIDER(element);
-        const auto& userScale = childNode->getBaseLayoutData().getScale();
+        const auto& userScale = element->getBaseLayoutData().getScale();
         const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
         const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;
         const bool isXFit = userScale.x.type == LayoutBase::ScaleType::FIT;
@@ -491,7 +493,7 @@ auto BasicCalculator::calculateFitScale(node::UIBase* node) const -> glm::vec2
         glm::vec2 internalFitScale{0, 0};
         if (isXFit || isYFit)
         {
-            internalFitScale = calculateFitScale(childNode.get());
+            internalFitScale = calculateFitScale(element.get());
         }
 
         float value{0};
@@ -499,20 +501,20 @@ auto BasicCalculator::calculateFitScale(node::UIBase* node) const -> glm::vec2
         {
             if (isXPx) { value = userScale.x.val; }
             else if (isXFit) { value = internalFitScale.x; }
-            fitScale.x = nIsVert ? std::max(fitScale.x, value) : value + fitScale.x;
+            fitScale.x = pLayout.isVertical() ? std::max(fitScale.x, value) : value + fitScale.x;
         }
 
         if (nIsYFit)
         {
             if (isYPx) { value = userScale.y.val; }
             else if (isYFit) { value = internalFitScale.y; }
-            fitScale.y = nIsHori ? std::max(fitScale.y, value) : value + fitScale.y;
+            fitScale.y = pLayout.isHorizontal() ? std::max(fitScale.y, value) : value + fitScale.y;
         }
     }
 
     /* Adjust for border and padding of the parent */
-    fitScale.x += nBorder.left + nBorder.right + nPadding.left + nPadding.right + nMarginLR;
-    fitScale.y += nBorder.top + nBorder.bot + nPadding.top + nPadding.bot + nMarginTB;
+    fitScale.x += pBorder.left + pBorder.right + pPadding.left + pPadding.right + pMarginLR;
+    fitScale.y += pBorder.top + pBorder.bot + pPadding.top + pPadding.bot + pMarginTB;
     return fitScale;
 }
 
@@ -560,6 +562,7 @@ auto BasicCalculator::calculateScaleForGenericElementOfTypeGrid(node::UIBase* no
 auto BasicCalculator::calculatePosForGenericElementOfTypeGrid(node::UIBase* node,
     const glm::vec2 shrinkScaleBy) const -> void
 {
+    (void)shrinkScaleBy;
     auto& gridPolicy = node->getBaseLayoutData().getGrid();
     const uint32_t nCol = gridPolicy.cols.size();
     const auto& childNodes = node->getElements();

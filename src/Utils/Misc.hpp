@@ -198,6 +198,36 @@ inline auto min(const glm::vec2& a, const glm::vec2& b) -> glm::vec2
 }
 
 /**
+    @brief Return absolute vector.
+
+    @param a Vector to abs
+
+    @return Abs vector.
+*/
+inline auto abs(const glm::vec2& a) -> glm::vec2
+{
+    return glm::vec2{std::abs(a.x), std::abs(a.y)};
+}
+
+/**
+    @brief Return 'value' when ABS('value') < 'comp', else return 'fallback' component wise.
+
+    @param value Value to compare
+    @param comp Value to compare against
+    @param fallback Fallback value in case comparison fails
+
+    @return Vector accoring to the computation formula
+*/
+inline auto valueIfLowerAbs(
+    const glm::vec2& value, const glm::vec2& comp, const glm::vec2& fallback = {0, 0}) -> glm::vec2
+{
+    return glm::vec2{
+        std::abs(value.x) < comp.x ? value.x : fallback.x,
+        std::abs(value.y) < comp.y ? value.y : fallback.y
+    };
+}
+
+/**
     @brief Round vector to nearest integer.
 
     @param vec Vector to round components of

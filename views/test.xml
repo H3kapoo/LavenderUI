@@ -1,7 +1,5 @@
-<App type="Horizontal" launchScale="1280, 720" title="myWindssow">
-    <Img src="assets/textures/awesomeface.png" scale="50%, 50%"/>
-    <!-- <Img src="assets/textures/awesomeface.png" scale="280px, 200px"/>
-    <Img src="assets/textures/awesomeface.png" scale="Fill, Fill"/>
-    <Label text="Some text here" scale="Fill, Fill"/>
-    <Button text="Click me!" scale="300px, 50px"/> -->
+<App ori="Horizontal" launchScale="1280, 720" title="myWindssow">
+    <Pane scale="500px, 300px">
+        <Img src="assets/textures/awesomeface.png" scale="50%, 50%"/>
+    </Pane>
 </App>

@@ -31,7 +31,9 @@ private:
     auto parseSingleXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
 
     auto parseScale(const std::string& value) const -> LayoutBase::ScaleXY;
+    auto parseNumber(const std::string& value) const -> float;
     auto parseVec2D(const std::string& value) const -> glm::ivec2;
+    auto parseOrientation(const std::string& value) const -> LayoutBase::Type;
 
 private:
     utils::Logger log_{"LavParser"};

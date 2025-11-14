@@ -64,7 +64,9 @@ void main()
     if (outerBoxSdf >= 1) { discard; }
 
     /* Set the color of the inner content */
-    vec4 finalColor = uUseTexture == 1 ? texture(uTexture, vTexCoords) : mix(uColor, vec4(0.0), innerBoxSdf);
+    vec4 finalColor = uUseTexture > 0
+        ? mix(uColor, vec4(0.0), innerBoxSdf) * texture(uTexture, vTexCoords)
+        : mix(uColor, vec4(0.0), innerBoxSdf);
 
     /* Set the color of the border */
     finalColor += mix(vec4(0.0), uBorderColor, inOutDiffSdf);

@@ -4,9 +4,11 @@
 
 #include "src/App.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Core/Binders/WindowBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/BasicCalculator.hpp"
 #include "src/Node/Helpers/UIState.hpp"
+#include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
 #include "src/Utils/Misc.hpp"
@@ -29,6 +31,9 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     updateWindowSizeAndProjection(size);
 
     /* Setup hooks into events */
+    /* TODO: Callbacks like mouseMove/windowResize/mouseScroll
+     fire a lot of times per "frame" creating a lot of unwanted computation.
+     It needs to be dealt with, buffer all calls into a single one. */
     cbs_ = {
         .keyCallback =
             [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
@@ -112,7 +117,7 @@ auto UIWindow::run() -> bool
 
 auto UIWindow::quit() -> void { forcedQuit_ = true; }
 
-auto UIWindow::render(const glm::mat4& projection) -> void {}
+auto UIWindow::render(const glm::mat4& projection) -> void { (void)projection; }
 
 auto UIWindow::layout() -> void
 {
@@ -266,7 +271,17 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
 auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -> void
 {
     uiState_->scrollOffset = {xOffset, yOffset};
-    propagateEventTo(core::MouseScrollEvt{}, uiState_->closestScroll);
+
+    /*
+        Propagate scroll event to the hoveredId.
+        If hoveredId happens to NOT be closestScrollId, send the event to both.
+    */
+    propagateEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
+    if (uiState_->closestScrollId != uiState_->hoveredId)
+    {
+        propagateEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
+    }
+
     uiState_->scrollOffset = {0, 0};
 }
 
@@ -311,13 +326,27 @@ auto UIWindow::areRenderPreconditionsSatisfied(const UIBasePtr& node) -> bool
 {
     //TODO: Do not render nodes that aint visible
     if (!node || !node->isParented()) { return false; }
-    return true;
+
+    if (node->getTypeId() == UIWindow::typeId)
+    {
+        return true;
+    }
+
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& viewScale = nLayout.getViewScale();
+    return viewScale.x > 0 && viewScale.y > 0;
 }
 
 auto UIWindow::areLayoutPreconditionsSatisfied(const UIBasePtr& node) -> bool
 {
-    // Nothing big for now
-    return true;
+    if (node->getTypeId() == UIWindow::typeId)
+    {
+        return true;
+    }
+
+    const auto& nLayout = node->getBaseLayoutData();
+    const auto& viewScale = nLayout.getViewScale();
+    return viewScale.x > 0 && viewScale.y > 0;
 }
 
 auto UIWindow::preRenderSetup(const UIBasePtr& node, const glm::mat4& projection) -> void
@@ -348,6 +377,13 @@ auto UIWindow::preLayoutSetup(const UIBasePtr& node) -> void
 
 auto UIWindow::propagateHoverScanEvent() -> void
 {
+    /* TODO: Propagate functions work at nodeId level and each time we propagate something we need to
+    go thru the tree and find the node, it's very inefficient.
+    We could minimize the overhead by processing all the "queued" events in one pass.
+    Maybe we could send the events in the run() processingQueue loop to have only one master loop over the
+    entire tree, but not sure how that will affect the elements, we might process the event and that event
+    changes the UI but the change is not reflected until the next loop. 
+    However there's nothing stopping us from signaling the window a new loop pass needs to be done from events. */
     uint32_t maxZIndex{0};
 
     processingQueue_.push(shared_from_this());
@@ -373,6 +409,7 @@ auto UIWindow::propagateHoverScanEvent() -> void
 auto UIWindow::postRenderActions(const UIBasePtr& node) -> void
 {
     // Nothing big for now
+    (void)node;
 }
 
 auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
@@ -393,11 +430,11 @@ auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
                 itLayout.setZIndex(nodeLayout.getZIndex() + 1);
             }
 
-            // /* It's a pane scrollbar and it will have a higher custom zIndex */
-            // if (e->getTypeId() == UISlider::typeId && e->getCustomTagId() == UISlider::scrollTagId)
-            // {
-            //     e->setIndex(UISlider::scrollIndexOffset - getIndex());
-            // }
+            /* It's a pane scrollbar and it will have a higher custom zIndex */
+            if (it->getTypeId() == UIScroll::typeId)
+            {
+                itLayout.setZIndex(UIScroll::scrollIndexOffset - nodeLayout.getZIndex());
+            }
 
             /* Depth is used mostly for printing. */
             it->depth_ = node->depth_ + 1;
@@ -406,11 +443,10 @@ auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
 
 auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void
 {
-    title_ = std::move(title);
+    // (void)onlyForShow;
+    // title_ = std::move(title);
     core::WindowBinder::get().setTitle(window_, title);
 }
-
-auto UIWindow::getDeltaTime() -> double { return 0; }
 
 auto UIWindow::getTitle() -> std::string { return title_; }
 
