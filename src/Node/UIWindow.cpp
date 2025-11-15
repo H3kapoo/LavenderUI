@@ -11,6 +11,7 @@
 #include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
+#include "src/Node/UISlider.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 
@@ -86,12 +87,18 @@ auto UIWindow::run() -> bool
         UIBasePtr node = processingQueue_.front();
         processingQueue_.pop();
 
+        /*
+            Note: Pre and post need to always be done even if preconditions are not satisfied to calculate
+            the layout. This is due to fast layout changes (think rescaling the window fast) skipping some
+            of the viewScale/Pos calculations. Rendering doesn't have this problem as view variables are
+            already computed.
+        */
+        preLayoutSetup(node);
         if (areLayoutPreconditionsSatisfied(node))
         {
-            preLayoutSetup(node);
             node->layout();
-            postLayoutActions(node);
         }
+        postLayoutActions(node);
 
         if (areRenderPreconditionsSatisfied(node))
         {

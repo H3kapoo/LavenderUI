@@ -35,8 +35,8 @@ auto TextAttribs::setText(std::string text) -> void
 
     buffer_ = std::move(TextSoA(text.size()));
     glm::ivec2 startPos{pos_};
-    float z{0};
-    float mockIndex = 10;
+    float z{0.1f};
+    // float mockIndex = 10;
     // this supports only one line for now
     // obviously this needs to be done only if the text changes
     const glm::ivec2 textBounds = computeMaxSize();
@@ -47,7 +47,7 @@ auto TextAttribs::setText(std::string text) -> void
         const float y = startPos.y - glyphData.bearing.y + textBounds.y;
 
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        modelMatrix = glm::translate(modelMatrix, glm::vec3{x, y, mockIndex + z});
+        modelMatrix = glm::translate(modelMatrix, glm::vec3{x, y, pos_.z + z});
         modelMatrix = glm::scale(modelMatrix, glm::vec3{font_->fontSize, font_->fontSize, 1});
 
         startPos.x += (glyphData.hAdvance >> 6);
@@ -58,7 +58,7 @@ auto TextAttribs::setText(std::string text) -> void
     }
 }
 
-auto TextAttribs::setPosition(const glm::ivec2& pos) -> void
+auto TextAttribs::setPosition(const glm::ivec3& pos) -> void
 {
     pos_ = pos;
     // only if the position really changes..

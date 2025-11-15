@@ -179,7 +179,11 @@ auto UISlider::setScrollFrom(const float value) -> void
     setText(std::to_string((int)getScrollValue()));
 }
 
-auto UISlider::setScrollTo(const float value) -> void { scrollTo_ = value; }
+auto UISlider::setScrollTo(const float value) -> void
+{
+    scrollTo_ = value;
+    setText(std::to_string((int)getScrollValue()));
+}
 
 auto UISlider::setScrollSensitivity(const float value) -> void { sensitivity_ = value; }
 

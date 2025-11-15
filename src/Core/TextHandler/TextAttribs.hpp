@@ -22,7 +22,7 @@ public:
 
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(std::string text) -> void;
-    auto setPosition(const glm::ivec2& pos) -> void;
+    auto setPosition(const glm::ivec3& pos) -> void;
     auto setValidBounds(const glm::vec2& start, const glm::vec2& scale) -> void;
 
     auto getShader() -> Shader&;
@@ -47,7 +47,7 @@ private:
 private:
     Shader shader_;
     TextSoA buffer_;
-    glm::vec2 pos_{0.0f};
+    glm::vec3 pos_{0.0f};
     std::string text_;
     FontPtr font_;
 };

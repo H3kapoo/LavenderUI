@@ -39,16 +39,14 @@ auto UILabel::render(const glm::mat4& projection) -> void
     textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
     textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
     textShader_.uploadTexture2DArray("uTextureArray", 0, textAttribs_.getFont()->textureId);
-    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
     core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
-    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
 }
 
 auto UILabel::layout() -> void
 {
     const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
         - textAttribs_.computeMaxSize() / 2.0f;
-    textAttribs_.setPosition(p);
+    textAttribs_.setPosition({p.x, p.y, layoutBase_.getZIndex()});
 }
 
 auto UILabel::event(UIStatePtr& state) -> void

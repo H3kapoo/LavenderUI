@@ -43,10 +43,10 @@ auto UIPane::layout() -> void
 
         overflow = calculator.calculateElementOverflow(this, sliderImpact);
         calculator.calculateAlignmentForElements(this, overflow);
-
         ++updateTriesCount_;
         /* Adding new elements (slides in this case) invalidates the calculations. */
-    } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
+    // } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
+    } while(updateSlidersWithOverflow(overflow) && updateTriesCount_ < maxUpdateTries_);
 
     calculator.calculateElementsOffsetDueToScroll(this, {
         hScroll_ ? hScroll_->getScrollValue() : 0,
@@ -63,7 +63,7 @@ auto UIPane::event(node::UIStatePtr& state) -> void
     if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
     {
         MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        return eventsMgr_.emitEvent<MouseButtonEvt>(e);
+        eventsMgr_.emitEvent<MouseButtonEvt>(e);
     }
 }
 
@@ -133,7 +133,6 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     {
         vScroll_ = utils::make<UIScroll>();
         vScroll_->setInvertAxis(true);
-        // vScroll_->setCustomTagId(UIScroll::scrollTagId);
         vScroll_->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL)
             .setScale({20_px, 1.0_rel});
     }
@@ -142,7 +141,6 @@ auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
     if (enableH)
     {
         hScroll_ = utils::make<UIScroll>();
-        // hScroll_->setCustomTagId(UIScroll::scrollTagId);
         // hScroll_->setColor(utils::hexToVec4("#aaaaaaff"));
         hScroll_->getBaseLayoutData().setType(LayoutBase::Type::HORIZONTAL)
             .setScale({1.0_rel, 20_px});

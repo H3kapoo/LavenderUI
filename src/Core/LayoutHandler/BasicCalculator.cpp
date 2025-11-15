@@ -2,12 +2,12 @@
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
-#include "src/Node/UIButton.hpp"
 // #include "src/Uinodes/UIDropdown.hpp"
 // #include "src/Uinodes/UIPane.hpp"
 // #include "src/Uinodes/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
+#include <optional>
 
 namespace lav::core
 {
@@ -46,6 +46,9 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* parent,
 
     glm::vec2 nonFillRunningTotal{0, 0};
     glm::vec2 fillsNeededPerAxis{0, 0};
+    glm::ivec2 intTotal{0, 0};
+    node::UIBasePtr lastElement{nullptr};
+
     for (const auto& element : elements)
     {
         SKIP_SLIDER(element);
@@ -81,10 +84,25 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* parent,
             if (isYFit) { cScale.y = fitScale.y - marginTB; }
         }
 
+        nonFillRunningTotal += cScale;
+        cScale = utils::round(cScale);
+
         eLayout.setComputedScale(cScale);
 
-        nonFillRunningTotal += cScale;
+        intTotal += cScale;
+        lastElement = element;
     }
+
+    // if (intTotal.x < nonFillRunningTotal.x)
+    // {
+    //     log_.warn("total {}   intTotal {}", nonFillRunningTotal.x, intTotal.x);
+    //     const float diff = nonFillRunningTotal.x - intTotal.x;
+    //     auto& eLayout = lastElement->getBaseLayoutData();
+    //     auto sc = eLayout.getComputedScale();
+    //     sc.x -= diff;
+    //     eLayout.setComputedScale(sc);
+    //     log_.warn("newsc for last {}", sc.x);
+    // }
 
     fillsNeededPerAxis = utils::max(fillsNeededPerAxis, {1, 1});
 
@@ -115,73 +133,73 @@ auto BasicCalculator::calculateScaleForGenericElement(node::UIBase* parent,
             cScale.y = equalFillSpace.y - marginTB;
         }
 
+        /* Note: Rounding errors again when using relative.. */
+        cScale = utils::round(cScale);
         eLayout.setComputedScale(cScale);
     }
-    // log_.error("scale is {}", cScale);
 }
 
-auto BasicCalculator::calculatePositionForGenericElement(node::UIBase* node,
+auto BasicCalculator::calculatePositionForGenericElement(node::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {
-    const auto& childNodes = node->getElements();
-    if (childNodes.empty()) { return; }
+    const auto& elements = parent->getElements();
+    if (elements.empty()) { return; }
 
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& nType = nLayout.getType();
-    if (nType == LayoutBase::Type::GRID)
+    const auto& pLayout = parent->getBaseLayoutData();
+    if (pLayout.isGrid())
     {
-        return calculatePosForGenericElementOfTypeGrid(node, shrinkScaleBy);
+        return calculatePosForGenericElementOfTypeGrid(parent, shrinkScaleBy);
     }
 
-    const auto& nContentBoxPos = nLayout.getContentBoxPos();
-    const auto& nContentBoxScale = nLayout.getContentBoxScale() - shrinkScaleBy;
-    const auto& nContentBoxMaxPoint = nContentBoxPos + nContentBoxScale;
-    const auto& nWrap = nLayout.getWrap();
+    const auto& pContentBoxPos = pLayout.getContentBoxPos();
+    const auto& pContentBoxScale = pLayout.getContentBoxScale() - shrinkScaleBy;
+    const auto& pContentBoxMaxPoint = pContentBoxPos + pContentBoxScale;
+    const auto& pWrap = pLayout.getWrap();
 
-    SpacingDetails spacingDetails = calculateSpacingOnAxis(node, shrinkScaleBy);
+    SpacingDetails spacingDetails = calculateSpacingOnAxis(parent, shrinkScaleBy);
 
-    glm::vec2 nextPos{nContentBoxPos + spacingDetails.additionalStartPush};
+    glm::vec2 nextPos{pContentBoxPos + spacingDetails.additionalStartPush};
     glm::vec2 computedPos{0, 0};
     glm::vec2 maxOnAxis{0, 0};
-    for (auto& childNode : childNodes)
+    for (auto& element : elements)
     {
-        SKIP_SLIDER(childNode);
+        SKIP_SLIDER(element);
 
-        auto& chLayout = childNode->getBaseLayoutData();
-        const auto& margins = chLayout.getMargin();
-        const auto& userPos = chLayout.getPos();
+        auto& eLayout = element->getBaseLayoutData();
+        const auto& margins = eLayout.getMargin();
+        const auto& userPos = eLayout.getPos();
         if (userPos.x.type == LayoutBase::PositionType::ABS || userPos.y.type == LayoutBase::PositionType::ABS)
         {
             // TODO: Take into consideration element's margins.
             // Margins will push the computed position inwards.
-            chLayout.setComputedPos({userPos.x.val, userPos.y.val});
+            eLayout.setComputedPos({userPos.x.val, userPos.y.val});
             continue;
         }
 
-        const auto& compScale = chLayout.getComputedScale();
-        const glm::vec2 fullBoxScale = chLayout.getFullBoxScale();
+        const auto& compScale = eLayout.getComputedScale();
+        const glm::vec2 fullBoxScale = eLayout.getFullBoxScale();
         const glm::vec2 nextMaxPoint = nextPos + fullBoxScale;
         const glm::vec2 marginPush = glm::vec2{margins.left, margins.top};
 
         /* Note: `nextPos` starts at the end of the previous' element margin end. */
-        if (nType == LayoutBase::Type::HORIZONTAL)
+        if (pLayout.isHorizontal())
         {
-            if (nWrap && nextMaxPoint.x > nContentBoxMaxPoint.x)
+            if (pWrap && nextMaxPoint.x > pContentBoxMaxPoint.x)
             {
                 nextPos.y += maxOnAxis.y;
-                nextPos.x = nContentBoxPos.x;
+                nextPos.x = pContentBoxPos.x;
                 maxOnAxis.y = 0;
             }
 
             computedPos = nextPos + marginPush;
             nextPos.x = computedPos.x + compScale.x + margins.right + spacingDetails.spaceBetween.x;
         }
-        else if (nType == LayoutBase::Type::VERTICAL)
+        else if (pLayout.isVertical())
         {
-            if (nWrap && nextMaxPoint.y > nContentBoxMaxPoint.y)
+            if (pWrap && nextMaxPoint.y > pContentBoxMaxPoint.y)
             {
                 nextPos.x += maxOnAxis.x;
-                nextPos.y = nContentBoxPos.y;
+                nextPos.y = pContentBoxPos.y;
                 maxOnAxis.x = 0;
             }
 
@@ -190,7 +208,7 @@ auto BasicCalculator::calculatePositionForGenericElement(node::UIBase* node,
         }
         maxOnAxis = utils::max(maxOnAxis, fullBoxScale);
 
-        chLayout.setComputedPos(computedPos);
+        eLayout.setComputedPos(computedPos);
     }
 }
 
@@ -260,24 +278,24 @@ auto BasicCalculator::calculateAlignmentForElements(node::UIBase* node,
     }
 }
 
-auto BasicCalculator::calculateElementOverflow(node::UIBase* node,
+auto BasicCalculator::calculateElementOverflow(node::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> glm::vec2
 {
     glm::vec2 boxScale{0, 0};
-    const auto& childNodes = node->getElements();
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& pContentPos = nLayout.getContentBoxPos();
-    const auto& pContentScale = nLayout.getContentBoxScale() - shrinkScaleBy;
-    for (const auto& childNode : childNodes)
+    const auto& elements = parent->getElements();
+    const auto& pLayout = parent->getBaseLayoutData();
+    const auto& pContentPos = pLayout.getContentBoxPos();
+    const auto& pContentScale = pLayout.getContentBoxScale() - shrinkScaleBy;
+    for (const auto& element : elements)
     {
         // SKIP_ABS_ELEMENT(element);
 
         /* Shall not be taken into consideration for overflow */
-        SKIP_SLIDER(childNode);
+        SKIP_SLIDER(element);
 
-        const auto& chLayout = childNode->getBaseLayoutData();
-        const auto& fullPos = chLayout.getFullBoxPos();
-        const auto& fullScale = chLayout.getFullBoxScale();
+        const auto& eLayout = element->getBaseLayoutData();
+        const auto& fullPos = eLayout.getFullBoxPos();
+        const auto& fullScale = eLayout.getFullBoxScale();
         boxScale.x = std::max(boxScale.x, fullPos.x + fullScale.x);
         boxScale.y = std::max(boxScale.y, fullPos.y + fullScale.y);
     }
@@ -421,8 +439,8 @@ auto BasicCalculator::calculateSlidersScaleAndPos(node::UIPane* parent) const ->
 {
     glm::vec2 sliderImpact{0, 0};
     const auto& pLayout = parent->getBaseLayoutData();
-    const auto& pComputedPos = pLayout.getContentBoxPos();
-    const auto& pComputedScale = pLayout.getContentBoxScale();
+    const auto& pComputedPos = pLayout.getComputedPos();
+    const auto& pComputedScale = pLayout.getComputedScale();
     if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.

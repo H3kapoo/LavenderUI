@@ -5,6 +5,7 @@
 #include "vendor/glm/ext/vector_float2.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 #include "vendor/glm/trigonometric.hpp"
+#include <cmath>
 
 namespace lav::core
 {
@@ -45,11 +46,20 @@ auto LayoutBase::computeViewBox(const LayoutBase& parentAttribs) -> void
         std::max((float)parentAttribs.viewPos_.y + pBorderPos.y, computedPos_.y)
     };
 
+    /* NOTE: I added this round here because there were issues when objects were relatively scaled.
+    ViewScale was 0.5px bigger than computedScale, thus viewscale was in the end one pixel bigger than
+    it should of been. If any other rounding problems between computed and view appear, look here. */
+    // computedScale_.x = std::round(computedScale_.x);
+    // computedScale_.y  = std::round(computedScale_.y);
     const glm::vec2 pViewEnd = parentAttribs.viewPos_ + pBorderPos + parentAttribs.viewScale_ - pBorderScale;
     const glm::vec2 thisEnd = computedPos_ + computedScale_;
+
+    /*TODO: I don't remember why i did this rounding here.. */
     viewScale_ = {
-        std::round(std::max(0.0f, std::min(pViewEnd.x, thisEnd.x) - viewPos_.x)),
-        std::round(std::max(0.0f, std::min(pViewEnd.y, thisEnd.y) - viewPos_.y))
+        (std::max(0.0f, std::min(pViewEnd.x, thisEnd.x) - viewPos_.x)),
+        (std::max(0.0f, std::min(pViewEnd.y, thisEnd.y) - viewPos_.y))
+        // std::round(std::max(0.0f, std::min(pViewEnd.x, thisEnd.x) - viewPos_.x)),
+        // std::round(std::max(0.0f, std::min(pViewEnd.y, thisEnd.y) - viewPos_.y))
     };
 }
 
