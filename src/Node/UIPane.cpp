@@ -11,7 +11,6 @@ namespace lav::node
 {
 UIPane::UIPane(UIBaseInitData&& initData) : UIBase(std::move(initData))
 {
-    using namespace core;
     layoutBase_.setScale({200_px, 50_px});
 }
 
@@ -130,6 +129,7 @@ auto UIPane::getClosestScrollbar(const glm::ivec2 pMouse) const -> uint32_t
     uint32_t closestScrollbarId{node::NOTHING};
 
     /* When outside the UIScroll, prioritize vertical bar no matter where the mouse is. */
+    //TODO: Actually yes, take into consideration if we are inside the pane that has the scroll enabled
     if (hScroll_ && hScroll_->isParented())
     {
         closestScrollbarId = hScroll_->getId();
@@ -157,12 +157,11 @@ auto UIPane::getClosestScrollbar(const glm::ivec2 pMouse) const -> uint32_t
 
 auto UIPane::setScrollEnabled(const bool enableHorizontal, const bool enableVertical) -> UIPane&
 {
-    using namespace core;
     if (enableHorizontal)
     {
         hScroll_ = utils::make<UIScroll>();
-        hScroll_->getBaseLayoutData().setType(LayoutBase::Type::HORIZONTAL)
-            .setScale({1.0_rel, 30_px});
+        hScroll_->getBaseLayoutData().setType(core::LayoutBase::Type::HORIZONTAL)
+            .setScale({1.0_rel, 20_px});
     }
     else
     {
@@ -173,8 +172,8 @@ auto UIPane::setScrollEnabled(const bool enableHorizontal, const bool enableVert
     {
         vScroll_ = utils::make<UIScroll>();
         vScroll_->setInvertAxis(true);
-        vScroll_->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL)
-            .setScale({30_px, 1.0_rel});
+    vScroll_->getBaseLayoutData().setType(core::LayoutBase::Type::VERTICAL)
+            .setScale({20_px, 1.0_rel});
     }
     else
     {

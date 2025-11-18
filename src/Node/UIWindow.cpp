@@ -289,6 +289,7 @@ auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -
     }
 
     uiState_->scrollOffset = {0, 0};
+    uiState_->closestScrollId = node::NOTHING;
 }
 
 auto UIWindow::initializeDefaultCursors() -> void

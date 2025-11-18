@@ -9,8 +9,6 @@
 
 namespace lav::node
 {
-using namespace core;
-
 UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
 {
     layoutBase_.setScale({100_px, 36_px});
@@ -45,41 +43,40 @@ auto UIButton::event(UIStatePtr& state) -> void
 {
     if (!isBtnEnabled_) { return; }
 
-    using namespace core;
     const auto eId = state->currentEventId;
-    if (eId == MouseLeftClickEvt::eventId)
+    if (eId == core::MouseLeftClickEvt::eventId)
     {
         overrideColor_ = clickedColor_;
-        MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseLeftClickEvt>(e);
+        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        return eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
-    else if (eId == MouseLeftReleaseEvt::eventId)
+    else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
         if (state->hoveredId == getId()) { overrideColor_ = hoveredColor_; }
         else { overrideColor_.reset(); }
 
-        MouseLeftReleaseEvt e;
-        return eventsMgr_.emitEvent<MouseLeftReleaseEvt>(e);
+        core::MouseLeftReleaseEvt e;
+        return eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
-    else if (eId == MouseDragEvt::eventId)
+    else if (eId == core::MouseDragEvt::eventId)
     {
-        MouseDragEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseDragEvt>(e);
+        core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
+        return eventsMgr_.emitEvent<core::MouseDragEvt>(e);
     }
-    else if (eId == MouseEnterEvt::eventId)
+    else if (eId == core::MouseEnterEvt::eventId)
     {
         if (state->clickedId != getId()) { overrideColor_ = hoveredColor_; }
 
-        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseEnterEvt>(e);
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        return eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
-    else if (eId == MouseExitEvt::eventId)
+    else if (eId == core::MouseExitEvt::eventId)
     {
         if (state->clickedId == getId()) { overrideColor_ = clickedColor_; }
         else { overrideColor_.reset(); }
 
-        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseExitEvt>(e);
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        return eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
 }
 

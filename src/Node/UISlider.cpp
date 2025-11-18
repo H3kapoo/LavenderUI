@@ -10,7 +10,6 @@ namespace lav::node
 {
 UISlider::UISlider(UIBaseInitData&& initData) : UIBase(std::move(initData))
 {
-    using namespace core; // TODO: _px needs to be exposed to the lav namespace instead of ::core
     knobColor_ = utils::hexToVec4("#ca5555ff");
     label_->setColor(utils::hexToVec4("#ffffff00"));
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
@@ -69,28 +68,26 @@ auto UISlider::layout() -> void
 
 auto UISlider::event(node::UIStatePtr& state) -> void
 {
-    using namespace core;
-
     const auto eId = state->currentEventId;
-    if (eId == MouseScrollEvt::eventId)
+    if (eId == core::MouseScrollEvt::eventId)
     {
         // NOTE: inverting affects horizontal sliders. No side effects really.
         setScrollValue(scrollValue_ + state->scrollOffset.y * sensitivity_ * (invertVertical_ ? -1 : 1));
 
-        SliderEvt sliderEvt{getScrollValue()}; 
-        eventsMgr_.emitEvent<SliderEvt>(sliderEvt);
+        core::SliderEvt sliderEvt{getScrollValue()}; 
+        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
     }
-    else if (eId == MouseDragEvt::eventId)
+    else if (eId == core::MouseDragEvt::eventId)
     {
         percentage_ = calculatePercentage(state->mousePos - distToKnobCenter_);
 
-        SliderEvt sliderEvt{getScrollValue()};
-        eventsMgr_.emitEvent<SliderEvt>(sliderEvt);
+        core::SliderEvt sliderEvt{getScrollValue()};
+        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
 
-        MouseDragEvt e;
-        eventsMgr_.emitEvent<MouseDragEvt>(e);
+        core::MouseDragEvt e;
+        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
     }
-    else if (eId == MouseLeftClickEvt::eventId)
+    else if (eId == core::MouseLeftClickEvt::eventId)
     {
         const glm::vec2 knobHalf = knobLayout_.getComputedScale() / 2.0f;
         const glm::ivec2 middle = knobLayout_.getComputedPos() + knobHalf;
@@ -98,18 +95,18 @@ auto UISlider::event(node::UIStatePtr& state) -> void
         distToKnobCenter_ = utils::valueIfLowerAbs(distToKnobCenter_, knobHalf);
         percentage_ = calculatePercentage(state->mousePos - distToKnobCenter_);
 
-        SliderEvt sliderEvt{getScrollValue()};
-        eventsMgr_.emitEvent<SliderEvt>(sliderEvt);
+        core::SliderEvt sliderEvt{getScrollValue()};
+        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
     }
-    else if (eId == MouseEnterEvt::eventId)
+    else if (eId == core::MouseEnterEvt::eventId)
     {
-        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<MouseEnterEvt>(e);
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
-    else if (eId == MouseExitEvt::eventId)
+    else if (eId == core::MouseExitEvt::eventId)
     {
-        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<MouseExitEvt>(e);
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
 
     setText(std::to_string((int)scrollValue_));

@@ -5,7 +5,6 @@
 
 namespace lav::node
 {
-
 class UIImage : public UIBase
 {
 public:

@@ -8,10 +8,8 @@
 
 namespace lav::node
 {
-
 UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
 {
-    using namespace lav::core;
     layoutBase_.setScale({200_px, 50_px});
     setIgnoreEvents();
 }

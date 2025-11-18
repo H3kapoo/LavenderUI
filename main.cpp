@@ -40,7 +40,7 @@ int main()
 
     UIPanePtr holder = utils::make<UIPane>();
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 3; i++)
     {
         UIPanePtr pane = utils::make<UIPane>();
         if (i%2)
@@ -51,7 +51,7 @@ int main()
         {
             pane->setColor(utils::hexToVec4("#8d7e8dff"));
         }
-        pane->setScrollEnabled(false, false).setScrollSensitivity(2);
+        pane->setScrollEnabled(true, true).setScrollSensitivity(2);
         pane->getBaseLayoutData()
             .setType(LayoutBase::Type::VERTICAL)
             // .setPadding(20)

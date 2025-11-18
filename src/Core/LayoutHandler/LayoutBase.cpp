@@ -179,45 +179,6 @@ auto LayoutBase::isVertical() const -> bool { return layoutType_ == Type::VERTIC
 auto LayoutBase::isHorizontal() const -> bool { return layoutType_ == Type::HORIZONTAL; }
 auto LayoutBase::isGrid() const -> bool { return layoutType_ == Type::GRID; }
 
-LayoutBase::Scale operator"" _fill(unsigned long long)
-{
-    return LayoutBase::Scale{1.0f, LayoutBase::ScaleType::FILL};
-}
-
-LayoutBase::Scale operator"" _fit(unsigned long long)
-{
-    return LayoutBase::Scale{1.0f, LayoutBase::ScaleType::FIT};
-}
-
-LayoutBase::Scale operator"" _px(unsigned long long value)
-{
-    /* Loss of precision justified. */
-    return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::PX};
-}
-
-LayoutBase::Scale operator"" _rel(long double value)
-{
-    /* Loss of precision justified. */
-    return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::REL};
-}
-
-LayoutBase::Scale operator"" _fr(unsigned long long value)
-{
-    /* Loss of precision justified. */
-    return LayoutBase::Scale{(float)value, LayoutBase::ScaleType::FR};
-}
-
-LayoutBase::Position operator"" _abs(unsigned long long value)
-{
-    return LayoutBase::Position(value, LayoutBase::PositionType::ABS);
-}
-
-LayoutBase::Position operator"" _comp(unsigned long long value)
-{
-    /* Won't really matter much as computed is the default and anything the user puts here is discared. */
-    return LayoutBase::Position(value, LayoutBase::PositionType::COMPUTED);
-}
-
 auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
 {
     return {lhs.x - (rhs.left + rhs.right), lhs.y - (rhs.top + rhs.bot)};
@@ -243,3 +204,45 @@ auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
     return {lhs.x / rhs.x, lhs.y / rhs.y};
 }
 } // namespace lav::core
+
+namespace lav
+{
+core::LayoutBase::Scale operator"" _fill(unsigned long long)
+{
+    return core::LayoutBase::Scale{1.0f, core::LayoutBase::ScaleType::FILL};
+}
+
+core::LayoutBase::Scale operator"" _fit(unsigned long long)
+{
+    return core::LayoutBase::Scale{1.0f, core::LayoutBase::ScaleType::FIT};
+}
+
+core::LayoutBase::Scale operator"" _px(unsigned long long value)
+{
+    /* Loss of precision justified. */
+    return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::PX};
+}
+
+core::LayoutBase::Scale operator"" _rel(long double value)
+{
+    /* Loss of precision justified. */
+    return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::REL};
+}
+
+core::LayoutBase::Scale operator"" _fr(unsigned long long value)
+{
+    /* Loss of precision justified. */
+    return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::FR};
+}
+
+core::LayoutBase::Position operator"" _abs(unsigned long long value)
+{
+    return core::LayoutBase::Position(value, core::LayoutBase::PositionType::ABS);
+}
+
+core::LayoutBase::Position operator"" _comp(unsigned long long value)
+{
+    /* Won't really matter much as computed is the default and anything the user puts here is discared. */
+    return core::LayoutBase::Position(value, core::LayoutBase::PositionType::COMPUTED);
+}
+} // namespace lav

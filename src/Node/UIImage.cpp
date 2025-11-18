@@ -9,7 +9,6 @@ namespace lav::node
 {
 UIImage::UIImage(UIBaseInitData&& initData) : UIBase(std::move(initData))
 {
-    using namespace lav::core;
     layoutBase_.setScale({200_px, 50_px});
 }
 
@@ -38,7 +37,6 @@ auto UIImage::layout() -> void
 
 auto UIImage::event(UIStatePtr&) -> void
 {
-
 }
 
 auto UIImage::setImage(const std::filesystem::path& path) -> bool
