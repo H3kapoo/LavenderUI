@@ -38,7 +38,9 @@ int main()
         .setAlign(LayoutBase::Align::CENTER)
         ;
 
-    for (int i = 0; i < 3; i++)
+    UIPanePtr holder = utils::make<UIPane>();
+
+    for (int i = 0; i < 1; i++)
     {
         UIPanePtr pane = utils::make<UIPane>();
         if (i%2)
@@ -49,11 +51,12 @@ int main()
         {
             pane->setColor(utils::hexToVec4("#8d7e8dff"));
         }
-        pane->setScrollEnabled(true, true);
+        pane->setScrollEnabled(false, false).setScrollSensitivity(2);
         pane->getBaseLayoutData()
             .setType(LayoutBase::Type::VERTICAL)
             // .setPadding(20)
-            .setScale({0.3_rel});
+            .setScale({0.35_rel});
+            // .setScale({1_fill});
 
         window.lock()->add(pane);
 

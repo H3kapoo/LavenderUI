@@ -4,6 +4,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/BasicCalculator.hpp"
 #include "src/Core/ResourceHandler/Shader.hpp"
+#include "src/Node/Helpers/UIState.hpp"
 #include "src/Utils/Misc.hpp"
 
 namespace lav::node
@@ -31,126 +32,159 @@ auto UIPane::render(const glm::mat4& projection) -> void
 
 auto UIPane::layout() -> void
 {
-    const auto& calculator = core::BasicCalculator::get();
-
-    updateTriesCount_ = 0;
-    glm::ivec2 overflow{0, 0};
-    do
+    /* Calculate the layout and do it again if the layout became invalid. */
+    if (setInternalScrollOverflow(calculateLayout()))
     {
-        const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
-        calculator.calculateScaleForGenericElement(this, sliderImpact);
-        calculator.calculatePositionForGenericElement(this, sliderImpact);
+        setInternalScrollOverflow(calculateLayout());
+    }
 
-        overflow = calculator.calculateElementOverflow(this, sliderImpact);
-        calculator.calculateAlignmentForElements(this, overflow);
-        ++updateTriesCount_;
-        /* Adding new elements (slides in this case) invalidates the calculations. */
-    // } while(updateTriesCount_ < maxUpdateTries_ && updateSlidersWithOverflow(overflow));
-    } while(updateSlidersWithOverflow(overflow) && updateTriesCount_ < maxUpdateTries_);
-
-    calculator.calculateElementsOffsetDueToScroll(this, {
+    const auto& calculator = core::BasicCalculator::get();
+    calculator.calculateElementsOffsetDueToScroll(this,
+    {
         hScroll_ ? hScroll_->getScrollValue() : 0,
-        vScroll_ ? vScroll_->getScrollValue() : 0});
+        vScroll_ ? vScroll_->getScrollValue() : 0
+    });
 }
 
 auto UIPane::event(node::UIStatePtr& state) -> void
 {
-    using namespace core;
-
-    updateClosestSlider(state);
-
     const auto eId = state->currentEventId;
-    if (eId == MouseButtonEvt::eventId && state->hoveredId == id_)
+    if (eId == core::MouseButtonEvt::eventId)
     {
-        MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        eventsMgr_.emitEvent<MouseButtonEvt>(e);
+        core::MouseButtonEvt e{state->mouseButton, state->mouseAction};
+        eventsMgr_.emitEvent<core::MouseButtonEvt>(e);
+    }
+    else if (state->currentEventId == core::MouseMoveEvt::eventId)
+    {
+        if (layoutBase_.isPointInsideView(state->mousePos))
+        {
+            state->closestScrollId = getClosestScrollbar(state->mousePos);
+        }
     }
 }
 
-auto UIPane::updateSlidersWithOverflow(const glm::vec2& overflow) -> bool
+auto UIPane::calculateLayout() -> glm::ivec2
 {
-    bool needsRecalc{false};
-    if (hScroll_ && overflow.x > 0)
-    {
-        if (!hScroll_->isParented()) { add(hScroll_); needsRecalc = true; }
-        hScroll_->setScrollTo(overflow.x);
-    }
-    else if (hScroll_ && overflow.x <= 0 && hScroll_->isParented())
-    {
-        hScroll_->setScrollValue(0);
-        if (hScroll_->isParented()) { remove(hScroll_); needsRecalc = true; }
-    }
+    const auto& calculator = core::BasicCalculator::get();
+    glm::ivec2 overflow{0, 0};
 
-    if (vScroll_ && overflow.y > 0)
-    {
-        if (!vScroll_->isParented()) { add(vScroll_); needsRecalc = true; }
-        vScroll_->setScrollTo(overflow.y);
-    }
-    else if (vScroll_ && overflow.y <= 0 && vScroll_->isParented())
-    {
-        vScroll_->setScrollValue(0);
-        if (vScroll_->isParented()) { remove(vScroll_); needsRecalc = true; }
-    }
+    const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
+    calculator.calculateScaleForGenericElement(this, sliderImpact);
+    calculator.calculatePositionForGenericElement(this, sliderImpact);
 
-    return needsRecalc;
+    overflow = calculator.calculateElementOverflow(this, sliderImpact);
+    calculator.calculateAlignmentForElements(this, overflow);
+
+    return overflow;
 }
 
-auto UIPane::updateClosestSlider(node::UIStatePtr& state) -> void
+auto UIPane::setInternalScrollOverflow(const glm::ivec2 overflow) -> bool
 {
-    /* Get the closest scrollbar available in this pane and prioritize the verical direction. Mouse needs
-        to be inside the pane. If the mouse is not on the slider, assume closest is the vertical one, if
-        available, otherwise the horizontal one. If the mouse is inside one of the sliders, that's the
-        closest one. */
-    if (state->currentEventId != core::MouseMoveScanEvt::eventId) {return; }
-    if (state->hoveredId != id_) {return; }
-    if (!layoutBase_.isPointInsideView(state->mousePos)) {return; }
+    bool shouldRedoLayout{false};
+    shouldRedoLayout |= addAndSetIfNeeded(hScroll_, overflow.x);
+    shouldRedoLayout |= addAndSetIfNeeded(vScroll_, overflow.y);
+    shouldRedoLayout |= removeAndSetIfNeeded(hScroll_, overflow.x);
+    shouldRedoLayout |= removeAndSetIfNeeded(vScroll_, overflow.y);
 
-    //TODO: Needs more work: if the last pane only has hSlider, the previous vSlider will be overwritten
+    return shouldRedoLayout;
+}
+
+auto UIPane::addAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t overflow) -> bool
+{
+    if (overflow <= 0 || !scrollNode) { return false; }
+
+    if (scrollNode->isParented())
+    {
+        scrollNode->setScrollTo(overflow);
+    }
+    else
+    {
+        UIBase::add(scrollNode);
+        scrollNode->setScrollTo(overflow);
+        return true;
+    }
+
+    return false;
+}
+
+auto UIPane::removeAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t overflow) -> bool
+{
+    if (overflow > 0 || !scrollNode) { return false; }
+
+    if (scrollNode->isParented())
+    {
+        UIBase::remove(scrollNode);
+        scrollNode->setScrollTo(0);
+        return true;
+    }
+    else
+    {
+        scrollNode->setScrollTo(0);
+    }
+
+    return false;
+}
+
+auto UIPane::getClosestScrollbar(const glm::ivec2 pMouse) const -> uint32_t
+{
+    uint32_t closestScrollbarId{node::NOTHING};
+
+    /* When outside the UIScroll, prioritize vertical bar no matter where the mouse is. */
     if (hScroll_ && hScroll_->isParented())
     {
-        state->closestScrollId = hScroll_->getId();
+        closestScrollbarId = hScroll_->getId();
     }
 
     if (vScroll_ && vScroll_->isParented())
     {
-        state->closestScrollId = vScroll_->getId();
+        closestScrollbarId = vScroll_->getId();
     }
 
-    if (vScroll_ && vScroll_->isParented() && vScroll_->getBaseLayoutData().isPointInsideView(state->mousePos))
+    /* When inside the UIScroll, prioritize whatever UIScroll the mouse happens to be on. */
+    if (vScroll_ && vScroll_->isParented()
+        && vScroll_->getBaseLayoutData().isPointInsideView(pMouse))
     {
-        state->closestScrollId = vScroll_->getId();
+        closestScrollbarId = vScroll_->getId();
     }
-    else if (hScroll_ && hScroll_->isParented() && hScroll_->getBaseLayoutData().isPointInsideView(state->mousePos))
+    else if (hScroll_ && hScroll_->isParented()
+        && hScroll_->getBaseLayoutData().isPointInsideView(pMouse))
     {
-        state->closestScrollId = hScroll_->getId();
+        closestScrollbarId = hScroll_->getId();
     }
+
+    return closestScrollbarId;
 }
 
-auto UIPane::setScrollEnabled(const bool enableH, const bool enableV) -> UIPane&
+auto UIPane::setScrollEnabled(const bool enableHorizontal, const bool enableVertical) -> UIPane&
 {
     using namespace core;
-    if (enableV)
+    if (enableHorizontal)
+    {
+        hScroll_ = utils::make<UIScroll>();
+        hScroll_->getBaseLayoutData().setType(LayoutBase::Type::HORIZONTAL)
+            .setScale({1.0_rel, 30_px});
+    }
+    else
+    {
+        hScroll_.reset();
+    }
+
+    if (enableVertical)
     {
         vScroll_ = utils::make<UIScroll>();
         vScroll_->setInvertAxis(true);
         vScroll_->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL)
-            .setScale({20_px, 1.0_rel});
+            .setScale({30_px, 1.0_rel});
     }
-    else { vScroll_.reset(); }
-
-    if (enableH)
+    else
     {
-        hScroll_ = utils::make<UIScroll>();
-        // hScroll_->setColor(utils::hexToVec4("#aaaaaaff"));
-        hScroll_->getBaseLayoutData().setType(LayoutBase::Type::HORIZONTAL)
-            .setScale({1.0_rel, 20_px});
+        vScroll_.reset();
     }
-    else { hScroll_.reset(); }
 
     return *this;
 }
 
-auto UIPane::setScrollSensitivityMultiplier(const float value) -> UIPane&
+auto UIPane::setScrollSensitivity(const float value) -> UIPane&
 {
     vScroll_ ? vScroll_->setScrollSensitivity(value) : void();
     hScroll_ ? hScroll_->setScrollSensitivity(value) : void();
@@ -161,7 +195,7 @@ auto UIPane::isVerticalOverflow() const -> bool { return vScroll_ ? true : false
 
 auto UIPane::isHorizontalOverflow() const -> bool { return hScroll_ ? true : false; }
 
-auto UIPane::getHorizontalSlider() const -> UISliderWPtr { return hScroll_; }
+auto UIPane::getHorizontalScroll() const -> UIScrollWPtr { return hScroll_; }
 
-auto UIPane::getVerticalSlider() const -> UISliderWPtr { return vScroll_; }
+auto UIPane::getVerticalScroll() const -> UIScrollWPtr { return vScroll_; }
 } // namespace lav::node

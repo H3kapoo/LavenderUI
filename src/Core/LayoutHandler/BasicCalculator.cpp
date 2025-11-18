@@ -441,7 +441,7 @@ auto BasicCalculator::calculateSlidersScaleAndPos(node::UIPane* parent) const ->
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pComputedPos = pLayout.getComputedPos();
     const auto& pComputedScale = pLayout.getComputedScale();
-    if (const auto vSlider = parent->getVerticalSlider().lock(); vSlider && vSlider->isParented())
+    if (const auto vSlider = parent->getVerticalScroll().lock(); vSlider && vSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
         auto& vLayout = vSlider->getBaseLayoutData();
@@ -453,7 +453,7 @@ auto BasicCalculator::calculateSlidersScaleAndPos(node::UIPane* parent) const ->
         vLayout.setComputedScale({sliderImpact.x, pComputedScale.y});
     }
 
-    if (const auto hSlider = parent->getHorizontalSlider().lock(); hSlider && hSlider->isParented())
+    if (const auto hSlider = parent->getHorizontalScroll().lock(); hSlider && hSlider->isParented())
     {
         // Scroll sliders on a Pane can ONLY have PX values on the scroll direction.
         auto& hLayout = hSlider->getBaseLayoutData();

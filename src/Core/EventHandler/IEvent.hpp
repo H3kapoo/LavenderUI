@@ -29,8 +29,9 @@ struct IEventCRTP : public IEvent
 template<typename Derived>
 const uint32_t IEventCRTP<Derived>::eventId = utils::genId();
 
-struct MouseMoveScanEvt : public IEventCRTP<MouseMoveScanEvt>
-{};
+// Note: Deprecated
+// struct MouseMoveScanEvt : public IEventCRTP<MouseMoveScanEvt>
+// {};
 
 struct MouseMoveEvt : public IEventCRTP<MouseMoveEvt>
 {

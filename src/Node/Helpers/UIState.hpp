@@ -28,6 +28,7 @@ struct UIState
     uint32_t selectedId{NOTHING};
     uint32_t hoveredId{NOTHING};
     uint32_t prevHoveredId{NOTHING};
+    uint32_t hoveredTypeId{NOTHING};
     uint32_t closestScrollId{NOTHING};
     uint32_t hoveredZIndex{NOTHING};
     lav::Action mouseAction{NOTHING};

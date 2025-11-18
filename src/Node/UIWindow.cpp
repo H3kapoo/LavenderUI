@@ -279,12 +279,11 @@ auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -
 {
     uiState_->scrollOffset = {xOffset, yOffset};
 
-    /*
-        Propagate scroll event to the hoveredId.
-        If hoveredId happens to NOT be closestScrollId, send the event to both.
-    */
-    propagateEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
-    if (uiState_->closestScrollId != uiState_->hoveredId)
+    if (uiState_->hoveredTypeId == node::UISlider::typeId)
+    {
+        propagateEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
+    }
+    else if (uiState_->closestScrollId != node::NOTHING)
     {
         propagateEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
     }
@@ -406,6 +405,7 @@ auto UIWindow::propagateHoverScanEvent() -> void
         if (node->layoutBase_.getZIndex() > maxZIndex && node->layoutBase_.isPointInsideView(uiState_->mousePos))
         {
             uiState_->hoveredId = node->getId();
+            uiState_->hoveredTypeId = node->getTypeId();
             maxZIndex = node->layoutBase_.getZIndex();
         }
 
