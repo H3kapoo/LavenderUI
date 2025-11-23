@@ -31,6 +31,7 @@ auto TextureLoader::load(const std::filesystem::path& texPath, const Texture::Op
 
 auto TextureLoader::loadInternal(const std::filesystem::path& texPath, const Texture::Options& opts) -> Texture
 {
+    (void)opts;
     Texture texture;
 
     /* Load into host memory. */

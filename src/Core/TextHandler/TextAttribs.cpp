@@ -26,6 +26,7 @@ auto TextAttribs::computeMaxSize() const -> glm::vec2
 
 auto TextAttribs::setFont(const std::filesystem::path& fontPath) -> void
 {
+    (void)fontPath;
     // fontPath_ = fontPath;
 }
 
@@ -67,7 +68,8 @@ auto TextAttribs::setPosition(const glm::ivec3& pos) -> void
 
 auto TextAttribs::setValidBounds(const glm::vec2& start, const glm::vec2& scale) -> void
 {
-
+    (void)scale;
+    (void)start;
 }
 
 auto TextAttribs::getText() const -> std::string { return text_; }

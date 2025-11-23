@@ -127,6 +127,7 @@ auto GPUBinder::createTexture(const uint32_t width, const uint32_t height, const
     const TextureType texType, const ColorType colType, const TextureOptions texOpts,
     unsigned char* data) const -> uint32_t
 {
+    (void)texOpts;
     uint32_t id{generateTexture()};
 
     /* Always bind to first texture slot while creating the texture on the GPU. */

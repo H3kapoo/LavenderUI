@@ -140,31 +140,30 @@ auto UIWindow::layout() -> void
 
 auto UIWindow::event(UIStatePtr& state) -> void
 {
-    using namespace core;
     const auto eId = state->currentEventId;
-    if (eId == MouseEnterEvt::eventId)
+    if (eId == core::MouseEnterEvt::eventId)
     {
-        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventsMgr_.emitEvent<MouseEnterEvt>(e);
+        return eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
-    else if (eId == MouseExitEvt::eventId)
+    else if (eId == core::MouseExitEvt::eventId)
     {
-        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventsMgr_.emitEvent<MouseExitEvt>(e);
+        return eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
-    else if (eId == MouseLeftClickEvt::eventId)
+    else if (eId == core::MouseLeftClickEvt::eventId)
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseLeftClickEvt>(e);
+        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        return eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
-    else if (eId == MouseLeftReleaseEvt::eventId)
+    else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        MouseLeftReleaseEvt e;
-        return eventsMgr_.emitEvent<MouseLeftReleaseEvt>(e);
+        core::MouseLeftReleaseEvt e;
+        return eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
 }
 
@@ -193,7 +192,6 @@ auto UIWindow::windowMouseEnterHook(const bool entered) -> void
 auto UIWindow::keyHook(const uint32_t key, const uint32_t, const uint32_t action,
     const uint32_t) -> void
 {
-    using namespace core;
     if (action == Action::RELEASE || action == Action::REPEAT) { return; }
     if (key == Key::ESC)
     {
@@ -211,8 +209,6 @@ auto UIWindow::keyHook(const uint32_t key, const uint32_t, const uint32_t action
 
 auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
 {
-    using namespace core;
-
     const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, uiState_->windowSize);
     uint32_t prevHoveredId = uiState_->hoveredId;
     uiState_->hoveredId = node::NOTHING;
@@ -225,14 +221,14 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
     /* Entered the window for the first time */
     if (prevHoveredId == node::NOTHING)
     {
-        propagateEventTo(MouseEnterEvt{}, currHoveredId);
+        propagateEventTo(core::MouseEnterEvt{}, currHoveredId);
     }
     /* Spawn exit for previous and enter for the current id */
     else if (prevHoveredId != currHoveredId)
     {
         uiState_->prevHoveredId = prevHoveredId;
-        propagateEventTo(MouseEnterEvt{}, currHoveredId);
-        propagateEventTo(MouseExitEvt{}, prevHoveredId);
+        propagateEventTo(core::MouseEnterEvt{}, currHoveredId);
+        propagateEventTo(core::MouseExitEvt{}, prevHoveredId);
     }
 
     /* Handle dragging on the clicked id */
@@ -241,17 +237,15 @@ auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
         && uiState_->mouseButton == Mouse::LEFT)
     {
         uiState_->isDragging = true;
-        propagateEventTo(MouseDragEvt{}, uiState_->clickedId);
+        propagateEventTo(core::MouseDragEvt{}, uiState_->clickedId);
     }
 
     /* Spawn event itself */
-    propagateEventTo(MouseMoveEvt{}, std::nullopt);
+    propagateEventTo(core::MouseMoveEvt{}, std::nullopt);
 }
 
 auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> void
 {
-    using namespace core;
-
     /* New rescan for the hovered id needs to be done as on button release/click the
     underlaying element could of got invalidated. */
     uiState_->hoveredZIndex = node::NOTHING;
@@ -259,19 +253,19 @@ auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> voi
 
     uiState_->mouseButton = static_cast<lav::Mouse>(btn);
     uiState_->mouseAction = static_cast<lav::Action>(action);
-    propagateEventTo(MouseButtonEvt{}, std::nullopt);
+    propagateEventTo(core::MouseButtonEvt{}, std::nullopt);
 
     if (btn == Mouse::LEFT && action == Action::PRESS)
     {
         uiState_->clickedId = uiState_->hoveredId;
         uiState_->selectedId = uiState_->hoveredId;
-        propagateEventTo(MouseLeftClickEvt{}, uiState_->clickedId);
+        propagateEventTo(core::MouseLeftClickEvt{}, uiState_->clickedId);
     }
     else if (btn == Mouse::LEFT && action == Action::RELEASE)
     {
         uiState_->isDragging = false;
         uiState_->clickedId = node::NOTHING;
-        propagateEventTo(MouseLeftReleaseEvt{}, uiState_->selectedId);
+        propagateEventTo(core::MouseLeftReleaseEvt{}, uiState_->selectedId);
     }
 }
 
@@ -451,7 +445,7 @@ auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
 
 auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void
 {
-    // (void)onlyForShow;
+    (void)onlyForShow;
     // title_ = std::move(title);
     core::WindowBinder::get().setTitle(window_, title);
 }
