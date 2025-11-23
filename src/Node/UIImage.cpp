@@ -1,7 +1,7 @@
 #include "UIImage.hpp"
 
 #include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/LayoutHandler/BaseCalculator.hpp"
 #include "src/Core/ResourceHandler/TextureLoader.hpp"
 #include "src/Utils/Misc.hpp"
 
@@ -30,7 +30,7 @@ auto UIImage::render(const glm::mat4& projection) -> void
 
 auto UIImage::layout() -> void
 {
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }

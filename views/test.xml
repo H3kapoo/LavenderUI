@@ -1,5 +1,6 @@
 <App ori="Horizontal" launchScale="1280, 720" title="Title Here" align="Center">
     <Pane scale="500px, 300px">
         <Img src="assets/textures/awesomeface.png" scale="50%, 50%"/>
+        <Slider scale="50%, 20px"/>
     </Pane>
 </App>

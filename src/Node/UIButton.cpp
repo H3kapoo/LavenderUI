@@ -4,7 +4,7 @@
 
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/LayoutHandler/BaseCalculator.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 
 namespace lav::node
@@ -34,7 +34,7 @@ auto UIButton::render(const glm::mat4& projection) -> void
 
 auto UIButton::layout() -> void
 {
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }

@@ -4,7 +4,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Node/UILabel.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/LayoutHandler/BaseCalculator.hpp"
 
 namespace lav::node
 {
@@ -61,7 +61,7 @@ auto UISlider::layout() -> void
 
     calculateKnobPosition();
 
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }

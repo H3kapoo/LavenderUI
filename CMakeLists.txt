@@ -28,6 +28,9 @@ if(${PLATFORM_NAME} MATCHES "Linux")
     add_executable(${PROJECT_NAME}
         main.cpp
         src/App.cpp
+        src/Core/Binders/WindowBinder.cpp
+        src/Core/Binders/GPUBinder.cpp
+        src/Core/Binders/FileResourceBinder.cpp
         src/Core/LavParser/LavParser.cpp
         src/Core/LavParser/ParseHelpers.cpp
         src/Core/LavParser/Rules/AppRule.cpp
@@ -42,25 +45,23 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/ResourceHandler/ShaderLoader.cpp
         src/Core/ResourceHandler/FontLoader.cpp
         src/Core/ResourceHandler/TextureLoader.cpp
-        src/Core/TextHandler/TextAttribs.cpp
         src/Core/LayoutHandler/LayoutBase.cpp
-        src/Core/LayoutHandler/BasicCalculator.cpp
+        src/Core/LayoutHandler/BaseCalculator.cpp
+        src/Core/LayoutHandler/Calculators/PaneCalculator.cpp
+        # src/Core/LayoutHandler/Calculators/SliderCalculator.cpp
+        src/Core/TextHandler/TextAttribs.cpp
         src/Node/UIBase.cpp
         src/Node/UIWindow.cpp
         src/Node/UIButton.cpp
         src/Node/UILabel.cpp
         src/Node/UIPane.cpp
-        # src/UIElements/UISplitPane.cpp
         src/Node/UISlider.cpp
-        src/Node/InternalUse/UIScroll.cpp
-        # src/UIElements/UITreeView.cpp
-        # src/UIElements/UIDropdown.cpp
         src/Node/UIImage.cpp
-        src/Core/Binders/WindowBinder.cpp
-        src/Core/Binders/GPUBinder.cpp
-        src/Core/Binders/FileResourceBinder.cpp
+        # src/UIElements/UISplitPane.cpp
+        # src/UIElements/UITreeView.cpp
+        src/UIElements/UIDropdown.cpp
+        src/Node/InternalUse/UIScroll.cpp
         src/Utils/Logger.cpp
-
         vendor/xml/HkXml.cpp
         vendor/xml/Utility.cpp
     )

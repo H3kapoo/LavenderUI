@@ -6,7 +6,7 @@
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/Binders/WindowBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/LayoutHandler/BaseCalculator.hpp"
 #include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
@@ -130,7 +130,7 @@ auto UIWindow::layout() -> void
 {
     layoutBase_.setComputedScale(uiState_->windowSize);
 
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 

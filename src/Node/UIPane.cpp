@@ -2,7 +2,7 @@
 
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/BasicCalculator.hpp"
+#include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
 #include "src/Core/ResourceHandler/Shader.hpp"
 #include "src/Node/Helpers/UIState.hpp"
 #include "src/Utils/Misc.hpp"
@@ -37,7 +37,7 @@ auto UIPane::layout() -> void
         setInternalScrollOverflow(calculateLayout());
     }
 
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::PaneCalculator::get();
     calculator.calculateElementsOffsetDueToScroll(this,
     {
         hScroll_ ? hScroll_->getScrollValue() : 0,
@@ -64,7 +64,7 @@ auto UIPane::event(node::UIStatePtr& state) -> void
 
 auto UIPane::calculateLayout() -> glm::ivec2
 {
-    const auto& calculator = core::BasicCalculator::get();
+    const auto& calculator = core::PaneCalculator::get();
     glm::ivec2 overflow{0, 0};
 
     const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
