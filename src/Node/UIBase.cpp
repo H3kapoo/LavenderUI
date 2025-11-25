@@ -77,18 +77,24 @@ auto UIBase::remove(const std::function<bool(const UIBasePtr&)>& pred) -> uint32
 
 auto UIBase::remove(const UIBasePtr& element) -> bool
 {
-    return remove([&element](auto&& e) { return e->id_ == element->id_; });
+    return UIBase::remove([&element](auto&& e) { return e->id_ == element->id_; });
 }
 
 auto UIBase::remove(const UIBasePtrVec& elements) -> void
 {
-    std::ranges::for_each(elements, [this](const UIBasePtr& e){ remove(e); });
+    std::ranges::for_each(elements, [this](const UIBasePtr& e){ UIBase::remove(e); });
 }
 
 auto UIBase::remove(UIBasePtrVec&& elements) -> void
 {
     //TODO: May be more efficient to do it with std::erase_if so it's only one pass.
-    std::ranges::for_each(std::move(elements), [this](const UIBasePtr& e){ remove(e); });
+    std::ranges::for_each(std::move(elements), [this](const UIBasePtr& e){ UIBase::remove(e); });
+}
+
+auto UIBase::selfEvent(UIStatePtr& state) -> void
+{
+    if (isIgnoringEvents_) { return; }
+    event(state);
 }
 
 auto UIBase::setIgnoreEvents(const bool ignore) -> void { isIgnoringEvents_ = ignore; }
@@ -118,8 +124,6 @@ auto UIBase::getColor() -> glm::vec4 { return baseColor_; }
 auto UIBase::getBorderColor() -> glm::vec4 { return borderColor_; }
 
 auto UIBase::getBaseLayoutData() -> core::LayoutBase& { return layoutBase_; }
-
-auto UIBase::getEventManager() -> core::Events& { return eventsMgr_; }
 
 auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
 {

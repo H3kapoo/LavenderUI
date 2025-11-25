@@ -1,10 +1,6 @@
 #include "BaseCalculator.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
-#include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
-// #include "src/Uinodes/UIDropdown.hpp"
-// #include "src/Uinodes/UIPane.hpp"
-// #include "src/Uinodes/UISlider.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 
@@ -364,63 +360,6 @@ auto BaseCalculator::calculateSpacingOnAxis(node::UIBase* parent,
 //     {
 //         calculateSplitPaneRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
 //     }
-// }
-
-// auto BaseCalculator::calculatePositionForDropdownElement(node::UIDropdown* dropdown) const -> void
-// {
-//     if (dropdown->getElements().empty()) { return; }
-
-//     const auto gp = dropdown->getGrandParent().lock();
-//     const bool isNestedDropdown = gp != nullptr && gp->getTypeId() == node::UIDropdown::typeId;
-
-//     /* If this dropdown is nested, refer to bounds of the container Pane.
-//         Otherwise refer to bounds of the dropdown itself. */
-//     const auto& optionsHolder = dropdown->getElements().at(0);
-//     const auto openDir = dropdown->getOpenDirection();
-//     const glm::ivec2 ddBoxPos = dropdown->getFullBoxPos();
-//     const glm::ivec2 ddBoxScale = dropdown->getFullBoxScale();
-
-//     glm::ivec2 hostPanePos{0, 0};
-//     glm::ivec2 hostPaneScale{0, 0};
-//     if (isNestedDropdown)
-//     {
-//         const auto ddHostPane = dropdown->getParent().lock();
-//         hostPanePos = ddHostPane->getFullBoxPos();
-//         hostPaneScale = ddHostPane->getFullBoxScale();
-//     }
-
-//     LayoutBase::PositionXY finalPos{{0, LayoutBase::PositionType::ABS}, {0, LayoutBase::PositionType::ABS}};
-//     switch (openDir)
-//     {
-//         case node::UIDropdown::OpenDir::TOP:
-//         {
-//             finalPos.x.val = ddBoxPos.x;
-//             finalPos.y.val = ddBoxPos.y - optionsHolder->getFullBoxScale().y;
-//             break;
-//         }
-//         case node::UIDropdown::OpenDir::BOTTOM:
-//         {
-//             finalPos.x.val = ddBoxPos.x;
-//             finalPos.y.val = ddBoxPos.y + ddBoxScale.y;
-//             break;
-//         }
-//         case node::UIDropdown::OpenDir::LEFT:
-//         {
-//             finalPos.x.val = isNestedDropdown ? hostPanePos.x - hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
-//             finalPos.y.val = ddBoxPos.y;
-//             break;
-//         }
-//         case node::UIDropdown::OpenDir::RIGHT:
-//         {
-//             finalPos.x.val = isNestedDropdown ? hostPanePos.x + hostPaneScale.x : ddBoxPos.x + ddBoxScale.x;
-//             finalPos.y.val = ddBoxPos.y;
-//             break;
-//         }
-//     }
-
-//     optionsHolder->setPos(finalPos);
-
-//     calculatePositionForGenericElement(dropdown);
 // }
 
 auto BaseCalculator::calculateFitScale(node::UIBase* parent) const -> glm::vec2

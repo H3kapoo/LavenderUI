@@ -24,6 +24,7 @@ auto UIPane::render(const glm::mat4& projection) -> void
     shader_.uploadVec4f("uColor", baseColor_);
     shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
     shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
+    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", borderColor_);
     shader_.uploadInt("uUseTexture", 0);
     core::GPUBinder::get().renderBoundQuad();

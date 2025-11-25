@@ -7,6 +7,7 @@
 #include "src/Core/ResourceHandler/Mesh.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Node/UIBase.hpp"
+#include "src/Node/UIDropdown.hpp"
 #include "src/Node/UIImage.hpp"
 #include "src/Node/UILabel.hpp"
 #include "src/Node/UISlider.hpp"
@@ -31,87 +32,40 @@ int main()
 
 
     app.enableTitleWithFPS();
-    UIWindowWPtr window = app.loadLavView("views/test.xml");
-    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    // window.lock()->getBaseLayoutData()
-    //     // .setType(LayoutBase::Type::VERTICAL)
-    //     .setAlign(LayoutBase::Align::CENTER)
-    //     ;
+    // UIWindowWPtr window = app.loadLavView("views/test.xml");
+    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
+    window.lock()->getBaseLayoutData()
+        // .setType(LayoutBase::Type::VERTICAL)
+        .setAlign(LayoutBase::Align::CENTER)
+        ;
+    UIImagePtr img = utils::make<UIImage>();
+    img->setImage("assets/textures/wall.jpg");
+    img->getBaseLayoutData().setScale({200_px, 200_px});
 
-    // UIPanePtr holder = utils::make<UIPane>();
+    UILabelPtr lbl = utils::make<UILabel>();
+    lbl->setText("my text");
+    lbl->getBaseLayoutData().setScale({200_px, 200_px}).setBorderRadius({10});
 
-    // for (int i = 0; i < 3; i++)
-    // {
-    //     UIPanePtr pane = utils::make<UIPane>();
-    //     if (i%2)
-    //     {
-    //         pane->setColor(utils::hexToVec4("#af0fafff"));
-    //     }
-    //     else
-    //     {
-    //         pane->setColor(utils::hexToVec4("#8d7e8dff"));
-    //     }
-    //     pane->setScrollEnabled(true, true).setScrollSensitivity(2);
-    //     pane->getBaseLayoutData()
-    //         .setType(LayoutBase::Type::VERTICAL)
-    //         // .setPadding(20)
-    //         .setScale({0.35_rel});
-    //         // .setScale({1_fill});
+    UIDropdownPtr dd = utils::make<UIDropdown>();
+    dd->getBaseLayoutData().setBorder({4});
+    dd->setText("My Dropdown").setPreferredOpenDir(UIDropdown::OpenDir::TOP);
 
-    //     window.lock()->add(pane);
+    // dd->getOptionsHolder().lock()->getBaseLayoutData().setBorderRadius({4});
+    dd->getOptionsHolder().lock()->getBaseLayoutData().setBorder({4}).setBorderRadius({10});
 
-    //     UISliderPtr slider = utils::make<UISlider>();
-    //     slider->setScrollFrom(0);
-    //     slider->setScrollTo(255);
-    //     slider->getBaseLayoutData().setScale({500_px, 20_px})
-    //         // .setMargin(2)
-    //         ;
+    auto btn1 = dd->addOption("NewOption");
+    auto btn2 = dd->addOption("NewOption2");
+    auto newMenu = dd->addSubMenu("NewMenu");
+    newMenu.lock()->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+    newMenu.lock()->addOption("SubOpt");
+    newMenu.lock()->addOption("SubOpt2");
 
-    //     UISliderPtr slider2 = utils::make<UISlider>();
-    //     slider2->setScrollFrom(0);
-    //     slider2->setScrollTo(255);
-    //     slider2->getBaseLayoutData().setScale({500_px, 20_px}).setMargin(2);
-
-    //     UISliderPtr slider3 = utils::make<UISlider>();
-    //     slider3->setScrollFrom(0);
-    //     slider3->setScrollTo(255);
-    //     slider3->getBaseLayoutData().setScale({500_px, 20_px}).setMargin(2);
-
-    //     UIImagePtr img = utils::make<UIImage>();
-    //     img->setImage("assets/textures/awesomeface.png");
-    //     img->setColor(utils::hexToVec4("#51ce51ff"));
-    //     img->getBaseLayoutData().setScale({300_px, 300_px});
-
-    //     // pane->add(img);
-    //     slider->getEventManager().listenTo<core::SliderEvt>(
-    //         [&img](const auto& e)
-    //         {
-    //             glm::vec4 color = img->getColor();
-    //             color.r = ((int)e.value % 256 ) / 255.0f;
-    //             img->setColor(color);
-    //         });
-
-    //     slider2->getEventManager().listenTo<core::SliderEvt>(
-    //         [&img](const auto& e)
-    //         {
-    //             glm::vec4 color = img->getColor();
-    //             color.g = ((int)e.value % 256 ) / 255.0f;
-    //             img->setColor(color);
-    //         });
-
-    //     slider3->getEventManager().listenTo<core::SliderEvt>(
-    //         [&img](const auto& e)
-    //         {
-    //             glm::vec4 color = img->getColor();
-    //             color.b = ((int)e.value % 256 ) / 255.0f;
-    //             img->setColor(color);
-    //         });
-
-    //     pane->add({img, slider, slider2, slider3});
-    // }
-    // window.lock()->add({slider, slider2, slider3});
-    // window.lock()->add(img);
-    // window.lock()->add(pane);
+    // btn1.lock()->setDisabled();
+    btn1.lock()->listenEvent<lav::core::MouseLeftReleaseEvt>([&log](const auto&)
+    {
+        log.error("bla bla from btn");
+    });
+    window.lock()->add({dd, img, lbl});
 
     app.run();
     return 0;

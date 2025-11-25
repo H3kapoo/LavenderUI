@@ -10,7 +10,8 @@
 #include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
-// #include "src/Uinodes/UIDropdown.hpp"
+#include "src/Node/UIDropdown.hpp"
+#include "src/Node/UIPane.hpp"
 #include "src/Node/UISlider.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
@@ -370,6 +371,15 @@ auto UIWindow::preLayoutSetup(const UIBasePtr& node) -> void
     // if (node->getTypeId() == UIWindow::typeId || node->getTypeId() == UIDropdown::typeId)
     if (node->getTypeId() == UIWindow::typeId)
     {
+        auto& nLayout = node->getBaseLayoutData();
+        nLayout.setViewPos(nLayout.getComputedPos());
+        nLayout.setViewScale(nLayout.getComputedScale());
+    }
+    else if (
+        node->getTypeId() == UIPane::typeId &&
+        node->getParent().lock()->getTypeId() == UIDropdown::typeId)
+    {
+        // it means im the options holder of a dropdown and im gonna have the viewable are holder
         auto& nLayout = node->getBaseLayoutData();
         nLayout.setViewPos(nLayout.getComputedPos());
         nLayout.setViewScale(nLayout.getComputedScale());

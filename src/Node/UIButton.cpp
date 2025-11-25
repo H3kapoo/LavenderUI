@@ -14,7 +14,7 @@ UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
     layoutBase_.setScale({100_px, 36_px});
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
     label_->setColor(utils::hexToVec4("#ffffff7d"));
-    add(label_);
+    UIBase::add(label_);
 }
 
 auto UIButton::render(const glm::mat4& projection) -> void

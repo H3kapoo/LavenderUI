@@ -1,14 +1,12 @@
 #pragma once
 
-#include "src/ElementComposable/TextAttribs.hpp"
-#include "src/UIElements/UIBase.hpp"
-#include "src/UIElements/UIButton.hpp"
-#include "src/UIElements/UIPane.hpp"
+#include "src/Node/UIBase.hpp"
+#include "src/Node/UIButton.hpp"
+#include "src/Node/UILabel.hpp"
+#include "src/Node/UIPane.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
-using namespace elementcomposable;
-
 /**
     @brief Simple generic button which generic click functionality.
 
@@ -28,39 +26,34 @@ public:
     };
 
 public:
-    UIDropdown();
-    ~UIDropdown() = default;
-    UIDropdown(const UIDropdown&) = delete;
-    UIDropdown(UIBase&&) = delete;
-    auto operator=(const UIDropdown&) -> UIDropdown& = delete;
-    auto operator=(UIDropdown&&) -> UIDropdown& = delete;
+    /* Mandatory typeinfo */
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIDropdown, "elemVert.glsl", "elemFrag.glsl");
+    INSERT_ADD_REMOVE_NOT_ALLOWED(UIDropdown);
 
-    auto addOption(const std::string& optName) -> UIButtonWPtr;
-    auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
+    [[nodiscard]] auto addOption(const std::string& optName) -> UIButtonWPtr;
+    [[nodiscard]] auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
 
-    auto setPreferredOpenDir(const OpenDir od) -> void;
-    auto setFont(const std::filesystem::path& fontPath) -> void;
-    auto setText(const std::string& text) -> void;
+    auto setPreferredOpenDir(const OpenDir od) -> UIDropdown&;
+    auto setText(const std::string& text) -> UIDropdown&;
     auto isOpen() const -> bool;
     auto isClosed() const -> bool;
     auto getOpenDirection() const -> OpenDir;
-
-    /* Mandatory typeinfo */
-    INSERT_TYPEINFO(UIDropdown);
+    auto getOptionsHolder() -> UIPaneWPtr;
 
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
-    auto event(state::UIStatePtr& state) -> void override;
+    auto event(node::UIStatePtr& state) -> void override;
 
     auto closeDropdown() -> bool;
-    auto isSelectedChainDropdown(const uint32_t selectedId) -> bool;
+    auto isSelectedDropdownChild(const uint32_t selectedId) -> bool;
+    auto getSelectedButton(const uint32_t selectedId) -> UIButtonPtr;
 
 protected:
-    UIPanePtr optionsHolder_;
+    UIPanePtr optionsHolder_{utils::make<UIPane>()};
+    UILabelPtr label_{utils::make<UILabel>()};
     OpenDir openDir_{OpenDir::BOTTOM};
 
-    TextAttribs textAttribs_;
     glm::vec4 originalColor_{utils::hexToVec4("#c73e3eff")};
     glm::vec4 onEnterColor_{utils::hexToVec4("#c95959ff")};
     glm::vec4 onClickColor_{utils::hexToVec4("#c41c1cff")};

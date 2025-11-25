@@ -1,25 +1,30 @@
 #include "UIDropdown.hpp"
 
-#include "src/ElementComposable/IEvent.hpp"
-#include "src/ElementComposable/LayoutBase.hpp"
-#include "src/UIElements/UIBase.hpp"
-#include "src/LayoutCalculator/BasicCalculator.hpp"
-#include "src/UIElements/UIButton.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Core/Binders/WindowBinder.hpp"
+#include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LayoutHandler/Calculators/DropdownCalculator.hpp"
+#include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Node/UIBase.hpp"
+#include "src/Node/UIButton.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/Input.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
-using namespace elementcomposable;
-using namespace windowmanagement;
-
-UIDropdown::UIDropdown() : UIBase(getTypeInfo())
+UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIBase(std::move(initData))
 {
-    setScale({100_px, 36_px});
-    optionsHolder_ = utils::make<UIPane>();
-    optionsHolder_->setScale({1_fit})
+    layoutBase_.setScale({100_px, 36_px});
+    optionsHolder_->setColor(utils::hexToVec4("#ffffffff"));
+    optionsHolder_->getBaseLayoutData()
+        .setPos({0, 0})
+        .setScale({1_fit})
+        // .setScale({100_px, 150_px})
         .setBorder({4})
-        .setType(LayoutBase::Type::VERTICAL);
+        .setType(core::LayoutBase::Type::VERTICAL);
+
+    label_->getBaseLayoutData().setScale({1.0_rel});
+    label_->setColor(utils::hexToVec4("#ffffff00"));
+    UIBase::add(label_);
 }
 
 auto UIDropdown::render(const glm::mat4& projection) -> void
@@ -27,104 +32,81 @@ auto UIDropdown::render(const glm::mat4& projection) -> void
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
     shader_.uploadVec4f("uColor", getColor());
-    shader_.uploadVec2f("uResolution", getComputedScale());
-    shader_.uploadVec4f("uBorderSize", getBorder());
-    shader_.uploadVec4f("uBorderRadii", getBorderRadius());
+    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
+    shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
+    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", getBorderColor());
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    /* Draw the text */
-    const auto& textShader_ = textAttribs_.getShader();
-    const auto& textBuffer = textAttribs_.getBuffer();
-    textShader_.bind();
-    textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
-    textShader_.uploadTexture2DArray("uTextureArray", GL_TEXTURE0, textAttribs_.getFont()->textureId);
-    textShader_.uploadMat4("uMatrixProjection", projection);
-    textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
-    textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, textAttribs_.getText().size());
-
-    renderNext(projection);
+    shader_.uploadInt("uUseTexture", 0);
+    core::GPUBinder::get().renderBoundQuad();
 }
 
 auto UIDropdown::layout() -> void
 {
-    using namespace layoutcalculator;
-
-    using namespace layoutcalculator;
-    const auto& calculator = BasicCalculator::get();
-
+    const auto& calculator = core::DropdownCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForDropdownElement(this);
-
-    const glm::vec2 p = getComputedPos() + getComputedScale() / 2.0f
-        - textAttribs_.computeMaxSize() / 2.0f;
-    textAttribs_.setPosition(p);
-
-    layoutNext();
 }
 
-auto UIDropdown::event(state::UIStatePtr& state) -> void
+auto UIDropdown::event(node::UIStatePtr& state) -> void
 {
-    /* Let the base do the generic stuff */
-    UIBase::event(state);
-
     const auto eId = state->currentEventId;
-
-    if (eId == MouseButtonEvt::eventId
-        && (state->hoveredId == id_ || state->clickedId == id_ || state->prevHoveredId == id_))
-    {
-        MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        return emitEvent<MouseButtonEvt>(e);
-    }
-    else if (eId == MouseLeftClickEvt::eventId && state->clickedId == id_)
+    if (eId == core::MouseLeftClickEvt::eventId)
     {
         setColor(onClickColor_);
 
-        /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return emitEvent<MouseLeftClickEvt>(e);
+        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
-    else if (eId == MouseLeftReleaseEvt::eventId && state->selectedId == id_)
+    else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
         setColor(originalColor_);
-        isOpen() ? closeDropdown() : add(optionsHolder_);
+        // TODO: Before adding, check if there are elements inside it, otherwise it's pointless
+        isOpen() ? closeDropdown() : UIBase::add(optionsHolder_);
 
-        /* We can safely ignore bubbling down the tree as we found the clicked element. */
-        MouseLeftReleaseEvt e;
-        return emitEvent<MouseLeftReleaseEvt>(e);
+        core::MouseLeftReleaseEvt e;
+        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
-    else if (eId == MouseEnterEvt::eventId && state->hoveredId == id_)
+    else if (eId == core::MouseEnterEvt::eventId)
     {
         setColor(onEnterColor_);
 
-        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return emitEvent<MouseEnterEvt>(e);
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
-    else if (eId == MouseExitEvt::eventId && state->prevHoveredId == id_)
+    else if (eId == core::MouseExitEvt::eventId)
     {
         if (state->clickedId != id_) { setColor(originalColor_); }
 
-        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return emitEvent<MouseExitEvt>(e);
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
 
-    /* Handle child elements events first as they have a chance to get removed immediately after this. */
-    eventNext(state);
-
-    /* AFTER handling the rest of the mouse cases & child elements events, check if the mouse was released
-        so that this dropdown is not the hovered element anymore (maybe one of our chain elements is).
-        If so, we selected another element and, if the dropdown is open, we need to close it.
-    */
-    if (eId == MouseLeftReleaseEvt::eventId && isOpen()
-        && state->hoveredId != id_ && !isSelectedChainDropdown(state->selectedId))
+    /* Deal with clicking anywhere else except this dropdown or any other child dropdowns. */
+    if (state->hoveredId != id_
+        && eId == core::MouseButtonEvt::eventId
+        && state->mouseAction == lav::RELEASE
+        && isOpen()
+        && !isSelectedDropdownChild(state->selectedId))
     {
-        closeDropdown();
+        /*
+            Since we may close the dropdown before the event of "release" gets to our child button,
+            we need to simulate the release event onto the button before closing the dropdown.
+        */
+        const auto& selectedButton = getSelectedButton(state->selectedId);
+        if (selectedButton)
+        {
+            state->currentEventId = core::MouseLeftReleaseEvt::eventId;
+            selectedButton->selfEvent(state);
+        }
+
+        /* No need to close anything if the selected button can't be found (we clicked something somewhere else)
+            or it isn't enabled. */
+        if (!selectedButton || selectedButton->isEnabled())
+        {
+            closeDropdown();
+        }
     }
 }
 
@@ -155,10 +137,10 @@ auto UIDropdown::closeDropdown() -> bool
         }
     }
 
-    return remove(optionsHolder_);
+    return UIBase::remove(optionsHolder_);
 }
 
-auto UIDropdown::isSelectedChainDropdown(const uint32_t selectedId) -> bool
+auto UIDropdown::isSelectedDropdownChild(const uint32_t selectedId) -> bool
 {
     auto& holderEls = optionsHolder_->getElements();
     for (auto& el : holderEls)
@@ -166,23 +148,35 @@ auto UIDropdown::isSelectedChainDropdown(const uint32_t selectedId) -> bool
         if (el->getTypeId() == UIDropdown::typeId)
         {
             if (el->getId() == selectedId) { return true; }
-            return utils::as<UIDropdown>(el)->isSelectedChainDropdown(selectedId);
+            return utils::as<UIDropdown>(el)->isSelectedDropdownChild(selectedId);
         }
     }
 
     return false;
 }
 
-auto UIDropdown::setPreferredOpenDir(const OpenDir od) -> void { openDir_ = od; }
+auto UIDropdown::getSelectedButton(const uint32_t selectedId) -> UIButtonPtr
+{
+    UIButtonPtr foundButton{nullptr};
+    for (auto& element : optionsHolder_->getElements())
+    {
+        if (element->getId() != selectedId || element->getTypeId() != UIButton::typeId) { continue; }
+        foundButton = utils::as<UIButton>(element);
+    }
 
-auto UIDropdown::setFont(const std::filesystem::path& fontPath) -> void{}
+    return foundButton;
+}
 
-auto UIDropdown::setText(const std::string& text) -> void { textAttribs_.setText(text); }
+auto UIDropdown::setPreferredOpenDir(const OpenDir od) -> UIDropdown& { openDir_ = od; return *this; }
 
-auto UIDropdown::isOpen() const -> bool { return elements_.size() == 1; }
+auto UIDropdown::setText(const std::string& text) -> UIDropdown& { label_->setText(text); return *this; }
+
+auto UIDropdown::isOpen() const -> bool { return elements_.size() == 2; }
 
 auto UIDropdown::isClosed() const -> bool { return !isOpen(); }
 
 auto UIDropdown::getOpenDirection() const -> OpenDir { return openDir_; }
+
+auto UIDropdown::getOptionsHolder() -> UIPaneWPtr { return optionsHolder_; }
 
 } // namespace src::uielements

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/ResourceHandler/Mesh.hpp"
 #include "src/Core/ResourceHandler/Shader.hpp"
@@ -72,30 +73,30 @@ struct UIBaseInitData
 #define INSERT_ADD_REMOVE_NOT_ALLOWED(UIElement)\
     auto add(const UIBasePtr&) -> bool override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow addition of new elements!");\
+        log_.warn("Element doesn't allow addition of new elements!");\
         return false;\
     }\
     auto add(const UIBasePtrVec&) -> void override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow addition of new elements!");\
+        log_.warn("Element doesn't allow addition of new elements!");\
     }\
     auto remove(const std::function<bool(const UIBasePtr&)>&) -> uint32_t override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow removal elements!");\
+        log_.warn("Element doesn't allow removal elements!");\
         return false;\
     }\
     auto remove(const UIBasePtr&) -> bool override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow removal elements!");\
+        log_.warn("Element doesn't allow removal elements!");\
         return false;\
     }\
     auto remove(const UIBasePtrVec&) -> void override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow removal elements!");\
+        log_.warn("Element doesn't allow removal elements!");\
     }\
     auto remove(UIBasePtrVec&&) -> void override\
     {\
-        log_.warn("Element '" #UIElement "' doesn't allow removal elements!");\
+        log_.warn("Element doesn't allow removal elements!");\
     }\
 
 /**
@@ -133,6 +134,14 @@ public:
     virtual auto remove(const UIBasePtrVec& elements) -> void;
     virtual auto remove(UIBasePtrVec&& elements) -> void;
 
+    auto selfEvent(UIStatePtr& state) -> void;
+
+    template <typename T>
+    auto listenEvent(const std::function<void(const T)>& callback) -> void
+    {
+        eventsMgr_.listenTo(callback);
+    }
+
     auto setIgnoreEvents(const bool ignore = true) -> void;
     auto setColor(const glm::vec4& value) -> void;
     auto setBorderColor(const glm::vec4& value) -> void;
@@ -144,18 +153,19 @@ public:
     auto getGrandParent() -> UIBaseWPtr;
     auto getElements() -> UIBasePtrVec&;
     auto getBaseLayoutData() -> core::LayoutBase&;
-    auto getEventManager() -> core::Events&;
+
     auto getColor() -> glm::vec4;
     auto getBorderColor() -> glm::vec4;
 
     /* Print overload */
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
-private:
+protected:
     virtual auto render(const glm::mat4& projection) -> void = 0;
     virtual auto layout() -> void = 0;
     virtual auto event(UIStatePtr& state) -> void = 0;
 
+private:
     static auto demangleName(const char* name) -> std::string;
 
 protected:
