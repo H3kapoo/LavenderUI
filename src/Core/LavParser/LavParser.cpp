@@ -4,28 +4,19 @@
 #include <fstream>
 
 #include "src/Core/LavParser/Rules/ButtonRule.hpp"
-#include "src/Core/LavParser/Rules/LabelRule.hpp"
-#include "src/Core/LavParser/Rules/SliderRule.hpp"
+#include "src/Core/LavParser/Rules/DropdownRule.hpp"
+#include "src/Core/LavParser/Rules/IRule.hpp"
+// #include "src/Core/LavParser/Rules/LabelRule.hpp"
+// #include "src/Core/LavParser/Rules/SliderRule.hpp"
 #include "src/Core/LavParser/Rules/AppRule.hpp"
 #include "src/Core/LavParser/Rules/PaneRule.hpp"
-#include "src/Core/LavParser/Rules/ImageRule.hpp"
+// #include "src/Core/LavParser/Rules/ImageRule.hpp"
 #include "src/Node/UIBase.hpp"
 #include "vendor/xml/HkXml.hpp"
 
 
 namespace lav::core
 {
-static constexpr std::string TITLE = "title";
-static constexpr std::string SCALE = "scale";
-static constexpr std::string SRC = "src";
-static constexpr std::string TEXT = "text";
-static constexpr std::string ORIENTATION = "orientation";
-static constexpr std::string ORIENTATION_SHORT = "ori";
-static constexpr std::string LAUNCH_SCALE = "launchScale";
-static constexpr std::string SLIDER_DEFAULT = "default";
-static constexpr std::string SLIDER_TO = "to";
-static constexpr std::string SLIDER_FROM = "from";
-
 auto LavParser::get() -> LavParser&
 {
     static LavParser instance;
@@ -35,12 +26,13 @@ auto LavParser::get() -> LavParser&
 LavParser::LavParser()
 {
     /* Initialize parser rules for each tag name. */
-    setContructRule("App", AppRule().getRule());
-    setContructRule("Pane", PaneRule().getRule());
-    setContructRule("Img", ImageRule().getRule());
-    setContructRule("Button", ButtonRule().getRule());
-    setContructRule("Label", LabelRule().getRule());
-    setContructRule("Slider", SliderRule().getRule());
+    setRule("App", AppRule().getRule());
+    setRule("Pane", PaneRule().getRule());
+    // setContructRule("Img", ImageRule().getRule());
+    setRule("Button", ButtonRule().getRule());
+    // setContructRule("Label", LabelRule().getRule());
+    // setContructRule("Slider", SliderRule().getRule());
+    setRule("Dropdown", DropdownRule().getRule());
 }
 
 auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec
@@ -63,7 +55,7 @@ auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBase
     hk::XMLDecoder::NodeSPtr xmlNode = res.first[0];
     node::UIBasePtr uiViewRoot;
 
-    uiViewRoot = parseXmlTagData(xmlNode);
+    uiViewRoot = tryConstructTreeFromXmlNode(xmlNode);
     if (!uiViewRoot)
     {
         log_.error("No root could be established. WHoops!");
@@ -80,28 +72,30 @@ auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBase
     return {uiViewRoot};
 }
 
-auto LavParser::parseXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr
+auto LavParser::tryConstructTreeFromXmlNode(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr
 {
-    const node::UIBasePtr uiParsedNode = parseSingleXmlTagData(xmlNode);
-    if (!uiParsedNode)
+    node::UIBasePtr uiParentNode = tryConstructUINode(xmlNode);
+    if (!uiParentNode)
     {
-        log_.error("Could not parse node from xml data");
+        log_.error("Could not construct UI node from xml data!");
         return nullptr;
     }
-    for (const auto& n : xmlNode->children)
+
+    for (const auto& childXmlNode : xmlNode->children)
     {
-        uiParsedNode->add(parseXmlTagData(n));
+        const auto& childUiNode = tryConstructTreeFromXmlNode(childXmlNode);
+        ruleMap_[xmlNode->nodeName].addRule(uiParentNode, childUiNode);
     }
 
-    return uiParsedNode;
+    return uiParentNode;
 }
 
-auto LavParser::parseSingleXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr
+auto LavParser::tryConstructUINode(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr
 {
-    if (constructRuleMap_.contains(xmlNode->nodeName))
+    if (ruleMap_.contains(xmlNode->nodeName))
     {
-        log_.debug("Constructing '{}'...", xmlNode->nodeName);
-        return constructRuleMap_[xmlNode->nodeName](xmlNode->attributes);
+        // log_.debug("Constructing '{}'...", xmlNode->nodeName);
+        return ruleMap_[xmlNode->nodeName].constructRule(xmlNode->attributes);
     }
     else
     {
@@ -111,9 +105,8 @@ auto LavParser::parseSingleXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node:
     return nullptr;
 }
 
-auto LavParser::setContructRule(const std::string& tag, const RuleSignature& rule) -> void
+auto LavParser::setRule(const std::string& tag, const IRule::RuleData& ruleData) -> void
 {
-    constructRuleMap_[tag] = rule;
+    ruleMap_[tag] = ruleData;
 }
-
 } // namespace lav::core

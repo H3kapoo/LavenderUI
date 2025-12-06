@@ -61,6 +61,11 @@ auto UIPane::event(node::UIStatePtr& state) -> void
             state->closestScrollId = getClosestScrollbar(state->mousePos);
         }
     }
+    else if (state->currentEventId == core::MouseEnterEvt::eventId)
+    {
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
+    }
 }
 
 auto UIPane::calculateLayout() -> glm::ivec2

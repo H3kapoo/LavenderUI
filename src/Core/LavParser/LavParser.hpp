@@ -19,7 +19,7 @@ class LavParser
 public:
     static auto get() -> LavParser&;
     auto parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec;
-    auto setContructRule(const std::string& tag, const RuleSignature& rule) -> void;
+    auto setRule(const std::string& tag, const IRule::RuleData& ruleData) -> void;
 
 private:
     LavParser();
@@ -28,12 +28,12 @@ private:
     auto operator=(const LavParser&) -> LavParser& = delete;
     auto operator=(LavParser&&) -> LavParser& = delete;
 
-    auto parseXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
-    auto parseSingleXmlTagData(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
+    auto tryConstructTreeFromXmlNode(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
+    auto tryConstructUINode(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
 
 private:
     utils::Logger log_{"LavParser"};
-    std::unordered_map<std::string, RuleSignature> constructRuleMap_;
+    std::unordered_map<std::string, IRule::RuleData> ruleMap_;
 };
 
 } // namespace lav::core

@@ -5,6 +5,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/Calculators/DropdownCalculator.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Utils/Misc.hpp"
@@ -19,7 +20,7 @@ UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIBase(std::move(initData))
         .setPos({0, 0})
         .setScale({1_fit})
         // .setScale({100_px, 150_px})
-        .setBorder({4})
+        .setBorder({1})
         .setType(core::LayoutBase::Type::VERTICAL);
 
     label_->getBaseLayoutData().setScale({1.0_rel});
@@ -70,6 +71,7 @@ auto UIDropdown::event(node::UIStatePtr& state) -> void
     }
     else if (eId == core::MouseEnterEvt::eventId)
     {
+        originalColor_ = getColor();
         setColor(onEnterColor_);
 
         core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
@@ -83,31 +85,32 @@ auto UIDropdown::event(node::UIStatePtr& state) -> void
         eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
 
-    /* Deal with clicking anywhere else except this dropdown or any other child dropdowns. */
-    if (state->hoveredId != id_
+    /* Deal with click release anywhere else except THIS Dropdown object. */
+    if (isOpen()
+        && state->hoveredId != id_
         && eId == core::MouseButtonEvt::eventId
         && state->mouseAction == lav::RELEASE
-        && isOpen()
-        && !isSelectedDropdownChild(state->selectedId))
+        && !isSelectedMyDropdownChildRecursive(state->selectedId))
     {
-        /*
-            Since we may close the dropdown before the event of "release" gets to our child button,
-            we need to simulate the release event onto the button before closing the dropdown.
-        */
-        const auto& selectedButton = getSelectedButton(state->selectedId);
-        if (selectedButton)
-        {
-            state->currentEventId = core::MouseLeftReleaseEvt::eventId;
-            selectedButton->selfEvent(state);
-        }
-
-        /* No need to close anything if the selected button can't be found (we clicked something somewhere else)
-            or it isn't enabled. */
-        if (!selectedButton || selectedButton->isEnabled())
-        {
-            closeDropdown();
-        }
+        closeDropdown();
+        // if (auto node = isSelectedMyButtonChildRecursive(state->selectedId); node.lock())
+        // {
+        //     log_.warn("oe aiuc");
+            // return EventDoneActions{.doSomething = state->selectedId, .node = optionsHolder_};
+        // }
+        // keep in mind that THIS element has been removed along with all its subchildren
+        // sent them a "youve been removed during X event" event
     }
+}
+
+auto UIDropdown::addOption(UIButtonPtr&& opt) -> void
+{
+    optionsHolder_->add(std::move(opt));
+}
+
+auto UIDropdown::addSubMenu(UIDropdownPtr&& subMenu) -> void
+{
+    optionsHolder_->add(subMenu);
 }
 
 auto UIDropdown::addOption(const std::string& optName) -> UIButtonWPtr
@@ -128,6 +131,7 @@ auto UIDropdown::addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr
 
 auto UIDropdown::closeDropdown() -> bool
 {
+    optionsHolder_->resetElementsToDefault();
     auto& holderEls = optionsHolder_->getElements();
     for (auto& el : holderEls)
     {
@@ -140,7 +144,7 @@ auto UIDropdown::closeDropdown() -> bool
     return UIBase::remove(optionsHolder_);
 }
 
-auto UIDropdown::isSelectedDropdownChild(const uint32_t selectedId) -> bool
+auto UIDropdown::isSelectedMyDropdownChildRecursive(const uint32_t selectedId) -> bool
 {
     auto& holderEls = optionsHolder_->getElements();
     for (auto& el : holderEls)
@@ -148,23 +152,29 @@ auto UIDropdown::isSelectedDropdownChild(const uint32_t selectedId) -> bool
         if (el->getTypeId() == UIDropdown::typeId)
         {
             if (el->getId() == selectedId) { return true; }
-            return utils::as<UIDropdown>(el)->isSelectedDropdownChild(selectedId);
+            return utils::as<UIDropdown>(el)->isSelectedMyDropdownChildRecursive(selectedId);
         }
     }
 
     return false;
 }
 
-auto UIDropdown::getSelectedButton(const uint32_t selectedId) -> UIButtonPtr
+auto UIDropdown::isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> UIBaseWPtr
 {
-    UIButtonPtr foundButton{nullptr};
-    for (auto& element : optionsHolder_->getElements())
+    auto& holderEls = optionsHolder_->getElements();
+    for (auto& el : holderEls)
     {
-        if (element->getId() != selectedId || element->getTypeId() != UIButton::typeId) { continue; }
-        foundButton = utils::as<UIButton>(element);
+        if (el->getTypeId() == UIButton::typeId)
+        {
+            if (el->getId() == selectedId) { return el; }
+        }
+        else
+        {
+            return utils::as<UIDropdown>(el)->isSelectedMyButtonChildRecursive(selectedId);
+        }
     }
 
-    return foundButton;
+    return {};
 }
 
 auto UIDropdown::setPreferredOpenDir(const OpenDir od) -> UIDropdown& { openDir_ = od; return *this; }
@@ -178,5 +188,7 @@ auto UIDropdown::isClosed() const -> bool { return !isOpen(); }
 auto UIDropdown::getOpenDirection() const -> OpenDir { return openDir_; }
 
 auto UIDropdown::getOptionsHolder() -> UIPaneWPtr { return optionsHolder_; }
+
+auto UIDropdown::getText() -> std::string { return label_->getText(); }
 
 } // namespace src::uielements

@@ -1,6 +1,31 @@
-<App ori="Horizontal" launchScale="1280, 720" title="Title Here" align="Center">
-    <Pane scale="500px, 300px">
-        <Img src="assets/textures/awesomeface.png" scale="50%, 50%"/>
-        <Slider scale="50%, 20px"/>
+<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Centder">
+    <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
+        <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
+            <Button text="Ceva"/>
+            <Button text="Ceva2"/>
+            <Dropdown text="Menu" dir="R">
+                <Button text="Ceva"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+            </Dropdown>
+        </Dropdown>
+        <Dropdown scale="200px, Fill" text="Menu2" dir="Bottom" border="1, 0, 1, 1" color="#f0f0f0ff">
+            <Button text="Ceva"/>
+            <Button text="Ceva2"/>
+            <Dropdown text="Menu" dir="R">
+                <Button text="Ceva"/>
+                <Button text="Ceva2"/>
+                <Dropdown text="Menu" dir="R">
+                    <Button text="Ceva"/>
+                    <Button text="Ceva2"/>
+                </Dropdown>
+            </Dropdown>
+        </Dropdown>
     </Pane>
 </App>

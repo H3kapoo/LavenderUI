@@ -29,10 +29,6 @@ struct IEventCRTP : public IEvent
 template<typename Derived>
 const uint32_t IEventCRTP<Derived>::eventId = utils::genId();
 
-// Note: Deprecated
-// struct MouseMoveScanEvt : public IEventCRTP<MouseMoveScanEvt>
-// {};
-
 struct MouseMoveEvt : public IEventCRTP<MouseMoveEvt>
 {
     MouseMoveEvt() {}
@@ -99,4 +95,13 @@ struct WindowResizeEvt : public IEventCRTP<WindowResizeEvt>
     WindowResizeEvt(uint32_t xIn, uint32_t yIn) : x{xIn}, y{yIn} {}
     uint32_t x{0}, y{0};
 };
+
+struct FrameDoneEvt : public IEventCRTP<FrameDoneEvt>
+{};
+
+struct KeyboardEvt : public IEventCRTP<KeyboardEvt>
+{};
+
+struct NodeDetachedEvent : public IEventCRTP<NodeDetachedEvent>
+{};
 } // namespace lav::core

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "src/Core/LavParser/ParseHelpers.hpp"
 #include "src/Core/LavParser/Rules/IRule.hpp"
 
 namespace lav::core
@@ -8,9 +7,11 @@ namespace lav::core
 class PaneRule : public IRule
 {
 public:
-    auto getRule() const -> RuleSignature;
+    auto getRule() const -> IRule::RuleData override;
 
 private:
-    ParseHelper parseHelper_;
+    auto getConstructRule() const -> ConstructRule;
+    auto getAdditionRule() const -> AddRule;
+
 };
 } // namespace lav::core

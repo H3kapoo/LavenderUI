@@ -30,8 +30,10 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIDropdown, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIDropdown);
 
-    [[nodiscard]] auto addOption(const std::string& optName) -> UIButtonWPtr;
-    [[nodiscard]] auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
+    auto addOption(UIButtonPtr&& opt) -> void;
+    auto addSubMenu(UIDropdownPtr&& subMenu) -> void;
+    auto addOption(const std::string& optName) -> UIButtonWPtr;
+    auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
 
     auto setPreferredOpenDir(const OpenDir od) -> UIDropdown&;
     auto setText(const std::string& text) -> UIDropdown&;
@@ -39,6 +41,7 @@ public:
     auto isClosed() const -> bool;
     auto getOpenDirection() const -> OpenDir;
     auto getOptionsHolder() -> UIPaneWPtr;
+    auto getText() -> std::string;
 
 private:
     auto render(const glm::mat4& projection) -> void override;
@@ -46,8 +49,8 @@ private:
     auto event(node::UIStatePtr& state) -> void override;
 
     auto closeDropdown() -> bool;
-    auto isSelectedDropdownChild(const uint32_t selectedId) -> bool;
-    auto getSelectedButton(const uint32_t selectedId) -> UIButtonPtr;
+    auto isSelectedMyDropdownChildRecursive(const uint32_t selectedId) -> bool;
+    auto isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> UIBaseWPtr;
 
 protected:
     UIPanePtr optionsHolder_{utils::make<UIPane>()};

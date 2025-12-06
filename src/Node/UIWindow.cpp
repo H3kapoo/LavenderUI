@@ -1,6 +1,7 @@
 #include "UIWindow.hpp"
 
 #include <algorithm>
+#include <optional>
 
 #include "src/App.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
@@ -29,39 +30,8 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     , isMainWindow_(isFirstWindow_)
 {
     initializeDefaultCursors();
-
     updateWindowSizeAndProjection(size);
-
-    /* Setup hooks into events */
-    /* TODO: Callbacks like mouseMove/windowResize/mouseScroll
-     fire a lot of times per "frame" creating a lot of unwanted computation.
-     It needs to be dealt with, buffer all calls into a single one. */
-    cbs_ = {
-        .keyCallback =
-            [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
-            { keyHook(key, sc, action, mods); },
-        .characterCallback = 
-            [this](uint32_t cp){ (void)cp; },
-        .mouseMoveCallback = 
-            [this](int32_t x, int32_t y) { mouseMoveHook(x, y); },
-        .mouseBtnCallback = 
-            [this](uint8_t btn, uint8_t action) { mouseButtonHook(btn, action); },
-        .mouseScrollCallback = 
-            [this](int8_t xOffset, int8_t yOffset) { mouseScrollHook(xOffset, yOffset); },
-        .windowSizeCallback = 
-            [this](uint32_t x, uint32_t y) { windowResizeHook(x, y); },
-        .windowMouseEntered = 
-            [this](bool entered) { windowMouseEnterHook(entered); },
-        .windowFileDrop =
-            [this](int32_t count, const char** paths)
-            {
-                (void)count;
-                (void)paths;
-                for (int32_t i = 0; i < count; ++i) {}
-            }
-    };
-
-    core::WindowBinder::get().setInputCallbacks(window_, cbs_);
+    setupInputCallbacks();
 
     // core::GPUBinder::get().enable(core::GPUBinder::Function::SCISSORS, false);
     // core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
@@ -73,8 +43,98 @@ UIWindow::~UIWindow()
     log_.debug("Window destroyed");
 }
 
+auto UIWindow::initializeDefaultCursors() -> void
+{
+    if (!isFirstWindow_) { return; }
+
+    core::WindowBinder::get().setStandardCursor(window_, lav::Cursor::ARROW);
+
+    isFirstWindow_ = false;
+}
+
+auto UIWindow::setupInputCallbacks() -> void
+{
+    cbs_ = {
+        .keyCallback =
+            [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
+            {
+                insertUniquePendingRawEvent(core::KeyboardEvt{}, [this, key, sc, action, mods]()
+                {
+                    keyButtonSolver(key, sc, action, mods);
+                });
+            },
+        .characterCallback = 
+            [this](uint32_t cp){ (void)cp; },
+        .mouseMoveCallback = 
+            [this](int32_t x, int32_t y)
+            {
+                insertUniquePendingRawEvent(core::MouseMoveEvt{}, [this, x, y]()
+                {
+                    mouseMoveSolver(x, y);
+                });
+            },
+        .mouseBtnCallback = 
+            [this](uint8_t btn, uint8_t action)
+            {
+                insertUniquePendingRawEvent(core::MouseButtonEvt{}, [this, btn, action]()
+                {
+                    mouseButtonSolver(btn, action);
+                });
+            },
+        .mouseScrollCallback = 
+            [this](int8_t xOffset, int8_t yOffset)
+            {
+                insertUniquePendingRawEvent(core::MouseScrollEvt{}, [this, xOffset, yOffset]()
+                {
+                    mouseScrollSolver(xOffset, yOffset);
+                });
+            },
+        .windowSizeCallback = 
+            [this](uint32_t newX, uint32_t newY)
+            {
+                insertUniquePendingRawEvent(core::WindowResizeEvt{}, [this, newX, newY]()
+                {
+                    windowResizeSolver(newX, newY);
+                });
+            },
+        .windowMouseEntered = 
+            [this](bool entered)
+            {
+                insertUniquePendingRawEvent(core::WindowResizeEvt{}, [this, entered]()
+                {
+                    windowMouseEnterSolver(entered);
+                });
+            },
+        .windowFileDrop =
+            [this](int32_t count, const char** paths)
+            {
+                (void)count;
+                (void)paths;
+                for (int32_t i = 0; i < count; ++i) {}
+            }
+    };
+
+    core::WindowBinder::get().setInputCallbacks(window_, cbs_);
+}
+
+auto UIWindow::updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void
+{
+    uiState_->windowSizeDelta = newSize - uiState_->windowSize;
+    uiState_->windowSize = newSize;
+
+    /* Camera is looking into -Z by default. Here, higher Z means closer to the camera. */
+    projection_ = glm::ortho(0.0f, (float)newSize.x, (float)newSize.y, 0.0f, -(float)MAX_LAYERS, 0.0f);
+}
+
 auto UIWindow::run() -> bool
 {
+    /*
+        This is such that the order of events is always predictible and duplicate events are erased.
+        Pending events are always processed first then the layout calculator runs and lastly we render.
+    */
+    resolvePendingRawEvents();
+
+    // Run layout+render
     const auto& size = uiState_->windowSize;
     core::WindowBinder::get().makeContextCurrent(window_);
     core::GPUBinder::get().setViewportArea({0, 0, size.x, size.y});
@@ -118,12 +178,230 @@ auto UIWindow::run() -> bool
         uiState_->wantedCursorType.reset();
     }
 
+    // static core::FrameDoneEvt evt;
+    // emitEventTo(evt, std::nullopt);
+
     core::WindowBinder::get().swapBuffers(window_);
 
     return core::WindowBinder::get().shouldWindowClose(window_) || forcedQuit_;
 }
 
 auto UIWindow::quit() -> void { forcedQuit_ = true; }
+
+auto UIWindow::insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void
+{
+    if (pendingRawEventIds_.contains(e.getEventId())) { return; }
+
+    pendingRawEventIds_.insert(e.getEventId());
+    pendingRawEventCallbacks_.push_back(cb);
+}
+
+auto UIWindow::clearAllUniquePendingRawEvents() -> void
+{
+    pendingRawEventCallbacks_.clear();
+    pendingRawEventIds_.clear();
+}
+
+auto UIWindow::resolvePendingRawEvents() -> void
+{
+    for (const auto& rawEventCallback : pendingRawEventCallbacks_)
+    {
+        rawEventCallback();
+    }
+
+    if (isElementRemovedViaEvent_)
+    {
+        isElementRemovedViaEvent_ = false;
+        /*
+            Might happen that the hovered element got removed, so we need to rescan and resent events
+            to the newly found hovered item. Think of this as wiggling the mouse in place once.
+        */
+        mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
+    }
+
+    clearAllUniquePendingRawEvents();
+}
+
+auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t> nodeId) -> void
+{
+    uiState_->currentEventId = evt.getEventId();
+
+    // TODO: Storing weak_ptrs to the nodes would be much more efficient
+    // and we could use the processing queue just to find the hovered node
+    processingQueue_.push(shared_from_this());
+    while (!processingQueue_.empty())
+    {
+        UIBasePtr node = processingQueue_.front();
+        processingQueue_.pop();
+
+        if (node->isIgnoringEvents()) { continue; }
+
+        if (!nodeId || nodeId.value() == node->getId())
+        {
+            uint32_t elementBefore = node->getElements().size();
+            node->event(uiState_);
+            uint32_t elementsAfter = node->getElements().size();
+
+            if (elementBefore > elementsAfter)
+            {
+                isElementRemovedViaEvent_ = true;
+            }
+        }
+
+        for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
+    }
+}
+
+auto UIWindow::scanForHoveredNode() -> void
+{
+    /* TODO: Propagate functions work at nodeId level and each time we propagate something we need to
+    go thru the tree and find the node, it's very inefficient.
+    We could minimize the overhead by processing all the "queued" events in one pass.
+    Maybe we could send the events in the run() processingQueue loop to have only one master loop over the
+    entire tree, but not sure how that will affect the elements, we might process the event and that event
+    changes the UI but the change is not reflected until the next loop. 
+    However there's nothing stopping us from signaling the window a new loop pass needs to be done from events. */
+    uint32_t maxZIndexSoFar{0};
+
+    processingQueue_.push(shared_from_this());
+    while (!processingQueue_.empty())
+    {
+        UIBasePtr node = processingQueue_.front();
+        processingQueue_.pop();
+
+        if (node->isIgnoringEvents()) { continue; }
+
+        /* 
+            Determine in the scan pass who's the hovered element. We need to ensure that the user's input will
+            go to the highest index element.
+        */
+        if (node->layoutBase_.getZIndex() > maxZIndexSoFar
+            && node->layoutBase_.isPointInsideView(uiState_->mousePos))
+        {
+            uiState_->hoveredId = node->getId();
+            uiState_->hoveredTypeId = node->getTypeId();
+            maxZIndexSoFar = node->layoutBase_.getZIndex();
+        }
+
+        for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
+    }
+}
+
+auto UIWindow::mouseMoveSolver(const int32_t newX, const int32_t newY) -> void
+{
+    const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, uiState_->windowSize);
+    uint32_t prevHoveredId = uiState_->hoveredId;
+    uiState_->hoveredId = node::NOTHING;
+    uiState_->mouseDiff = newMouse - uiState_->mousePos;
+    uiState_->mousePos = newMouse;
+
+    scanForHoveredNode();
+    uint32_t currHoveredId = uiState_->hoveredId;
+
+    /* Entered the window for the first time */
+    if (prevHoveredId == node::NOTHING)
+    {
+        emitEventTo(core::MouseEnterEvt{}, currHoveredId);
+    }
+    /* Spawn exit for previous and enter for the current id */
+    else if (prevHoveredId != currHoveredId)
+    {
+        uiState_->prevHoveredId = prevHoveredId;
+        emitEventTo(core::MouseEnterEvt{}, currHoveredId);
+        emitEventTo(core::MouseExitEvt{}, prevHoveredId);
+    }
+
+    /* Handle dragging on the clicked id */
+    if (uiState_->clickedId != node::NOTHING
+        && uiState_->mouseAction == Action::PRESS
+        && uiState_->mouseButton == Mouse::LEFT)
+    {
+        uiState_->isDragging = true;
+        emitEventTo(core::MouseDragEvt{}, uiState_->clickedId);
+    }
+
+    /* Spawn event itself */
+    emitEventTo(core::MouseMoveEvt{}, std::nullopt);
+}
+
+auto UIWindow::mouseButtonSolver(const uint32_t btn, const uint32_t action) -> void
+{
+    uiState_->mouseButton = static_cast<lav::Mouse>(btn);
+    uiState_->mouseAction = static_cast<lav::Action>(action);
+
+    if (btn == Mouse::LEFT && action == Action::PRESS)
+    {
+        uiState_->clickedId = uiState_->hoveredId;
+        uiState_->selectedId = uiState_->hoveredId;
+        emitEventTo(core::MouseLeftClickEvt{}, uiState_->clickedId);
+    }
+    else if (btn == Mouse::LEFT && action == Action::RELEASE)
+    {
+        uiState_->isDragging = false;
+        uiState_->clickedId = node::NOTHING;
+        emitEventTo(core::MouseLeftReleaseEvt{}, uiState_->selectedId);
+    }
+
+    /* Spawn event itself */
+    emitEventTo(core::MouseButtonEvt{}, std::nullopt);
+}
+
+auto UIWindow::mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset) -> void
+{
+    uiState_->scrollOffset = {xOffset, yOffset};
+
+    if (uiState_->hoveredTypeId == node::UISlider::typeId)
+    {
+        emitEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
+    }
+    else if (uiState_->closestScrollId != node::NOTHING)
+    {
+        emitEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
+    }
+
+    uiState_->scrollOffset = {0, 0};
+    uiState_->closestScrollId = node::NOTHING;
+}
+
+auto UIWindow::windowResizeSolver(const uint32_t x, const uint32_t y) -> void
+{
+    /* Note: use framebuffer size to set viewport in case DPI is not a default
+       one aka we have some artificial scaling. */
+    updateWindowSizeAndProjection(glm::ivec2{x, y});
+    emitEventTo(core::WindowResizeEvt{}, std::nullopt);
+}
+
+auto UIWindow::windowMouseEnterSolver(const bool entered) -> void
+{
+    if (entered)
+    {
+        mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
+    }
+    else
+    {
+        emitEventTo(core::MouseExitEvt{}, uiState_->hoveredId);
+        uiState_->hoveredId = node::NOTHING;
+        uiState_->prevHoveredId = node::NOTHING;
+    }
+}
+
+auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_t action,
+    const uint32_t) -> void
+{
+    if (action == Action::RELEASE || action == Action::REPEAT) { return; }
+    if (key == Key::ESC)
+    {
+        core::WindowBinder::get().close(window_);
+    }
+    else if (key == Key::C)
+    {
+        App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
+    }
+    else if (key == Key::P)
+    {
+        log_.debug("\n{}", shared_from_this());
+    }
+}
 
 auto UIWindow::render(const glm::mat4& projection) -> void { (void)projection; }
 
@@ -146,182 +424,26 @@ auto UIWindow::event(UIStatePtr& state) -> void
     {
         core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
     else if (eId == core::MouseExitEvt::eventId)
     {
         core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         /* We can safely ignore bubbling down the tree as we found the entered element. */
-        return eventsMgr_.emitEvent<core::MouseExitEvt>(e);
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
     else if (eId == core::MouseLeftClickEvt::eventId)
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
+        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
     else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
         /* We can safely ignore bubbling down the tree as we found the clicked element. */
         core::MouseLeftReleaseEvt e;
-        return eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
+        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
-}
-
-auto UIWindow::windowResizeHook(const uint32_t x, const uint32_t y) -> void
-{
-    /* Note: use framebuffer size to set viewport in case DPI is not a default
-       one aka we have some artificial scaling. */
-    updateWindowSizeAndProjection(glm::ivec2{x, y});
-    propagateEventTo(core::WindowResizeEvt{}, std::nullopt);
-}
-
-auto UIWindow::windowMouseEnterHook(const bool entered) -> void
-{
-    if (entered)
-    {
-        mouseMoveHook(uiState_->mousePos.x, uiState_->mousePos.y);
-    }
-    else
-    {
-        propagateEventTo(core::MouseExitEvt{}, uiState_->hoveredId);
-        uiState_->hoveredId = node::NOTHING;
-        uiState_->prevHoveredId = node::NOTHING;
-    }
-}
-
-auto UIWindow::keyHook(const uint32_t key, const uint32_t, const uint32_t action,
-    const uint32_t) -> void
-{
-    if (action == Action::RELEASE || action == Action::REPEAT) { return; }
-    if (key == Key::ESC)
-    {
-        core::WindowBinder::get().close(window_);
-    }
-    else if (key == Key::C)
-    {
-        App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
-    }
-    else if (key == Key::P)
-    {
-        log_.debug("\n{}", shared_from_this());
-    }
-}
-
-auto UIWindow::mouseMoveHook(const int32_t newX, const int32_t newY) -> void
-{
-    const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, uiState_->windowSize);
-    uint32_t prevHoveredId = uiState_->hoveredId;
-    uiState_->hoveredId = node::NOTHING;
-    uiState_->mouseDiff = newMouse - uiState_->mousePos;
-    uiState_->mousePos = newMouse;
-
-    propagateHoverScanEvent();
-    uint32_t currHoveredId = uiState_->hoveredId;
-
-    /* Entered the window for the first time */
-    if (prevHoveredId == node::NOTHING)
-    {
-        propagateEventTo(core::MouseEnterEvt{}, currHoveredId);
-    }
-    /* Spawn exit for previous and enter for the current id */
-    else if (prevHoveredId != currHoveredId)
-    {
-        uiState_->prevHoveredId = prevHoveredId;
-        propagateEventTo(core::MouseEnterEvt{}, currHoveredId);
-        propagateEventTo(core::MouseExitEvt{}, prevHoveredId);
-    }
-
-    /* Handle dragging on the clicked id */
-    if (uiState_->clickedId != node::NOTHING
-        && uiState_->mouseAction == Action::PRESS
-        && uiState_->mouseButton == Mouse::LEFT)
-    {
-        uiState_->isDragging = true;
-        propagateEventTo(core::MouseDragEvt{}, uiState_->clickedId);
-    }
-
-    /* Spawn event itself */
-    propagateEventTo(core::MouseMoveEvt{}, std::nullopt);
-}
-
-auto UIWindow::mouseButtonHook(const uint32_t btn, const uint32_t action) -> void
-{
-    /* New rescan for the hovered id needs to be done as on button release/click the
-    underlaying element could of got invalidated. */
-    uiState_->hoveredZIndex = node::NOTHING;
-    propagateHoverScanEvent();
-
-    uiState_->mouseButton = static_cast<lav::Mouse>(btn);
-    uiState_->mouseAction = static_cast<lav::Action>(action);
-    propagateEventTo(core::MouseButtonEvt{}, std::nullopt);
-
-    if (btn == Mouse::LEFT && action == Action::PRESS)
-    {
-        uiState_->clickedId = uiState_->hoveredId;
-        uiState_->selectedId = uiState_->hoveredId;
-        propagateEventTo(core::MouseLeftClickEvt{}, uiState_->clickedId);
-    }
-    else if (btn == Mouse::LEFT && action == Action::RELEASE)
-    {
-        uiState_->isDragging = false;
-        uiState_->clickedId = node::NOTHING;
-        propagateEventTo(core::MouseLeftReleaseEvt{}, uiState_->selectedId);
-    }
-}
-
-auto UIWindow::mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -> void
-{
-    uiState_->scrollOffset = {xOffset, yOffset};
-
-    if (uiState_->hoveredTypeId == node::UISlider::typeId)
-    {
-        propagateEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
-    }
-    else if (uiState_->closestScrollId != node::NOTHING)
-    {
-        propagateEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
-    }
-
-    uiState_->scrollOffset = {0, 0};
-    uiState_->closestScrollId = node::NOTHING;
-}
-
-auto UIWindow::initializeDefaultCursors() -> void
-{
-    if (!isFirstWindow_) { return; }
-
-    core::WindowBinder::get().setStandardCursor(window_, lav::Cursor::ARROW);
-
-    isFirstWindow_ = false;
-}
-
-auto UIWindow::propagateEventTo(const core::IEvent& evt,
-    const std::optional<uint32_t> nodeId) -> void
-{
-    uiState_->currentEventId = evt.getEventId();
-
-    processingQueue_.push(shared_from_this());
-    while (!processingQueue_.empty())
-    {
-        UIBasePtr node = processingQueue_.front();
-        processingQueue_.pop();
-
-        if (node->isIgnoringEvents()) { continue; }
-
-        if (!nodeId || nodeId.value() == node->getId()) { node->event(uiState_); }
-
-        for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
-    }
-}
-
-auto UIWindow::updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void
-{
-    uiState_->windowSizeDelta = newSize - uiState_->windowSize;
-    uiState_->windowSize = newSize;
-
-    /* Camera is looking into -Z by default. Here, higher Z means closer to the camera. */
-    projection_ = glm::ortho(0.0f, (float)newSize.x, (float)newSize.y, 0.0f, -(float)MAX_LAYERS, 0.0f);
 }
 
 auto UIWindow::areRenderPreconditionsSatisfied(const UIBasePtr& node) -> bool
@@ -386,37 +508,6 @@ auto UIWindow::preLayoutSetup(const UIBasePtr& node) -> void
     }
 }
 
-auto UIWindow::propagateHoverScanEvent() -> void
-{
-    /* TODO: Propagate functions work at nodeId level and each time we propagate something we need to
-    go thru the tree and find the node, it's very inefficient.
-    We could minimize the overhead by processing all the "queued" events in one pass.
-    Maybe we could send the events in the run() processingQueue loop to have only one master loop over the
-    entire tree, but not sure how that will affect the elements, we might process the event and that event
-    changes the UI but the change is not reflected until the next loop. 
-    However there's nothing stopping us from signaling the window a new loop pass needs to be done from events. */
-    uint32_t maxZIndex{0};
-
-    processingQueue_.push(shared_from_this());
-    while (!processingQueue_.empty())
-    {
-        UIBasePtr node = processingQueue_.front();
-        processingQueue_.pop();
-
-        if (node->isIgnoringEvents()) { continue; }
-
-        /* Determine in the scan pass who's the hovered element. We need to ensure that the user's input will
-            go to the highest index element. */
-        if (node->layoutBase_.getZIndex() > maxZIndex && node->layoutBase_.isPointInsideView(uiState_->mousePos))
-        {
-            uiState_->hoveredId = node->getId();
-            uiState_->hoveredTypeId = node->getTypeId();
-            maxZIndex = node->layoutBase_.getZIndex();
-        }
-
-        for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
-    }
-}
 
 auto UIWindow::postRenderActions(const UIBasePtr& node) -> void
 {
@@ -440,6 +531,13 @@ auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
             if (!itLayout.isCustomIndex())
             {
                 itLayout.setZIndex(nodeLayout.getZIndex() + 1);
+            }
+
+            /* UIPanes that hold the optons of a UIDropdown need to be 2 layers higher so as to not
+                be occluded by the UILabels of the options. */
+            if (node->getTypeId() == UIDropdown::typeId && it->getTypeId() == UIPane::typeId)
+            {
+                itLayout.setZIndex(nodeLayout.getZIndex() + 2);
             }
 
             /* It's a pane scrollbar and it will have a higher custom zIndex */

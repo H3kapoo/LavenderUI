@@ -37,8 +37,8 @@ public:
     ~Logger() = default;
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
-    Logger(Logger&&) noexcept = default;
-    Logger& operator=(Logger&&) noexcept = default;
+    Logger(Logger&&) noexcept = delete;
+    Logger& operator=(Logger&&) noexcept = delete;
 
 #define LOGGER_GENERATE_LOGGERS(name, level)\
     template<typename... Args>\

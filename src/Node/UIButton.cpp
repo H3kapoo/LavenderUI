@@ -13,7 +13,7 @@ UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
 {
     layoutBase_.setScale({100_px, 36_px});
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
-    label_->setColor(utils::hexToVec4("#ffffff7d"));
+    label_->setColor(utils::hexToVec4("#ffffff00"));
     UIBase::add(label_);
 }
 
@@ -48,7 +48,7 @@ auto UIButton::event(UIStatePtr& state) -> void
     {
         overrideColor_ = clickedColor_;
         core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
+        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
     else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
@@ -56,19 +56,19 @@ auto UIButton::event(UIStatePtr& state) -> void
         else { overrideColor_.reset(); }
 
         core::MouseLeftReleaseEvt e;
-        return eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
+        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
     else if (eId == core::MouseDragEvt::eventId)
     {
         core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<core::MouseDragEvt>(e);
+        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
     }
     else if (eId == core::MouseEnterEvt::eventId)
     {
         if (state->clickedId != getId()) { overrideColor_ = hoveredColor_; }
 
         core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
     else if (eId == core::MouseExitEvt::eventId)
     {
@@ -76,8 +76,13 @@ auto UIButton::event(UIStatePtr& state) -> void
         else { overrideColor_.reset(); }
 
         core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<core::MouseExitEvt>(e);
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
+}
+
+auto UIButton::onResetToDefault() -> void
+{
+    overrideColor_.reset();
 }
 
 auto UIButton::setClickedColor(const glm::vec4& color) -> UIButton& { clickedColor_ = color; return *this; }
@@ -91,6 +96,7 @@ auto UIButton::setDisabled() -> UIButton&
 }
 auto UIButton::setText(const std::string& text) -> UIButton& { label_->setText(text); return *this; }
 auto UIButton::isEnabled() -> bool { return isBtnEnabled_; }
+auto UIButton::getText() const -> std::string { return label_->getText(); }
 auto UIButton::getColor() const -> const glm::vec4& { return baseColor_; }
 auto UIButton::getBorderColor() const -> const glm::vec4& { return borderColor_; }
 } // namespace src::uinodes

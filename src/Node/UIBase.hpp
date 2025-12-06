@@ -127,6 +127,9 @@ public:
     auto operator=(UIBase&&) -> UIBase& = delete;
 
     virtual auto getTypeId() const -> uint32_t = 0;
+
+    // TODO: These shall be all protected. If the node wants to be able to add something, expose
+    // that explicitly.
     virtual auto add(const UIBasePtr& element) -> bool;
     virtual auto add(const UIBasePtrVec& elements) -> void;
     virtual auto remove(const std::function<bool(const UIBasePtr&)>& pred) -> uint32_t;
@@ -134,13 +137,13 @@ public:
     virtual auto remove(const UIBasePtrVec& elements) -> void;
     virtual auto remove(UIBasePtrVec&& elements) -> void;
 
-    auto selfEvent(UIStatePtr& state) -> void;
-
     template <typename T>
     auto listenEvent(const std::function<void(const T)>& callback) -> void
     {
         eventsMgr_.listenTo(callback);
     }
+
+    auto resetElementsToDefault() -> void;
 
     auto setIgnoreEvents(const bool ignore = true) -> void;
     auto setColor(const glm::vec4& value) -> void;
@@ -161,9 +164,11 @@ public:
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
 protected:
+
     virtual auto render(const glm::mat4& projection) -> void = 0;
     virtual auto layout() -> void = 0;
     virtual auto event(UIStatePtr& state) -> void = 0;
+    virtual auto onResetToDefault() -> void {};
 
 private:
     static auto demangleName(const char* name) -> std::string;

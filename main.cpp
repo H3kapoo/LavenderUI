@@ -32,40 +32,50 @@ int main()
 
 
     app.enableTitleWithFPS();
-    // UIWindowWPtr window = app.loadLavView("views/test.xml");
-    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    window.lock()->getBaseLayoutData()
-        // .setType(LayoutBase::Type::VERTICAL)
-        .setAlign(LayoutBase::Align::CENTER)
-        ;
-    UIImagePtr img = utils::make<UIImage>();
-    img->setImage("assets/textures/wall.jpg");
-    img->getBaseLayoutData().setScale({200_px, 200_px});
+    UIWindowWPtr window = app.loadLavView("views/test.xml");
+    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
 
-    UILabelPtr lbl = utils::make<UILabel>();
-    lbl->setText("my text");
-    lbl->getBaseLayoutData().setScale({200_px, 200_px}).setBorderRadius({10});
-
-    UIDropdownPtr dd = utils::make<UIDropdown>();
-    dd->getBaseLayoutData().setBorder({4});
-    dd->setText("My Dropdown").setPreferredOpenDir(UIDropdown::OpenDir::TOP);
-
-    // dd->getOptionsHolder().lock()->getBaseLayoutData().setBorderRadius({4});
-    dd->getOptionsHolder().lock()->getBaseLayoutData().setBorder({4}).setBorderRadius({10});
-
-    auto btn1 = dd->addOption("NewOption");
-    auto btn2 = dd->addOption("NewOption2");
-    auto newMenu = dd->addSubMenu("NewMenu");
-    newMenu.lock()->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
-    newMenu.lock()->addOption("SubOpt");
-    newMenu.lock()->addOption("SubOpt2");
-
-    // btn1.lock()->setDisabled();
-    btn1.lock()->listenEvent<lav::core::MouseLeftReleaseEvt>([&log](const auto&)
     {
-        log.error("bla bla from btn");
+        auto lw = window.lock();
+        auto pane = utils::as<UIPane>(lw->getElements()[0]);
+
+        UIDropdownPtr dd = utils::make<UIDropdown>();
+        dd->getBaseLayoutData().setScale({100_px, 1_fill});
+        dd->setText("Star Wars");
+        auto general = dd->addOption("General").lock();
+        dd->addOption("Colonel");
+
+        auto subMenu = dd->addSubMenu("Planets >").lock();
+        subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+        subMenu->addOption("Earth");
+        auto endor = subMenu->addOption("Endor").lock();
+        // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+        endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+        {
+            log.error("Released endor");
+        });
+        pane->add(dd);
+    }
+
+    UIPanePtr pn = utils::make<UIPane>();
+    pn->setScrollEnabled(true, true);
+    pn->setColor(utils::hexToVec4("#ffaaffff"));
+    pn->getBaseLayoutData().setScale({1_fill, 1_fill});
+    {
+        auto wl = window.lock();
+        wl->add(pn);
+    }
+
+    pn->listenEvent<core::MouseEnterEvt>([&log](const auto&)
+    {
+        log.info("Entered on my area");
     });
-    window.lock()->add({dd, img, lbl});
+
+    UIButtonPtr b = utils::make<UIButton>();
+    b->getBaseLayoutData().setScale({200_px, 20_px});
+    b->setText("Click me");
+
+    // pn->add(b);
 
     app.run();
     return 0;

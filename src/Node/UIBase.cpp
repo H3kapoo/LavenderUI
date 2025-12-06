@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cxxabi.h>
+#include <queue>
 
 #include "src/Core/ResourceHandler/ShaderLoader.hpp"
 #include "src/Core/ResourceHandler/MeshLoader.hpp"
+#include "src/Node/UIWindow.hpp"
 #include "src/Utils/Misc.hpp"
 
 namespace lav::node
@@ -91,10 +93,22 @@ auto UIBase::remove(UIBasePtrVec&& elements) -> void
     std::ranges::for_each(std::move(elements), [this](const UIBasePtr& e){ UIBase::remove(e); });
 }
 
-auto UIBase::selfEvent(UIStatePtr& state) -> void
+auto UIBase::resetElementsToDefault() -> void
 {
-    if (isIgnoringEvents_) { return; }
-    event(state);
+    static std::queue<UIBasePtr> processingQueue;
+    processingQueue.push(shared_from_this());
+    while (!processingQueue.empty())
+    {
+        UIBasePtr node = processingQueue.front();
+        processingQueue.pop();
+
+        for (auto& childNode : node->getElements())
+        {
+            processingQueue.push(childNode);
+        }
+
+        node->onResetToDefault();
+    }
 }
 
 auto UIBase::setIgnoreEvents(const bool ignore) -> void { isIgnoringEvents_ = ignore; }

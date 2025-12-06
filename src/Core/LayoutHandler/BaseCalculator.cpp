@@ -53,11 +53,11 @@ auto BaseCalculator::calculateScaleForGenericElement(node::UIBase* parent,
 
         if (isXPx) { cScale.x = userScale.x.val - marginLR; }
         else if (isXRel) { cScale.x = nContentBoxScale.x * userScale.x.val - marginLR; }
-        else if (isXFill && nType == LayoutBase::Type::HORIZONTAL) { ++fillsNeededPerAxis.x; }
+        else if (isXFill && nLayout.isHorizontal()) { ++fillsNeededPerAxis.x; }
 
         if (isYPx) { cScale.y = userScale.y.val - marginTB; }
         else if (isYRel) { cScale.y = nContentBoxScale.y * userScale.y.val - marginTB; }
-        else if (isYFill && nType == LayoutBase::Type::VERTICAL) { ++fillsNeededPerAxis.y; }
+        else if (isYFill && nLayout.isVertical()) { ++fillsNeededPerAxis.y; }
 
         if (isXFit || isYFit)
         {
@@ -68,9 +68,12 @@ auto BaseCalculator::calculateScaleForGenericElement(node::UIBase* parent,
             if (isYFit) { cScale.y = fitScale.y - marginTB; }
         }
 
-        nonFillRunningTotal += cScale;
-        cScale = utils::round(cScale);
+        nonFillRunningTotal += glm::ivec2{
+            nLayout.isHorizontal() ? cScale.x : 0,
+            nLayout.isVertical() ? cScale.y : 0
+        };
 
+        cScale = utils::round(cScale);
         eLayout.setComputedScale(cScale);
 
         intTotal += cScale;

@@ -1,6 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <queue>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "src/Node/UIBase.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
@@ -18,6 +22,8 @@ namespace lav::node
 */
 class UIWindow : public UIBase
 {
+using RawEventCallback = std::function<void()>;
+
 public:
     UIWindow(const std::string& title, const glm::ivec2& size);
     virtual ~UIWindow();
@@ -38,24 +44,31 @@ public:
     INSERT_TYPEINFO(UIWindow);
 
 private:
+    auto setupInputCallbacks() -> void;
+    auto initializeDefaultCursors() -> void;
+    auto updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void;
+    auto insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void;
+    auto clearAllUniquePendingRawEvents() -> void;
+    auto resolvePendingRawEvents() -> void;
+    auto emitEventTo(const core::IEvent& event, const std::optional<uint32_t> nodeId) -> void;
+    auto scanForHoveredNode() -> void;
+
+    auto mouseMoveSolver(const int32_t newX, const int32_t newY) -> void;
+    auto mouseButtonSolver(const uint32_t btn, const uint32_t action) -> void;
+    auto mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset) -> void;
+    auto windowResizeSolver(const uint32_t newX, const uint32_t newY) -> void;
+    auto windowMouseEnterSolver(const bool entered) -> void;
+    auto keyButtonSolver(const uint32_t key, const uint32_t scancode, const uint32_t action,
+        const uint32_t mods) -> void;
+
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;
     auto event(UIStatePtr& state) -> void override;
-    auto windowResizeHook(const uint32_t newX, const uint32_t newY) -> void;
-    auto windowMouseEnterHook(const bool entered) -> void;
-    auto keyHook(const uint32_t key, const uint32_t scancode, const uint32_t action,
-        const uint32_t mods) -> void;
-    auto mouseMoveHook(const int32_t newX, const int32_t newY) -> void;
-    auto mouseButtonHook(const uint32_t btn, const uint32_t action) -> void;
-    auto mouseScrollHook(const uint32_t xOffset, const uint32_t yOffset) -> void;
-    auto propagateEventTo(const core::IEvent& event, const std::optional<uint32_t> nodeId) -> void;
-    auto updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void;
-    auto initializeDefaultCursors() -> void;
+
     auto areRenderPreconditionsSatisfied(const UIBasePtr& node) -> bool;
     auto areLayoutPreconditionsSatisfied(const UIBasePtr& node) -> bool;
     auto preRenderSetup(const UIBasePtr& node, const glm::mat4& projection) -> void;
     auto preLayoutSetup(const UIBasePtr& node) -> void;
-    auto propagateHoverScanEvent() -> void;
     auto postRenderActions(const UIBasePtr& node) -> void;
     auto postLayoutActions(const UIBasePtr& node) -> void;
 
@@ -68,8 +81,12 @@ private:
     UIStatePtr uiState_{utils::make<UIState>()};
     bool forcedQuit_{false};
     bool isMainWindow_{false};
-    glm::ivec2 mouseMovedTo_{0,0};
-    bool needsMoveUpdate_{false};
+
+    // Raw events
+    std::vector<RawEventCallback> pendingRawEventCallbacks_;
+    std::unordered_set<uint32_t> pendingRawEventIds_;
+    std::vector<UIBasePtr> removedNodesDuringEvent_;
+    bool isElementRemovedViaEvent_{false};
 
     static int32_t MAX_LAYERS;
     static bool isFirstWindow_;

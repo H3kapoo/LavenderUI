@@ -49,35 +49,36 @@ auto UILabel::layout() -> void
 
 auto UILabel::event(UIStatePtr& state) -> void
 {
-    using namespace core;
     const auto eId = state->currentEventId;
-    if (eId == MouseLeftClickEvt::eventId)
+    if (eId == core::MouseLeftClickEvt::eventId)
     {
-        MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseLeftClickEvt>(e);
+        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
-    else if (eId == MouseLeftReleaseEvt::eventId)
+    else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
-        MouseLeftReleaseEvt e;
-        return eventsMgr_.emitEvent<MouseLeftReleaseEvt>(e);
+        core::MouseLeftReleaseEvt e;
+        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
-    else if (eId == MouseDragEvt::eventId)
+    else if (eId == core::MouseDragEvt::eventId)
     {
-        MouseDragEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseDragEvt>(e);
+        core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
     }
-    else if (eId == MouseEnterEvt::eventId)
+    else if (eId == core::MouseEnterEvt::eventId)
     {
-        MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseEnterEvt>(e);
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
-    else if (eId == MouseExitEvt::eventId)
+    else if (eId == core::MouseExitEvt::eventId)
     {
-        MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        return eventsMgr_.emitEvent<MouseExitEvt>(e);
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
 }
 
 auto UILabel::setText(const std::string& text) -> UILabel& { textAttribs_.setText(text); return *this; }
 auto UILabel::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
+auto UILabel::getText() const -> std::string { return textAttribs_.getText(); }
+
 } // namespace src::uinodes

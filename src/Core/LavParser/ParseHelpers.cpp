@@ -1,12 +1,23 @@
 #include "ParseHelpers.hpp"
 
+#include <regex>
+
+#include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Utils/Misc.hpp"
+
 namespace lav::core
 {
+auto ParseHelper::get() -> ParseHelper&
+{
+    static ParseHelper instance;
+    return instance;
+}
+
 auto ParseHelper::toScale(const std::string& value) const -> LayoutBase::ScaleXY
 {
     static uint32_t EXPECTED_ARG_COUNT{2};
     static std::regex del{","};
-    static std::sregex_token_iterator end;
+    std::sregex_token_iterator end;
 
     std::sregex_token_iterator regIt(value.begin(), value.end(), del, -1);
 
@@ -37,8 +48,7 @@ auto ParseHelper::toScale(const std::string& value) const -> LayoutBase::ScaleXY
         }
         else
         {
-            utils::Logger log(__func__);
-            log.error("Invalid token: '{}'", stripped);
+            log_.error("Invalid token: '{}'", stripped);
         }
         ++regIt;
         ++currentArgIdx;
@@ -62,7 +72,7 @@ auto ParseHelper::toVec2D(const std::string& value) const -> glm::ivec2
 {
     static uint32_t EXPECTED_ARG_COUNT{2};
     static std::regex del{","};
-    static std::sregex_token_iterator end;
+    std::sregex_token_iterator end;
 
     std::sregex_token_iterator it(value.begin(), value.end(), del, -1);
 
@@ -77,8 +87,7 @@ auto ParseHelper::toVec2D(const std::string& value) const -> glm::ivec2
 
     if (currentArgIdx != EXPECTED_ARG_COUNT)
     {
-        utils::Logger log(__func__);
-        log.error("Not enough args for '{}' . Expected '{}' Got '{}'", __func__, EXPECTED_ARG_COUNT, currentArgIdx);
+        log_.error("Not enough args for '{}' . Expected '{}' Got '{}'", __func__, EXPECTED_ARG_COUNT, currentArgIdx);
     }
 
     return returnVec;
@@ -90,8 +99,47 @@ auto ParseHelper::toOrientation(const std::string& value) const -> LayoutBase::T
     if (value == "Vertical") { return LayoutBase::Type::VERTICAL; }
     if (value == "Grid") { return LayoutBase::Type::GRID; }
 
-    utils::Logger log(__func__);
-    log.error("Unknown layout type fed in: '{}'", value);
+    log_.error("Unknown layout type fed in: '{}'", value);
     return LayoutBase::Type::HORIZONTAL;
 }
+
+auto ParseHelper::toAlign(const std::string& value) const -> LayoutBase::Align
+{
+    if (value == "Center") { return LayoutBase::Align::CENTER; }
+
+    log_.error("Unkown align: '{}'", value);
+    return LayoutBase::Align::TOP_LEFT; 
+}
+
+auto ParseHelper::toBorder(const std::string& value) const -> LayoutBase::TBLR
+{
+    static uint32_t EXPECTED_ARG_COUNT{4};
+    static std::regex del{","};
+    std::sregex_token_iterator end;
+
+    std::sregex_token_iterator it(value.begin(), value.end(), del, -1);
+
+    uint32_t currentArgIdx{0};
+    LayoutBase::TBLR returnVal{0, 0, 0, 0};
+    auto recast = reinterpret_cast<int32_t*>(&returnVal);
+    while (it != end)
+    {
+        recast[currentArgIdx] = std::stoi(*it);
+        ++it;
+        ++currentArgIdx;
+    }
+
+    if (currentArgIdx != EXPECTED_ARG_COUNT)
+    {
+        log_.error("Not enough args for '{}' . Expected '{}' Got '{}'", __func__, EXPECTED_ARG_COUNT, currentArgIdx);
+    }
+
+    return returnVal;
+}
+
+auto ParseHelper::toColor(const std::string& value) const -> glm::vec4
+{
+    return utils::hexToVec4(value);
+}
+
 } // namespace lav::core

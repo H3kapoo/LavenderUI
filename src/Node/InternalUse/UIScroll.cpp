@@ -22,6 +22,6 @@ auto UIScroll::layout() -> void
 
 auto UIScroll::event(node::UIStatePtr& state) -> void
 {
-    UISlider::event(state);
+    return UISlider::event(state);
 }
 } // namespace lav::node

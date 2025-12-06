@@ -19,6 +19,8 @@ public:
     auto setText(const std::string& text) -> UILabel&;
     auto setFont(const std::filesystem::path& fontPath) -> void;
 
+    auto getText() const -> std::string;
+
 private:
     virtual auto render(const glm::mat4& projection) -> void override;
     virtual auto layout() -> void override;

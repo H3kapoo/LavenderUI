@@ -27,6 +27,7 @@ public:
     auto setText(const std::string& text) -> UIButton&;
 
     auto isEnabled() -> bool;
+    auto getText() const -> std::string;
     auto getColor() const -> const glm::vec4&;
     auto getBorderColor() const -> const glm::vec4&;
 
@@ -34,6 +35,7 @@ private:
     virtual auto render(const glm::mat4& projection) -> void override;
     virtual auto layout() -> void override;
     virtual auto event(UIStatePtr& state) -> void override;
+    virtual auto onResetToDefault() -> void override;
 
 protected:
     UILabelPtr label_{utils::make<UILabel>()};
