@@ -2,13 +2,12 @@
 
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
-#include "src/Node/UILabel.hpp"
 #include "src/Node/UIPane.hpp"
 
 namespace lav::node
 {
 /**
-    @brief Simple generic button which generic click functionality.
+    @brief Dropdown menu which generic click functionality.
 
     @note Can be inherited to create custom button types.
 */
@@ -17,7 +16,7 @@ using UIDropdownPtr = std::shared_ptr<UIDropdown>;
 using UIDropdownWPtr = std::weak_ptr<UIDropdown>;
 using UIDropdownPtrVec = std::vector<UIDropdownPtr>;
 
-class UIDropdown : public UIBase
+class UIDropdown : public UIButton
 {
 public:
     enum class OpenDir
@@ -36,12 +35,10 @@ public:
     auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
 
     auto setPreferredOpenDir(const OpenDir od) -> UIDropdown&;
-    auto setText(const std::string& text) -> UIDropdown&;
     auto isOpen() const -> bool;
     auto isClosed() const -> bool;
     auto getOpenDirection() const -> OpenDir;
     auto getOptionsHolder() -> UIPaneWPtr;
-    auto getText() -> std::string;
 
 public:
     static uint32_t dropdownIndexOffset /** @brief Dropdown's pane child needs to start at a higher z index */;
@@ -57,7 +54,6 @@ private:
 
 protected:
     UIPanePtr optionsHolder_{utils::make<UIPane>()};
-    UILabelPtr label_{utils::make<UILabel>()};
     OpenDir openDir_{OpenDir::BOTTOM};
 
     glm::vec4 originalColor_{utils::hexToVec4("#c73e3eff")};

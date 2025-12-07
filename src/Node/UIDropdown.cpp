@@ -14,35 +14,24 @@ namespace lav::node
 {
 uint32_t UIDropdown::dropdownIndexOffset = 2;
 
-UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIBase(std::move(initData))
+UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIButton(std::move(initData))
 {
     layoutBase_.setScale({100_px, 36_px});
     optionsHolder_->setColor(utils::hexToVec4("#ffffffff"));
     optionsHolder_->getBaseLayoutData()
         .setPos({0, 0})
         .setScale({1_fit})
-        // .setScale({100_px, 150_px})
         .setBorder({1})
         .setType(core::LayoutBase::Type::VERTICAL);
 
     label_->getBaseLayoutData().setScale({1.0_rel});
     label_->setColor(utils::hexToVec4("#ffffff00"));
-    UIBase::add(label_);
 }
 
 auto UIDropdown::render(const glm::mat4& projection) -> void
 {
-    mesh_.bind();
-    shader_.bind();
-    shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
-    shader_.uploadVec4f("uColor", getColor());
-    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
-    shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
-    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
-    shader_.uploadVec4f("uBorderColor", getBorderColor());
-    shader_.uploadInt("uUseTexture", 0);
-    core::GPUBinder::get().renderBoundQuad();
+    /* Render me exactly as my base type. */
+    UIButton::render(projection);
 }
 
 auto UIDropdown::layout() -> void
@@ -55,37 +44,13 @@ auto UIDropdown::layout() -> void
 auto UIDropdown::event(node::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
-    if (eId == core::MouseLeftClickEvt::eventId)
+    if (eId == core::MouseLeftReleaseEvt::eventId)
     {
-        setColor(onClickColor_);
-
-        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
-    }
-    else if (eId == core::MouseLeftReleaseEvt::eventId)
-    {
-        setColor(originalColor_);
-        // TODO: Before adding, check if there are elements inside it, otherwise it's pointless
         isOpen() ? closeDropdown() : UIBase::add(optionsHolder_);
-
-        core::MouseLeftReleaseEvt e;
-        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }
-    else if (eId == core::MouseEnterEvt::eventId)
-    {
-        originalColor_ = getColor();
-        setColor(onEnterColor_);
 
-        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
-    }
-    else if (eId == core::MouseExitEvt::eventId)
-    {
-        if (state->clickedId != id_) { setColor(originalColor_); }
-
-        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
-    }
+    /* Handle event exactly as my base type. */
+    UIButton::event(state);
 
     /* Deal with click release anywhere else except THIS Dropdown object. */
     if (isOpen()
@@ -95,13 +60,6 @@ auto UIDropdown::event(node::UIStatePtr& state) -> void
         && !isSelectedMyDropdownChildRecursive(state->selectedId))
     {
         closeDropdown();
-        // if (auto node = isSelectedMyButtonChildRecursive(state->selectedId); node.lock())
-        // {
-        //     log_.warn("oe aiuc");
-            // return EventDoneActions{.doSomething = state->selectedId, .node = optionsHolder_};
-        // }
-        // keep in mind that THIS element has been removed along with all its subchildren
-        // sent them a "youve been removed during X event" event
     }
 }
 
@@ -181,8 +139,6 @@ auto UIDropdown::isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> 
 
 auto UIDropdown::setPreferredOpenDir(const OpenDir od) -> UIDropdown& { openDir_ = od; return *this; }
 
-auto UIDropdown::setText(const std::string& text) -> UIDropdown& { label_->setText(text); return *this; }
-
 auto UIDropdown::isOpen() const -> bool { return elements_.size() == 2; }
 
 auto UIDropdown::isClosed() const -> bool { return !isOpen(); }
@@ -190,7 +146,5 @@ auto UIDropdown::isClosed() const -> bool { return !isOpen(); }
 auto UIDropdown::getOpenDirection() const -> OpenDir { return openDir_; }
 
 auto UIDropdown::getOptionsHolder() -> UIPaneWPtr { return optionsHolder_; }
-
-auto UIDropdown::getText() -> std::string { return label_->getText(); }
 
 } // namespace src::uielements

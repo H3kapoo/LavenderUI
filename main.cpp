@@ -82,7 +82,7 @@ int main()
     b->getBaseLayoutData().setScale({200_px, 20_px});
     b->setText("Click me");
 
-    // pn->add(b);
+    pn->add(b);
 
     app.run();
     return 0;

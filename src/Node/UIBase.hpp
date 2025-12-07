@@ -164,11 +164,10 @@ public:
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
 protected:
-
     virtual auto render(const glm::mat4& projection) -> void = 0;
     virtual auto layout() -> void = 0;
     virtual auto event(UIStatePtr& state) -> void = 0;
-    virtual auto onResetToDefault() -> void {};
+    virtual auto onResetToDefault() -> void;
 
 private:
     static auto demangleName(const char* name) -> std::string;

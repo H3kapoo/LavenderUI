@@ -2,7 +2,6 @@
 
 #include <optional>
 
-#include "src/Core/TextHandler/TextAttribs.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UILabel.hpp"
 
@@ -31,7 +30,7 @@ public:
     auto getColor() const -> const glm::vec4&;
     auto getBorderColor() const -> const glm::vec4&;
 
-private:
+protected:
     virtual auto render(const glm::mat4& projection) -> void override;
     virtual auto layout() -> void override;
     virtual auto event(UIStatePtr& state) -> void override;

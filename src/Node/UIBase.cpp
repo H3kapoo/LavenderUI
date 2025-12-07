@@ -153,6 +153,8 @@ auto operator<<(std::ostream& out, const UIBasePtr& obj) -> std::ostream&
     return out;
 }
 
+auto UIBase::onResetToDefault() -> void {}
+
 auto UIBase::demangleName(const char* name) -> std::string
 {
     /* Works on linux+gcc for now, not sure about windows. */
