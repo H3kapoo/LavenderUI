@@ -12,6 +12,8 @@
 
 namespace lav::node
 {
+uint32_t UIDropdown::dropdownIndexOffset = 2;
+
 UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIBase(std::move(initData))
 {
     layoutBase_.setScale({100_px, 36_px});

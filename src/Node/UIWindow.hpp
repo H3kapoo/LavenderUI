@@ -45,7 +45,7 @@ public:
 
 private:
     auto setupInputCallbacks() -> void;
-    auto initializeDefaultCursors() -> void;
+    auto initializeDefaultCursor() -> void;
     auto updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void;
     auto insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void;
     auto clearAllUniquePendingRawEvents() -> void;
@@ -65,12 +65,11 @@ private:
     auto layout() -> void override;
     auto event(UIStatePtr& state) -> void override;
 
-    auto areRenderPreconditionsSatisfied(const UIBasePtr& node) -> bool;
-    auto areLayoutPreconditionsSatisfied(const UIBasePtr& node) -> bool;
-    auto preRenderSetup(const UIBasePtr& node, const glm::mat4& projection) -> void;
-    auto preLayoutSetup(const UIBasePtr& node) -> void;
-    auto postRenderActions(const UIBasePtr& node) -> void;
-    auto postLayoutActions(const UIBasePtr& node) -> void;
+    auto shouldElementBeRendered(const UIBasePtr& node) -> bool;
+    auto shouldLayoutBeComputedForElement(const UIBasePtr& node) -> bool;
+    auto setupScissorAreaForElement(const UIBasePtr& node, const glm::mat4& projection) -> void;
+    auto setupStaticViewBoundsForElement(const UIBasePtr& element) -> void;
+    auto calculateDynamicViewBoundsForElement(const UIBasePtr& element) -> void;
 
 private:
     core::WindowBinder::InputCallbacks cbs_;
@@ -79,7 +78,7 @@ private:
     std::string title_;
     std::queue<UIBasePtr> processingQueue_;
     UIStatePtr uiState_{utils::make<UIState>()};
-    bool forcedQuit_{false};
+    bool shouldManuallyQuit{false};
     bool isMainWindow_{false};
 
     // Raw events

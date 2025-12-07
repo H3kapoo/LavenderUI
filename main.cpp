@@ -66,10 +66,17 @@ int main()
         wl->add(pn);
     }
 
-    pn->listenEvent<core::MouseEnterEvt>([&log](const auto&)
-    {
-        log.info("Entered on my area");
-    });
+    // pn->listenEvent<core::MouseEnterEvt>([&log, &pn](const auto&)
+    // {
+    //     log.info("Entered on my area");
+    //     pn->setColor(utils::hexToVec4("#037a3eff"));
+    // });
+
+    // pn->listenEvent<core::MouseExitEvt>([&log, &pn](const auto&)
+    // {
+    //     log.info("Exit on my area");
+    //     pn->setColor(utils::hexToVec4("#ffaaffff"));
+    // });
 
     UIButtonPtr b = utils::make<UIButton>();
     b->getBaseLayoutData().setScale({200_px, 20_px});

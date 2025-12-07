@@ -66,6 +66,11 @@ auto UIPane::event(node::UIStatePtr& state) -> void
         core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
         eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
+    else if (state->currentEventId == core::MouseExitEvt::eventId)
+    {
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
+    }
 }
 
 auto UIPane::calculateLayout() -> glm::ivec2

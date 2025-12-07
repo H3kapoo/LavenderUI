@@ -29,7 +29,7 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     , title_(title)
     , isMainWindow_(isFirstWindow_)
 {
-    initializeDefaultCursors();
+    initializeDefaultCursor();
     updateWindowSizeAndProjection(size);
     setupInputCallbacks();
 
@@ -43,7 +43,57 @@ UIWindow::~UIWindow()
     log_.debug("Window destroyed");
 }
 
-auto UIWindow::initializeDefaultCursors() -> void
+auto UIWindow::run() -> bool
+{
+    /* General flow: Events, Layout, Render. Other. */
+    resolvePendingRawEvents();
+
+    /* Setup GPU backend and current window. */
+    const auto& size = uiState_->windowSize;
+    core::WindowBinder::get().makeContextCurrent(window_);
+    core::GPUBinder::get().setViewportArea({0, 0, size.x, size.y});
+    core::GPUBinder::get().setScissorsArea({0, 0, size.x, size.y});
+    core::GPUBinder::get().clearColor(utils::hexToVec4("#3d3d3dff")); // TODO: Remove hardcoded
+    core::GPUBinder::get().clearAllBufferBits();
+
+    processingQueue_.push(shared_from_this());
+    while (!processingQueue_.empty())
+    {
+        UIBasePtr element = processingQueue_.front();
+        processingQueue_.pop();
+
+        setupStaticViewBoundsForElement(element);
+        if (shouldLayoutBeComputedForElement(element))
+        {
+            element->layout();
+            calculateDynamicViewBoundsForElement(element);
+        }
+
+        if (shouldElementBeRendered(element))
+        {
+            setupScissorAreaForElement(element, projection_);
+            element->render(projection_);
+        }
+
+        for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
+    }
+
+    /* Change current mouse cursor icon if needed. */
+    if (uiState_->wantedCursorType.has_value())
+    {
+        core::WindowBinder::get().setStandardCursor(window_, uiState_->wantedCursorType.value());
+        uiState_->currentCursorType = uiState_->wantedCursorType;
+        uiState_->wantedCursorType.reset();
+    }
+
+    core::WindowBinder::get().swapBuffers(window_);
+
+    return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit;
+}
+
+auto UIWindow::quit() -> void { shouldManuallyQuit = true; }
+
+auto UIWindow::initializeDefaultCursor() -> void
 {
     if (!isFirstWindow_) { return; }
 
@@ -54,6 +104,14 @@ auto UIWindow::initializeDefaultCursors() -> void
 
 auto UIWindow::setupInputCallbacks() -> void
 {
+    /*
+        Each callback triggered by user interacting with the window will combe here and be
+        inserted an a unique map of events alongside it's specific event solver.
+
+        The map of unique events is needed due to the fact that during event polling the windowing API
+        can receive, for example, multiple Mouse_Moved events and we don't want to process all of them.
+        We acknowledge them but we only care about the latest event of that type.
+    */
     cbs_ = {
         .keyCallback =
             [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
@@ -126,68 +184,6 @@ auto UIWindow::updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void
     projection_ = glm::ortho(0.0f, (float)newSize.x, (float)newSize.y, 0.0f, -(float)MAX_LAYERS, 0.0f);
 }
 
-auto UIWindow::run() -> bool
-{
-    /*
-        This is such that the order of events is always predictible and duplicate events are erased.
-        Pending events are always processed first then the layout calculator runs and lastly we render.
-    */
-    resolvePendingRawEvents();
-
-    // Run layout+render
-    const auto& size = uiState_->windowSize;
-    core::WindowBinder::get().makeContextCurrent(window_);
-    core::GPUBinder::get().setViewportArea({0, 0, size.x, size.y});
-    core::GPUBinder::get().setScissorsArea({0, 0, size.x, size.y});
-    core::GPUBinder::get().clearColor(utils::hexToVec4("#3d3d3dff"));
-    core::GPUBinder::get().clearAllBufferBits();
-
-    processingQueue_.push(shared_from_this());
-    while (!processingQueue_.empty())
-    {
-        UIBasePtr node = processingQueue_.front();
-        processingQueue_.pop();
-
-        /*
-            Note: Pre and post need to always be done even if preconditions are not satisfied to calculate
-            the layout. This is due to fast layout changes (think rescaling the window fast) skipping some
-            of the viewScale/Pos calculations. Rendering doesn't have this problem as view variables are
-            already computed.
-        */
-        preLayoutSetup(node);
-        if (areLayoutPreconditionsSatisfied(node))
-        {
-            node->layout();
-        }
-        postLayoutActions(node);
-
-        if (areRenderPreconditionsSatisfied(node))
-        {
-            preRenderSetup(node, projection_);
-            node->render(projection_);
-            postRenderActions(node);
-        }
-
-        for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
-    }
-
-    if (uiState_->wantedCursorType.has_value())
-    {
-        core::WindowBinder::get().setStandardCursor(window_, uiState_->wantedCursorType.value());
-        uiState_->currentCursorType = uiState_->wantedCursorType;
-        uiState_->wantedCursorType.reset();
-    }
-
-    // static core::FrameDoneEvt evt;
-    // emitEventTo(evt, std::nullopt);
-
-    core::WindowBinder::get().swapBuffers(window_);
-
-    return core::WindowBinder::get().shouldWindowClose(window_) || forcedQuit_;
-}
-
-auto UIWindow::quit() -> void { forcedQuit_ = true; }
-
 auto UIWindow::insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void
 {
     if (pendingRawEventIds_.contains(e.getEventId())) { return; }
@@ -204,22 +200,26 @@ auto UIWindow::clearAllUniquePendingRawEvents() -> void
 
 auto UIWindow::resolvePendingRawEvents() -> void
 {
+    /*
+        Call the solvers for all pending events. This will trigger specific subevents for
+        each impacted element (MouseRelease/MouseExit/etc). Don't forget to clear at the end.
+    */
     for (const auto& rawEventCallback : pendingRawEventCallbacks_)
     {
         rawEventCallback();
     }
+    clearAllUniquePendingRawEvents();
 
+    /*
+        After resolving the pending events, it might happen that some elements got removed and as such
+        it could of been the hovered element that got removed. We need to rescan and resent events
+        to the newly found hovered item. Think of this as wiggling the mouse in place once.
+    */
     if (isElementRemovedViaEvent_)
     {
         isElementRemovedViaEvent_ = false;
-        /*
-            Might happen that the hovered element got removed, so we need to rescan and resent events
-            to the newly found hovered item. Think of this as wiggling the mouse in place once.
-        */
         mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
     }
-
-    clearAllUniquePendingRawEvents();
 }
 
 auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t> nodeId) -> void
@@ -242,10 +242,7 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
             node->event(uiState_);
             uint32_t elementsAfter = node->getElements().size();
 
-            if (elementBefore > elementsAfter)
-            {
-                isElementRemovedViaEvent_ = true;
-            }
+            if (elementBefore > elementsAfter) { isElementRemovedViaEvent_ = true; }
         }
 
         for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
@@ -446,38 +443,41 @@ auto UIWindow::event(UIStatePtr& state) -> void
     }
 }
 
-auto UIWindow::areRenderPreconditionsSatisfied(const UIBasePtr& node) -> bool
+auto UIWindow::shouldElementBeRendered(const UIBasePtr& element) -> bool
 {
-    //TODO: Do not render nodes that aint visible
-    if (!node || !node->isParented()) { return false; }
+    /*
+        Only the UIWIndow should be rendered at any time. Other element's render ability depends
+        on if they are at least visible to the user.
+    */
+    if (element->getTypeId() == UIWindow::typeId) { return true; }
 
-    if (node->getTypeId() == UIWindow::typeId)
-    {
-        return true;
-    }
+    if (!element || !element->isParented()) { return false; }
 
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& viewScale = nLayout.getViewScale();
+    const auto& eLayout = element->getBaseLayoutData();
+    const auto& viewScale = eLayout.getViewScale();
     return viewScale.x > 0 && viewScale.y > 0;
 }
 
-auto UIWindow::areLayoutPreconditionsSatisfied(const UIBasePtr& node) -> bool
+auto UIWindow::shouldLayoutBeComputedForElement(const UIBasePtr& element) -> bool
 {
-    if (node->getTypeId() == UIWindow::typeId)
-    {
-        return true;
-    }
+    /*
+        Only the UIWIndow should be computed at any time. Other element's compute ability depends
+        on if they are at least visible to the user.
+    */
+    if (element->getTypeId() == UIWindow::typeId) { return true; }
 
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& viewScale = nLayout.getViewScale();
+    if (!element || !element->isParented()) { return false; }
+
+    const auto& eLayout = element->getBaseLayoutData();
+    const auto& viewScale = eLayout.getViewScale();
     return viewScale.x > 0 && viewScale.y > 0;
 }
 
-auto UIWindow::preRenderSetup(const UIBasePtr& node, const glm::mat4& projection) -> void
+auto UIWindow::setupScissorAreaForElement(const UIBasePtr& element, const glm::mat4& projection) -> void
 {
-    const auto& nLayout = node->getBaseLayoutData();
-    const auto& viewPos = nLayout.getViewPos();
-    const auto& viewScale = nLayout.getViewScale();
+    const auto& eLayout = element->getBaseLayoutData();
+    const auto& viewPos = eLayout.getViewPos();
+    const auto& viewScale = eLayout.getViewScale();
     core::GPUBinder::get().setScissorsArea(
         {
             viewPos.x,
@@ -487,67 +487,64 @@ auto UIWindow::preRenderSetup(const UIBasePtr& node, const glm::mat4& projection
         });
 }
 
-auto UIWindow::preLayoutSetup(const UIBasePtr& node) -> void
+auto UIWindow::setupStaticViewBoundsForElement(const UIBasePtr& element) -> void
 {
-    /* If is the root window element or dropdown, scissor area is the whole node area. */
-    // if (node->getTypeId() == UIWindow::typeId || node->getTypeId() == UIDropdown::typeId)
-    if (node->getTypeId() == UIWindow::typeId)
+    /* If element is UIWindow scissor area is the whole element area. */
+    if (element->getTypeId() == UIWindow::typeId)
     {
-        auto& nLayout = node->getBaseLayoutData();
+        auto& nLayout = element->getBaseLayoutData();
         nLayout.setViewPos(nLayout.getComputedPos());
         nLayout.setViewScale(nLayout.getComputedScale());
     }
+    /* If element is UIPane but parent is UIDropdown scissor area is the whole UIPane area. */
     else if (
-        node->getTypeId() == UIPane::typeId &&
-        node->getParent().lock()->getTypeId() == UIDropdown::typeId)
+        element->getTypeId() == UIPane::typeId &&
+        element->getParent().lock()->getTypeId() == UIDropdown::typeId)
     {
-        // it means im the options holder of a dropdown and im gonna have the viewable are holder
-        auto& nLayout = node->getBaseLayoutData();
+        auto& nLayout = element->getBaseLayoutData();
         nLayout.setViewPos(nLayout.getComputedPos());
         nLayout.setViewScale(nLayout.getComputedScale());
     }
 }
 
-
-auto UIWindow::postRenderActions(const UIBasePtr& node) -> void
+auto UIWindow::calculateDynamicViewBoundsForElement(const UIBasePtr& element) -> void
 {
-    // Nothing big for now
-    (void)node;
-}
-
-auto UIWindow::postLayoutActions(const UIBasePtr& node) -> void
-{
-    /* After calculating myself , compute how much of them is still visible inside of the parent.
-        The elements of a dropdown will always be fully visible aka their view scale and pos is their
-        actual computed scale and pos. */
-    std::ranges::for_each(node->getElements(),
-        [&node](const auto& it)
+    /*
+        After calculating the parent element, go through all it's child elements and calculate their view
+        scale and position based on how viewable the parent element is. We don't want child elements to oveflow
+        the parent's bounds.
+        Child elements ZIndex will also be setup here based on UI type and parent's ZIndex.
+    */
+    std::ranges::for_each(element->getElements(),
+        [&element](const auto& it)
         {
             auto& itLayout = it->getBaseLayoutData();
-            const auto& nodeLayout = node->getBaseLayoutData();
-            itLayout.computeViewBox(node->getBaseLayoutData());
+            const auto& nodeLayout = element->getBaseLayoutData();
+            itLayout.computeViewBox(element->getBaseLayoutData());
 
-            /* Index is used for layer rendering order. Can be custom. Otherwise it is just 1 + parentIndex. */
+            /* Index is used for layer rendering order with DEPTH_TEST enabled. */
             if (!itLayout.isCustomIndex())
             {
                 itLayout.setZIndex(nodeLayout.getZIndex() + 1);
             }
 
-            /* UIPanes that hold the optons of a UIDropdown need to be 2 layers higher so as to not
-                be occluded by the UILabels of the options. */
-            if (node->getTypeId() == UIDropdown::typeId && it->getTypeId() == UIPane::typeId)
+            /*
+                UIPanes that hold the options of a UIDropdown need to be some offset higher so as to not
+                be occluded by the UILabels of the options.
+            */
+            if (element->getTypeId() == UIDropdown::typeId && it->getTypeId() == UIPane::typeId)
             {
-                itLayout.setZIndex(nodeLayout.getZIndex() + 2);
+                itLayout.setZIndex(nodeLayout.getZIndex() + UIDropdown::dropdownIndexOffset);
             }
 
-            /* It's a pane scrollbar and it will have a higher custom zIndex */
+            /* UIScroll elements of a pane will have a higher custom ZIndex */
             if (it->getTypeId() == UIScroll::typeId)
             {
                 itLayout.setZIndex(UIScroll::scrollIndexOffset - nodeLayout.getZIndex());
             }
 
             /* Depth is used mostly for printing. */
-            it->depth_ = node->depth_ + 1;
+            it->depth_ = element->depth_ + 1;
         });
 }
 

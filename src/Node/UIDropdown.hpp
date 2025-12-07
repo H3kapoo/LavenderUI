@@ -43,6 +43,9 @@ public:
     auto getOptionsHolder() -> UIPaneWPtr;
     auto getText() -> std::string;
 
+public:
+    static uint32_t dropdownIndexOffset /** @brief Dropdown's pane child needs to start at a higher z index */;
+
 private:
     auto render(const glm::mat4& projection) -> void override;
     auto layout() -> void override;

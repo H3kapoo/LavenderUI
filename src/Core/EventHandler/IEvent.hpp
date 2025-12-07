@@ -96,12 +96,6 @@ struct WindowResizeEvt : public IEventCRTP<WindowResizeEvt>
     uint32_t x{0}, y{0};
 };
 
-struct FrameDoneEvt : public IEventCRTP<FrameDoneEvt>
-{};
-
 struct KeyboardEvt : public IEventCRTP<KeyboardEvt>
-{};
-
-struct NodeDetachedEvent : public IEventCRTP<NodeDetachedEvent>
 {};
 } // namespace lav::core

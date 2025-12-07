@@ -18,7 +18,7 @@ private:
     auto event(node::UIStatePtr& state) -> void override;
 
 public:
-    static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index, */;
+    static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index */;
 };
 using UIScrollPtr = std::shared_ptr<UIScroll>;
 using UIScrollWPtr = std::weak_ptr<UIScroll>;
