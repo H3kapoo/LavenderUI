@@ -65,14 +65,14 @@ auto UIWindow::run() -> bool
         setupStaticViewBoundsForElement(element);
         if (shouldLayoutBeComputedForElement(element))
         {
-            element->layout();
+            element->onLayout();
             calculateDynamicViewBoundsForElement(element);
         }
 
         if (shouldElementBeRendered(element))
         {
             setupScissorAreaForElement(element, projection_);
-            element->render(projection_);
+            element->onRender(projection_);
         }
 
         for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
@@ -239,7 +239,7 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
         if (!nodeId || nodeId.value() == node->getId())
         {
             uint32_t elementBefore = node->getElements().size();
-            node->event(uiState_);
+            node->onEvent(uiState_);
             uint32_t elementsAfter = node->getElements().size();
 
             if (elementBefore > elementsAfter) { isElementRemovedViaEvent_ = true; }
@@ -400,9 +400,9 @@ auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_
     }
 }
 
-auto UIWindow::render(const glm::mat4& projection) -> void { (void)projection; }
+auto UIWindow::onRender(const glm::mat4& projection) -> void { (void)projection; }
 
-auto UIWindow::layout() -> void
+auto UIWindow::onLayout() -> void
 {
     layoutBase_.setComputedScale(uiState_->windowSize);
 
@@ -414,7 +414,7 @@ auto UIWindow::layout() -> void
     calculator.calculateAlignmentForElements(this, overflow);
 }
 
-auto UIWindow::event(UIStatePtr& state) -> void
+auto UIWindow::onEvent(UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseEnterEvt::eventId)

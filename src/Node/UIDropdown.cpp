@@ -28,20 +28,20 @@ UIDropdown::UIDropdown(UIBaseInitData&& initData) : UIButton(std::move(initData)
     label_->setColor(utils::hexToVec4("#ffffff00"));
 }
 
-auto UIDropdown::render(const glm::mat4& projection) -> void
+auto UIDropdown::onRender(const glm::mat4& projection) -> void
 {
     /* Render me exactly as my base type. */
-    UIButton::render(projection);
+    UIButton::onRender(projection);
 }
 
-auto UIDropdown::layout() -> void
+auto UIDropdown::onLayout() -> void
 {
     const auto& calculator = core::DropdownCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForDropdownElement(this);
 }
 
-auto UIDropdown::event(node::UIStatePtr& state) -> void
+auto UIDropdown::onEvent(node::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftReleaseEvt::eventId)
@@ -50,7 +50,7 @@ auto UIDropdown::event(node::UIStatePtr& state) -> void
     }
 
     /* Handle event exactly as my base type. */
-    UIButton::event(state);
+    UIButton::onEvent(state);
 
     /* Deal with click release anywhere else except THIS Dropdown object. */
     if (isOpen()

@@ -22,9 +22,9 @@ public:
     auto getText() const -> std::string;
 
 private:
-    virtual auto render(const glm::mat4& projection) -> void override;
-    virtual auto layout() -> void override;
-    virtual auto event(UIStatePtr& state) -> void override;
+    virtual auto onRender(const glm::mat4& projection) -> void override;
+    virtual auto onLayout() -> void override;
+    virtual auto onEvent(UIStatePtr& state) -> void override;
 
 protected:
     core::TextAttribs textAttribs_;

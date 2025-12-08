@@ -10,18 +10,18 @@ uint32_t UIScroll::scrollIndexOffset = 250;
 UIScroll::UIScroll(UIBaseInitData&& initData) : UISlider(std::move(initData)) 
 {}
 
-auto UIScroll::render(const glm::mat4& projection) -> void
+auto UIScroll::onRender(const glm::mat4& projection) -> void
 {
-    UISlider::render(projection);
+    UISlider::onRender(projection);
 }
 
-auto UIScroll::layout() -> void
+auto UIScroll::onLayout() -> void
 {
-    UISlider::layout();
+    UISlider::onLayout();
 }
 
-auto UIScroll::event(node::UIStatePtr& state) -> void
+auto UIScroll::onEvent(node::UIStatePtr& state) -> void
 {
-    return UISlider::event(state);
+    return UISlider::onEvent(state);
 }
 } // namespace lav::node

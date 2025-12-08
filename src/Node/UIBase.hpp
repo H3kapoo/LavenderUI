@@ -164,9 +164,9 @@ public:
     friend auto operator<<(std::ostream& out, const UIBasePtr&) -> std::ostream&;
 
 protected:
-    virtual auto render(const glm::mat4& projection) -> void = 0;
-    virtual auto layout() -> void = 0;
-    virtual auto event(UIStatePtr& state) -> void = 0;
+    virtual auto onRender(const glm::mat4& projection) -> void = 0;
+    virtual auto onLayout() -> void = 0;
+    virtual auto onEvent(UIStatePtr& state) -> void = 0;
     virtual auto onResetToDefault() -> void;
 
 private:

@@ -32,9 +32,9 @@ protected:
     auto getClosestScrollbar(const glm::ivec2 pMouse) const -> uint32_t;
 
 private:
-    virtual auto render(const glm::mat4& projection) -> void override;
-    virtual auto layout() -> void override;
-    virtual auto event(node::UIStatePtr& state) -> void override;
+    virtual auto onRender(const glm::mat4& projection) -> void override;
+    virtual auto onLayout() -> void override;
+    virtual auto onEvent(node::UIStatePtr& state) -> void override;
 
     auto calculateLayout() -> glm::ivec2;
     auto addAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t overflow) -> bool;

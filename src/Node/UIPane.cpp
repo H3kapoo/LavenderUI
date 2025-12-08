@@ -14,7 +14,7 @@ UIPane::UIPane(UIBaseInitData&& initData) : UIBase(std::move(initData))
     layoutBase_.setScale({200_px, 50_px});
 }
 
-auto UIPane::render(const glm::mat4& projection) -> void
+auto UIPane::onRender(const glm::mat4& projection) -> void
 {
     /* Draw base */
     mesh_.bind();
@@ -30,7 +30,7 @@ auto UIPane::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UIPane::layout() -> void
+auto UIPane::onLayout() -> void
 {
     /* Calculate the layout and do it again if the layout became invalid. */
     if (setInternalScrollOverflow(calculateLayout()))
@@ -46,7 +46,7 @@ auto UIPane::layout() -> void
     });
 }
 
-auto UIPane::event(node::UIStatePtr& state) -> void
+auto UIPane::onEvent(node::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseButtonEvt::eventId)

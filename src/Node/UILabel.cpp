@@ -14,7 +14,7 @@ UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
     setIgnoreEvents();
 }
 
-auto UILabel::render(const glm::mat4& projection) -> void
+auto UILabel::onRender(const glm::mat4& projection) -> void
 {
     mesh_.bind();
     shader_.bind();
@@ -40,14 +40,14 @@ auto UILabel::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
 }
 
-auto UILabel::layout() -> void
+auto UILabel::onLayout() -> void
 {
     const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
         - textAttribs_.computeMaxSize() / 2.0f;
     textAttribs_.setPosition({p.x, p.y, layoutBase_.getZIndex()});
 }
 
-auto UILabel::event(UIStatePtr& state) -> void
+auto UILabel::onEvent(UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftClickEvt::eventId)

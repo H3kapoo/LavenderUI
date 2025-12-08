@@ -13,9 +13,9 @@ public:
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIScroll);
 
 private:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(node::UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(node::UIStatePtr& state) -> void override;
 
 public:
     static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index */;

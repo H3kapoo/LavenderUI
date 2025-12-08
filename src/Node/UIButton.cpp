@@ -17,7 +17,7 @@ UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
     UIBase::add(label_);
 }
 
-auto UIButton::render(const glm::mat4& projection) -> void
+auto UIButton::onRender(const glm::mat4& projection) -> void
 {
     mesh_.bind();
     shader_.bind();
@@ -32,14 +32,14 @@ auto UIButton::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UIButton::layout() -> void
+auto UIButton::onLayout() -> void
 {
     const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UIButton::event(UIStatePtr& state) -> void
+auto UIButton::onEvent(UIStatePtr& state) -> void
 {
     if (!isBtnEnabled_) { return; }
 

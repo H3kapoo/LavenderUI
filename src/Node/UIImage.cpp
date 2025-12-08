@@ -12,7 +12,7 @@ UIImage::UIImage(UIBaseInitData&& initData) : UIBase(std::move(initData))
     layoutBase_.setScale({200_px, 50_px});
 }
 
-auto UIImage::render(const glm::mat4& projection) -> void
+auto UIImage::onRender(const glm::mat4& projection) -> void
 {
     mesh_.bind();
     shader_.bind();
@@ -28,16 +28,15 @@ auto UIImage::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UIImage::layout() -> void
+auto UIImage::onLayout() -> void
 {
     const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UIImage::event(UIStatePtr&) -> void
-{
-}
+auto UIImage::onEvent(UIStatePtr&) -> void
+{}
 
 auto UIImage::setImage(const std::filesystem::path& path) -> bool
 {

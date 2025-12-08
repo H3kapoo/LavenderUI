@@ -59,9 +59,9 @@ private:
     auto keyButtonSolver(const uint32_t key, const uint32_t scancode, const uint32_t action,
         const uint32_t mods) -> void;
 
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(UIStatePtr& state) -> void override;
 
     auto shouldElementBeRendered(const UIBasePtr& node) -> bool;
     auto shouldLayoutBeComputedForElement(const UIBasePtr& node) -> bool;

@@ -29,9 +29,9 @@ public:
     auto setInvertAxis(const bool value) -> void;
 
 protected:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(node::UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(node::UIStatePtr& state) -> void override;
 
 private:
     auto calculatePercentage(const glm::ivec2& mPos) -> float;

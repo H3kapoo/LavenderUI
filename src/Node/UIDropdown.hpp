@@ -44,9 +44,9 @@ public:
     static uint32_t dropdownIndexOffset /** @brief Dropdown's pane child needs to start at a higher z index */;
 
 private:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(node::UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(node::UIStatePtr& state) -> void override;
 
     auto closeDropdown() -> bool;
     auto isSelectedMyDropdownChildRecursive(const uint32_t selectedId) -> bool;

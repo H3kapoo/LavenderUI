@@ -13,9 +13,9 @@ public:
     auto setImage(const std::filesystem::path& path) -> bool;
 
 protected:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(UIStatePtr& state) -> void override;
 
     INSERT_ADD_REMOVE_NOT_ALLOWED(UImage);
 

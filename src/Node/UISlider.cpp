@@ -19,7 +19,7 @@ UISlider::UISlider(UIBaseInitData&& initData) : UIBase(std::move(initData))
     UIBase::add(label_);
 }
 
-auto UISlider::render(const glm::mat4& projection) -> void
+auto UISlider::onRender(const glm::mat4& projection) -> void
 {
     /* Draw base */
     mesh_.bind();
@@ -45,7 +45,7 @@ auto UISlider::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
 }
 
-auto UISlider::layout() -> void
+auto UISlider::onLayout() -> void
 {
     const auto& computedScale = layoutBase_.getComputedScale();
     if (layoutBase_.isHorizontal())
@@ -66,7 +66,7 @@ auto UISlider::layout() -> void
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UISlider::event(node::UIStatePtr& state) -> void
+auto UISlider::onEvent(node::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseScrollEvt::eventId)
