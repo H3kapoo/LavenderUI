@@ -1,6 +1,5 @@
 #include "UIDropdown.hpp"
 
-#include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/Binders/WindowBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/Calculators/DropdownCalculator.hpp"
@@ -139,12 +138,11 @@ auto UIDropdown::isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> 
 
 auto UIDropdown::setPreferredOpenDir(const OpenDir od) -> UIDropdown& { openDir_ = od; return *this; }
 
-auto UIDropdown::isOpen() const -> bool { return elements_.size() == 2; }
+auto UIDropdown::isOpen() const -> bool { return optionsHolder_->isParented(); }
 
 auto UIDropdown::isClosed() const -> bool { return !isOpen(); }
 
 auto UIDropdown::getOpenDirection() const -> OpenDir { return openDir_; }
 
 auto UIDropdown::getOptionsHolder() -> UIPaneWPtr { return optionsHolder_; }
-
 } // namespace src::uielements

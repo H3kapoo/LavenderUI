@@ -8,14 +8,12 @@
 namespace lav::node
 {
 /**
-    @brief Simple generic button which generic click functionality.
-
-    @note Can be inherited to create custom button types.
+    @brief
+    Class representing generic button UI Element.
 */
 class UIButton : public UIBase
 {
 public:
-    /* Mandatory typeinfo */
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIButton, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIScroll);
 

@@ -41,6 +41,8 @@ auto ButtonRule::getAdditionRule() const -> AddRule
 {
     return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
     {
+        (void)parent;
+        (void)child;
         // parent->add(elements);
     };
 }

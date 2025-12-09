@@ -78,7 +78,8 @@ auto UILabel::onEvent(UIStatePtr& state) -> void
 }
 
 auto UILabel::setText(const std::string& text) -> UILabel& { textAttribs_.setText(text); return *this; }
-auto UILabel::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
-auto UILabel::getText() const -> std::string { return textAttribs_.getText(); }
 
+auto UILabel::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
+
+auto UILabel::getText() const -> std::string { return textAttribs_.getText(); }
 } // namespace src::uinodes

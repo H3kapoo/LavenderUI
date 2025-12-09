@@ -190,6 +190,11 @@ auto WindowBinder::destroyWindow(WindowHandle handle) -> void
     glfwDestroyWindow(handle);
 }
 
+auto WindowBinder::requestEmptyEvent() -> void
+{
+    glfwPostEmptyEvent();
+}
+
 auto WindowBinder::getTime() -> double
 {
     return glfwGetTime();

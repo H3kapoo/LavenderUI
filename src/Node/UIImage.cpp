@@ -43,5 +43,4 @@ auto UIImage::setImage(const std::filesystem::path& path) -> bool
     imgTexData_ = core::TextureLoader::get().load(path, {});
     return imgTexData_.id ? true : false;
 }
-
 } // namespace lav::node

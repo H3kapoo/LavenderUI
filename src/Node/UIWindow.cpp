@@ -15,7 +15,6 @@
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UISlider.hpp"
 #include "src/Utils/Misc.hpp"
-#include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 
 namespace lav::node
@@ -88,9 +87,6 @@ auto UIWindow::run() -> bool
         uiState_->currentCursorType = uiState_->wantedCursorType;
         uiState_->wantedCursorType.reset();
     }
-
-    baseColor_.r = int(baseColor_.r * 255.0f + 100.0f * deltaTime_) % 255 / 255.0f;
-    baseColor_.g = int(baseColor_.g * 255.0f + 100.0f * deltaTime_) % 255 / 255.0f;
 
     core::WindowBinder::get().swapBuffers(window_);
 
@@ -260,13 +256,15 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
 
 auto UIWindow::scanForHoveredNode() -> void
 {
-    /* TODO: Propagate functions work at nodeId level and each time we propagate something we need to
-    go thru the tree and find the node, it's very inefficient.
-    We could minimize the overhead by processing all the "queued" events in one pass.
-    Maybe we could send the events in the run() processingQueue loop to have only one master loop over the
-    entire tree, but not sure how that will affect the elements, we might process the event and that event
-    changes the UI but the change is not reflected until the next loop. 
-    However there's nothing stopping us from signaling the window a new loop pass needs to be done from events. */
+    /*
+        TODO: Propagate functions work at nodeId level and each time we propagate something we need to
+        go thru the tree and find the node, it's very inefficient.
+        We could minimize the overhead by processing all the "queued" events in one pass.
+        Maybe we could send the events in the run() processingQueue loop to have only one master loop over the
+        entire tree, but not sure how that will affect the elements, we might process the event and that event
+        changes the UI but the change is not reflected until the next loop. 
+        However there's nothing stopping us from signaling the window a new loop pass needs to be done from events.
+    */
     uint32_t maxZIndexSoFar{0};
 
     processingQueue_.push(shared_from_this());

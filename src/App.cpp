@@ -48,7 +48,6 @@ auto App::run() -> void
     shouldUpdateTitle_ = true;
     while (keepRunning_)
     {
-        const double now = core::WindowBinder::get().getTime();
         std::erase_if(windows_, [this](const auto& w) { return runPerWindow(w); });
         core::WindowBinder::get().pollEvents();
 

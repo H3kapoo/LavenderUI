@@ -183,7 +183,7 @@ auto UIPane::setScrollEnabled(const bool enableHorizontal, const bool enableVert
     {
         vScroll_ = utils::make<UIScroll>();
         vScroll_->setInvertAxis(true);
-    vScroll_->getBaseLayoutData().setType(core::LayoutBase::Type::VERTICAL)
+        vScroll_->getBaseLayoutData().setType(core::LayoutBase::Type::VERTICAL)
             .setScale({20_px, 1.0_rel});
     }
     else

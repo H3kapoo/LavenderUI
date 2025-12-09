@@ -73,6 +73,7 @@ public:
     auto setPollWaitForEvents(const bool wait) -> void;
     auto pollEvents() -> void;
     auto getTime() -> double;
+    auto requestEmptyEvent() -> void;
     auto destroyWindow(WindowHandle handle) -> void;
 
     auto setInputCallbacks(WindowHandle handle, const InputCallbacks& cbs) -> void;

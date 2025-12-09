@@ -12,17 +12,13 @@
 
 namespace lav::node
 {
-
 /**
-    @brief Top level GUI container wrapping an OS window. Manages dispatch of layout calculations,
-        rendering, layout and events handling for all children GUI elements.
-
-    @note Each UIWindow has it's own global UIWindowState handle.
+    @brief
+    Class representing a top level UI element aka Window. This acts as the root of the whole
+    UI responsible for updating child elements.
 */
 class UIWindow : public UIBase
 {
-using RawEventCallback = std::function<void()>;
-
 public:
     UIWindow(const std::string& title, const glm::ivec2& size);
     virtual ~UIWindow();
@@ -44,6 +40,8 @@ public:
     INSERT_TYPEINFO(UIWindow);
 
 private:
+    using RawEventCallback = std::function<void()>;
+
     auto setupInputCallbacks() -> void;
     auto initializeDefaultCursor() -> void;
     auto updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void;

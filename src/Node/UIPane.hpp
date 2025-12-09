@@ -1,6 +1,5 @@
 #pragma once
 
-#include <utility>
 #include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Utils/Misc.hpp"
@@ -8,12 +7,9 @@
 namespace lav::node
 {
 /**
-    @brief Pane GUI element that can be used as a container for other elements.
-        Has the ability to scroll the elements if needed.
-
-    @note If a new element needs scrolling functionality, it's best to derive it from this.
-    @note If scroll is enabled on some axis, then there's a UISlider automatically added as the
-            new child element of this.
+    @brief
+    Class represeting a pane which can hold other UI elements. Additionally it is also a scrollable
+    area in case elements do overflow.
 */
 class UIPane : public UIBase
 {
@@ -41,8 +37,8 @@ private:
     auto removeAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t overflow) -> bool;
 
 protected:
-    UIScrollPtr hScroll_;
-    UIScrollPtr vScroll_;
+    UIScrollPtr hScroll_{nullptr};
+    UIScrollPtr vScroll_{nullptr};
 };
 using UIPanePtr = std::shared_ptr<UIPane>;
 using UIPaneWPtr = std::weak_ptr<UIPane>;

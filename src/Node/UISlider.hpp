@@ -7,7 +7,8 @@
 namespace lav::node
 {
 /**
-    @brief Slider GUI element that can act as basic a basic slider and the scroll bar of a UIPane.
+    @brief
+    Class representing an UI element that can act as slider for a single value.
 */
 class UISlider : public UIBase
 {
@@ -38,13 +39,13 @@ private:
     auto calculateKnobPosition() -> void;
 
 protected:
-    glm::vec4 knobColor_{utils::hexToVec4("#afafafff")};
+    UILabelPtr label_{utils::make<UILabel>()};
     core::LayoutBase knobLayout_;
+    glm::vec4 knobColor_{utils::hexToVec4("#afafafff")};
     float percentage_{0.0f};
     float scrollFrom_{0.0f};
     float scrollTo_{100.0f};
     float scrollValue_{0.0f};
-    UILabelPtr label_{utils::make<UILabel>()};
 
 private:
     glm::ivec2 distToKnobCenter_{0.0f, 0.0f};

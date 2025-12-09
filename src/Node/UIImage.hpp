@@ -5,6 +5,10 @@
 
 namespace lav::node
 {
+/**
+    @brief
+    Class representing an UI element for displaying images.
+*/
 class UIImage : public UIBase
 {
 public:

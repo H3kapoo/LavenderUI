@@ -18,7 +18,7 @@ namespace lav
     @note 3. It is not advised to have an active shared_ptr handle to the window frame in the same scope
             as the run() command due to reference counting keeping the window alive even if the exit event was issued.
             You as the caller don't own anything the callee created aka you only get a weak reference to the window.
-    @note 4. Upon calling run() calling thread will block until main window is closed.
+    @note 4. Upon calling run(), thread will block until main window is closed.
 */
 class App
 {

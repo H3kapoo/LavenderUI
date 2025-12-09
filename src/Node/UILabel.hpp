@@ -8,7 +8,8 @@
 namespace lav::node
 {
 /**
-    @brief Label element for displaying text.
+    @brief
+    Class represeting UI element for displaying text.
 */
 class UILabel : public UIBase
 {

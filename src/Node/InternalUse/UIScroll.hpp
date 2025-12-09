@@ -2,10 +2,14 @@
 
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UISlider.hpp"
-#include "src/Utils/Misc.hpp"
 
 namespace lav::node
 {
+/**
+    @brief
+    Class used to represent the Scroll Bar object of a scrollable area.
+    Inherits all the properties of UISlider as they are logically equivalent.
+ */
 class UIScroll : public UISlider
 {
 public:

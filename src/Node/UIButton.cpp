@@ -80,23 +80,28 @@ auto UIButton::onEvent(UIStatePtr& state) -> void
     }
 }
 
-auto UIButton::onResetToDefault() -> void
-{
-    overrideColor_.reset();
-}
+auto UIButton::onResetToDefault() -> void { overrideColor_.reset(); }
 
-auto UIButton::setClickedColor(const glm::vec4& color) -> UIButton& { clickedColor_ = color; return *this; }
-auto UIButton::setHoveredColor(const glm::vec4& color) -> UIButton& { hoveredColor_ = color; return *this; }
-auto UIButton::setEnabled() -> UIButton& { isBtnEnabled_ = true; overrideColor_.reset(); return *this; }
 auto UIButton::setDisabled() -> UIButton&
 {
     isBtnEnabled_ = false;
     overrideColor_ = utils::hexToVec4("#aaaaaaff");
     return *this;
 }
+
+auto UIButton::setClickedColor(const glm::vec4& color) -> UIButton& { clickedColor_ = color; return *this; }
+
+auto UIButton::setHoveredColor(const glm::vec4& color) -> UIButton& { hoveredColor_ = color; return *this; }
+
+auto UIButton::setEnabled() -> UIButton& { isBtnEnabled_ = true; overrideColor_.reset(); return *this; }
+
 auto UIButton::setText(const std::string& text) -> UIButton& { label_->setText(text); return *this; }
+
 auto UIButton::isEnabled() -> bool { return isBtnEnabled_; }
+
 auto UIButton::getText() const -> std::string { return label_->getText(); }
+
 auto UIButton::getColor() const -> const glm::vec4& { return baseColor_; }
+
 auto UIButton::getBorderColor() const -> const glm::vec4& { return borderColor_; }
 } // namespace src::uinodes
