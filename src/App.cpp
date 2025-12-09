@@ -45,15 +45,10 @@ auto App::findWindow(const uint64_t windowId) -> node::UIWindowWPtr
 
 auto App::run() -> void
 {
-    core::WindowBinder::get().setPollWaitForEvents(false);
     shouldUpdateTitle_ = true;
-    double startTime{core::WindowBinder::get().getTime()};
     while (keepRunning_)
     {
         const double now = core::WindowBinder::get().getTime();
-        deltaTime_ = 1.0f / (now - startTime);
-        startTime = now;
-
         std::erase_if(windows_, [this](const auto& w) { return runPerWindow(w); });
         core::WindowBinder::get().pollEvents();
 
@@ -84,7 +79,7 @@ auto App::runPerWindow(const node::UIWindowPtr& window) -> bool
 
     if (showFps_ && shouldUpdateTitle_)
     {
-        const auto fps = std::to_string(deltaTime_);
+        const auto fps = std::to_string(1.0f / window->getDeltaTime());
         const auto title = window->getTitle();
         window->setTitle(title + " | " + fps, false);
     }

@@ -32,6 +32,7 @@ int main()
 
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView("views/test.xml");
+    window.lock()->setColor(utils::hexToVec4("#ffffffff"));
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     // {
     //     auto lw = window.lock();

@@ -15,6 +15,7 @@
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UISlider.hpp"
 #include "src/Utils/Misc.hpp"
+#include "vendor/glfw/include/GLFW/glfw3.h"
 #include "vendor/glm/ext/matrix_clip_space.hpp"
 
 namespace lav::node
@@ -45,6 +46,8 @@ UIWindow::~UIWindow()
 
 auto UIWindow::run() -> bool
 {
+    startTime_ = core::WindowBinder::get().getTime();
+
     /* General flow: Events, Layout, Render. Other. */
     resolvePendingRawEvents();
 
@@ -53,7 +56,7 @@ auto UIWindow::run() -> bool
     core::WindowBinder::get().makeContextCurrent(window_);
     core::GPUBinder::get().setViewportArea({0, 0, size.x, size.y});
     core::GPUBinder::get().setScissorsArea({0, 0, size.x, size.y});
-    core::GPUBinder::get().clearColor(utils::hexToVec4("#3d3d3dff")); // TODO: Remove hardcoded
+    core::GPUBinder::get().clearColor(getColor());
     core::GPUBinder::get().clearAllBufferBits();
 
     processingQueue_.push(shared_from_this());
@@ -86,7 +89,13 @@ auto UIWindow::run() -> bool
         uiState_->wantedCursorType.reset();
     }
 
+    baseColor_.r = int(baseColor_.r * 255.0f + 100.0f * deltaTime_) % 255 / 255.0f;
+    baseColor_.g = int(baseColor_.g * 255.0f + 100.0f * deltaTime_) % 255 / 255.0f;
+
     core::WindowBinder::get().swapBuffers(window_);
+
+    const double nowTime = core::WindowBinder::get().getTime();
+    deltaTime_ = nowTime - startTime_;
 
     return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit;
 }
@@ -559,7 +568,7 @@ auto UIWindow::getTitle() -> std::string { return title_; }
 
 auto UIWindow::getWindow() -> core::WindowHandle { return window_; }
 
+auto UIWindow::getDeltaTime() -> double { return deltaTime_; }
+
 auto UIWindow::isMainWindow() -> bool { return isMainWindow_; }
-
-
 } // namespace lav::node

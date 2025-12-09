@@ -37,6 +37,7 @@ public:
     auto setTitle(std::string title, const bool updateInteralText = true) -> void;
     auto getTitle() -> std::string;
     auto getWindow() -> core::WindowHandle;
+    auto getDeltaTime() -> double;
     auto isMainWindow() -> bool;
 
     /* Mandatory typeinfo */
@@ -77,6 +78,8 @@ private:
     std::string title_;
     std::queue<UIBasePtr> processingQueue_;
     UIStatePtr uiState_{utils::make<UIState>()};
+    double startTime_{0};
+    double deltaTime_{0};
     bool shouldManuallyQuit{false};
     bool isMainWindow_{false};
 
