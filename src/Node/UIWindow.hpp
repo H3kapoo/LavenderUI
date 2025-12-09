@@ -8,6 +8,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Node/Helpers/UIState.hpp"
 #include "src/Core/Binders/WindowBinder.hpp"
+#include "src/Utils/Logger.hpp"
 
 namespace lav::node
 {
@@ -82,7 +83,6 @@ private:
     // Raw events
     std::vector<RawEventCallback> pendingRawEventCallbacks_;
     std::unordered_set<uint32_t> pendingRawEventIds_;
-    std::vector<UIBasePtr> removedNodesDuringEvent_;
     bool isElementRemovedViaEvent_{false};
 
     static int32_t MAX_LAYERS;

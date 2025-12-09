@@ -30,59 +30,57 @@ int main()
 
     if (!app.init()) { return 1; }
 
-
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView("views/test.xml");
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-
-    {
-        auto lw = window.lock();
-        auto pane = utils::as<UIPane>(lw->getElements()[0]);
-
-        UIDropdownPtr dd = utils::make<UIDropdown>();
-        dd->getBaseLayoutData().setScale({100_px, 1_fill});
-        dd->setText("Star Wars");
-        auto general = dd->addOption("General").lock();
-        dd->addOption("Colonel");
-
-        auto subMenu = dd->addSubMenu("Planets >").lock();
-        subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
-        subMenu->addOption("Earth");
-        auto endor = subMenu->addOption("Endor").lock();
-        // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-        endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-        {
-            log.error("Released endor");
-        });
-        pane->add(dd);
-    }
-
-    UIPanePtr pn = utils::make<UIPane>();
-    pn->setScrollEnabled(true, true);
-    pn->setColor(utils::hexToVec4("#ffaaffff"));
-    pn->getBaseLayoutData().setScale({1_fill, 1_fill});
-    {
-        auto wl = window.lock();
-        wl->add(pn);
-    }
-
-    // pn->listenEvent<core::MouseEnterEvt>([&log, &pn](const auto&)
     // {
-    //     log.info("Entered on my area");
-    //     pn->setColor(utils::hexToVec4("#037a3eff"));
-    // });
+    //     auto lw = window.lock();
+    //     auto pane = utils::as<UIPane>(lw->getElements()[0]);
 
-    // pn->listenEvent<core::MouseExitEvt>([&log, &pn](const auto&)
+    //     UIDropdownPtr dd = utils::make<UIDropdown>();
+    //     dd->getBaseLayoutData().setScale({100_px, 1_fill});
+    //     dd->setText("Star Wars");
+    //     auto general = dd->addOption("General").lock();
+    //     dd->addOption("Colonel");
+
+    //     auto subMenu = dd->addSubMenu("Planets >").lock();
+    //     subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+    //     subMenu->addOption("Earth");
+    //     auto endor = subMenu->addOption("Endor").lock();
+    //     // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+    //     endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+    //     {
+    //         log.error("Released endor");
+    //     });
+    //     pane->add(dd);
+    // }
+
+    // UIPanePtr pn = utils::make<UIPane>();
+    // pn->setScrollEnabled(true, true);
+    // pn->setColor(utils::hexToVec4("#ffaaffff"));
+    // pn->getBaseLayoutData().setScale({1_fill, 1_fill});
     // {
-    //     log.info("Exit on my area");
-    //     pn->setColor(utils::hexToVec4("#ffaaffff"));
-    // });
+    //     auto wl = window.lock();
+    //     wl->add(pn);
+    // }
 
-    UIButtonPtr b = utils::make<UIButton>();
-    b->getBaseLayoutData().setScale({200_px, 20_px});
-    b->setText("Click me");
+    // // pn->listenEvent<core::MouseEnterEvt>([&log, &pn](const auto&)
+    // // {
+    // //     log.info("Entered on my area");
+    // //     pn->setColor(utils::hexToVec4("#037a3eff"));
+    // // });
 
-    pn->add(b);
+    // // pn->listenEvent<core::MouseExitEvt>([&log, &pn](const auto&)
+    // // {
+    // //     log.info("Exit on my area");
+    // //     pn->setColor(utils::hexToVec4("#ffaaffff"));
+    // // });
+
+    // UIButtonPtr b = utils::make<UIButton>();
+    // b->getBaseLayoutData().setScale({200_px, 20_px});
+    // b->setText("Click me");
+
+    // pn->add(b);
 
     app.run();
     return 0;

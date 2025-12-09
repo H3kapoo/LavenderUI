@@ -48,6 +48,7 @@ struct UIBaseInitData
  */
 #define INSERT_TYPEINFO(UIElement)\
     auto getTypeId() const -> uint32_t override { return typeId; };\
+    auto getTypeSize() const -> uint32_t override { return sizeof(UIElement); };\
     inline static const uint32_t typeId = utils::getTypeId<UIElement>();\
 
 /**
@@ -127,6 +128,7 @@ public:
     auto operator=(UIBase&&) -> UIBase& = delete;
 
     virtual auto getTypeId() const -> uint32_t = 0;
+    virtual auto getTypeSize() const -> uint32_t = 0;
 
     // TODO: These shall be all protected. If the node wants to be able to add something, expose
     // that explicitly.
