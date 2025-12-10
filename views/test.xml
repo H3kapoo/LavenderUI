@@ -1,4 +1,4 @@
-<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Centder">
+<App ori="Vertical" launchScale="1280, 720" title="Title Here">
     <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
         <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>
@@ -27,5 +27,12 @@
                 </Dropdown>
             </Dropdown>
         </Dropdown>
+    </Pane>
+    <Pane ori="Horizontal" scale="Fill, Fill" color="#7be0dbff" align="Center">
+        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
+        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
+        <Slider ori="Vertical" scale="30px, 300px" from="20" to="400" color="#535353ff" kcolor="#d6d6d6ff"/>
+        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
+        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
     </Pane>
 </App>

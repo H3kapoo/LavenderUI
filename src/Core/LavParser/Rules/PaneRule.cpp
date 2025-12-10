@@ -30,6 +30,18 @@ auto PaneRule::getConstructRule() const -> ConstructRule
             {
                 obj->getBaseLayoutData().setBorder(ph.toBorder(value));
             }
+            else if (key == "align")
+            {
+                obj->getBaseLayoutData().setAlign(ph.toAlign(value));
+            }
+            else if (key == "color")
+            {
+                obj->setColor(ph.toColor(value));
+            }
+            else if (key == "bcolor")
+            {
+                obj->setBorderColor(ph.toColor(value));
+            }
         }
         return obj;
     };

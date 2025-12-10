@@ -184,6 +184,8 @@ auto UISlider::setScrollTo(const float value) -> void
 
 auto UISlider::setScrollSensitivity(const float value) -> void { sensitivity_ = value; }
 
+auto UISlider::setKnobColor(const glm::vec4& value) -> void { knobColor_ = value; }
+
 auto UISlider::setText(const std::string& text) -> void { label_->setText(text); }
 
 auto UISlider::setInvertAxis(const bool value) -> void { invertVertical_ = value; }

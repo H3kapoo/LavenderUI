@@ -12,6 +12,5 @@ public:
 private:
     auto getConstructRule() const -> ConstructRule;
     auto getAdditionRule() const -> AddRule;
-
 };
 } // namespace lav::core

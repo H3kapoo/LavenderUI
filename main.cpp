@@ -34,27 +34,29 @@ int main()
     UIWindowWPtr window = app.loadLavView("views/test.xml");
     window.lock()->setColor(utils::hexToVec4("#ffffffff"));
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    // {
-    //     auto lw = window.lock();
-    //     auto pane = utils::as<UIPane>(lw->getElements()[0]);
+    {
+        auto lw = window.lock();
+        auto pane = utils::as<UIPane>(lw->getElements()[1]);
+        pane->setScrollEnabled(true, true);
+        // pane->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
-    //     UIDropdownPtr dd = utils::make<UIDropdown>();
-    //     dd->getBaseLayoutData().setScale({100_px, 1_fill});
-    //     dd->setText("Star Wars");
-    //     auto general = dd->addOption("General").lock();
-    //     dd->addOption("Colonel");
+        // UIDropdownPtr dd = utils::make<UIDropdown>();
+        // dd->getBaseLayoutData().setScale({100_px, 1_fill});
+        // dd->setText("Star Wars");
+        // auto general = dd->addOption("General").lock();
+        // dd->addOption("Colonel");
 
-    //     auto subMenu = dd->addSubMenu("Planets >").lock();
-    //     subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
-    //     subMenu->addOption("Earth");
-    //     auto endor = subMenu->addOption("Endor").lock();
-    //     // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-    //     endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-    //     {
-    //         log.error("Released endor");
-    //     });
-    //     pane->add(dd);
-    // }
+        // auto subMenu = dd->addSubMenu("Planets >").lock();
+        // subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
+        // subMenu->addOption("Earth");
+        // auto endor = subMenu->addOption("Endor").lock();
+        // // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+        // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
+        // {
+        //     log.error("Released endor");
+        // });
+        // pane->add(dd);
+    }
 
     // UIPanePtr pn = utils::make<UIPane>();
     // pn->setScrollEnabled(true, true);

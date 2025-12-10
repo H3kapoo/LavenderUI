@@ -25,6 +25,7 @@ public:
     auto setScrollFrom(const float value) -> void;
     auto setScrollTo(const float value) -> void;
     auto setScrollSensitivity(const float value) -> void;
+    auto setKnobColor(const glm::vec4& value) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(const std::string& text) -> void;
     auto setInvertAxis(const bool value) -> void;

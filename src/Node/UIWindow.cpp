@@ -354,17 +354,15 @@ auto UIWindow::mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset)
 {
     uiState_->scrollOffset = {xOffset, yOffset};
 
-    if (uiState_->hoveredTypeId == node::UISlider::typeId)
-    {
-        emitEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
-    }
-    else if (uiState_->closestScrollId != node::NOTHING)
+    // TODO: hoveredTypeId check shall be changed with some kind of type trait
+    // ex: HAS_SCROLL_FUNCTIONALITY
+    // This way other elements can inherit from UISlider and not be wrtten here explicitly
+    emitEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
+    if (uiState_->hoveredId != uiState_->closestScrollId
+        && uiState_->hoveredTypeId != node::UISlider::typeId)
     {
         emitEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
     }
-
-    uiState_->scrollOffset = {0, 0};
-    uiState_->closestScrollId = node::NOTHING;
 }
 
 auto UIWindow::windowResizeSolver(const uint32_t x, const uint32_t y) -> void

@@ -7,10 +7,10 @@
 #include "src/Core/LavParser/Rules/DropdownRule.hpp"
 #include "src/Core/LavParser/Rules/IRule.hpp"
 // #include "src/Core/LavParser/Rules/LabelRule.hpp"
-// #include "src/Core/LavParser/Rules/SliderRule.hpp"
+#include "src/Core/LavParser/Rules/SliderRule.hpp"
 #include "src/Core/LavParser/Rules/AppRule.hpp"
 #include "src/Core/LavParser/Rules/PaneRule.hpp"
-// #include "src/Core/LavParser/Rules/ImageRule.hpp"
+#include "src/Core/LavParser/Rules/ImageRule.hpp"
 #include "src/Node/UIBase.hpp"
 #include "vendor/xml/HkXml.hpp"
 
@@ -28,10 +28,10 @@ LavParser::LavParser()
     /* Initialize parser rules for each tag name. */
     setRule("App", AppRule().getRule());
     setRule("Pane", PaneRule().getRule());
-    // setContructRule("Img", ImageRule().getRule());
+    setRule("Img", ImageRule().getRule());
     setRule("Button", ButtonRule().getRule());
     // setContructRule("Label", LabelRule().getRule());
-    // setContructRule("Slider", SliderRule().getRule());
+    setRule("Slider", SliderRule().getRule());
     setRule("Dropdown", DropdownRule().getRule());
 }
 
