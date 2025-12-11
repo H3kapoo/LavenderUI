@@ -15,6 +15,11 @@ UISlider::UISlider(UIBaseInitData&& initData) : UIBase(std::move(initData))
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
 
     setScrollFrom(0);
+    layoutBase_.setMargin(5);
+    // knobLayout_.setBorderRadius(15);
+    // layoutBase_.setBorderRadius(15);
+    // knobLayout_.setBorderRadius(15);
+    // layoutBase_.setBorderRadius(15);
 
     UIBase::add(label_);
 }
@@ -37,10 +42,11 @@ auto UISlider::onRender(const glm::mat4& projection) -> void
     /* Draw knob */
     core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
     shader_.bind();
-    shader_.uploadMat4("uMatrixProjection", projection);
     shader_.uploadMat4("uMatrixTransform", knobLayout_.getTransform());
     shader_.uploadVec4f("uColor", knobColor_);
-    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
+    shader_.uploadVec2f("uResolution", knobLayout_.getComputedScale());
+    shader_.uploadVec4f("uBorderRadii", knobLayout_.getBorderRadius());
+
     core::GPUBinder::get().renderBoundQuad();
     core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
 }
@@ -48,16 +54,20 @@ auto UISlider::onRender(const glm::mat4& projection) -> void
 auto UISlider::onLayout() -> void
 {
     const auto& computedScale = layoutBase_.getComputedScale();
+    glm::vec2 knobComputedScale{0, 0};
     if (layoutBase_.isHorizontal())
     {
-        knobLayout_.setComputedScale({
-            std::max(computedScale.y, computedScale.x - scrollTo_), computedScale.y});
+        knobComputedScale.x = std::max(computedScale.y, computedScale.x - scrollTo_);
+        knobComputedScale.y = computedScale.y;
     }
     else if (layoutBase_.isVertical())
     {
-        knobLayout_.setComputedScale({computedScale.x,
-            std::max(computedScale.x, computedScale.y - scrollTo_)});
+        knobComputedScale.x = computedScale.x;
+        knobComputedScale.y = std::max(computedScale.x, computedScale.y - scrollTo_);
     }
+
+    // knobComputedScale -= glm::vec2{4};
+    knobLayout_.setComputedScale(knobComputedScale);
 
     calculateKnobPosition();
 
@@ -136,21 +146,35 @@ auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
 
 auto UISlider::calculateKnobPosition() -> void
 {
-    const auto& computedPos = layoutBase_.getComputedPos();
-    const auto& computedScale = layoutBase_.getComputedScale();
+    glm::vec2 computedPos = layoutBase_.getComputedPos();
+    glm::vec2 computedScale = layoutBase_.getComputedScale();
+    // computedPos += glm::vec2{2, 2};
+    // computedScale -= glm::vec2{4, 4};
+
+    const auto& knobComputedScale = knobLayout_.getComputedScale();
+    glm::vec2 knobComputedPos{0, 0};
     if (layoutBase_.isHorizontal())
     {
-        knobLayout_.setComputedPos({
-            utils::remap(percentage_, 0.0f, 1.0f,
-                computedPos.x, computedPos.x + computedScale.x - knobLayout_.getComputedScale().x),
-                computedPos.y});
+        knobComputedPos.x = utils::remap(
+                percentage_,
+                0.0f,
+                1.0f,
+                computedPos.x,
+                computedPos.x + computedScale.x - knobComputedScale.x);
+        knobComputedPos.y = computedPos.y;
     }
     else if (layoutBase_.isVertical())
     {
-        knobLayout_.setComputedPos({computedPos.x,
-            utils::remap(invertVertical_ ? percentage_ : 1.0f - percentage_, 0.0f, 1.0f,
-                computedPos.y, computedPos.y + computedScale.y - knobLayout_.getComputedScale().y)});
+        knobComputedPos.x = computedPos.x;
+        knobComputedPos.y = utils::remap(
+                invertVertical_ ? percentage_ : 1.0f - percentage_,
+                0.0f,
+                1.0f,
+                computedPos.y,
+                computedPos.y + computedScale.y - knobLayout_.getComputedScale().y); 
     }
+
+    knobLayout_.setComputedPos(knobComputedPos);
 }
 
 auto UISlider::getKnobBaseLayoutData() -> core::LayoutBase& { return knobLayout_; }
@@ -186,7 +210,10 @@ auto UISlider::setScrollSensitivity(const float value) -> void { sensitivity_ = 
 
 auto UISlider::setKnobColor(const glm::vec4& value) -> void { knobColor_ = value; }
 
-auto UISlider::setText(const std::string& text) -> void { label_->setText(text); }
+auto UISlider::setText(const std::string& text) -> void { 
+    // Disabled until we figure out more about how to deal with text
+    // label_->setText(text);
+}
 
 auto UISlider::setInvertAxis(const bool value) -> void { invertVertical_ = value; }
 } // namespace lav::node

@@ -42,6 +42,10 @@ auto PaneRule::getConstructRule() const -> ConstructRule
             {
                 obj->setBorderColor(ph.toColor(value));
             }
+            else if (key == "scroll" && value == "true")
+            {
+                obj->setScrollEnabled(true, true);
+            }
         }
         return obj;
     };

@@ -28,7 +28,7 @@ auto ImageRule::getConstructRule() const -> ConstructRule
                 obj->setImage(value);
             }
         }
-        obj->getBaseLayoutData().setMargin(10);
+        // obj->getBaseLayoutData().setMargin(10);
         return obj;
     };
 }

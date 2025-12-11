@@ -8,7 +8,7 @@
 
 namespace lav::core
 {
-#define SKIP_SLIDER(element)\
+#define SKIP_SCROLLBAR(element)\
     if (element->getTypeId() == node::UIScroll::typeId)\
     { continue; }\
 

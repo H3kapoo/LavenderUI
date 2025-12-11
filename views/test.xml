@@ -1,4 +1,4 @@
-<App ori="Vertical" launchScale="1280, 720" title="Title Here">
+<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Center">
     <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
         <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>
@@ -28,11 +28,27 @@
             </Dropdown>
         </Dropdown>
     </Pane>
-    <Pane ori="Horizontal" scale="Fill, Fill" color="#7be0dbff" align="Center">
+    <Pane ori="Horizontal" scale="Fill, Fill" color="#f3f3f3ff" align="sCenter" scroll="true">
+        <Slider ori="Vertical" scale="40px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
-        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
-        <Slider ori="Vertical" scale="30px, 300px" from="20" to="400" color="#535353ff" kcolor="#d6d6d6ff"/>
+        <Slider ori="Vertical" scale="20px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+        <Pane ori="Vertical" scale="300px, 300px" color="#ffffff00" >
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+        </Pane>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
     </Pane>
+    <!-- <Pane ori="Horizontal" scale="400px, 50%" color="#a3f78eff" align="Center" scroll="true"> -->
+    <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#a3f78eff" align="Center" scroll="true"> -->
+    <!-- <Pane ori="Horizontal" scale="100%, 100%" color="#a3f78eff" align="Center" scroll="truef">
+        <Img src="assets/textures/wall.jpg" scale="200px, 200px"/>
+        <Img src="assets/textures/wall.jpg" scale="200px, 200px"/>
+        <Img src="assets/textures/wall.jpg" scale="200px, 200px"/>
+    </Pane> -->
 </App>

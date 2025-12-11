@@ -61,6 +61,9 @@ auto LayoutBase::computeViewBox(const LayoutBase& parentAttribs) -> void
         // std::round(std::max(0.0f, std::min(pViewEnd.x, thisEnd.x) - viewPos_.x)),
         // std::round(std::max(0.0f, std::min(pViewEnd.y, thisEnd.y) - viewPos_.y))
     };
+
+    //TODO: Pane's VS is good so it means the calculation for the child VS goes wrong somewhere
+    // viewScale_ = parentAttribs.viewScale_;
 }
 
 auto LayoutBase::getTransform() -> const glm::mat4&

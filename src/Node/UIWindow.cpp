@@ -68,13 +68,20 @@ auto UIWindow::run() -> bool
         if (shouldLayoutBeComputedForElement(element))
         {
             element->onLayout();
-            calculateDynamicViewBoundsForElement(element);
         }
+        calculateDynamicViewBoundsForChildElements(element);
 
         if (shouldElementBeRendered(element))
         {
             setupScissorAreaForElement(element, projection_);
             element->onRender(projection_);
+        }
+        else
+        {
+            if (element->getTypeId() == UIScroll::typeId)
+            {
+                log_.warn("element cant be rendered");
+            }
         }
 
         for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
@@ -354,9 +361,6 @@ auto UIWindow::mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset)
 {
     uiState_->scrollOffset = {xOffset, yOffset};
 
-    // TODO: hoveredTypeId check shall be changed with some kind of type trait
-    // ex: HAS_SCROLL_FUNCTIONALITY
-    // This way other elements can inherit from UISlider and not be wrtten here explicitly
     emitEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
     if (uiState_->hoveredId != uiState_->closestScrollId
         && uiState_->hoveredTypeId != node::UISlider::typeId)
@@ -460,6 +464,7 @@ auto UIWindow::shouldElementBeRendered(const UIBasePtr& element) -> bool
 
     const auto& eLayout = element->getBaseLayoutData();
     const auto& viewScale = eLayout.getViewScale();
+
     return viewScale.x > 0 && viewScale.y > 0;
 }
 
@@ -498,21 +503,12 @@ auto UIWindow::setupStaticViewBoundsForElement(const UIBasePtr& element) -> void
     if (element->getTypeId() == UIWindow::typeId)
     {
         auto& nLayout = element->getBaseLayoutData();
-        nLayout.setViewPos(nLayout.getComputedPos());
-        nLayout.setViewScale(nLayout.getComputedScale());
-    }
-    /* If element is UIPane but parent is UIDropdown scissor area is the whole UIPane area. */
-    else if (
-        element->getTypeId() == UIPane::typeId &&
-        element->getParent().lock()->getTypeId() == UIDropdown::typeId)
-    {
-        auto& nLayout = element->getBaseLayoutData();
-        nLayout.setViewPos(nLayout.getComputedPos());
-        nLayout.setViewScale(nLayout.getComputedScale());
+        nLayout.setViewPos({0, 0});
+        nLayout.setViewScale(uiState_->windowSize);
     }
 }
 
-auto UIWindow::calculateDynamicViewBoundsForElement(const UIBasePtr& element) -> void
+auto UIWindow::calculateDynamicViewBoundsForChildElements(const UIBasePtr& element) -> void
 {
     /*
         After calculating the parent element, go through all it's child elements and calculate their view
@@ -521,7 +517,7 @@ auto UIWindow::calculateDynamicViewBoundsForElement(const UIBasePtr& element) ->
         Child elements ZIndex will also be setup here based on UI type and parent's ZIndex.
     */
     std::ranges::for_each(element->getElements(),
-        [&element](const auto& it)
+        [&element, this](const auto& it)
         {
             auto& itLayout = it->getBaseLayoutData();
             const auto& nodeLayout = element->getBaseLayoutData();
@@ -536,10 +532,13 @@ auto UIWindow::calculateDynamicViewBoundsForElement(const UIBasePtr& element) ->
             /*
                 UIPanes that hold the options of a UIDropdown need to be some offset higher so as to not
                 be occluded by the UILabels of the options.
+                If element is UIPane but parent is UIDropdown scissor area is the whole UIPane area.
             */
             if (element->getTypeId() == UIDropdown::typeId && it->getTypeId() == UIPane::typeId)
             {
                 itLayout.setZIndex(nodeLayout.getZIndex() + UIDropdown::dropdownIndexOffset);
+                itLayout.setViewPos(itLayout.getComputedPos());
+                itLayout.setViewScale(itLayout.getComputedScale());
             }
 
             /* UIScroll elements of a pane will have a higher custom ZIndex */

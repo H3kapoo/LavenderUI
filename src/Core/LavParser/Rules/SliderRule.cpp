@@ -47,6 +47,10 @@ auto SliderRule::getConstructRule() const -> ConstructRule
             {
                 obj->setKnobColor(ph.toColor(value));
             }
+            else if (key == "showText" && value == "no")
+            {
+                // Nothing yet, but we can
+            }
         }
         return obj;
     };

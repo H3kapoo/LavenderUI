@@ -35,7 +35,7 @@ auto BaseCalculator::calculateScaleForGenericElement(node::UIBase* parent,
 
     for (const auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
 
         glm::vec2 cScale{0, 0};
         auto& eLayout = element->getBaseLayoutData();
@@ -97,7 +97,7 @@ auto BaseCalculator::calculateScaleForGenericElement(node::UIBase* parent,
     const glm::vec2 equalFillSpace = (nContentBoxScale - nonFillRunningTotal) / fillsNeededPerAxis;
     for (const auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
 
         glm::vec2 cScale{0, 0};
         auto& eLayout = element->getBaseLayoutData();
@@ -150,7 +150,7 @@ auto BaseCalculator::calculatePositionForGenericElement(node::UIBase* parent,
     glm::vec2 maxOnAxis{0, 0};
     for (auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
 
         auto& eLayout = element->getBaseLayoutData();
         const auto& margins = eLayout.getMargin();
@@ -213,7 +213,7 @@ auto BaseCalculator::calculateAlignmentForElements(node::UIBase* node,
     const auto& isTightSpacing = nLayout.getSpacing() == LayoutBase::Spacing::TIGHT;
     for (auto& childNode : childNodes)
     {
-        SKIP_SLIDER(childNode);
+        SKIP_SCROLLBAR(childNode);
         // SKIP_ABS_ELEMENT(childNode);
 
         glm::vec2 offset{0, 0};
@@ -278,7 +278,7 @@ auto BaseCalculator::calculateElementOverflow(node::UIBase* parent,
         // SKIP_ABS_ELEMENT(element);
 
         /* Shall not be taken into consideration for overflow */
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
 
         const auto& eLayout = element->getBaseLayoutData();
         const auto& fullPos = eLayout.getFullBoxPos();
@@ -306,7 +306,7 @@ auto BaseCalculator::calculateSpacingOnAxis(node::UIBase* parent,
     int32_t elementCountForSpacing{0};
     for (const auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
         maxRunningScale += element->getBaseLayoutData().getFullBoxScale();
         ++elementCountForSpacing;
     }
@@ -386,7 +386,7 @@ auto BaseCalculator::calculateFitScale(node::UIBase* parent) const -> glm::vec2
     glm::vec2 fitScale{0, 0};
     for (const auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
         const auto& userScale = element->getBaseLayoutData().getScale();
         const bool isXPx = userScale.x.type == LayoutBase::ScaleType::PX;
         const bool isYPx = userScale.y.type == LayoutBase::ScaleType::PX;

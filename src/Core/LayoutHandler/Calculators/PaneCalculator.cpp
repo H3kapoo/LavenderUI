@@ -14,7 +14,7 @@ auto PaneCalculator::calculateElementsOffsetDueToScroll(node::UIPane* parent,
     const auto& elements = parent->getElements();
     for (const auto& element : elements)
     {
-        SKIP_SLIDER(element);
+        SKIP_SCROLLBAR(element);
         auto& eLayout = element->getBaseLayoutData();
         eLayout.setComputedPos(eLayout.getComputedPos() - offset);
     }

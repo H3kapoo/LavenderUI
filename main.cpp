@@ -32,12 +32,12 @@ int main()
 
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView("views/test.xml");
-    window.lock()->setColor(utils::hexToVec4("#ffffffff"));
+    window.lock()->setColor(utils::hexToVec4("#7c7c7cff"));
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     {
-        auto lw = window.lock();
-        auto pane = utils::as<UIPane>(lw->getElements()[1]);
-        pane->setScrollEnabled(true, true);
+        // auto lw = window.lock();
+        // auto pane = utils::as<UIPane>(lw->getElements()[1]);
+        // pane->setScrollEnabled(true, true);
         // pane->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
         // UIDropdownPtr dd = utils::make<UIDropdown>();

@@ -67,7 +67,7 @@ private:
     auto shouldLayoutBeComputedForElement(const UIBasePtr& node) -> bool;
     auto setupScissorAreaForElement(const UIBasePtr& node, const glm::mat4& projection) -> void;
     auto setupStaticViewBoundsForElement(const UIBasePtr& element) -> void;
-    auto calculateDynamicViewBoundsForElement(const UIBasePtr& element) -> void;
+    auto calculateDynamicViewBoundsForChildElements(const UIBasePtr& element) -> void;
 
 private:
     core::WindowBinder::InputCallbacks cbs_;
