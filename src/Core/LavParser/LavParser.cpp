@@ -45,6 +45,7 @@ auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBase
     }
 
     hk::XMLDecoder::XmlResult res = hk::XMLDecoder().decodeFromStream(xmlFile);
+    //TODO: Bug in XML decoder when we dont close the tag with children?
     if (!res.second.empty())
     {
         log_.error("There was some error parsing XML: {}", res.second);

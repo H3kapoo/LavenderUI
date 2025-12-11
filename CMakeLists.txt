@@ -50,6 +50,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/LayoutHandler/BaseCalculator.cpp
         src/Core/LayoutHandler/Calculators/PaneCalculator.cpp
         src/Core/LayoutHandler/Calculators/DropdownCalculator.cpp
+        src/Core/LayoutHandler/Calculators/SliderCalculator.cpp
         src/Core/TextHandler/TextAttribs.cpp
         src/Node/UIBase.cpp
         src/Node/UIWindow.cpp

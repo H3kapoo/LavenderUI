@@ -51,7 +51,7 @@ protected:
 private:
     glm::ivec2 distToKnobCenter_{0.0f, 0.0f};
     bool invertVertical_{false}; /* false - starts from bottom; true - starts from top */
-    float sensitivity_{2.0f};
+    float sensitivity_{5.0f};
 };
 using UISliderPtr = std::shared_ptr<UISlider>;
 using UISliderWPtr = std::weak_ptr<UISlider>;

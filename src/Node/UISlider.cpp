@@ -2,9 +2,9 @@
 
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
 #include "src/Node/UILabel.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/Core/LayoutHandler/BaseCalculator.hpp"
 
 namespace lav::node
 {
@@ -16,10 +16,6 @@ UISlider::UISlider(UIBaseInitData&& initData) : UIBase(std::move(initData))
 
     setScrollFrom(0);
     layoutBase_.setMargin(5);
-    // knobLayout_.setBorderRadius(15);
-    // layoutBase_.setBorderRadius(15);
-    // knobLayout_.setBorderRadius(15);
-    // layoutBase_.setBorderRadius(15);
 
     UIBase::add(label_);
 }
@@ -53,25 +49,10 @@ auto UISlider::onRender(const glm::mat4& projection) -> void
 
 auto UISlider::onLayout() -> void
 {
-    const auto& computedScale = layoutBase_.getComputedScale();
-    glm::vec2 knobComputedScale{0, 0};
-    if (layoutBase_.isHorizontal())
-    {
-        knobComputedScale.x = std::max(computedScale.y, computedScale.x - scrollTo_);
-        knobComputedScale.y = computedScale.y;
-    }
-    else if (layoutBase_.isVertical())
-    {
-        knobComputedScale.x = computedScale.x;
-        knobComputedScale.y = std::max(computedScale.x, computedScale.y - scrollTo_);
-    }
+    const auto& calculator = core::SliderCalculator::get();
+    calculator.calculateKnobScale(this, knobLayout_, scrollTo_);
+    calculator.calculateKnobPosition(this, knobLayout_, percentage_, invertVertical_);
 
-    // knobComputedScale -= glm::vec2{4};
-    knobLayout_.setComputedScale(knobComputedScale);
-
-    calculateKnobPosition();
-
-    const auto& calculator = core::BaseCalculator::get();
     calculator.calculateScaleForGenericElement(this);
     calculator.calculatePositionForGenericElement(this);
 }
@@ -212,7 +193,7 @@ auto UISlider::setKnobColor(const glm::vec4& value) -> void { knobColor_ = value
 
 auto UISlider::setText(const std::string& text) -> void { 
     // Disabled until we figure out more about how to deal with text
-    // label_->setText(text);
+    label_->setText(text);
 }
 
 auto UISlider::setInvertAxis(const bool value) -> void { invertVertical_ = value; }
