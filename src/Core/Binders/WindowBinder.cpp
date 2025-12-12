@@ -9,6 +9,13 @@ auto WindowBinder::get() -> WindowBinder&
     return instance;
 }
 
+WindowBinder::WindowBinder()
+    : log_(__func__)
+    , pollingMethodIsWait_(true)
+    , initWindowHandle_(nullptr)
+    , cursors_{}
+{}
+
 auto WindowBinder::init() -> bool
 {
     glfwSetErrorCallback(

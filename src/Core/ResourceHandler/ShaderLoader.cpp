@@ -13,7 +13,8 @@ auto ShaderLoader::get() -> ShaderLoader&
 }
 
 ShaderLoader::ShaderLoader()
-    : log_("ShaderLoader")
+    : log_(__func__)
+    , checkCache_(true)
 {}
 
 auto ShaderLoader::load(const fs::path& vertexPath, const fs::path& fragPath) -> uint32_t

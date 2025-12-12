@@ -18,12 +18,12 @@ public:
         const float scrollPercentage, const bool shouldInvertY) const -> void;
 
 private:
-    SliderCalculator() = default;
+    SliderCalculator();
     SliderCalculator(const SliderCalculator&) = delete;
     SliderCalculator(SliderCalculator&&) = delete;
     auto operator=(const SliderCalculator&) -> SliderCalculator& = delete;
     auto operator=(SliderCalculator&&) -> SliderCalculator& = delete;
 
-    utils::Logger log_{"SliderCalculator"};
+    utils::Logger log_;
 };
 } // namespace lav::core

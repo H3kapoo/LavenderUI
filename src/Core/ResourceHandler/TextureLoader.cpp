@@ -2,7 +2,6 @@
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Core/Binders/FileResourceBinder.hpp"
 
-
 namespace lav::core
 {
 TextureLoader& TextureLoader::get()
@@ -12,6 +11,7 @@ TextureLoader& TextureLoader::get()
 }
 
 TextureLoader::TextureLoader()
+    : log_(__func__)
 {}
 
 TextureLoader::~TextureLoader()

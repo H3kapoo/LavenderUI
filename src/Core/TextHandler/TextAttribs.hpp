@@ -7,7 +7,6 @@
 
 #include "src/Core/ResourceHandler/Font.hpp"
 #include "src/Core/ResourceHandler/Shader.hpp"
-#include "src/Core/ResourceHandler/ShaderLoader.hpp"
 #include "vendor/glm/glm.hpp"
 
 namespace lav::core
@@ -47,8 +46,8 @@ private:
 private:
     Shader shader_;
     TextSoA buffer_;
-    glm::vec3 pos_{0.0f};
     std::string text_;
+    glm::vec3 pos_;
     FontPtr font_;
 };
 } // namespace lav::core

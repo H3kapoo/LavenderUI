@@ -32,7 +32,7 @@ private:
     auto tryConstructUINode(hk::XMLDecoder::NodeSPtr xmlNode) -> node::UIBasePtr;
 
 private:
-    utils::Logger log_{"LavParser"};
+    utils::Logger log_;
     std::unordered_map<std::string, IRule::RuleData> ruleMap_;
 };
 

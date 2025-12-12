@@ -29,7 +29,7 @@ private:
 
 protected:
     core::TextAttribs textAttribs_;
-    std::optional<glm::vec4> overrideColor_{std::nullopt};
+    std::optional<glm::vec4> overrideColor_;
 };
 using UILabelPtr = std::shared_ptr<UILabel>;
 using UILabelWPtr = std::weak_ptr<UILabel>;

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <string>
 #include <unordered_map>
 
 #include "src/Utils/Logger.hpp"
 #include "src/Core/ResourceHandler/Texture.hpp"
-#include "vendor/glm/glm.hpp"
 
 namespace lav::core
 {
@@ -28,8 +26,7 @@ private:
     auto loadInternal(const std::filesystem::path& texPath, const Texture::Options& opts) -> Texture;
 
 private:
-    utils::Logger log_{"TextureLoader"};
-
+    utils::Logger log_;
     std::unordered_map<std::filesystem::path, Texture> texPathToObject_;
 };
 } // namespace lav::core

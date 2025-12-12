@@ -7,7 +7,9 @@
 
 namespace lav::node
 {
-UIImage::UIImage(UIBaseInitData&& initData) : UIBase(std::move(initData))
+UIImage::UIImage(UIBaseInitData&& initData)
+    : UIBase(std::move(initData))
+    , imgTexData_()
 {
     layoutBase_.setScale({200_px, 50_px});
 }

@@ -79,7 +79,7 @@ public:
     auto setInputCallbacks(WindowHandle handle, const InputCallbacks& cbs) -> void;
 
 private:
-    WindowBinder() = default;
+    WindowBinder();
     WindowBinder(const WindowBinder&) = delete;
     WindowBinder(WindowBinder&&) = delete;
     auto operator=(const WindowBinder&) = delete;
@@ -88,11 +88,10 @@ private:
     auto setUserPointer(WindowHandle handle, void* data) -> void;
 
 private:
-    utils::Logger log_{"WindowBinder"};
-    bool pollingMethodIsWait_{true};
+    utils::Logger log_;
+    bool pollingMethodIsWait_;
+    WindowHandle initWindowHandle_;
     std::unordered_map<lav::Cursor, GLFWcursor*> cursors_;
-
-    WindowHandle initWindowHandle_{nullptr};
 
 #ifdef __linux__
     /*

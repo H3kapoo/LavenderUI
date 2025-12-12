@@ -8,6 +8,10 @@ auto SliderCalculator::get() -> SliderCalculator&
     return instance;
 }
 
+SliderCalculator::SliderCalculator()
+    : log_(__func__)
+{}
+
 auto SliderCalculator::calculateKnobScale(node::UISlider* parent, LayoutBase& knobLayout,
     const float maxScroll) const -> void
 {

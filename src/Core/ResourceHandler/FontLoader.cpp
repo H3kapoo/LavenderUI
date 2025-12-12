@@ -11,6 +11,7 @@ FontLoader& FontLoader::get()
 }
 
 FontLoader::FontLoader()
+    : log_(__func__)
 {
     if (FT_Init_FreeType(&ftLib_))
     {

@@ -32,14 +32,20 @@
         <Slider ori="Vertical" scale="40px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
         <Slider ori="Vertical" scale="20px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-        <Pane ori="Vertical" scale="300px, 300px" color="#ffffff00" >
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 20px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+        <Pane ori="Vertical" scale="300px, 300px" color="#ffffff00" scroll="true" >
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
         </Pane>
         <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
         <Img src="assets/textures/container.jpg" scale="200px, 300px"/>

@@ -9,7 +9,13 @@
 
 namespace lav::node
 {
-UIButton::UIButton(UIBaseInitData&& data) : UIBase(std::move(data))
+UIButton::UIButton(UIBaseInitData&& data)
+    : UIBase(std::move(data))
+    , label_(utils::make<UILabel>())
+    , overrideColor_(std::nullopt)
+    , clickedColor_(utils::hexToVec4("#c95959ff"))
+    , hoveredColor_(utils::hexToVec4("#c41c1cff"))
+    , isBtnEnabled_(true)
 {
     layoutBase_.setScale({100_px, 36_px});
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});

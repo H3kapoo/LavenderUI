@@ -12,6 +12,10 @@ auto BaseCalculator::get() -> BaseCalculator&
     return instance;
 }
 
+BaseCalculator::BaseCalculator()
+    : log_(__func__)
+{}
+
 auto BaseCalculator::calculateScaleForGenericElement(node::UIBase* parent,
     const glm::vec2 shrinkScaleBy) const -> void
 {

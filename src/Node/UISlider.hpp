@@ -37,21 +37,20 @@ protected:
 
 private:
     auto calculatePercentage(const glm::ivec2& mPos) -> float;
-    auto calculateKnobPosition() -> void;
 
 protected:
-    UILabelPtr label_{utils::make<UILabel>()};
     core::LayoutBase knobLayout_;
-    glm::vec4 knobColor_{utils::hexToVec4("#afafafff")};
-    float percentage_{0.0f};
-    float scrollFrom_{0.0f};
-    float scrollTo_{100.0f};
-    float scrollValue_{0.0f};
+    glm::vec4 knobColor_;
+    UILabelPtr label_;
+    float percentage_;
+    float scrollFrom_;
+    float scrollTo_;
+    float scrollValue_;
 
 private:
-    glm::ivec2 distToKnobCenter_{0.0f, 0.0f};
-    bool invertVertical_{false}; /* false - starts from bottom; true - starts from top */
-    float sensitivity_{5.0f};
+    glm::ivec2 distToKnobCenter_;
+    float sensitivity_;
+    bool invertVertical_; /* false - starts from bottom; true - starts from top */
 };
 using UISliderPtr = std::shared_ptr<UISlider>;
 using UISliderWPtr = std::weak_ptr<UISlider>;

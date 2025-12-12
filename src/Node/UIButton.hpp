@@ -35,11 +35,11 @@ protected:
     virtual auto onResetToDefault() -> void override;
 
 protected:
-    UILabelPtr label_{utils::make<UILabel>()};
-    std::optional<glm::vec4> overrideColor_{std::nullopt};
-    glm::vec4 clickedColor_{utils::hexToVec4("#c95959ff")};
-    glm::vec4 hoveredColor_{utils::hexToVec4("#c41c1cff")};
-    bool isBtnEnabled_{true};
+    UILabelPtr label_;
+    std::optional<glm::vec4> overrideColor_;
+    glm::vec4 clickedColor_;
+    glm::vec4 hoveredColor_;
+    bool isBtnEnabled_;
 };
 using UIButtonPtr = std::shared_ptr<UIButton>;
 using UIButtonWPtr = std::weak_ptr<UIButton>;

@@ -9,6 +9,13 @@
 
 namespace lav
 {
+App::App()
+    : log_(__func__)
+    , keepRunning_(true)
+    , shouldUpdateTitle_(false)
+    , showFps_(false)
+{}
+
 App::~App()
 {
     windows_.clear();

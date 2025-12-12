@@ -5,7 +5,6 @@
 
 #include "src/Utils/Logger.hpp"
 #include "src/Core/ResourceHandler/Font.hpp"
-#include "vendor/glm/glm.hpp"
 #include "vendor/freetype/include/freetype/freetype.h"
 
 namespace lav::core
@@ -30,9 +29,8 @@ private:
     FontLoader& operator=(FontLoader&&) = delete;
 
 private:
-    utils::Logger log_{"FontLoader"};
+    utils::Logger log_;
     FT_Library ftLib_;
-
     std::unordered_map<std::string, FontPtr> fontPathToObject_;
 };
 } // namespace lav::core

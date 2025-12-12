@@ -17,7 +17,7 @@ public:
     auto calculatePositionForDropdownElement(node::UIDropdown* element) const -> void;
 
 private:
-    DropdownCalculator() = default;
+    DropdownCalculator();
     DropdownCalculator(const DropdownCalculator&) = delete;
     DropdownCalculator(DropdownCalculator&&) = delete;
     auto operator=(const DropdownCalculator&) -> DropdownCalculator& = delete;
@@ -25,6 +25,6 @@ private:
 
     auto isNestedInsideAnotherDropdown(node::UIDropdown* dropdown) const -> bool;
 
-    utils::Logger log_{"DropdownCalculator"};
+    utils::Logger log_;
 };
 } // namespace lav::core

@@ -24,6 +24,7 @@ auto LavParser::get() -> LavParser&
 }
 
 LavParser::LavParser()
+    : log_(__func__)
 {
     /* Initialize parser rules for each tag name. */
     setRule("App", AppRule().getRule());

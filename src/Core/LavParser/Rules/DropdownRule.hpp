@@ -15,6 +15,5 @@ private:
     auto getAdditionRule() const -> AddRule;
 
     auto toOpenDir(const std::string& value) const -> node::UIDropdown::OpenDir;
-
 };
 } // namespace lav::core

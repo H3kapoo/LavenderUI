@@ -30,12 +30,12 @@ public:
     auto calculateSlidersScaleAndPos(node::UIPane* parent) const -> glm::vec2;
 
 private:
-    PaneCalculator() = default;
+    PaneCalculator();
     PaneCalculator(const PaneCalculator&) = delete;
     PaneCalculator(PaneCalculator&&) = delete;
     auto operator=(const PaneCalculator&) -> PaneCalculator& = delete;
     auto operator=(PaneCalculator&&) -> PaneCalculator& = delete;
 
-    utils::Logger log_{"PaneCalculator"};
+    utils::Logger log_;
 };
 } // namespace lav::core

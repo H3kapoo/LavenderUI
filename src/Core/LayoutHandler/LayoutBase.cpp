@@ -1,6 +1,5 @@
 #include "LayoutBase.hpp"
 
-#include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 #include "vendor/glm/ext/vector_float2.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
@@ -9,6 +8,34 @@
 
 namespace lav::core
 {
+LayoutBase::LayoutBase()
+    : layoutType_(Type::HORIZONTAL)
+    , margin_(0)
+    , padding_(0)
+    , border_(0)
+    , borderRadius_(0)
+    , shadow_(0)
+    , selfAlign_(Align::TOP_LEFT)
+    , align_(Align::TOP_LEFT)
+    , spacing_(Spacing::TIGHT)
+    , gridPolicy_({1_fr, 1_fr})
+    , gridPos_(0, 0)
+    , gridSpan_(0, 0)
+    , minScale_(10, 10)
+    , maxScale_(10'000, 10'000)
+    , wrap_(false)
+    , userPos_(0, 0)
+    , userScale_(100, 100)
+    , computedPos_(0.0f, 0.0f)
+    , computedScale_(100.0f, 100.0f)
+    , viewPos_(0, 0)
+    , viewScale_(0, 0)
+    , index_(1)
+    , angle_(30.0f)
+    , isCustomIndex_(false)
+    , transform_(glm::mat4{1})
+{}
+
 auto LayoutBase::isPointInside(const glm::ivec2& p) const -> bool
 {
     return (p.x >= computedPos_.x && p.x <= computedPos_.x + computedScale_.x)
@@ -140,7 +167,7 @@ auto LayoutBase::getGridPos() const -> GridRC { return gridPos_; }
 auto LayoutBase::getGridSpan() const -> GridRC { return gridSpan_; }
 auto LayoutBase::getMinScale() const -> const glm::ivec2& { return minScale_; }
 auto LayoutBase::getMaxScale() const -> const glm::ivec2& { return maxScale_; }
-auto LayoutBase::getWrap() const -> bool { return wrap; }
+auto LayoutBase::getWrap() const -> bool { return wrap_; }
 auto LayoutBase::getPos() const -> const PositionXY& { return userPos_; }
 auto LayoutBase::getScale() const -> const ScaleXY& { return userScale_; }
 auto LayoutBase::getComputedPos() const -> const glm::vec2& { return computedPos_; }
@@ -165,7 +192,7 @@ auto LayoutBase::setGridPos(const GridRC value) -> LayoutBase& { gridPos_ = valu
 auto LayoutBase::setGridSpan(const GridRC value) -> LayoutBase& { gridSpan_ = value; return *this; }
 auto LayoutBase::setMinScale(const glm::ivec2 val) -> LayoutBase& { minScale_ = val; return *this; }
 auto LayoutBase::setMaxScale(const glm::ivec2 val) -> LayoutBase& { maxScale_ = val; return *this; }
-auto LayoutBase::setWrap(const bool val) -> LayoutBase& { wrap = val; return *this; }
+auto LayoutBase::setWrap(const bool val) -> LayoutBase& { wrap_ = val; return *this; }
 auto LayoutBase::setPos(const PositionXY& val) -> LayoutBase& { userPos_ = val; return *this; }
 auto LayoutBase::setScale(const ScaleXY& val) -> LayoutBase& { userScale_ = val; return *this; }
 // auto LayoutBase::setComputedPos(const glm::vec2& val) -> LayoutBase& { computedPos_ = utils::round(val); return *this; }

@@ -13,6 +13,10 @@ auto GPUBinder::get() -> GPUBinder&
     return instance;
 }
 
+GPUBinder::GPUBinder()
+    : log_(__func__)
+{}
+
 auto GPUBinder::init() -> bool
 {
     if (glewInit() != GLEW_OK)

@@ -37,8 +37,8 @@ private:
     auto removeAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t overflow) -> bool;
 
 protected:
-    UIScrollPtr hScroll_{nullptr};
-    UIScrollPtr vScroll_{nullptr};
+    UIScrollPtr hScroll_;
+    UIScrollPtr vScroll_;
 };
 using UIPanePtr = std::shared_ptr<UIPane>;
 using UIPaneWPtr = std::weak_ptr<UIPane>;

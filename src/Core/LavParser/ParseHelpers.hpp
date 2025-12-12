@@ -22,7 +22,7 @@ public:
     auto toColor(const std::string& value) const -> glm::vec4;
 
 private:
-    ParseHelper() = default;
+    ParseHelper();
     ~ParseHelper() = default;
     ParseHelper(const ParseHelper&) = delete;
     ParseHelper& operator=(const ParseHelper&) = delete;
@@ -30,6 +30,6 @@ private:
     ParseHelper& operator=(ParseHelper&&) noexcept = delete;
 
 private:
-    utils::Logger log_{"ParseHelper"};
+    utils::Logger log_;
 };
 } // namespace lav::core

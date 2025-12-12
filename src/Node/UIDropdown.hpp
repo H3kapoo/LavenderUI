@@ -50,10 +50,7 @@ private:
     auto isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> UIBaseWPtr;
 
 protected:
-    UIPanePtr optionsHolder_{utils::make<UIPane>()};
-    glm::vec4 originalColor_{utils::hexToVec4("#c73e3eff")};
-    glm::vec4 onEnterColor_{utils::hexToVec4("#c95959ff")};
-    glm::vec4 onClickColor_{utils::hexToVec4("#c41c1cff")};
-    OpenDir openDir_{OpenDir::BOTTOM};
+    UIPanePtr optionsHolder_;
+    OpenDir openDir_;
 };
 } // namespace src::uielements

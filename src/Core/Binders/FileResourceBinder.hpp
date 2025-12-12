@@ -32,14 +32,14 @@ public:
     auto freeLoadedTextureData(const LoadInfo&) const -> void;
 
 private:
-    FileResourceBinder() = default;
+    FileResourceBinder();
     FileResourceBinder(const FileResourceBinder&) = delete;
     FileResourceBinder(FileResourceBinder&&) = delete;
     auto operator=(const FileResourceBinder&) = delete;
     auto operator=(FileResourceBinder&&) = delete;
 
 private:
-    utils::Logger log_{"FileResourceBinder"};
+    utils::Logger log_;
 };
 
 } // namespace lav::core

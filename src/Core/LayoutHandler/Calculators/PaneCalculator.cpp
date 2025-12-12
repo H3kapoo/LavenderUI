@@ -8,6 +8,10 @@ auto PaneCalculator::get() -> PaneCalculator&
     return instance;
 }
 
+PaneCalculator::PaneCalculator()
+    : log_(__func__)
+{}
+
 auto PaneCalculator::calculateElementsOffsetDueToScroll(node::UIPane* parent,
     const glm::ivec2 offset) const -> void
 {

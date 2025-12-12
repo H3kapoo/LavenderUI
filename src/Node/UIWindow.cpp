@@ -27,7 +27,12 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     : UIBase({"UIWindow", "elemVert.glsl", "elemFrag.glsl"})
     , window_(core::WindowBinder::get().createWindow(title, size))
     , title_(title)
+    , uiState_(utils::make<UIState>())
+    , startTime_(0)
+    , deltaTime_(0)
+    , shouldManuallyQuit_(false)
     , isMainWindow_(isFirstWindow_)
+    , isElementRemovedViaEvent_(false)
 {
     initializeDefaultCursor();
     updateWindowSizeAndProjection(size);
@@ -76,13 +81,6 @@ auto UIWindow::run() -> bool
             setupScissorAreaForElement(element, projection_);
             element->onRender(projection_);
         }
-        else
-        {
-            if (element->getTypeId() == UIScroll::typeId)
-            {
-                log_.warn("element cant be rendered");
-            }
-        }
 
         for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
     }
@@ -100,10 +98,10 @@ auto UIWindow::run() -> bool
     const double nowTime = core::WindowBinder::get().getTime();
     deltaTime_ = nowTime - startTime_;
 
-    return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit;
+    return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit_;
 }
 
-auto UIWindow::quit() -> void { shouldManuallyQuit = true; }
+auto UIWindow::quit() -> void { shouldManuallyQuit_ = true; }
 
 auto UIWindow::initializeDefaultCursor() -> void
 {

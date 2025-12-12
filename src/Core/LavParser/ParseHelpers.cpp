@@ -13,6 +13,10 @@ auto ParseHelper::get() -> ParseHelper&
     return instance;
 }
 
+ParseHelper::ParseHelper()
+    : log_(__func__)
+{}
+
 auto ParseHelper::toScale(const std::string& value) const -> LayoutBase::ScaleXY
 {
     static uint32_t EXPECTED_ARG_COUNT{2};

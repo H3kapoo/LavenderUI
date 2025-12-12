@@ -39,7 +39,7 @@ public:
     auto enableTitleWithFPS(const bool enable = true) -> void;
 
 private:
-    App() = default;
+    App();
     ~App();
 
     auto runPerWindow(const node::UIWindowPtr& frame) -> bool;
@@ -47,9 +47,8 @@ private:
 private:
     utils::Logger log_{"App"};
     std::vector<node::UIWindowPtr> windows_;
-    double deltaTime_{0};
-    bool keepRunning_{true};
-    bool shouldUpdateTitle_{false};
-    bool showFps_{false};
+    bool keepRunning_;
+    bool shouldUpdateTitle_;
+    bool showFps_;
 };
 } // namespace lav

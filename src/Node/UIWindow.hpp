@@ -75,16 +75,16 @@ private:
     glm::mat4 projection_;
     std::string title_;
     std::queue<UIBasePtr> processingQueue_;
-    UIStatePtr uiState_{utils::make<UIState>()};
-    double startTime_{0};
-    double deltaTime_{0};
-    bool shouldManuallyQuit{false};
-    bool isMainWindow_{false};
+    UIStatePtr uiState_;
+    double startTime_;
+    double deltaTime_;
+    bool shouldManuallyQuit_;
+    bool isMainWindow_;
 
     // Raw events
     std::vector<RawEventCallback> pendingRawEventCallbacks_;
     std::unordered_set<uint32_t> pendingRawEventIds_;
-    bool isElementRemovedViaEvent_{false};
+    bool isElementRemovedViaEvent_;
 
     static int32_t MAX_LAYERS;
     static bool isFirstWindow_;

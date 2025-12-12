@@ -87,7 +87,7 @@ public:
     auto getMaxTextureSlots() const -> uint32_t;
 
 private:
-    GPUBinder() = default;
+    GPUBinder();
     GPUBinder(const GPUBinder&) = delete;
     GPUBinder(GPUBinder&&) = delete;
     auto operator=(const GPUBinder&) = delete;
@@ -98,6 +98,6 @@ private:
     auto isStausOk(const uint32_t idToQuerry, const ShaderStatusQuerry type) const -> bool;
 
 private:
-    utils::Logger log_{"GPUBinder"};
+    utils::Logger log_;
 };
 } // namespace lav::core

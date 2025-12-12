@@ -8,7 +8,18 @@
 
 namespace lav::node
 {
-UISlider::UISlider(UIBaseInitData&& initData) : UIBase(std::move(initData))
+UISlider::UISlider(UIBaseInitData&& initData)
+    : UIBase(std::move(initData))
+    , knobLayout_()
+    , knobColor_(utils::hexToVec4("#afafafff"))
+    , label_(utils::make<UILabel>())
+    , percentage_(0.0f)
+    , scrollFrom_(0.0f)
+    , scrollTo_(100.0f)
+    , scrollValue_(0.0f)
+    , distToKnobCenter_(0.0f)
+    , sensitivity_(5.0f)
+    , invertVertical_(false)
 {
     knobColor_ = utils::hexToVec4("#ca5555ff");
     label_->setColor(utils::hexToVec4("#ffffff00"));
@@ -123,39 +134,6 @@ auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
     }
 
     return 0.0f;
-}
-
-auto UISlider::calculateKnobPosition() -> void
-{
-    glm::vec2 computedPos = layoutBase_.getComputedPos();
-    glm::vec2 computedScale = layoutBase_.getComputedScale();
-    // computedPos += glm::vec2{2, 2};
-    // computedScale -= glm::vec2{4, 4};
-
-    const auto& knobComputedScale = knobLayout_.getComputedScale();
-    glm::vec2 knobComputedPos{0, 0};
-    if (layoutBase_.isHorizontal())
-    {
-        knobComputedPos.x = utils::remap(
-                percentage_,
-                0.0f,
-                1.0f,
-                computedPos.x,
-                computedPos.x + computedScale.x - knobComputedScale.x);
-        knobComputedPos.y = computedPos.y;
-    }
-    else if (layoutBase_.isVertical())
-    {
-        knobComputedPos.x = computedPos.x;
-        knobComputedPos.y = utils::remap(
-                invertVertical_ ? percentage_ : 1.0f - percentage_,
-                0.0f,
-                1.0f,
-                computedPos.y,
-                computedPos.y + computedScale.y - knobLayout_.getComputedScale().y); 
-    }
-
-    knobLayout_.setComputedPos(knobComputedPos);
 }
 
 auto UISlider::getKnobBaseLayoutData() -> core::LayoutBase& { return knobLayout_; }

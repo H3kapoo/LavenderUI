@@ -8,6 +8,10 @@ auto DropdownCalculator::get() -> DropdownCalculator&
     return instance;
 }
 
+DropdownCalculator::DropdownCalculator()
+    : log_(__func__)
+{}
+
 auto DropdownCalculator::calculatePositionForDropdownElement(node::UIDropdown* dropdown) const -> void
 {
     static const uint32_t EXPECTED_ELEMENT_SIZE = 2;

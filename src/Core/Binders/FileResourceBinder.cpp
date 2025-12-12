@@ -11,6 +11,10 @@ auto FileResourceBinder::get() -> FileResourceBinder&
     return instance;
 }
 
+FileResourceBinder::FileResourceBinder()
+    : log_{__func__}
+{}
+
 auto FileResourceBinder::loadTextureData(const std::filesystem::path& path) const -> LoadInfo
 {
     LoadInfo info;

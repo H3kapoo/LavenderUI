@@ -7,7 +7,7 @@
 namespace lav::core
 {
 MeshLoader::MeshLoader()
-    : log_("MeshLoader")
+    : log_(__func__)
 {}
 
 auto MeshLoader::loadQuad() -> uint32_t

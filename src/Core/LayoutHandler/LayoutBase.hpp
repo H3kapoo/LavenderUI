@@ -130,7 +130,11 @@ public:
     };
 
 public:
-    LayoutBase() = default;
+    LayoutBase();
+    LayoutBase(const LayoutBase&) = delete;
+    LayoutBase(LayoutBase&&) = delete;
+    auto operator=(const LayoutBase&) -> LayoutBase& = delete;
+    auto operator=(LayoutBase&&) -> LayoutBase& = delete;
     virtual ~LayoutBase() = default;
 
     auto isPointInside(const glm::ivec2& p) const -> bool;
@@ -206,51 +210,52 @@ public:
     friend auto operator-(const glm::vec2 lhs, const TBLR rhs) -> glm::vec2;
 
 protected:
-    Type layoutType_{Type::HORIZONTAL};
-    TBLR margin_{0};
-    TBLR padding_{0};
-    TBLR border_{0};
-    TBLR borderRadius_{0};
-    TBLR shadow_{0};
-    Align selfAlign_{Align::TOP_LEFT};
-    Align align_{Align::TOP_LEFT};
-    Spacing spacing_{Spacing::TIGHT};
-    GridPolicyXY gridPolicy_{{Scale(1, ScaleType::FR)}, {Scale(1, ScaleType::FR)}};
-    GridRC gridPos_{0, 0};
-    GridRC gridSpan_{1, 1};
-    glm::ivec2 minScale_{10, 10};
-    glm::ivec2 maxScale_{10'000, 10'000};
-    bool wrap{false};
+    Type layoutType_;
+    TBLR margin_;
+    TBLR padding_;
+    TBLR border_;
+    TBLR borderRadius_;
+    TBLR shadow_;
+    Align selfAlign_;
+    Align align_;
+    Spacing spacing_;
+    GridPolicyXY gridPolicy_;
+    GridRC gridPos_;
+    GridRC gridSpan_;
+    glm::ivec2 minScale_;
+    glm::ivec2 maxScale_;
+    bool wrap_;
 
     /** @brief User supplied position details. This is NOT the actual render start position since it
         includes margins as well. This is the start position of the whole object. */
-    PositionXY userPos_{{1}, {1}};
+    PositionXY userPos_;
 
     /** @brief User supplied scale details. This is NOT the actual rendered scale but the size of
         the element's content area + padding + border + margins.
     */
-    ScaleXY userScale_{{100.0f}, {100.0f}};
+    ScaleXY userScale_;
 
     /** @brief The computed position where the mesh rendering starts. This is NOT the actual position of
         the element as it doesn't include margins.
     */
-    glm::vec2 computedPos_{0.0f, 0.0f};
+    glm::vec2 computedPos_;
 
     /** @brief The computed scale that dictates the scale of the rendered area. This is NOT the actual
         scale of the element as it doesn't include margins.
     */
-    glm::vec2 computedScale_{100.0f, 100.0f};
+    glm::vec2 computedScale_;
 
     /** @brief Viewable pos and scale used to determine how much of this element is visible from the parent's
         perspective. Basically the parent-child intersection data. It doesn't include margins.
     */
-    glm::ivec2 viewPos_{0}, viewScale_{0};
-    uint32_t index_{1};
-    float angle_{30.0f};
-    bool isCustomIndex_{false};
+    glm::ivec2 viewPos_;
+    glm::ivec2 viewScale_;
+    uint32_t index_;
+    float angle_;
+    bool isCustomIndex_;
 
 private:
-    glm::mat4 transform_{glm::mat4{1}};
+    glm::mat4 transform_;
 };
 
 auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;

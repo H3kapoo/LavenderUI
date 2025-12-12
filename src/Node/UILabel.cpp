@@ -8,7 +8,10 @@
 
 namespace lav::node
 {
-UILabel::UILabel(UIBaseInitData&& data) : UIBase(std::move(data))
+UILabel::UILabel(UIBaseInitData&& data)
+    : UIBase(std::move(data))
+    , textAttribs_()
+    , overrideColor_(std::nullopt)
 {
     layoutBase_.setScale({200_px, 50_px});
     setIgnoreEvents();

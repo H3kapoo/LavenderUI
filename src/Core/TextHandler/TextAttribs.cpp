@@ -1,6 +1,7 @@
 #include "TextAttribs.hpp"
 #include "src/Core/ResourceHandler/Font.hpp"
 #include "src/Core/ResourceHandler/FontLoader.hpp"
+#include "src/Core/ResourceHandler/ShaderLoader.hpp"
 #include "vendor/glm/gtc/matrix_transform.hpp"
 
 namespace lav::core
@@ -8,8 +9,11 @@ namespace lav::core
 TextAttribs::TextAttribs()
     : shader_(ShaderLoader::get().load(
         "assets/shaders/basicTextVert.glsl", "assets/shaders/basicTextFrag.glsl"))
+    , buffer_()
+    , text_()
+    , pos_(0.0f)
     , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
-    
+
 {}
 
 auto TextAttribs::computeMaxSize() const -> glm::vec2

@@ -41,6 +41,7 @@ class BaseCalculator
 {
 public:
     static auto get() -> BaseCalculator&;
+    BaseCalculator();
 
     /** @brief Calculate the computed scale for the elements of this parent element.
 
@@ -151,6 +152,11 @@ public:
     //     const glm::vec2 mousePos) const -> void;
 
 private:
+    BaseCalculator(const BaseCalculator&) = delete;
+    BaseCalculator(BaseCalculator&&) = delete;
+    auto operator=(const BaseCalculator&) -> BaseCalculator& = delete;
+    auto operator=(BaseCalculator&&) -> BaseCalculator& = delete;
+
     struct SpacingDetails
     {
         glm::vec2 additionalStartPush{0, 0};
@@ -298,6 +304,6 @@ private:
         const float rpScale, const float rpMin, const float rpMax) const -> float;
 
 private:
-    utils::Logger log_{"BasicCalculator"};
+    utils::Logger log_;
 };
 } // namespace lav::core

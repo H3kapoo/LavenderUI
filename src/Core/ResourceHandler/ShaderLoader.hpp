@@ -30,7 +30,7 @@ private:
 
 private:
     utils::Logger log_;
+    bool checkCache_;
     std::unordered_map<std::string, uint32_t> programIds_;
-    bool checkCache_{true};
 };
 } // namespace lav::core

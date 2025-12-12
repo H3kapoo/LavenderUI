@@ -9,7 +9,10 @@
 
 namespace lav::node
 {
-UIPane::UIPane(UIBaseInitData&& initData) : UIBase(std::move(initData))
+UIPane::UIPane(UIBaseInitData&& initData)
+    : UIBase(std::move(initData))
+    , hScroll_(nullptr)
+    , vScroll_(nullptr)
 {
     layoutBase_.setScale({200_px, 50_px});
 }
