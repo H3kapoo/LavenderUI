@@ -28,7 +28,7 @@
             </Dropdown>
         </Dropdown>
     </Pane>
-    <Pane ori="Horizontal" scale="Fill, Fill" color="#f3f3f3ff" align="sCenter" scroll="true">
+    <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#f3f3f3ff" align="sCenter" scroll="true">
         <Slider ori="Vertical" scale="40px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
         <Slider ori="Vertical" scale="20px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
@@ -49,5 +49,5 @@
         </Pane>
         <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
         <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
-    </Pane>
+    </Pane> -->
 </App>

@@ -1,58 +1,48 @@
 #include "UISplitPane.hpp"
 
-#include "src/ElementComposable/IEvent.hpp"
-#include "src/ElementComposable/LayoutBase.hpp"
-#include "src/LayoutCalculator/BasicCalculator.hpp"
-#include "src/UIElements/UIButton.hpp"
-#include "src/UIElements/UIPane.hpp"
+#include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
+#include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Node/Helpers/UIState.hpp"
 #include "src/Utils/Misc.hpp"
-#include "src/WindowManagement/Input.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
-using namespace layoutcalculator;
-
-UISplitPane::UISplitPane() : UIBase(getTypeInfo())
+UISplitPane::UISplitPane(UIBaseInitData&& initData)
+    : UIBase(std::move(initData))
 {}
 
-auto UISplitPane::render(const glm::mat4& projection) -> void
+auto UISplitPane::onRender(const glm::mat4& projection) -> void
 {
     /* Draw base */
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getTransform());
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
     shader_.uploadVec4f("uColor", getColor());
-    shader_.uploadVec2f("uResolution", getComputedScale());
-    shader_.uploadVec4f("uBorderSize", getBorder());
-    shader_.uploadVec4f("uBorderRadii", getBorderRadius());
+    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
+    shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
+    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
     shader_.uploadVec4f("uBorderColor", getBorderColor());
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    renderNext(projection);
+    shader_.uploadInt("uUseTexture", 0);
+    core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UISplitPane::layout() -> void
+auto UISplitPane::onLayout() -> void
 {
-    using namespace layoutcalculator;
-
-    const auto& calculator = BasicCalculator::get();
+    const auto& calculator = core::SplitPaneCalculator::get();
     calculator.calculateSplitPaneElements(this, draggedHandleId_, mousePos_);
-
-    layoutNext();
 }
 
-auto UISplitPane::event(state::UIWindowStatePtr& state) -> void
+auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
 {
-    /* Let the base do the generic stuff like mouse move pre-pass. */
-    UIBase::event(state);
-
-    if (state->currentEventId == MouseMoveEvt::eventId)
+    if (state->currentEventId == core::MouseMoveEvt::eventId)
     {
         mousePos_ = state->mousePos;
     }
 
-    eventNext(state);
+    // eventNext(state);
 
     /* Only update the cursor after all the children have processed the event. */
     if (wantedCursor_.has_value())
@@ -76,61 +66,65 @@ template<UISplitPaneElement T>
 auto UISplitPane::create(const float relativeSpace, const glm::ivec2& minMax) -> std::weak_ptr<T>
 {
     std::shared_ptr<T> uiElement = utils::make<T>();
+    auto& uiElementLayout = uiElement->getBaseLayoutData();
+
     uiElement->setColor(utils::randomRGB()); // rm later
 
-    if (layoutType_ == LayoutBase::Type::HORIZONTAL)
+    if (layoutBase_.isHorizontal())
     {
-        uiElement->setScale({{relativeSpace, ScaleType::REL}, 1.0_rel});
-        uiElement->setMinScale({minMax.x, 99999});
-        uiElement->setMaxScale({minMax.y, 99999});
+        uiElementLayout.setScale({{relativeSpace, core::LayoutBase::ScaleType::REL}, 1.0_rel});
+        uiElementLayout.setMinScale({minMax.x, 99999});
+        uiElementLayout.setMaxScale({minMax.y, 99999});
     }
-    else if (layoutType_ == LayoutBase::Type::VERTICAL)
+    else if (layoutBase_.isVertical())
     {
-        uiElement->setScale({1.0_rel, {relativeSpace, ScaleType::REL}});
-        uiElement->setMinScale({99999, minMax.x});
-        uiElement->setMaxScale({99999, minMax.y});
+        uiElementLayout.setScale({1.0_rel, {relativeSpace, core::LayoutBase::ScaleType::REL}});
+        uiElementLayout.setMinScale({99999, minMax.x});
+        uiElementLayout.setMaxScale({99999, minMax.y});
     }
 
     /* No need for a handle just for one uiElement. */
     if (elements_.empty())
     {
-        add(uiElement);
+        UIBase::add(uiElement);
         return uiElement;
     }
 
     UIButtonPtr handle = utils::make<UIButton>();
+    auto& handleLayout = handle->getBaseLayoutData();
+
     handle->setText(std::to_string(elements_.size()));
     handle->setColor(utils::hexToVec4("#757575ff")); // rm later
 
-    layoutType_ == LayoutBase::Type::HORIZONTAL
-        ? handle->setScale({6_px, 1.0_rel})
-        : handle->setScale({1.0_rel, 6_px});
+    layoutBase_.isHorizontal()
+        ? handleLayout.setScale({6_px, 1.0_rel})
+        : handleLayout.setScale({1.0_rel, 6_px});
 
-    add(handle);
-    add(uiElement);
+    UIBase::add(handle);
+    UIBase::add(uiElement);
 
     const uint32_t handleIdx = elements_.size() - 2;
-    handle->listenTo<MouseDragEvt>([this, handleIdx](const auto&)
+    handle->listenEvent<core::MouseDragEvt>([this, handleIdx](const auto&)
             {
                 draggedHandleId_ = handleIdx;
-            })
-        .template listenTo<MouseLeftReleaseEvt>(
+            });
+    handle->listenEvent<core::MouseLeftReleaseEvt>(
             [this](const auto&)
             {
                 draggedHandleId_ = 0;
-                wantedCursor_ = Input::Cursor::ARROW;
-            })
-        .template listenTo<MouseEnterEvt>(
+                wantedCursor_ = lav::Cursor::ARROW;
+            });
+    handle->listenEvent<core::MouseEnterEvt>(
             [this](const auto&)
             {
-                wantedCursor_ = layoutType_ == LayoutBase::Type::HORIZONTAL
-                    ? Input::Cursor::HRESIZE : Input::Cursor::VRESIZE;
-            })
-        .template listenTo<MouseExitEvt>(
+                wantedCursor_ = layoutBase_.isHorizontal()
+                    ? lav::Cursor::HRESIZE : lav::Cursor::VRESIZE;
+            });
+    handle->listenEvent<core::MouseExitEvt>(
             [this](const auto&)
             {
                 if (draggedHandleId_) { return; }
-                wantedCursor_ = Input::Cursor::ARROW;
+                wantedCursor_ = lav::Cursor::ARROW;
             });
 
     return uiElement;
@@ -147,4 +141,4 @@ auto UISplitPane::getHandleIdx(const uint32_t idx) -> UIButtonWPtr
     //TODO: Add constraints
     return utils::as<UIButton>(elements_.at(idx * 2 + 1));
 }
-} // namespace src::uielements
+} // namespace lav::node

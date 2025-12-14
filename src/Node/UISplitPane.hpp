@@ -1,20 +1,17 @@
 #pragma once
 
-#include "src/UIElements/UIButton.hpp"
-#include "src/UIElements/UIBase.hpp"
-#include "src/UIElements/UIPane.hpp"
-#include "src/WindowManagement/Input.hpp"
-#include <optional>
+#include "src/Node/UIButton.hpp"
+#include "src/Node/UIBase.hpp"
+#include "src/Node/UIPane.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
-using namespace elementcomposable;
-using namespace windowmanagement;
-
 /**
-    @brief Splitter GUI element used as a container manager holding multiple UIPanes
-        that can be resized on mouse drag.
+    @brief
+    Splitter GUI element used as a container manager holding multiple UIPanes
+    that can be resized on mouse drag.
 */
+
 class UISplitPane;
 using UISplitPanePtr = std::shared_ptr<UISplitPane>;
 using UISplitPaneWPtr = std::weak_ptr<UISplitPane>;
@@ -28,12 +25,7 @@ concept UISplitPaneElement =
 class UISplitPane : public UIBase
 {
 public:
-    UISplitPane();
-    virtual ~UISplitPane() = default;
-    UISplitPane(const UISplitPane&) = delete;
-    UISplitPane(UIBase&&) = delete;
-    auto operator=(const UISplitPane&) -> UISplitPane& = delete;
-    auto operator=(UISplitPane&&) -> UISplitPane& = delete;
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UISplitPane, "elemVert.glsl", "elemFrag.glsl")
 
     /**
         @brief Create a new simple pane for this split pane element.
@@ -62,20 +54,17 @@ public:
     auto getPaneIdx(const uint32_t idx) -> UIPaneWPtr;
     auto getHandleIdx(const uint32_t idx) -> UIButtonWPtr;
 
-    /* Mandatory typeinfo */
-    INSERT_TYPEINFO(UISplitPane);
-
 private:
-    auto render(const glm::mat4& projection) -> void override;
-    auto layout() -> void override;
-    auto event(state::UIStatePtr& state) -> void override;
+    auto onRender(const glm::mat4& projection) -> void override;
+    auto onLayout() -> void override;
+    auto onEvent(node::UIStatePtr& state) -> void override;
 
     template<UISplitPaneElement T> // constrain to Pane,SplitPane
     auto create(const float relativeSpace, const glm::ivec2& minMax) -> std::weak_ptr<T>;
 
 private:
     glm::ivec2 mousePos_{-1, -1};
-    std::optional<Input::Cursor> wantedCursor_{std::nullopt};
+    std::optional<lav::Cursor> wantedCursor_{std::nullopt};
     uint32_t draggedHandleId_{0};
 };
-} // namespace src::uielements
+} // namespace lav::node

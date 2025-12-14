@@ -12,6 +12,7 @@
 #include "src/Node/UILabel.hpp"
 #include "src/Node/UISlider.hpp"
 #include "src/Node/UIPane.hpp"
+#include "src/Node/UISplitPane.hpp"
 #include "src/Node/UIWindow.hpp"
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
@@ -31,59 +32,23 @@ int main()
     if (!app.init()) { return 1; }
 
     app.enableTitleWithFPS();
-    UIWindowWPtr window = app.loadLavView("views/test.xml");
-    // window.lock()->setColor(utils::hexToVec4("#7c7c7cff"));
-    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    {
-        // auto lw = window.lock();
-        // auto pane = utils::as<UIPane>(lw->getElements()[1]);
-        // pane->setScrollEnabled(true, true);
-        // pane->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
+    // UIWindowWPtr window = app.loadLavView("views/test.xml");
+    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
+    window.lock()->setColor(utils::hexToVec4("#7c7c7cff"));
 
-        // UIDropdownPtr dd = utils::make<UIDropdown>();
-        // dd->getBaseLayoutData().setScale({100_px, 1_fill});
-        // dd->setText("Star Wars");
-        // auto general = dd->addOption("General").lock();
-        // dd->addOption("Colonel");
+    UISplitPanePtr sp = utils::make<UISplitPane>();
+    sp->setColor(utils::hexToVec4("#ffffffff"));
+    sp->getBaseLayoutData().setScale({1_fill, 1_fill});
 
-        // auto subMenu = dd->addSubMenu("Planets >").lock();
-        // subMenu->setPreferredOpenDir(UIDropdown::OpenDir::RIGHT);
-        // subMenu->addOption("Earth");
-        // auto endor = subMenu->addOption("Endor").lock();
-        // // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-        // endor->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto&)
-        // {
-        //     log.error("Released endor");
-        // });
-        // pane->add(dd);
-    }
+    auto p = sp->createPane(0.25f, {10, 10'000});
+    auto sp3 = sp->createSubsplit(0.5f, {10, 10'000});
+    auto p2 = sp->createPane(0.25f, {10, 10'000});
 
-    // UIPanePtr pn = utils::make<UIPane>();
-    // pn->setScrollEnabled(true, true);
-    // pn->setColor(utils::hexToVec4("#ffaaffff"));
-    // pn->getBaseLayoutData().setScale({1_fill, 1_fill});
-    // {
-    //     auto wl = window.lock();
-    //     wl->add(pn);
-    // }
+    sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
+    auto pp = sp3.lock()->createPane(0.5f, {10, 10'000});
+    auto pp2 = sp3.lock()->createPane(0.5f, {10, 10'000});
 
-    // // pn->listenEvent<core::MouseEnterEvt>([&log, &pn](const auto&)
-    // // {
-    // //     log.info("Entered on my area");
-    // //     pn->setColor(utils::hexToVec4("#037a3eff"));
-    // // });
-
-    // // pn->listenEvent<core::MouseExitEvt>([&log, &pn](const auto&)
-    // // {
-    // //     log.info("Exit on my area");
-    // //     pn->setColor(utils::hexToVec4("#ffaaffff"));
-    // // });
-
-    // UIButtonPtr b = utils::make<UIButton>();
-    // b->getBaseLayoutData().setScale({200_px, 20_px});
-    // b->setText("Click me");
-
-    // pn->add(b);
+    window.lock()->add(sp);
 
     app.run();
     return 0;

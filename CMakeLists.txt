@@ -51,6 +51,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/LayoutHandler/Calculators/PaneCalculator.cpp
         src/Core/LayoutHandler/Calculators/DropdownCalculator.cpp
         src/Core/LayoutHandler/Calculators/SliderCalculator.cpp
+        src/Core/LayoutHandler/Calculators/SplitPaneCalculator.cpp
         src/Core/TextHandler/TextAttribs.cpp
         src/Node/UIBase.cpp
         src/Node/UIWindow.cpp
@@ -60,7 +61,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Node/UISlider.cpp
         src/Node/UIImage.cpp
         src/Node/UIDropdown.cpp
-        # src/UIElements/UISplitPane.cpp
+        src/Node/UISplitPane.cpp
         # src/UIElements/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
         src/Utils/Logger.cpp
