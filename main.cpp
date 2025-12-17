@@ -32,17 +32,19 @@ int main()
     if (!app.init()) { return 1; }
 
     app.enableTitleWithFPS();
-    // UIWindowWPtr window = app.loadLavView("views/test.xml");
-    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    window.lock()->setColor(utils::hexToVec4("#7c7c7cff"));
+    UIWindowWPtr window = app.loadLavView("views/test.xml");
+    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
+    window.lock()->setColor(utils::hexToVec4("#ffffffff"));
 
     UISplitPanePtr sp = utils::make<UISplitPane>();
     sp->setColor(utils::hexToVec4("#ffffffff"));
-    sp->getBaseLayoutData().setScale({1_fill, 1_fill});
+    sp->getBaseLayoutData()
+        .setScale({1_fill, 1_fill})
+        .setType(LayoutBase::Type::HORIZONTAL);
 
-    auto p = sp->createPane(0.25f, {10, 10'000});
-    auto sp3 = sp->createSubsplit(0.5f, {10, 10'000});
-    auto p2 = sp->createPane(0.25f, {10, 10'000});
+    auto p = sp->createPane(0.2f, {30, 10'000});
+    auto sp3 = sp->createSubsplit(0.2f, {30, 10'000});
+    auto p2 = sp->createPane(0.2f, {30, 10'000});
 
     sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
     auto pp = sp3.lock()->createPane(0.5f, {10, 10'000});

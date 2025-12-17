@@ -136,6 +136,23 @@ public:
     */
     auto calculateElementOverflow(node::UIBase* parent, const glm::vec2 shrinkScaleBy = {}) const -> glm::vec2;
 
+    /**
+        @brief Expand or shrink elements on the line depending on if their scale is less or greater
+        than the parent's available scale
+
+        @note This changes the scale of the elements.
+        @note Must be used at the end of calculations.
+        
+        @param parent Parent UI object as a whole
+        @param availableScale Available scale to the parent
+        @param currentTotal Accumulated scale of each child element
+        @param skipButtonType Skip child buttons. Mainly used for UISplitPane
+
+        @return Void. Elements will be scaled accordingly if needed.
+    */
+    auto solveRelativeScaling(node::UIBase* parent, const glm::ivec2 availableScale,
+        const glm::ivec2 currentTotal, const bool skipButtonType = false) const -> void;
+
 private:
     BaseCalculator(const BaseCalculator&) = delete;
     BaseCalculator(BaseCalculator&&) = delete;

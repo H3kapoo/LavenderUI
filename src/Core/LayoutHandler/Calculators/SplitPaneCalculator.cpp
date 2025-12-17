@@ -70,6 +70,7 @@ auto SplitPaneCalculator::calculateSplitPaneNonHandleScale(node::UISplitPane* pa
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentScale = pLayout.getContentBoxScale();
     const auto& reducedPContentScale = pContentScale - handlesSize;
+    glm::ivec2 runningTotal{0, 0};
     for (const auto& element : elements)
     {
         if (element->getTypeId() == node::UIButton::typeId) { continue; }
@@ -81,18 +82,26 @@ auto SplitPaneCalculator::calculateSplitPaneNonHandleScale(node::UISplitPane* pa
         if (pLayout.isHorizontal())
         {
             cScale.x = reducedPContentScale.x * userScale.x.val;
-            cScale.y = pContentScale.y * userScale.y.val;
             cScale.x = std::clamp(cScale.x, (float)eLayout.getMinScale().x, (float)eLayout.getMaxScale().x);
+            cScale.y = pContentScale.y * userScale.y.val;
+
+            cScale.x = std::round(cScale.x);
+            runningTotal.x += cScale.x;
         }
         else if (pLayout.isVertical())
         {
             cScale.y = reducedPContentScale.y * userScale.y.val;
             cScale.x = pContentScale.x * userScale.x.val;
             cScale.y = std::clamp(cScale.y, (float)eLayout.getMinScale().y, (float)eLayout.getMaxScale().y);
+
+            cScale.y = std::round(cScale.y);
+            runningTotal.y += cScale.y;
         }
 
         eLayout.setComputedScale(cScale);
     }
+
+    solveRelativeScaling(parent, reducedPContentScale, runningTotal);
 }
 
 auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPane* parent,
@@ -102,6 +111,7 @@ auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPan
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentScale = pLayout.getContentBoxScale();
     const auto& reducedPContentScale = pContentScale - handlesSize;
+    glm::ivec2 runningTotal{0, 0};
     for (int32_t handleIdx = 0; handleIdx < (int32_t)elements.size() - 1; ++handleIdx)
     {
         if (elements[handleIdx]->getTypeId() != node::UIButton::typeId) { continue; }
@@ -147,14 +157,6 @@ auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPan
 
             rScale.x.val -= wantedOffsetRel.x;
             rLayout.setScale(rScale);
-
-            auto lCompScale = lLayout.getComputedScale();
-            lCompScale.x = lScale.x.val * reducedPContentScale.x;
-            lLayout.setComputedScale(lCompScale);
-
-            auto rCompScale = rLayout.getComputedScale();
-            rCompScale.x = rScale.x.val * reducedPContentScale.x;
-            rLayout.setComputedScale(rCompScale);
         }
         else if (pLayout.isVertical())
         {
@@ -184,14 +186,6 @@ auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPan
 
             rScale.y.val -= wantedOffsetRel.y;
             rLayout.setScale(rScale);
-
-            auto lCompScale = lLayout.getComputedScale();
-            lCompScale.y = lScale.y.val * reducedPContentScale.y;
-            lLayout.setComputedScale(lCompScale);
-
-            auto rCompScale = rLayout.getComputedScale();
-            rCompScale.y = rScale.y.val * reducedPContentScale.y;
-            rLayout.setComputedScale(rCompScale);
         }
     }
 }
