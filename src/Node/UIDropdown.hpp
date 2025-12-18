@@ -28,8 +28,8 @@ public:
 
     auto addOption(UIButtonPtr&& opt) -> void;
     auto addSubMenu(UIDropdownPtr&& subMenu) -> void;
-    auto addOption(const std::string& optName) -> UIButtonWPtr;
-    auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
+    [[nodiscard]] auto addOption(const std::string& optName) -> UIButtonWPtr;
+    [[nodiscard]] auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
 
     auto setPreferredOpenDir(const OpenDir od) -> UIDropdown&;
     auto isOpen() const -> bool;

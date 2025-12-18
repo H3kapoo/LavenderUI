@@ -42,13 +42,13 @@ int main()
         .setScale({1_fill, 1_fill})
         .setType(LayoutBase::Type::HORIZONTAL);
 
-    auto p = sp->createPane(0.2f, {30, 10'000});
-    auto sp3 = sp->createSubsplit(0.2f, {30, 10'000});
-    auto p2 = sp->createPane(0.2f, {30, 10'000});
+    auto p = sp->createPane(0.30f, {30, 10'000});
+    auto sp3 = sp->createSubsplit(0.40f, {30, 10'000});
+    auto p2 = sp->createPane(0.30f, {30, 10'000});
 
     sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
-    auto pp = sp3.lock()->createPane(0.5f, {10, 10'000});
-    auto pp2 = sp3.lock()->createPane(0.5f, {10, 10'000});
+    auto pp = sp3.lock()->createPane(0.80f, {30, 10'000});
+    auto pp2 = sp3.lock()->createPane(0.20f, {30, 10'000});
 
     window.lock()->add(sp);
 

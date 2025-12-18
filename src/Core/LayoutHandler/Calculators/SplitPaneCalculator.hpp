@@ -39,18 +39,18 @@ private:
 
         @return Accumulated size of each handle.
     */
-    auto calculateSplitPaneHandlesScale(node::UISplitPane* parent) const -> glm::vec2;
+    auto calculateHandlesScale(node::UISplitPane* parent) const -> glm::ivec2;
 
 
     /** @brief Simply calculate the scale of the NON-handle elements of this split pane.
 
         @param parent SplitPane element for which to calculate NON-handle element sizes.
     */
-    auto calculateSplitPaneNonHandleScale(node::UISplitPane* parent,
+    auto calculateNonHandlElementsScale(node::UISplitPane* parent,
         const glm::vec2 handlesSize) const -> void;
 
 
-    /** @brief Try and apply scale corrections for the panes if needed.
+    /** @brief Try calculate and apply scale corrections for the panes if needed.
 
         @details When resizing the split pane area we might end up with a pane going under or over
             the minimum, respectively maximum scale set. This will try to keep those constrains
@@ -59,7 +59,7 @@ private:
         @param parent SplitPane element for which to apply corrections.
         @param handlesSize Previously calculated accumulated handles size.
     */
-    auto applySplitPaneElementsScaleCorrection(node::UISplitPane* parent,
+    auto calculateElementsScaleCorrection(node::UISplitPane* parent,
         const glm::vec2 handlesSize) const -> void;
 
 
@@ -67,7 +67,7 @@ private:
 
         @param parent SplitPane element for which to calculate positions.
     */
-    auto calculateSplitPaneElementsPos(node::UISplitPane* parent) const -> void;
+    auto calculateElementsPos(node::UISplitPane* parent) const -> void;
 
 
     /** @brief Adjust the `handleIdx` controlled panes relative scale by the amount the user has dragged.
@@ -77,7 +77,7 @@ private:
         @param handlesSize Total size of all the handles in the split pane
         @param mousePos Current mouse position
     */
-    auto calculateSplitPaneRelativeValuesDueToDrag(node::UISplitPane* parent,
+    auto calculateRelativeValuesDueToDrag(node::UISplitPane* parent,
         const uint32_t handleIdx, const glm::vec2 handlesSize, const glm::vec2 mousePos) const -> void;
 
     /** @brief Helper function that constrains the wanted offset between min and max of each pane

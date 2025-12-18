@@ -295,20 +295,20 @@ auto BaseCalculator::calculateElementOverflow(node::UIBase* parent,
 auto BaseCalculator::solveRelativeScaling(node::UIBase* parent, const glm::ivec2 availableScale,
     const glm::ivec2 currentTotal, const bool skipButtonType) const -> void
 {
-#define OPERATION(operation, onWhat, decInc)\
-    if (int32_t diff = operation; diff > 0)\
-    {\
-        for (const auto& element : elements)\
-        {\
-            if (diff <= 0) { return; }\
-            if (skipButtonType && element->getTypeId() == node::UIButton::typeId) { continue; }\
-            auto& eLayout = element->getBaseLayoutData();\
-            auto cScale = eLayout.getComputedScale();\
-            onWhat += decInc;\
-            diff -= 1;\
-            eLayout.setComputedScale(cScale);\
-        }\
-    }\
+#define OPERATION(operation, onWhat, decInc)                                                    \
+    if (int32_t diff = operation; diff > 0)                                                     \
+    {                                                                                           \
+        for (const auto& element : elements)                                                    \
+        {                                                                                       \
+            if (diff <= 0) { return; }                                                          \
+            if (skipButtonType && element->getTypeId() == node::UIButton::typeId) { continue; } \
+            auto& eLayout = element->getBaseLayoutData();                                       \
+            auto cScale = eLayout.getComputedScale();                                           \
+            onWhat += decInc;                                                                   \
+            diff -= 1;                                                                          \
+            eLayout.setComputedScale(cScale);                                                   \
+        }                                                                                       \
+    }                                                                                           \
 
     /* If total objects scale is less than what the parent can allow, scale elements up by error */
     /* If total objects scale is greater than what the parent can allow, scale elements down by error */
@@ -323,6 +323,7 @@ auto BaseCalculator::solveRelativeScaling(node::UIBase* parent, const glm::ivec2
         OPERATION(availableScale.y - currentTotal.y, cScale.y, +1);
         OPERATION(currentTotal.y - availableScale.y, cScale.y, -1);
     }
+#undef OPERATION
 }
 
 auto BaseCalculator::calculateSpacingOnAxis(node::UIBase* parent,

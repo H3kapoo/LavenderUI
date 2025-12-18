@@ -15,55 +15,52 @@ SplitPaneCalculator::SplitPaneCalculator()
 auto SplitPaneCalculator::calculateSplitPaneElements(node::UISplitPane* parent, const uint32_t handleIdx,
     const glm::vec2 mousePos) const -> void
 {
-    const auto handlesSize = calculateSplitPaneHandlesScale(parent);
+    const glm::ivec2 handlesSize = calculateHandlesScale(parent);
 
-    calculateSplitPaneNonHandleScale(parent, handlesSize);
+    calculateNonHandlElementsScale(parent, handlesSize);
 
-    /* Mostly used when resizing the split pane. Otherwise the `if handle` function will do the constraint checks. */
-    applySplitPaneElementsScaleCorrection(parent, handlesSize);
+    calculateElementsScaleCorrection(parent, handlesSize);
 
-    calculateSplitPaneElementsPos(parent);
+    calculateElementsPos(parent);
 
-    if (handleIdx)
-    {
-        calculateSplitPaneRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
-    }
+    calculateRelativeValuesDueToDrag(parent, handleIdx, handlesSize, mousePos);
 }
 
-auto SplitPaneCalculator::calculateSplitPaneHandlesScale(node::UISplitPane* parent) const -> glm::vec2
+auto SplitPaneCalculator::calculateHandlesScale(node::UISplitPane* parent) const -> glm::ivec2
 {
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentScale = pLayout.getContentBoxScale();
     const auto& elements = parent->getElements();
 
-    glm::vec2 handlesSize{0, 0};
+    glm::ivec2 handlesSize{0, 0};
     for (const auto& element : elements)
     {
         if (element->getTypeId() != node::UIButton::typeId) { continue; }
 
         auto& eLayout = element->getBaseLayoutData();
-        glm::vec2 cScale;
         const auto& userScale = eLayout.getScale();
 
+        glm::vec2 cScale;
         if (pLayout.isHorizontal())
         {
             cScale.x = userScale.x.val;
             cScale.y = pContentScale.y * userScale.y.val;
+            handlesSize.x += cScale.x;
         }
         else if (pLayout.isVertical())
         {
             cScale.y = userScale.y.val;
             cScale.x = pContentScale.x * userScale.x.val;
+            handlesSize.y += cScale.y;
         }
 
-        handlesSize += cScale;
         eLayout.setComputedScale(cScale);
     }
 
     return handlesSize;
 }
 
-auto SplitPaneCalculator::calculateSplitPaneNonHandleScale(node::UISplitPane* parent,
+auto SplitPaneCalculator::calculateNonHandlElementsScale(node::UISplitPane* parent,
     const glm::vec2 handlesSize) const -> void
 {
     const auto& elements = parent->getElements();
@@ -77,8 +74,8 @@ auto SplitPaneCalculator::calculateSplitPaneNonHandleScale(node::UISplitPane* pa
 
         auto& eLayout = element->getBaseLayoutData();
         const auto& userScale = eLayout.getScale();
-        glm::vec2 cScale;
 
+        glm::vec2 cScale;
         if (pLayout.isHorizontal())
         {
             cScale.x = reducedPContentScale.x * userScale.x.val;
@@ -104,9 +101,50 @@ auto SplitPaneCalculator::calculateSplitPaneNonHandleScale(node::UISplitPane* pa
     solveRelativeScaling(parent, reducedPContentScale, runningTotal);
 }
 
-auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPane* parent,
+auto SplitPaneCalculator::calculateElementsScaleCorrection(node::UISplitPane* parent,
     const glm::vec2 handlesSize) const -> void
 {
+#define OPERATION_WANTED_OFFSET_ON_AXIS(axis)                                                               \
+    /*                                                                                                      \
+        Current left pane relative scale is less than left pane min scale which means we need to increase   \
+        the left pane relative scale by the difference it would take to achieve that minimum.               \
+        So take the min scale minus the current relative scale as the wanted offset.                        \
+    */                                                                                                      \
+    if (lUserScale. axis .val < lpMinScaleRel. axis)                                                        \
+    {                                                                                                       \
+        wantedOffsetRel. axis = lpMinScaleRel. axis - lUserScale. axis .val;                                \
+    }                                                                                                       \
+                                                                                                            \
+    /* Exactly the same as above just that now we be looking at the right pane. */                          \
+    if (rUserScale. axis .val < rpMinScaleRel. axis)                                                        \
+    {                                                                                                       \
+        wantedOffsetRel. axis = rUserScale. axis .val - rpMinScaleRel. axis;                                \
+    }                                                                                                       \
+                                                                                                            \
+    /*                                                                                                      \
+        Current left pane relative scale is greater than left pane max scale which means we need to decrease\
+        the left pane relative scale by the difference it would take to achieve that maximum.               \
+        So take the max scale minus the current relative scale as the wanted offset.                        \
+    */                                                                                                      \
+    if (lUserScale. axis .val > lpMaxScaleRel. axis)                                                        \
+    {                                                                                                       \
+        wantedOffsetRel. axis = lpMaxScaleRel. axis - lUserScale. axis .val;                                \
+    }                                                                                                       \
+                                                                                                            \
+    /* Exactly the same as above just that now we be looking at the right pane. */                          \
+    if (rUserScale. axis .val > rpMaxScaleRel. axis)                                                        \
+    {                                                                                                       \
+        wantedOffsetRel. axis = rUserScale. axis .val - rpMaxScaleRel. axis;                                \
+    }                                                                                                       \
+                                                                                                            \
+    /* Apply the relative offsets correction. */                                                            \
+    lUserScale. axis .val += wantedOffsetRel. axis;                                                         \
+    lpLayout.setScale(lUserScale);                                                                          \
+                                                                                                            \
+    rUserScale. axis .val -= wantedOffsetRel. axis;                                                         \
+    rpLayout.setScale(rUserScale);                                                                          \
+
+
     const auto& elements = parent->getElements();
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentScale = pLayout.getContentBoxScale();
@@ -116,81 +154,26 @@ auto SplitPaneCalculator::applySplitPaneElementsScaleCorrection(node::UISplitPan
     {
         if (elements[handleIdx]->getTypeId() != node::UIButton::typeId) { continue; }
 
+        auto& lpLayout = elements[handleIdx - 1]->getBaseLayoutData();
+        auto& rpLayout = elements[handleIdx + 1]->getBaseLayoutData();
+        auto lUserScale = lpLayout.getScale();
+        auto rUserScale = rpLayout.getScale();
+        const glm::vec2 lpMinScaleRel = lpLayout.getMinScale() / reducedPContentScale;
+        const glm::vec2 lpMaxScaleRel = lpLayout.getMaxScale() / reducedPContentScale;
+        const glm::vec2 rpMinScaleRel = rpLayout.getMinScale() / reducedPContentScale;
+        const glm::vec2 rpMaxScaleRel = rpLayout.getMaxScale() / reducedPContentScale;
+
         glm::vec2 wantedOffsetRel{0, 0};
 
-        const uint32_t lPaneIdx = handleIdx - 1;
-        const uint32_t rPaneIdx = handleIdx + 1;
-        auto& lLayout = elements[lPaneIdx]->getBaseLayoutData();
-        auto& rLayout = elements[rPaneIdx]->getBaseLayoutData();
-        const glm::vec2 lpMinScaleRel = lLayout.getMinScale() / reducedPContentScale;
-        const glm::vec2 lpMaxScaleRel = lLayout.getMaxScale() / reducedPContentScale;
-        const glm::vec2 rpMinScaleRel = rLayout.getMinScale() / reducedPContentScale;
-        const glm::vec2 rpMaxScaleRel = rLayout.getMaxScale() / reducedPContentScale;
-
-        auto lScale = lLayout.getScale();
-        auto rScale = rLayout.getScale();
-        if (pLayout.isHorizontal())
-        {
-            if (lScale.x.val < lpMinScaleRel.x)
-            {
-                wantedOffsetRel.x = lpMinScaleRel.x - lScale.x.val;
-            }
-
-            if (rScale.x.val < rpMinScaleRel.x)
-            {
-                wantedOffsetRel.x = rScale.x.val - rpMinScaleRel.x;
-            }
-
-            if (lScale.x.val > lpMaxScaleRel.x)
-            {
-                wantedOffsetRel.x = lpMaxScaleRel.x - lScale.x.val;
-            }
-
-            if (rScale.x.val > rpMaxScaleRel.x)
-            {
-                wantedOffsetRel.x = rScale.x.val - rpMaxScaleRel.x;
-            }
-
-            /* Apply the relative offsets correction. */
-            lScale.x.val += wantedOffsetRel.x;
-            lLayout.setScale(lScale);
-
-            rScale.x.val -= wantedOffsetRel.x;
-            rLayout.setScale(rScale);
-        }
-        else if (pLayout.isVertical())
-        {
-            if (lScale.y.val < lpMinScaleRel.y)
-            {
-                wantedOffsetRel.y = lpMinScaleRel.y - lScale.y.val;
-            }
-
-            if (rScale.y.val < rpMinScaleRel.y)
-            {
-                wantedOffsetRel.y = rScale.y.val - rpMinScaleRel.y;
-            }
-
-            if (lScale.y.val > lpMaxScaleRel.y)
-            {
-                wantedOffsetRel.y = lpMaxScaleRel.y - lScale.y.val;
-            }
-
-            if (rScale.y.val > rpMaxScaleRel.y)
-            {
-                wantedOffsetRel.y = rScale.y.val - rpMaxScaleRel.y;
-            }
-
-            /* Apply the relative offsets correction. */
-            lScale.y.val += wantedOffsetRel.y;
-            lLayout.setScale(lScale);
-
-            rScale.y.val -= wantedOffsetRel.y;
-            rLayout.setScale(rScale);
-        }
+        if (pLayout.isHorizontal()) { OPERATION_WANTED_OFFSET_ON_AXIS(x); }
+        else if (pLayout.isVertical()) { OPERATION_WANTED_OFFSET_ON_AXIS(y); }
+        else { log_.error("Unsupported orientation for: {}", __func__); }
     }
+
+#undef OPERATION
 }
 
-auto SplitPaneCalculator::calculateSplitPaneElementsPos(node::UISplitPane* parent) const -> void
+auto SplitPaneCalculator::calculateElementsPos(node::UISplitPane* parent) const -> void
 {
     const auto& elements = parent->getElements();
     const auto& pLayout = parent->getBaseLayoutData();
@@ -217,89 +200,83 @@ auto SplitPaneCalculator::calculateSplitPaneElementsPos(node::UISplitPane* paren
     }
 }
 
-auto SplitPaneCalculator::calculateSplitPaneRelativeValuesDueToDrag(node::UISplitPane* parent,
+auto SplitPaneCalculator::calculateRelativeValuesDueToDrag(node::UISplitPane* parent,
     const uint32_t handleIdx, const glm::vec2 handlesSize, const glm::vec2 mousePos) const -> void
 {
+#define OPERATION_KEEP_CONSTRAINTS_ON_AXIS(axis)                        \
+    wantedOffsetRel. axis  = constrainOffset(wantedOffsetRel. axis ,    \
+        lScale. axis .val, lpMinScaleRel. axis , lpMaxScaleRel. axis ,  \
+        rScale. axis .val, rpMinScaleRel. axis , rpMaxScaleRel. axis ); \
+                                                                        \
+    /* Apply the relative offsets. */                                   \
+    lScale. axis .val += wantedOffsetRel. axis ;                        \
+    lLayout.setScale(lScale);                                           \
+                                                                        \
+    rScale. axis .val -= wantedOffsetRel. axis ;                        \
+    rLayout.setScale(rScale);                                           \
+
+
+    /* Do nothing if we have no handle active. */
+    if (!handleIdx) { return; }
+
     const auto& elements = parent->getElements();
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentBoxScale = pLayout.getContentBoxScale();
 
-    /* Calculate difference between the current mouse position and the handle's center. */
+    /*
+        Calculate difference between the current mouse position and the handle's center. Do the calculations
+        as if the user always drags from the center of the handle.
+    */
+    const auto& contentScale = pContentBoxScale - handlesSize;
     const auto& handleLayout = elements[handleIdx]->getBaseLayoutData();
     const auto handleCenter = handleLayout.getComputedPos() + handleLayout.getComputedScale() * 0.5f;
     const glm::vec2 mouseDiff = mousePos - handleCenter;
 
-    const uint32_t lPaneIdx = handleIdx - 1;
-    const uint32_t rPaneIdx = handleIdx + 1;
-
-    const auto& contentScale = pContentBoxScale - handlesSize;
-
-    glm::vec2 wantedOffsetRel = mouseDiff / contentScale;
-
-    auto& lLayout = elements[lPaneIdx]->getBaseLayoutData();
-    auto& rLayout = elements[rPaneIdx]->getBaseLayoutData();
+    auto& lLayout = elements[handleIdx - 1]->getBaseLayoutData();
+    auto& rLayout = elements[handleIdx + 1]->getBaseLayoutData();
     const glm::vec2 lpMinScaleRel = lLayout.getMinScale() / contentScale;
     const glm::vec2 lpMaxScaleRel = lLayout.getMaxScale() / contentScale;
     const glm::vec2 rpMinScaleRel = rLayout.getMinScale() / contentScale;
     const glm::vec2 rpMaxScaleRel = rLayout.getMaxScale() / contentScale;
 
+    /* Wanted relative scale at which we want to "find" the handle at the calculations end. */
+    glm::vec2 wantedOffsetRel = mouseDiff / contentScale;
+
     /* Add the maximum amount of offset to the two panes without violating any constraints. */
     auto lScale = lLayout.getScale();
     auto rScale = rLayout.getScale();
-    if (pLayout.isHorizontal())
-    {
-        wantedOffsetRel.x = constrainOffset(wantedOffsetRel.x,
-            lScale.x.val, lpMinScaleRel.x, lpMaxScaleRel.x,
-            rScale.x.val, rpMinScaleRel.x, rpMaxScaleRel.x);
+    if (pLayout.isHorizontal()) { OPERATION_KEEP_CONSTRAINTS_ON_AXIS(x); }
+    else if (pLayout.isVertical()) { OPERATION_KEEP_CONSTRAINTS_ON_AXIS(y); }
 
-        /* Apply the relative offsets. */
-        lScale.x.val += wantedOffsetRel.x;
-        lLayout.setScale(lScale);
-
-        rScale.x.val -= wantedOffsetRel.x;
-        rLayout.setScale(rScale);
-    }
-    else if (pLayout.isVertical())
-    {
-        wantedOffsetRel.y = constrainOffset(wantedOffsetRel.y,
-            lScale.y.val, lpMinScaleRel.y, lpMaxScaleRel.y,
-            rScale.y.val, rpMinScaleRel.y, rpMaxScaleRel.y);
-
-        /* Apply the relative offsets. */
-        lScale.y.val += wantedOffsetRel.y;
-        lLayout.setScale(lScale);
-
-        rScale.y.val -= wantedOffsetRel.y;
-        rLayout.setScale(rScale);
-    }
+#undef OPERATION_KEEP_CONSTRAINTS_ON_AXIS
 }
 
 auto SplitPaneCalculator::constrainOffset(float wantedOffset,
     const float lpScale, const float lpMin, const float lpMax,
     const float rpScale, const float rpMin, const float rpMax) const -> float
 {
-    /* If left pane will go under min scale by adding the offset then cap the wanted
+    /* If left pane will go under min scale by adding the wantedOffset then cap the wanted
         offset to the maximum possible value to add. */
     if (lpScale + wantedOffset < lpMin)
     {
         wantedOffset = lpMin - lpScale;
     }
 
-    /* If right pane will go under min scale by subtracting the offset then cap the wanted
+    /* If right pane will go under min scale by subtracting the wantedOffset then cap the wanted
         offset to the maximum possible value to subtract. */
     if (rpScale - wantedOffset < rpMin)
     {
         wantedOffset = rpScale - rpMin;
     }
 
-    /* If left pane will go above max scale by adding the offset then cap the wanted
+    /* If left pane will go above max scale by adding the wantedOffset then cap the wanted
         offset to the maximum possible value to add. */
     if (lpScale + wantedOffset > lpMax)
     {
         wantedOffset = lpMax - lpScale;
     }
 
-    /* If right pane will go above max scale by subtracting the offset then cap the wanted
+    /* If right pane will go above max scale by subtracting the wantedOffset then cap the wanted
         offset to the maximum possible value to subtract. */
     if (rpScale - wantedOffset > rpMax)
     {

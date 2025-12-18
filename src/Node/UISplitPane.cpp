@@ -11,6 +11,9 @@ namespace lav::node
 {
 UISplitPane::UISplitPane(UIBaseInitData&& initData)
     : UIBase(std::move(initData))
+    , mousePos_(-1, -1)
+    , wantedCursor_(std::nullopt)
+    , draggedHandleId_(0)
 {}
 
 auto UISplitPane::onRender(const glm::mat4& projection) -> void
@@ -41,8 +44,6 @@ auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
     {
         mousePos_ = state->mousePos;
     }
-
-    // eventNext(state);
 
     /* Only update the cursor after all the children have processed the event. */
     if (wantedCursor_.has_value())
