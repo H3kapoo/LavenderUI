@@ -19,14 +19,17 @@ using UISplitPaneWPtr = std::weak_ptr<UISplitPane>;
 /** @brief Concept for elements that can be added to this SplitPane */
 template<typename T>
 concept UISplitPaneElement = 
-    std::is_base_of_v<UIPane, std::remove_cvref_t<T>> ||
-    std::is_base_of_v<UISplitPane, std::remove_cvref_t<T>>;
+    std::is_same_v<UIPane, std::remove_cvref_t<T>> ||
+    std::is_same_v<UISplitPane, std::remove_cvref_t<T>>;
 
 class UISplitPane : public UIBase
 {
 public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UISplitPane, "elemVert.glsl", "elemFrag.glsl")
 
+    auto createPane(UIPanePtr&& pane, const float relativeSpace, const glm::ivec2& minMax) -> void;
+    auto createSubsplit(UISplitPanePtr&& subSplit, const float relativeSpace,
+        const glm::ivec2& minMax) -> void;
     [[nodiscard]] auto createPane(const float relativeSpace, const glm::ivec2& minMax) -> UIPaneWPtr;
     [[nodiscard]] auto createSubsplit(const float relativeSpace, const glm::ivec2& minMax) -> UISplitPaneWPtr;
 
@@ -39,7 +42,9 @@ private:
     auto onEvent(node::UIStatePtr& state) -> void override;
 
     template<UISplitPaneElement T> // constrain to Pane,SplitPane
-    auto create(const float relativeSpace, const glm::ivec2& minMax) -> std::weak_ptr<T>;
+    // template<typename T> // constrain to Pane,SplitPane
+    auto create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
+        const glm::ivec2& minMax) -> std::weak_ptr<T>;
 
 private:
     glm::ivec2 mousePos_;

@@ -40,6 +40,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         # src/Core/LavParser/Rules/LabelRule.cpp
         src/Core/LavParser/Rules/SliderRule.cpp
         src/Core/LavParser/Rules/DropdownRule.cpp
+        src/Core/LavParser/Rules/SplitPaneRule.cpp
         src/Core/ResourceHandler/Mesh.cpp
         src/Core/ResourceHandler/Shader.cpp
         src/Core/ResourceHandler/MeshLoader.cpp

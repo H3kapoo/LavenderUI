@@ -11,6 +11,7 @@
 #include "src/Core/LavParser/Rules/AppRule.hpp"
 #include "src/Core/LavParser/Rules/PaneRule.hpp"
 #include "src/Core/LavParser/Rules/ImageRule.hpp"
+#include "src/Core/LavParser/Rules/SplitPaneRule.hpp"
 #include "src/Node/UIBase.hpp"
 #include "vendor/xml/HkXml.hpp"
 
@@ -34,6 +35,7 @@ LavParser::LavParser()
     // setContructRule("Label", LabelRule().getRule());
     setRule("Slider", SliderRule().getRule());
     setRule("Dropdown", DropdownRule().getRule());
+    setRule("SplitPane", SplitPaneRule().getRule());
 }
 
 auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec

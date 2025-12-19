@@ -50,7 +50,7 @@ int main()
     auto pp = sp3.lock()->createPane(0.80f, {30, 10'000});
     auto pp2 = sp3.lock()->createPane(0.20f, {30, 10'000});
 
-    window.lock()->add(sp);
+    // window.lock()->add(sp);
 
     app.run();
     return 0;

@@ -5,6 +5,7 @@
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Node/Helpers/UIState.hpp"
+#include "src/Node/UIPane.hpp"
 #include "src/Utils/Misc.hpp"
 
 namespace lav::node
@@ -53,20 +54,33 @@ auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
     }
 }
 
+auto UISplitPane::createPane(UIPanePtr&& pane, const float relativeSpace, const glm::ivec2& minMax) -> void
+{
+    create<UIPane>(std::move(pane), relativeSpace, minMax);
+}
+
+auto UISplitPane::createSubsplit(UISplitPanePtr&& subSplit, const float relativeSpace,
+    const glm::ivec2& minMax) -> void
+{
+    create<UISplitPane>(std::move(subSplit), relativeSpace, minMax);
+}
+
 auto UISplitPane::createPane(const float relativeSpace, const glm::ivec2& minMax) -> UIPaneWPtr
 {
-    return create<UIPane>(relativeSpace, minMax);
+    UIPanePtr uiElement = utils::make<UIPane>();
+    return create(std::move(uiElement), relativeSpace, minMax);
 }
 
 auto UISplitPane::createSubsplit(const float relativeSpace, const glm::ivec2& minMax) -> UISplitPaneWPtr
 {
-    return create<UISplitPane>(relativeSpace, minMax);
+    UISplitPanePtr uiElement = utils::make<UISplitPane>();
+    return create(std::move(uiElement), relativeSpace, minMax);
 }
 
 template<UISplitPaneElement T>
-auto UISplitPane::create(const float relativeSpace, const glm::ivec2& minMax) -> std::weak_ptr<T>
+auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
+    const glm::ivec2& minMax) -> std::weak_ptr<T>
 {
-    std::shared_ptr<T> uiElement = utils::make<T>();
     auto& uiElementLayout = uiElement->getBaseLayoutData();
 
     uiElement->setColor(utils::randomRGB()); // rm later
@@ -97,9 +111,10 @@ auto UISplitPane::create(const float relativeSpace, const glm::ivec2& minMax) ->
     handle->setText(std::to_string(elements_.size()));
     handle->setColor(utils::hexToVec4("#757575ff")); // rm later
 
+    const core::LayoutBase::Scale handleSize = 4;
     layoutBase_.isHorizontal()
-        ? handleLayout.setScale({6_px, 1.0_rel})
-        : handleLayout.setScale({1.0_rel, 6_px});
+        ? handleLayout.setScale({handleSize, 1.0_rel})
+        : handleLayout.setScale({1.0_rel, handleSize});
 
     UIBase::add(handle);
     UIBase::add(uiElement);
