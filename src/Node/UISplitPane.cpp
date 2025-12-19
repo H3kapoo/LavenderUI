@@ -10,6 +10,11 @@
 
 namespace lav::node
 {
+const uint32_t UISplitPane::NO_HANDLE_ACQUIRED = 0u;
+const uint32_t UISplitPane::MAX_SCALE_CAP = 99'999u;
+const uint32_t UISplitPane::HANDLE_DEFAULT_SIZE = 4u;
+const glm::vec4 UISplitPane::HANDLE_DEFAULT_COLOR = utils::hexToVec4("#757575ff");
+
 UISplitPane::UISplitPane(UIBaseInitData&& initData)
     : UIBase(std::move(initData))
     , mousePos_(-1, -1)
@@ -35,6 +40,12 @@ auto UISplitPane::onRender(const glm::mat4& projection) -> void
 
 auto UISplitPane::onLayout() -> void
 {
+    if (elements_.size() < 2)
+    {
+        log_.warn("SplitPane {} can't work with just one Pane region!", getId());
+        return;
+    }
+
     const auto& calculator = core::SplitPaneCalculator::get();
     calculator.calculateSplitPaneElements(this, draggedHandleId_, mousePos_);
 }
@@ -45,6 +56,8 @@ auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
     {
         mousePos_ = state->mousePos;
     }
+
+    handleSpecificEventsOnHandles(state);
 
     /* Only update the cursor after all the children have processed the event. */
     if (wantedCursor_.has_value())
@@ -85,17 +98,18 @@ auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpa
 
     uiElement->setColor(utils::randomRGB()); // rm later
 
+    const core::LayoutBase::Scale scale{relativeSpace, core::LayoutBase::ScaleType::REL};
     if (layoutBase_.isHorizontal())
     {
-        uiElementLayout.setScale({{relativeSpace, core::LayoutBase::ScaleType::REL}, 1.0_rel});
-        uiElementLayout.setMinScale({minMax.x, 99999});
-        uiElementLayout.setMaxScale({minMax.y, 99999});
+        uiElementLayout.setScale({scale, 1.0_rel});
+        uiElementLayout.setMinScale({minMax.x, MAX_SCALE_CAP});
+        uiElementLayout.setMaxScale({minMax.y, MAX_SCALE_CAP});
     }
     else if (layoutBase_.isVertical())
     {
-        uiElementLayout.setScale({1.0_rel, {relativeSpace, core::LayoutBase::ScaleType::REL}});
-        uiElementLayout.setMinScale({99999, minMax.x});
-        uiElementLayout.setMaxScale({99999, minMax.y});
+        uiElementLayout.setScale({1.0_rel, scale});
+        uiElementLayout.setMinScale({MAX_SCALE_CAP, minMax.x});
+        uiElementLayout.setMaxScale({MAX_SCALE_CAP, minMax.y});
     }
 
     /* No need for a handle just for one uiElement. */
@@ -106,44 +120,71 @@ auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpa
     }
 
     UIButtonPtr handle = utils::make<UIButton>();
+
+    // handle->setText(std::to_string(elements_.size()));
+    handle->setColor(HANDLE_DEFAULT_COLOR);
+
     auto& handleLayout = handle->getBaseLayoutData();
-
-    handle->setText(std::to_string(elements_.size()));
-    handle->setColor(utils::hexToVec4("#757575ff")); // rm later
-
-    const core::LayoutBase::Scale handleSize = 4;
     layoutBase_.isHorizontal()
-        ? handleLayout.setScale({handleSize, 1.0_rel})
-        : handleLayout.setScale({1.0_rel, handleSize});
+        ? handleLayout.setScale({(float)HANDLE_DEFAULT_SIZE, 1.0_rel})
+        : handleLayout.setScale({1.0_rel, (float)HANDLE_DEFAULT_SIZE});
 
     UIBase::add(handle);
     UIBase::add(uiElement);
 
-    const uint32_t handleIdx = elements_.size() - 2;
-    handle->listenEvent<core::MouseDragEvt>([this, handleIdx](const auto&)
-            {
-                draggedHandleId_ = handleIdx;
-            });
-    handle->listenEvent<core::MouseLeftReleaseEvt>(
-            [this](const auto&)
-            {
-                draggedHandleId_ = 0;
-                wantedCursor_ = lav::Cursor::ARROW;
-            });
-    handle->listenEvent<core::MouseEnterEvt>(
-            [this](const auto&)
-            {
-                wantedCursor_ = layoutBase_.isHorizontal()
-                    ? lav::Cursor::HRESIZE : lav::Cursor::VRESIZE;
-            });
-    handle->listenEvent<core::MouseExitEvt>(
-            [this](const auto&)
-            {
-                if (draggedHandleId_) { return; }
-                wantedCursor_ = lav::Cursor::ARROW;
-            });
-
     return uiElement;
+}
+
+auto UISplitPane::handleSpecificEventsOnHandles(node::UIStatePtr& state) -> void
+{
+    if (draggedHandleId_ == NO_HANDLE_ACQUIRED
+        && state->currentEventId == core::MouseMoveEvt::eventId
+        && state->prevEventId == core::MouseDragEvt::eventId)
+    {
+        if (const auto handleIdx = getHandleIdxBasedOnId(state->clickedId); handleIdx.has_value())
+        {
+            draggedHandleId_ = handleIdx.value();
+        }
+    }
+    else if (draggedHandleId_ != NO_HANDLE_ACQUIRED
+        && state->currentEventId == core::MouseButtonEvt::eventId
+        && state->prevEventId == core::MouseLeftReleaseEvt::eventId)
+    {
+        if (const auto handleIdx = getHandleIdxBasedOnId(state->selectedId); handleIdx.has_value())
+        {
+            draggedHandleId_ = 0;
+            wantedCursor_ = lav::Cursor::ARROW;
+        }
+    }
+    /* MouseExitEvt is used here to also identify MouseEnterEvt as they are one right after another guaranteed. */
+    else if (state->currentEventId == core::MouseMoveEvt::eventId
+        && state->prevEventId == core::MouseExitEvt::eventId)
+    {
+        if (auto handleIdx = getHandleIdxBasedOnId(state->hoveredId); handleIdx.has_value())
+        {
+            wantedCursor_ = layoutBase_.isHorizontal()
+                ? lav::Cursor::HRESIZE : lav::Cursor::VRESIZE;
+        }
+        else if (handleIdx = getHandleIdxBasedOnId(state->prevHoveredId); handleIdx.has_value())
+        {
+            if (draggedHandleId_) { return; }
+            wantedCursor_ = lav::Cursor::ARROW;
+        }
+    }
+}
+
+auto UISplitPane::getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint32_t>
+{
+    for (uint32_t handleIdx = 0; handleIdx < getElements().size(); ++handleIdx)
+    {
+        const auto handleEl = elements_[handleIdx];
+        if (handleEl->getTypeId() == UIButton::typeId && id == handleEl->getId())
+        {
+            return handleIdx;
+        }
+    }
+
+    return std::nullopt;
 }
 
 auto UISplitPane::getPaneIdx(const uint32_t idx) -> UIPaneWPtr

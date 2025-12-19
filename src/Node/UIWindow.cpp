@@ -257,6 +257,8 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
 
         for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
     }
+
+    uiState_->prevEventId = uiState_->currentEventId;
 }
 
 auto UIWindow::scanForHoveredNode() -> void

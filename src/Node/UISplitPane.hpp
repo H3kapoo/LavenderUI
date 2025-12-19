@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/Node/Helpers/UIState.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIPane.hpp"
@@ -41,14 +42,21 @@ private:
     auto onLayout() -> void override;
     auto onEvent(node::UIStatePtr& state) -> void override;
 
-    template<UISplitPaneElement T> // constrain to Pane,SplitPane
-    // template<typename T> // constrain to Pane,SplitPane
+    template<UISplitPaneElement T> // constrain to Pane, SplitPane
     auto create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
         const glm::ivec2& minMax) -> std::weak_ptr<T>;
+    auto handleSpecificEventsOnHandles(node::UIStatePtr& state) -> void;
+    auto getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint32_t>; // try make it const
 
 private:
     glm::ivec2 mousePos_;
     std::optional<lav::Cursor> wantedCursor_;
     uint32_t draggedHandleId_;
+
+    // Constants
+    static const uint32_t NO_HANDLE_ACQUIRED;
+    static const uint32_t MAX_SCALE_CAP;
+    static const uint32_t HANDLE_DEFAULT_SIZE;
+    static const glm::vec4 HANDLE_DEFAULT_COLOR;
 };
 } // namespace lav::node
