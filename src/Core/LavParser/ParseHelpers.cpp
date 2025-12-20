@@ -146,4 +146,30 @@ auto ParseHelper::toColor(const std::string& value) const -> glm::vec4
     return utils::hexToVec4(value);
 }
 
+auto ParseHelper::toRelVector(const std::string& value) const -> std::vector<float>
+{
+    static std::regex del{","};
+    std::sregex_token_iterator end;
+    std::sregex_token_iterator regIt(value.begin(), value.end(), del, -1);
+
+    std::vector<float> ret;
+
+    while (regIt != end)
+    {
+        std::string stripped{*regIt};
+        std::erase_if(stripped, ::isspace);
+        if (auto relIt = stripped.find("%"); relIt != std::string::npos)
+        {
+            float val = std::stof(stripped.substr(0, relIt)) / 100.0f;
+            ret.push_back(val);
+        }
+        else
+        {
+            log_.error("Invalid token: '{}'", stripped);
+        }
+        ++regIt;
+    }
+
+    return ret;
+}
 } // namespace lav::core

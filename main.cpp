@@ -41,16 +41,23 @@ int main()
     sp->getBaseLayoutData()
         .setScale({1_fill, 1_fill})
         .setType(LayoutBase::Type::HORIZONTAL);
+    sp->setSplitDistribution({0.3f, 0.4f, 0.3f});
 
-    auto p = sp->createPane(0.30f, {30, 10'000});
-    auto sp3 = sp->createSubsplit(0.40f, {30, 10'000});
-    auto p2 = sp->createPane(0.30f, {30, 10'000});
+    auto p = sp->createPane({30, 10'000});
+    auto sp3 = sp->createSubsplit({30, 10'000});
+    auto p2 = sp->createPane({30, 10'000});
 
     sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
-    auto pp = sp3.lock()->createPane(0.80f, {30, 10'000});
-    auto pp2 = sp3.lock()->createPane(0.20f, {30, 10'000});
+    sp3.lock()->setSplitDistribution({0.2f, 0.2f, 0.2f, 0.2f, 0.2f});
 
-    window.lock()->add(sp);
+    auto pp = sp3.lock()->createPane();
+    auto pp2 = sp3.lock()->createPane();
+    // sp3.lock()->createPane();
+    // sp3.lock()->createPane();
+    // sp3.lock()->createPane();
+    // sp3.lock()->createPane();
+
+    // window.lock()->add(sp);
 
     app.run();
     return 0;

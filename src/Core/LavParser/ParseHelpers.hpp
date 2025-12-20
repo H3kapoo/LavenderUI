@@ -20,6 +20,7 @@ public:
     auto toAlign(const std::string& value) const -> LayoutBase::Align;
     auto toBorder(const std::string& value) const -> LayoutBase::TBLR;
     auto toColor(const std::string& value) const -> glm::vec4;
+    auto toRelVector(const std::string& value) const -> std::vector<float>;
 
 private:
     ParseHelper();

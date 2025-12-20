@@ -37,6 +37,14 @@ auto SplitPaneRule::getConstructRule() const -> ConstructRule
             {
                 obj->setBorderColor(ph.toColor(value));
             }
+            else if (key == "ori" || key == "orientation")
+            {
+                obj->getBaseLayoutData().setType(ph.toOrientation(value));
+            }
+            else if (key == "splits")
+            {
+                obj->setSplitDistribution(ph.toRelVector(value));
+            }
         }
         return obj;
     };
@@ -50,12 +58,12 @@ auto SplitPaneRule::getAdditionRule() const -> AddRule
         if (child->getTypeId() == node::UIPane::typeId)
         {
             auto castPane = utils::as<node::UIPane>(child);
-            castSplitPane->createPane(std::move(castPane), 0.5f, {20, 10'000});
+            castSplitPane->createPane(std::move(castPane));
         }
         else if (child->getTypeId() == node::UISplitPane::typeId)
         {
             auto castSubsplit = utils::as<node::UISplitPane>(child);
-            castSplitPane->createSubsplit(std::move(castSubsplit), 0.5f, {20, 10'000});
+            castSplitPane->createSubsplit(std::move(castSubsplit));
         }
     };
 }
