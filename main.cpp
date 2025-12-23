@@ -30,9 +30,9 @@ int main()
     App& app = App::get();
 
     if (!app.init()) { return 1; }
-
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView("views/test.xml");
+
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     window.lock()->setColor(utils::hexToVec4("#ffffffff"));
 
@@ -44,15 +44,17 @@ int main()
 
     auto p = sp->createPane(1.0f, {30, 10'000});
     auto p2 = sp->createPane(3.0f, {30, 10'000});
-    sp->removePaneIdx(0);
+    // sp->removePaneIdx(0);
+    // sp->removePaneIdx(0);
+    // sp->removePaneIdx(0);
     auto p3 = sp->createPane(3.0f, {30, 10'000});
 
-    // auto sp3 = sp->createSubsplit(4.0f, {30, 10'000});
+    auto sp3 = sp->createSubsplit(4.0f, {30, 10'000});
     // auto sp3 = sp->createPane(4.0f, {30, 10'000});
 
-    // sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
-    // auto pp = sp3.lock()->createPane(1.0f, {30, 10'000});
-    // auto pp2 = sp3.lock()->createPane(1.0f, {30, 10'000});
+    sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
+    auto pp = sp3.lock()->createPane(1.0f, {30, 10'000});
+    auto pp2 = sp3.lock()->createPane(1.0f, {30, 10'000});
     
     auto dd = utils::as<UIDropdown>(window.lock()->getElements()[0]->getElements()[0]);
     auto firstOpt = utils::as<UIButton>(dd->getOptionsHolder().lock()->getElements()[0]);
@@ -66,7 +68,22 @@ int main()
     secondOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp](const auto&)
     {
         log.info("clicked on second option");
-        sp->removePaneIdx(0);
+        sp->removePaneIdx(1);
+    });
+
+    auto thirdMenu = utils::as<UIDropdown>(dd->getOptionsHolder().lock()->getElements()[2]);
+    auto menuFirstOpt = utils::as<UIButton>(thirdMenu->getOptionsHolder().lock()->getElements()[0]);
+    menuFirstOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp3](const auto&)
+    {
+        log.info("clicked on first option from menu");
+        auto ppx = sp3.lock()->createPane(2.0f, {30, 10'000});
+    });
+
+    auto menuSecondOpt = utils::as<UIButton>(thirdMenu->getOptionsHolder().lock()->getElements()[1]);
+    menuSecondOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp3](const auto&)
+    {
+        log.info("clicked on second option from menu");
+        sp3.lock()->removePaneIdx(0);
     });
 
     window.lock()->add(sp);
