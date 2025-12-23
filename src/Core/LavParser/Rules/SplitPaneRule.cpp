@@ -43,7 +43,7 @@ auto SplitPaneRule::getConstructRule() const -> ConstructRule
             }
             else if (key == "splits")
             {
-                obj->setSplitDistribution(ph.toRelVector(value));
+                // obj->setSplitDistribution(ph.toRelVector(value));
             }
         }
         return obj;
@@ -58,12 +58,12 @@ auto SplitPaneRule::getAdditionRule() const -> AddRule
         if (child->getTypeId() == node::UIPane::typeId)
         {
             auto castPane = utils::as<node::UIPane>(child);
-            castSplitPane->createPane(std::move(castPane));
+            castSplitPane->createPane(std::move(castPane), 1.0f, {30, 10'000});
         }
         else if (child->getTypeId() == node::UISplitPane::typeId)
         {
             auto castSubsplit = utils::as<node::UISplitPane>(child);
-            castSplitPane->createSubsplit(std::move(castSubsplit));
+            castSplitPane->createSubsplit(std::move(castSubsplit), 1.0f, {30, 10'000});
         }
     };
 }

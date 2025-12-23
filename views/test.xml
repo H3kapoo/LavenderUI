@@ -28,14 +28,14 @@
             </Dropdown>
         </Dropdown>
     </Pane>
-    <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
+    <!-- <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
         <Pane></Pane>
         <Pane></Pane>
         <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
             <Pane></Pane>
             <Pane></Pane>
         </SplitPane>
-    </SplitPane>
+    </SplitPane> -->
     <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#f3f3f3ff" align="sCenter" scroll="true">
         <Slider ori="Vertical" scale="40px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
         <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>

@@ -1,13 +1,11 @@
 #include "UISplitPane.hpp"
 
-#include <algorithm>
-#include <numeric>
-
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Node/Helpers/UIState.hpp"
+#include "src/Node/UIButton.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Utils/Misc.hpp"
 
@@ -24,7 +22,10 @@ UISplitPane::UISplitPane(UIBaseInitData&& initData)
     , mousePos_(-1, -1)
     , wantedCursor_(std::nullopt)
     , draggedHandleId_(0)
-    , currentDistribIdx_(0)
+    , accumulatedFrationalParts_(0)
+    , sizeOfOneFrac_(0)
+    , needsFractionalPartApplication_(true)
+    , isRuntime_(false)
 {}
 
 auto UISplitPane::onRender(const glm::mat4& projection) -> void
@@ -45,16 +46,93 @@ auto UISplitPane::onRender(const glm::mat4& projection) -> void
 
 auto UISplitPane::onLayout() -> void
 {
-    if (elements_.size() < MIN_ELEMENTS_REQUIRED)
+    if (needsFractionalPartApplication_)
     {
-        log_.warn("Can't work with '{}' panes! Minimum of '{}' required.",
-            elements_.size(), MIN_ELEMENTS_REQUIRED);
-        return;
+        calculateAndApplyFractionalScale();
+        isRuntime_ = true;
     }
-    // TODO: Check in case there less than distribution says.
 
     const auto& calculator = core::SplitPaneCalculator::get();
     calculator.calculateSplitPaneElements(this, draggedHandleId_, mousePos_);
+}
+
+auto UISplitPane::calculateAndApplyFractionalScale() -> void
+{
+    sizeOfOneFrac_ = 1.0f / accumulatedFrationalParts_;
+    log_.error("acc is {}", accumulatedFrationalParts_);
+    log_.error("one equal part is {}", sizeOfOneFrac_);
+
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        auto cs = p->getBaseLayoutData().getScale();
+
+        if (layoutBase_.isHorizontal())
+        {
+            cs.x.val *= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
+            log_.warn("new cs.x {}", cs.x.val);
+        }
+        else if (layoutBase_.isVertical())
+        {
+            cs.y.val *= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
+            log_.warn("new cs.y {}", cs.y.val);
+        }
+    }
+
+    needsFractionalPartApplication_ = false;
+}
+
+auto UISplitPane::accumulateFractionalPartsOfElements() -> void
+{
+    accumulatedFrationalParts_ = 0;
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        auto cs = p->getBaseLayoutData().getScale();
+
+        if (layoutBase_.isHorizontal())
+        {
+            cs.x.val /= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
+
+            log_.warn("prev cs.x {}", cs.x.val);
+            accumulatedFrationalParts_ += cs.x.val;
+        }
+        else if (layoutBase_.isVertical())
+        {
+            cs.y.val /= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
+
+            log_.warn("prev cs.y {}", cs.y.val);
+            accumulatedFrationalParts_ += cs.y.val;
+        }
+    }
+}
+
+auto UISplitPane::convertRelativeScaleBackToFractional() -> void
+{
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        auto cs = p->getBaseLayoutData().getScale();
+
+        if (layoutBase_.isHorizontal())
+        {
+            cs.x.val /= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
+
+            log_.warn("prev cs.x {}", cs.x.val);
+        }
+        else if (layoutBase_.isVertical())
+        {
+            cs.y.val /= sizeOfOneFrac_;
+            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
+
+            log_.warn("prev cs.y {}", cs.y.val);
+        }
+    }
 }
 
 auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
@@ -74,53 +152,56 @@ auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
     }
 }
 
-auto UISplitPane::setSplitDistribution(std::vector<float>&& distrib) -> void
+auto UISplitPane::createPane(UIPanePtr&& pane, const float relativeSpace, const glm::ivec2& minMax) -> void
 {
-    const static float EPSILON = 0.001f;
-    float total = std::accumulate(distrib.begin(), distrib.end(), 0.0f);
-    if (std::abs(total) - 1.0f > EPSILON || 1.0f - std::abs(total) > EPSILON)
-    {
-        log_.error("Distribution invalid, it should sum up to '1' but got '{}'", total);
-        return;
-    }
-
-    initialDistribution_ = std::move(distrib);
+    create<UIPane>(std::move(pane), relativeSpace, minMax);
 }
 
-auto UISplitPane::createPane(UIPanePtr&& pane) -> void
+auto UISplitPane::createSubsplit(UISplitPanePtr&& subSplit, const float relativeSpace,
+    const glm::ivec2& minMax) -> void
 {
-    if (!checkDistribBound(__func__)) { return; }
-
-    create<UIPane>(std::move(pane), initialDistribution_[currentDistribIdx_++], std::nullopt);
+    create<UISplitPane>(std::move(subSplit), relativeSpace, minMax);
 }
 
-auto UISplitPane::createSubsplit(UISplitPanePtr&& subSplit) -> void
+auto UISplitPane::createPane(const float relativeSpace, const glm::ivec2& minMax) -> UIPaneWPtr
 {
-    if (!checkDistribBound(__func__)) { return; }
-
-    create<UISplitPane>(std::move(subSplit), initialDistribution_[currentDistribIdx_++], std::nullopt);
-}
-
-auto UISplitPane::createPane(const glm::ivec2 minMax) -> UIPaneWPtr
-{
-    if (!checkDistribBound(__func__)) { return {}; }
-
     UIPanePtr uiElement = utils::make<UIPane>();
-    return create(std::move(uiElement), initialDistribution_[currentDistribIdx_++], minMax);
+    return create(std::move(uiElement), relativeSpace, minMax);
 }
 
-auto UISplitPane::createSubsplit(const glm::ivec2 minMax) -> UISplitPaneWPtr
+auto UISplitPane::createSubsplit(const float relativeSpace, const glm::ivec2& minMax) -> UISplitPaneWPtr
 {
-    if (!checkDistribBound(__func__)) { return {}; }
-
     UISplitPanePtr uiElement = utils::make<UISplitPane>();
-    return create(std::move(uiElement), initialDistribution_[currentDistribIdx_++], minMax);
+    return create(std::move(uiElement), relativeSpace, minMax);
+}
+
+auto UISplitPane::removePaneIdx(const uint32_t idx) -> void
+{
+    if (elements_.size() <= 1) { return; }
+
+    UIBase::remove({elements_.at(0), elements_.at(1)});
+
+    if (isRuntime_)
+    {
+        needsFractionalPartApplication_ = true;
+        accumulateFractionalPartsOfElements();
+    }
 }
 
 template<UISplitPaneElement T>
 auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
-    const std::optional<glm::ivec2> minMax) -> std::weak_ptr<T>
+    const glm::ivec2& minMax) -> std::weak_ptr<T>
 {
+    needsFractionalPartApplication_ = true;
+    log_.warn("setting done to false");
+
+    log_.warn("-----------");
+    if (isRuntime_)
+    {
+        convertRelativeScaleBackToFractional();
+        // accumulateFractionalPartsOfElements();
+    }
+
     auto& uiElementLayout = uiElement->getBaseLayoutData();
 
     uiElement->setColor(utils::randomRGB()); // rm later
@@ -129,21 +210,17 @@ auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpa
     if (layoutBase_.isHorizontal())
     {
         uiElementLayout.setScale({scale, 1.0_rel});
-        if (minMax.has_value())
-        {
-            uiElementLayout.setMinScale({(*minMax).x, MAX_SCALE_CAP});
-            uiElementLayout.setMaxScale({(*minMax).y, MAX_SCALE_CAP});
-        }
+        uiElementLayout.setMinScale({minMax.x, MAX_SCALE_CAP});
+        uiElementLayout.setMaxScale({minMax.y, MAX_SCALE_CAP});
     }
     else if (layoutBase_.isVertical())
     {
         uiElementLayout.setScale({1.0_rel, scale});
-        if (minMax.has_value())
-        {
-            uiElementLayout.setMinScale({MAX_SCALE_CAP, (*minMax).x});
-            uiElementLayout.setMaxScale({MAX_SCALE_CAP, (*minMax).y});
-        }
+        uiElementLayout.setMinScale({MAX_SCALE_CAP, minMax.x});
+        uiElementLayout.setMaxScale({MAX_SCALE_CAP, minMax.y});
     }
+
+    accumulatedFrationalParts_ += relativeSpace;
 
     /* No need for a handle just for one uiElement. */
     if (elements_.empty())
@@ -219,47 +296,15 @@ auto UISplitPane::getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint
     return std::nullopt;
 }
 
-auto UISplitPane::checkDistribBound(const char* funcName) -> bool
-{
-    if (initialDistribution_.empty())
-    {
-        log_.warn("No valid split distribution set. Please set one first.");
-        return false;
-    }
-
-    if (currentDistribIdx_ >= initialDistribution_.size())
-    {
-        log_.error("Cannot '{}' at index '{}' as it will be more than initial distribution size.",
-            funcName, currentDistribIdx_);
-        return false;
-    }
-    return true;
-}
-
 auto UISplitPane::getPaneIdx(const uint32_t idx) -> UIPaneWPtr
 {
-    if (idx * 2 >= elements_.size())
-    {
-        log_.error("No Pane has index '{}'", idx);
-        return {};
-    }
-
+    //TODO: Add constraints
     return utils::as<UIPane>(elements_.at(idx * 2));
 }
 
 auto UISplitPane::getHandleIdx(const uint32_t idx) -> UIButtonWPtr
 {
-    if (idx * 2 + 1 >= elements_.size())
-    {
-        log_.error("No Handle has index '{}'", idx);
-        return {};
-    }
-
+    //TODO: Add constraints
     return utils::as<UIButton>(elements_.at(idx * 2 + 1));
-}
-
-auto UISplitPane::getSplitDistribution() const -> std::vector<float>
-{
-    return initialDistribution_;
 }
 } // namespace lav::node
