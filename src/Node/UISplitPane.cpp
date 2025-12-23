@@ -24,7 +24,7 @@ UISplitPane::UISplitPane(UIBaseInitData&& initData)
     , draggedHandleId_(0)
     , accumulatedFrationalParts_(0)
     , sizeOfOneFrac_(0)
-    , needsFractionalPartApplication_(true)
+    , needsRelativeScaleCalculation_(true)
     , isRuntime_(false)
 {}
 
@@ -46,93 +46,19 @@ auto UISplitPane::onRender(const glm::mat4& projection) -> void
 
 auto UISplitPane::onLayout() -> void
 {
-    if (needsFractionalPartApplication_)
+    /*
+        At the start or on element removal/addition in runtime we need to calculate what the
+        relative scale of the elements shall be from their already set fractional scale.
+    */
+    if (needsRelativeScaleCalculation_)
     {
-        calculateAndApplyFractionalScale();
+        calculateRelativeScaleFromFractionalScale();
+        needsRelativeScaleCalculation_ = false;
         isRuntime_ = true;
     }
 
     const auto& calculator = core::SplitPaneCalculator::get();
     calculator.calculateSplitPaneElements(this, draggedHandleId_, mousePos_);
-}
-
-auto UISplitPane::calculateAndApplyFractionalScale() -> void
-{
-    sizeOfOneFrac_ = 1.0f / accumulatedFrationalParts_;
-    log_.error("acc is {}", accumulatedFrationalParts_);
-    log_.error("one equal part is {}", sizeOfOneFrac_);
-
-    for (const auto& p : getElements())
-    {
-        if (p->getTypeId() == UIButton::typeId) { continue; }
-        auto cs = p->getBaseLayoutData().getScale();
-
-        if (layoutBase_.isHorizontal())
-        {
-            cs.x.val *= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
-            log_.warn("new cs.x {}", cs.x.val);
-        }
-        else if (layoutBase_.isVertical())
-        {
-            cs.y.val *= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
-            log_.warn("new cs.y {}", cs.y.val);
-        }
-    }
-
-    needsFractionalPartApplication_ = false;
-}
-
-auto UISplitPane::accumulateFractionalPartsOfElements() -> void
-{
-    accumulatedFrationalParts_ = 0;
-    for (const auto& p : getElements())
-    {
-        if (p->getTypeId() == UIButton::typeId) { continue; }
-        auto cs = p->getBaseLayoutData().getScale();
-
-        if (layoutBase_.isHorizontal())
-        {
-            cs.x.val /= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
-
-            log_.warn("prev cs.x {}", cs.x.val);
-            accumulatedFrationalParts_ += cs.x.val;
-        }
-        else if (layoutBase_.isVertical())
-        {
-            cs.y.val /= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
-
-            log_.warn("prev cs.y {}", cs.y.val);
-            accumulatedFrationalParts_ += cs.y.val;
-        }
-    }
-}
-
-auto UISplitPane::convertRelativeScaleBackToFractional() -> void
-{
-    for (const auto& p : getElements())
-    {
-        if (p->getTypeId() == UIButton::typeId) { continue; }
-        auto cs = p->getBaseLayoutData().getScale();
-
-        if (layoutBase_.isHorizontal())
-        {
-            cs.x.val /= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({cs.x, 1.0_rel});
-
-            log_.warn("prev cs.x {}", cs.x.val);
-        }
-        else if (layoutBase_.isVertical())
-        {
-            cs.y.val /= sizeOfOneFrac_;
-            p->getBaseLayoutData().setScale({1.0_rel, cs.y});
-
-            log_.warn("prev cs.y {}", cs.y.val);
-        }
-    }
 }
 
 auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
@@ -181,32 +107,45 @@ auto UISplitPane::removePaneIdx(const uint32_t idx) -> void
 
     UIBase::remove({elements_.at(0), elements_.at(1)});
 
+    /*
+        In runtime deletion we need to recalculate the accumulated fractional part since now it is
+        invalid given the removed element. Also a new fractional scale needs to be calculated
+        for the remaining elements based on the new accumulated fractional part.
+    */
     if (isRuntime_)
     {
-        needsFractionalPartApplication_ = true;
+        needsRelativeScaleCalculation_ = true;
         accumulateFractionalPartsOfElements();
+        calculateFractionalScaleFromRelativeScale();
+    }
+    else
+    {
+        accumulateFractionalPartsOfElements();
+        sizeOfOneFrac_ = 1.0f / accumulatedFrationalParts_;
+        log_.warn("acc is {}", accumulatedFrationalParts_);
     }
 }
 
 template<UISplitPaneElement T>
-auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
+auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float fracPart,
     const glm::ivec2& minMax) -> std::weak_ptr<T>
 {
-    needsFractionalPartApplication_ = true;
-    log_.warn("setting done to false");
-
-    log_.warn("-----------");
+    /*
+        In runtime creation of new elements, we needs to translate all current elements back to
+        fractional part so we can calculate a new accumulated fractional scale and a new relative scale
+        for the elements.
+    */
     if (isRuntime_)
     {
-        convertRelativeScaleBackToFractional();
-        // accumulateFractionalPartsOfElements();
+        needsRelativeScaleCalculation_ = true;
+        calculateFractionalScaleFromRelativeScale();
     }
 
     auto& uiElementLayout = uiElement->getBaseLayoutData();
 
     uiElement->setColor(utils::randomRGB()); // rm later
 
-    const core::LayoutBase::Scale scale{relativeSpace, core::LayoutBase::ScaleType::REL};
+    const core::LayoutBase::Scale scale{fracPart, core::LayoutBase::ScaleType::REL};
     if (layoutBase_.isHorizontal())
     {
         uiElementLayout.setScale({scale, 1.0_rel});
@@ -220,7 +159,8 @@ auto UISplitPane::create(std::shared_ptr<T>&& uiElement, const float relativeSpa
         uiElementLayout.setMaxScale({MAX_SCALE_CAP, minMax.y});
     }
 
-    accumulatedFrationalParts_ += relativeSpace;
+    /* Add the fractional part of the new element to the accumulator. */
+    accumulatedFrationalParts_ += fracPart;
 
     /* No need for a handle just for one uiElement. */
     if (elements_.empty())
@@ -282,6 +222,111 @@ auto UISplitPane::handleSpecificEventsOnHandles(node::UIStatePtr& state) -> void
     }
 }
 
+auto UISplitPane::calculateRelativeScaleFromFractionalScale() -> void
+{
+    /* Calculate the relative scale of a single fractional part. */
+    sizeOfOneFrac_ = 1.0f / accumulatedFrationalParts_;
+
+    /*
+        Each element's currently set fractional scale will be translated into a relative scale.
+        Example:
+            EL_1 => 4_fr
+            EL_2 => 2_fr
+            EL_3 => 4_fr
+        Then one fractional part is: 1 / (4 + 2 + 4) = 1 / 10 = 0.1f
+        Which gives us that the elements relative scale shall be:
+            EL_1 => 4 * 0.1f => 0.4f
+            EL_2 => 2 * 0.1f => 0.2f
+            EL_3 => 4 * 0.1f => 0.4f
+        They all add up to 1.0f perfectly, which is what we want.
+
+        Note: For this to work, elements must have their scale set as fractional part when this
+            function is invoked. Aka runtime only.
+    */
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        auto cs = p->getBaseLayoutData().getScale();
+
+        if (layoutBase_.isHorizontal())
+        {
+            p->getBaseLayoutData().setScale({cs.x.val * sizeOfOneFrac_, 1.0_rel});
+        }
+        else if (layoutBase_.isVertical())
+        {
+            p->getBaseLayoutData().setScale({1.0_rel, cs.y.val * sizeOfOneFrac_});
+        }
+    }
+}
+
+auto UISplitPane::calculateFractionalScaleFromRelativeScale() -> void
+{
+    /*
+        Translate the elements scale from relative back to fractional.
+        Example:
+            EL_1 => 0.2f
+            EL_2 => 0.4f
+            EL_3 => 0.4f
+        Knowing that one fractional part is 0.1f (calculated and cached earlier) we can
+        get back the fractional part for each element:
+            EL_1 => 0.2f / 0.1f => 2_fr
+            EL_2 => 0.4f / 0.1f => 4_fr
+            EL_3 => 0.4f / 0.1f => 4_fr
+        The accumulated fractional part is: 2 + 4 + 4 = 8
+
+        Note: For this to work, the elements scale need to be already relative, aka the sum of the
+            scale of all pane elements on one axis needs to add up to 1.0f. Aka runtime only.
+    */
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        const auto cs = p->getBaseLayoutData().getScale();
+        if (layoutBase_.isHorizontal())
+        {
+            p->getBaseLayoutData().setScale({cs.x.val / sizeOfOneFrac_, 1.0_rel});
+        }
+        else if (layoutBase_.isVertical())
+        {
+            p->getBaseLayoutData().setScale({1.0_rel, cs.y.val / sizeOfOneFrac_});
+        }
+    }
+}
+
+auto UISplitPane::accumulateFractionalPartsOfElements() -> void
+{
+    /*
+        Compute the accumulated fractional part of each active element. This doesn't change
+        the current scale of the elements.
+        Example:
+            EL_1 => 0.2f
+            EL_2 => 0.4f
+            EL_3 => 0.4f
+        Knowing that one fractional part is 0.1f (calculated and cached earlier) we can
+        get back the fractional part for each element:
+            EL_1 => 0.2f / 0.1f => 2_fr
+            EL_2 => 0.4f / 0.1f => 4_fr
+            EL_3 => 0.4f / 0.1f => 4_fr
+        The accumulated fractional part is: 2 + 4 + 4 = 8
+
+        Note: This works both at runtime and at startup. However at startup we don't need to do
+            any relative -> fractional transformations.
+    */
+    accumulatedFrationalParts_ = 0;
+    for (const auto& p : getElements())
+    {
+        if (p->getTypeId() == UIButton::typeId) { continue; }
+        const auto cs = p->getBaseLayoutData().getScale();
+        if (layoutBase_.isHorizontal())
+        {
+            accumulatedFrationalParts_ += isRuntime_ ? cs.x.val / sizeOfOneFrac_ : cs.x.val;
+        }
+        else if (layoutBase_.isVertical())
+        {
+            accumulatedFrationalParts_ += isRuntime_ ? cs.y.val / sizeOfOneFrac_ : cs.y.val;
+        }
+    }
+}
+
 auto UISplitPane::getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint32_t>
 {
     for (uint32_t handleIdx = 0; handleIdx < getElements().size(); ++handleIdx)
@@ -298,13 +343,13 @@ auto UISplitPane::getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint
 
 auto UISplitPane::getPaneIdx(const uint32_t idx) -> UIPaneWPtr
 {
-    //TODO: Add constraints
+    if (idx * 2 >= elements_.size()) { return {}; }
     return utils::as<UIPane>(elements_.at(idx * 2));
 }
 
 auto UISplitPane::getHandleIdx(const uint32_t idx) -> UIButtonWPtr
 {
-    //TODO: Add constraints
+    if (idx * 2 + 1>= elements_.size()) { return {}; }
     return utils::as<UIButton>(elements_.at(idx * 2 + 1));
 }
 } // namespace lav::node

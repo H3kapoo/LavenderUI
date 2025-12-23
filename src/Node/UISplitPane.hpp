@@ -43,9 +43,9 @@ private:
     auto onLayout() -> void override;
     auto onEvent(node::UIStatePtr& state) -> void override;
 
-    auto calculateAndApplyFractionalScale() -> void;
+    auto calculateRelativeScaleFromFractionalScale() -> void;
     auto accumulateFractionalPartsOfElements() -> void;
-    auto convertRelativeScaleBackToFractional() -> void;
+    auto calculateFractionalScaleFromRelativeScale() -> void;
 
     template<UISplitPaneElement T> // constrain to Pane, SplitPane
     auto create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
@@ -60,7 +60,7 @@ private:
     uint32_t draggedHandleId_;
     float accumulatedFrationalParts_;
     float sizeOfOneFrac_;
-    bool needsFractionalPartApplication_;
+    bool needsRelativeScaleCalculation_;
     bool isRuntime_;
 
     // Constants

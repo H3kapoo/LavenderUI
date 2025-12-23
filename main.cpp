@@ -44,6 +44,9 @@ int main()
 
     auto p = sp->createPane(1.0f, {30, 10'000});
     auto p2 = sp->createPane(3.0f, {30, 10'000});
+    sp->removePaneIdx(0);
+    auto p3 = sp->createPane(3.0f, {30, 10'000});
+
     // auto sp3 = sp->createSubsplit(4.0f, {30, 10'000});
     // auto sp3 = sp->createPane(4.0f, {30, 10'000});
 
