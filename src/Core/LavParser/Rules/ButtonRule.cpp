@@ -2,48 +2,46 @@
 
 #include "src/Core/LavParser/Rules/IRule.hpp"
 #include "src/Core/LavParser/ParseHelpers.hpp"
+#include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Utils/Logger.hpp"
 
 namespace lav::core
 {
-auto ButtonRule::getRule() const -> IRule::RuleData
+auto ButtonRule::construct(node::UIBasePtr parent,
+    const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr
 {
-    return {getConstructRule(), getAdditionRule()};
+    node::UIButtonPtr btn = utils::make<node::UIButton>();
+    parseAndApply(btn, xmlNode->attributes);
+    // it doesn't have user-appendable children so this shouldnt run
+    // for (const auto& childXmlNode : xmlNode->children)
+    // {
+    //     Obj child = Rules[childXmlNode->name]->construct(obj, childXmlNode);
+    //     obj->add(child);
+    // }
+
+    return btn;
 }
 
-auto ButtonRule::getConstructRule() const -> ConstructRule
+auto ButtonRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) -> void
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UIBasePtr
+    const auto& ph = ParseHelper::get();
+    node::UIButtonPtr btn = utils::as<node::UIButton>(object);
+    for (const auto&[key, value] : attribs)
     {
-        const auto& ph = ParseHelper::get();
-        node::UIButtonPtr obj = utils::make<node::UIButton>();
-        for (const auto&[key, value] : attribs)
+        if (key == "scale")
         {
-            if (key == "scale")
-            {
-                obj->getBaseLayoutData().setScale(ph.toScale(value));
-            }
-            else if (key == "border")
-            {
-                obj->getBaseLayoutData().setBorder(ph.toBorder(value));
-            }
-            else if (key == "text")
-            {
-                obj->setText(value);
-            }
+            btn->getBaseLayoutData().setScale(ph.toScale(value));
         }
-        return obj;
-    };
-}
-
-auto ButtonRule::getAdditionRule() const -> AddRule
-{
-    return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
-    {
-        (void)parent;
-        (void)child;
-        // parent->add(elements);
-    };
+        else if (key == "border")
+        {
+            btn->getBaseLayoutData().setBorder(ph.toBorder(value));
+        }
+        else if (key == "text")
+        {
+            btn->setText(value);
+        }
+    }
 }
 } // namespace lav::core

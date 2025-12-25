@@ -7,20 +7,16 @@
 
 namespace lav::core
 {
-using ConstructRule = std::function<node::UIBasePtr(const hk::XMLDecoder::AttrPairVec& attribs)>;
-using AddRule = std::function<void(node::UIBasePtr parent, node::UIBasePtr child)>;
-
 class IRule
 {
 public:
-    struct RuleData
-    {
-        ConstructRule constructRule;
-        AddRule addRule;
-    };
+    virtual ~IRule() = default;
+    virtual auto construct(node::UIBasePtr parent,
+        const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr = 0;
+    virtual auto parseAndApply(node::UIBasePtr object,
+        const hk::XMLDecoder::AttrPairVec& attribs) -> void = 0;
 
 public:
-    virtual ~IRule() = default;
-    virtual auto getRule() const -> RuleData = 0;
+    static inline std::unordered_map<std::string, std::unique_ptr<IRule>> ruleMap_ = {};
 };
 } // namespace lav::core

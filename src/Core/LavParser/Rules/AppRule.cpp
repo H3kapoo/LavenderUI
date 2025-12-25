@@ -6,53 +6,53 @@
 
 namespace lav::core
 {
-auto AppRule::getRule() const -> IRule::RuleData
+auto AppRule::construct(node::UIBasePtr parent,
+    const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr
 {
-    return { getConstructRule(), getAdditionRule() };
+    node::UIWindowPtr win = utils::make<node::UIWindow>("Test", glm::ivec2{1280, 720});
+    parseAndApply(win, xmlNode->attributes);
+
+    for (const auto& childXmlNode : xmlNode->children)
+    {
+        auto child = IRule::ruleMap_[childXmlNode->nodeName]->construct(win, childXmlNode);
+        win->add(child);
+    }
+
+    return win;
 }
 
-auto AppRule::getConstructRule() const -> ConstructRule
+auto AppRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) -> void
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UIBasePtr
+    const auto& ph = ParseHelper::get();
+    node::UIWindowPtr win = utils::as<node::UIWindow>(object);
+
+    std::string title;
+    glm::ivec2 size;
+    for (const auto&[key, value] : attribs)
     {
-        const auto& ph = ParseHelper::get();
-
-        std::string title;
-        glm::ivec2 size;
-        for (const auto&[key, value] : attribs)
+        if (key == "title")
         {
-            if (key == "title")
-            {
-                title = value;
-            }
-            else if (key == "launchScale")
-            {
-                size = ph.toVec2D(value);
-            }
+            title = value;
         }
-
-        node::UIWindowPtr obj = utils::make<node::UIWindow>(title, size);
-        for (const auto&[key, value] : attribs)
+        else if (key == "launchScale")
         {
-            if (key == "ori" || key == "orientation")
-            {
-                obj->getBaseLayoutData().setType(ph.toOrientation(value));
-            }
-            else if (key == "align")
-            {
-                obj->getBaseLayoutData().setAlign(ph.toAlign(value));
-            }
+            size = ph.toVec2D(value);
         }
+    }
+    // win.setTitle..
+    // win.setSize...
 
-        return obj;
-    };
-}
-
-auto AppRule::getAdditionRule() const -> AddRule
-{
-    return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
+    for (const auto&[key, value] : attribs)
     {
-        parent->add(child);
-    };
+        if (key == "ori" || key == "orientation")
+        {
+            win->getBaseLayoutData().setType(ph.toOrientation(value));
+        }
+        else if (key == "align")
+        {
+            win->getBaseLayoutData().setAlign(ph.toAlign(value));
+        }
+    }
 }
 } // namespace lav::core

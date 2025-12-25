@@ -78,17 +78,6 @@ auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
     }
 }
 
-auto UISplitPane::createPane(UIPanePtr&& pane, const float relativeSpace, const glm::ivec2& minMax) -> void
-{
-    create<UIPane>(std::move(pane), relativeSpace, minMax);
-}
-
-auto UISplitPane::createSubsplit(UISplitPanePtr&& subSplit, const float relativeSpace,
-    const glm::ivec2& minMax) -> void
-{
-    create<UISplitPane>(std::move(subSplit), relativeSpace, minMax);
-}
-
 auto UISplitPane::createPane(const float relativeSpace, const glm::ivec2& minMax) -> UIPaneWPtr
 {
     UIPanePtr uiElement = utils::make<UIPane>();

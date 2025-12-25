@@ -58,12 +58,12 @@ auto SplitPaneRule::getAdditionRule() const -> AddRule
         if (child->getTypeId() == node::UIPane::typeId)
         {
             auto castPane = utils::as<node::UIPane>(child);
-            castSplitPane->createPane(std::move(castPane), 1.0f, {30, 10'000});
+            // castSplitPane->createPane(std::move(castPane), 1.0f, {30, 10'000});
         }
         else if (child->getTypeId() == node::UISplitPane::typeId)
         {
             auto castSubsplit = utils::as<node::UISplitPane>(child);
-            castSplitPane->createSubsplit(std::move(castSubsplit), 1.0f, {30, 10'000});
+            // castSplitPane->createSubsplit(std::move(castSubsplit), 1.0f, {30, 10'000});
         }
     };
 }

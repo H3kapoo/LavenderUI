@@ -19,7 +19,7 @@ class LavParser
 public:
     static auto get() -> LavParser&;
     auto parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec;
-    auto setRule(const std::string& tag, const IRule::RuleData& ruleData) -> void;
+    // auto setRule(const std::string& tag, const IRule::RuleData& ruleData) -> void;
 
 private:
     LavParser();
@@ -33,7 +33,7 @@ private:
 
 private:
     utils::Logger log_;
-    std::unordered_map<std::string, IRule::RuleData> ruleMap_;
+    // std::unordered_map<std::string, IRule::RuleData> ruleMap_;
 };
 
 } // namespace lav::core

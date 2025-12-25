@@ -7,10 +7,9 @@ namespace lav::core
 class AppRule : public IRule
 {
 public:
-    auto getRule() const -> IRule::RuleData override;
-
-private:
-    auto getConstructRule() const -> ConstructRule;
-    auto getAdditionRule() const -> AddRule;
+    auto construct(node::UIBasePtr parent,
+        const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr override;
+    auto parseAndApply(node::UIBasePtr object,
+        const hk::XMLDecoder::AttrPairVec& attribs) -> void override;
 };
 } // namespace lav::core

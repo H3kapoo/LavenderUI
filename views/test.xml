@@ -1,33 +1,15 @@
-<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Center">
-    <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
-        <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
+<App ori="Horizontal" launchScale="1280, 720" title="Title Here" align="Center">
+    <!-- <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0"> -->
+    <Dropdown scale="200px, 100px" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
+        <Button text="Ceva"/>
+        <Dropdown text="Menu" dir="R">
             <Button text="Ceva"/>
             <Button text="Ceva2"/>
-            <Dropdown text="Menu" dir="R">
-                <Button text="Ceva"/>
-                <Button text="Ceva2"/>
-                <Button text="Ceva2"/>
-                <Button text="Ceva2"/>
-                <Button text="Ceva556"/>
-                <Button text="Ceva556"/>
-                <Button text="Ceva556"/>
-                <Button text="Ceva556"/>
-                <Button text="Ceva556"/>
-            </Dropdown>
         </Dropdown>
-        <Dropdown scale="200px, Fill" text="Menu2" dir="Bottom" border="1, 0, 1, 1" color="#f0f0f0ff">
-            <Button text="Ceva"/>
-            <Button text="Ceva2"/>
-            <Dropdown text="Menu" dir="R">
-                <Button text="Ceva"/>
-                <Button text="Ceva2"/>
-                <Dropdown text="Menu" dir="R">
-                    <Button text="Ceva"/>
-                    <Button text="Ceva2"/>
-                </Dropdown>
-            </Dropdown>
-        </Dropdown>
-    </Pane>
+        <Button text="Ceva2"/>
+    </Dropdown>
+
+    <!-- </Pane> -->
     <!-- <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
         <Pane></Pane>
         <Pane></Pane>

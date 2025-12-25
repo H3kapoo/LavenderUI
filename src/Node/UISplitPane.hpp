@@ -28,9 +28,6 @@ class UISplitPane : public UIBase
 public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UISplitPane, "elemVert.glsl", "elemFrag.glsl")
 
-    auto createPane(UIPanePtr&& pane, const float relativeSpace, const glm::ivec2& minMax) -> void;
-    auto createSubsplit(UISplitPanePtr&& subSplit, const float relativeSpace,
-        const glm::ivec2& minMax) -> void;
     [[nodiscard]] auto createPane(const float relativeSpace, const glm::ivec2& minMax) -> UIPaneWPtr;
     [[nodiscard]] auto createSubsplit(const float relativeSpace, const glm::ivec2& minMax) -> UISplitPaneWPtr;
     auto removePaneIdx(const uint32_t idx) -> void;
@@ -51,7 +48,7 @@ private:
     auto create(std::shared_ptr<T>&& uiElement, const float relativeSpace,
         const glm::ivec2& minMax) -> std::weak_ptr<T>;
     auto handleSpecificEventsOnHandles(node::UIStatePtr& state) -> void;
-    auto getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint32_t>; // try make it const
+    auto getHandleIdxBasedOnId(const uint32_t id) -> std::optional<uint32_t>;
 
 private:
     std::vector<float> initialDistribution_;

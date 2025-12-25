@@ -28,32 +28,44 @@ if(${PLATFORM_NAME} MATCHES "Linux")
     add_executable(${PROJECT_NAME}
         main.cpp
         src/App.cpp
+
+        # Binders
         src/Core/Binders/WindowBinder.cpp
         src/Core/Binders/GPUBinder.cpp
         src/Core/Binders/FileResourceBinder.cpp
+
+        # Parser
         src/Core/LavParser/LavParser.cpp
         src/Core/LavParser/ParseHelpers.cpp
         src/Core/LavParser/Rules/AppRule.cpp
-        src/Core/LavParser/Rules/PaneRule.cpp
-        src/Core/LavParser/Rules/ImageRule.cpp
+        # src/Core/LavParser/Rules/PaneRule.cpp
+        # src/Core/LavParser/Rules/ImageRule.cpp
         src/Core/LavParser/Rules/ButtonRule.cpp
         # src/Core/LavParser/Rules/LabelRule.cpp
-        src/Core/LavParser/Rules/SliderRule.cpp
+        # src/Core/LavParser/Rules/SliderRule.cpp
         src/Core/LavParser/Rules/DropdownRule.cpp
-        src/Core/LavParser/Rules/SplitPaneRule.cpp
+        # src/Core/LavParser/Rules/SplitPaneRule.cpp
+
+        # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp
         src/Core/ResourceHandler/Shader.cpp
         src/Core/ResourceHandler/MeshLoader.cpp
         src/Core/ResourceHandler/ShaderLoader.cpp
         src/Core/ResourceHandler/FontLoader.cpp
         src/Core/ResourceHandler/TextureLoader.cpp
+
+        # Layout
         src/Core/LayoutHandler/LayoutBase.cpp
         src/Core/LayoutHandler/BaseCalculator.cpp
         src/Core/LayoutHandler/Calculators/PaneCalculator.cpp
         src/Core/LayoutHandler/Calculators/DropdownCalculator.cpp
         src/Core/LayoutHandler/Calculators/SliderCalculator.cpp
         src/Core/LayoutHandler/Calculators/SplitPaneCalculator.cpp
+
+        # Text
         src/Core/TextHandler/TextAttribs.cpp
+
+        # UI Nodes
         src/Node/UIBase.cpp
         src/Node/UIWindow.cpp
         src/Node/UIButton.cpp
@@ -65,7 +77,11 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Node/UISplitPane.cpp
         # src/UIElements/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
+
+        # Misc
         src/Utils/Logger.cpp
+
+        # Vendors (3rd party non bindable)
         vendor/xml/HkXml.cpp
         vendor/xml/Utility.cpp
     )
