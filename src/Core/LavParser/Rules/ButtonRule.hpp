@@ -7,9 +7,9 @@ namespace lav::core
 class ButtonRule : public IRule
 {
 public:
-    auto construct(node::UIBasePtr parent,
-        const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr override;
+    auto construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+        node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr override;
     auto parseAndApply(node::UIBasePtr object,
-        const hk::XMLDecoder::AttrPairVec& attribs) -> void override;
+        const hk::XMLDecoder::AttrPairVec& attribs) const -> void override;
 };
 } // namespace lav::core

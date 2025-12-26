@@ -6,63 +6,53 @@
 
 namespace lav::core
 {
-auto SliderRule::getRule() const -> IRule::RuleData
+auto SliderRule::construct(const RuleMap&, const XmlNode& xmlNode,
+    node::UIBasePtr, const bool) const -> node::UIBasePtr
 {
-    return {getConstructRule(), getAdditionRule()};
+    node::UISliderPtr slider = utils::make<node::UISlider>();
+    parseAndApply(slider, xmlNode->attributes);
+    return slider;
 }
 
-auto SliderRule::getConstructRule() const -> ConstructRule
+auto SliderRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UIBasePtr
+    const auto& ph = ParseHelper::get();
+    node::UISliderPtr slider = utils::as<node::UISlider>(object);
+    for (const auto&[key, value] : attribs)
     {
-        const auto& ph = ParseHelper::get();
-        node::UISliderPtr obj = utils::make<node::UISlider>();
-        for (const auto&[key, value] : attribs)
+        if (key == "scale")
         {
-            if (key == "scale")
-            {
-                obj->getBaseLayoutData().setScale(ph.toScale(value));
-            }
-            else if (key == "ori" || key == "orientation")
-            {
-                obj->getBaseLayoutData().setType(ph.toOrientation(value));
-            }
-            else if (key == "default")
-            {
-                obj->setScrollValue(ph.toNumber(value));
-            }
-            else if (key == "from")
-            {
-                obj->setScrollFrom(ph.toNumber(value));
-            }
-            else if (key == "to")
-            {
-                obj->setScrollTo(ph.toNumber(value));
-            }
-            else if (key == "color")
-            {
-                obj->setColor(ph.toColor(value));
-            }
-            else if (key == "kcolor")
-            {
-                obj->setKnobColor(ph.toColor(value));
-            }
-            else if (key == "showText" && value == "no")
-            {
-                // Nothing yet, but we can
-            }
+            slider->getBaseLayoutData().setScale(ph.toScale(value));
         }
-        return obj;
-    };
-}
-
-auto SliderRule::getAdditionRule() const -> AddRule
-{
-    return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
-    {
-        (void)parent;
-        (void)child;
-        // parent->add(elements);
-    };
+        else if (key == "ori" || key == "orientation")
+        {
+            slider->getBaseLayoutData().setType(ph.toOrientation(value));
+        }
+        else if (key == "default")
+        {
+            slider->setScrollValue(ph.toNumber(value));
+        }
+        else if (key == "from")
+        {
+            slider->setScrollFrom(ph.toNumber(value));
+        }
+        else if (key == "to")
+        {
+            slider->setScrollTo(ph.toNumber(value));
+        }
+        else if (key == "color")
+        {
+            slider->setColor(ph.toColor(value));
+        }
+        else if (key == "kcolor")
+        {
+            slider->setKnobColor(ph.toColor(value));
+        }
+        else if (key == "showText" && value == "no")
+        {
+            // Nothing yet, but we can
+        }
+    }
 }
 } // namespace lav::core

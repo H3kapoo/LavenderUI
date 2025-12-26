@@ -1,43 +1,47 @@
-<App ori="Horizontal" launchScale="1280, 720" title="Title Here" align="Center">
-    <!-- <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0"> -->
-    <Dropdown scale="200px, 100px" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
-        <Button text="Ceva"/>
-        <Dropdown text="Menu" dir="R">
+<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Centerr">
+    <Pane ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
+        <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>
             <Button text="Ceva2"/>
+            <Dropdown text="Menu" dir="R">
+                <Button text="Ceva"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva2"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+                <Button text="Ceva556"/>
+            </Dropdown>
         </Dropdown>
-        <Button text="Ceva2"/>
-    </Dropdown>
-
-    <!-- </Pane> -->
-    <!-- <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
+        <Dropdown scale="200px, Fill" text="Menu2" dir="Bottom" border="1, 0, 1, 1" color="#f0f0f0ff">
+            <Button text="Ceva"/>
+            <Button text="Ceva2"/>
+            <Dropdown text="Menu" dir="R">
+                <Button text="Ceva"/>
+                <Button text="Ceva2"/>
+                <Dropdown text="Menu" dir="R">
+                    <Button text="Ceva"/>
+                    <Button text="Ceva2"/>
+                </Dropdown>
+            </Dropdown>
+        </Dropdown>
+    </Pane>
+    <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
         <Pane></Pane>
-        <Pane></Pane>
-        <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
-            <Pane></Pane>
-            <Pane></Pane>
-        </SplitPane>
-    </SplitPane> -->
-    <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#f3f3f3ff" align="sCenter" scroll="true">
-        <Slider ori="Vertical" scale="40px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-        <Img src="assets/textures/wall.jpg" scale="200px, 300px"/>
-        <Slider ori="Vertical" scale="20px, 300px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-        <Pane ori="Vertical" scale="300px, 300px" color="#ffffff00" scroll="true" >
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
-            <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+        <Pane scale="Fill, Fill" scroll="true">
+            <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
+            <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
         </Pane>
-        <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
-        <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
-    </Pane> -->
+        <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
+            <Pane>
+                <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+            </Pane>
+            <Pane>
+                <Label scale="100px, 30px" text="some text"></Label>
+            </Pane>
+        </SplitPane>
+    </SplitPane>
+
 </App>

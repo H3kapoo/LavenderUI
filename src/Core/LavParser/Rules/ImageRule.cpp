@@ -6,40 +6,29 @@
 
 namespace lav::core
 {
-auto ImageRule::getRule() const -> IRule::RuleData
+auto ImageRule::construct(const RuleMap&, const XmlNode& xmlNode,
+    node::UIBasePtr, const bool) const -> node::UIBasePtr
 {
-    return {getConstructRule(), getAdditionRule()};
+    node::UIImagePtr img = utils::make<node::UIImage>();
+    parseAndApply(img, xmlNode->attributes);
+    return img;
 }
 
-auto ImageRule::getConstructRule() const -> ConstructRule
+auto ImageRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UIBasePtr
+    const auto& ph = ParseHelper::get();
+    node::UIImagePtr obj = utils::as<node::UIImage>(object);
+    for (const auto&[key, value] : attribs)
     {
-        const auto& ph = ParseHelper::get();
-        node::UIImagePtr obj = utils::make<node::UIImage>();
-        for (const auto&[key, value] : attribs)
+        if (key == "scale")
         {
-            if (key == "scale")
-            {
-                obj->getBaseLayoutData().setScale(ph.toScale(value));
-            }
-            else if (key == "src")
-            {
-                obj->setImage(value);
-            }
+            obj->getBaseLayoutData().setScale(ph.toScale(value));
         }
-        // obj->getBaseLayoutData().setMargin(10);
-        return obj;
-    };
-}
-
-auto ImageRule::getAdditionRule() const -> AddRule
-{
-    return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
-    {
-        (void)parent;
-        (void)child;
-        // parent->add(child);
-    };
+        else if (key == "src")
+        {
+            obj->setImage(value);
+        }
+    }
 }
 } // namespace lav::core

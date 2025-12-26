@@ -8,12 +8,15 @@ namespace lav::core
 class DropdownRule : public IRule
 {
 public:
-    auto construct(node::UIBasePtr parent,
-        const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr override;
+    auto construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+        node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr override;
     auto parseAndApply(node::UIBasePtr object,
-        const hk::XMLDecoder::AttrPairVec& attribs) -> void override;
+        const XmlAttribVec& attribs) const -> void override;
 
 private:
     auto toOpenDir(const std::string& value) const -> node::UIDropdown::OpenDir;
+
+private:
+    utils::Logger log_{"DropdownRule"};
 };
 } // namespace lav::core

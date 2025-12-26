@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "src/Core/LavParser/ParseHelpers.hpp"
-#include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Utils/Logger.hpp"
 #include "Rules/IRule.hpp"
@@ -19,7 +17,7 @@ class LavParser
 public:
     static auto get() -> LavParser&;
     auto parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec;
-    // auto setRule(const std::string& tag, const IRule::RuleData& ruleData) -> void;
+    auto setRule(const std::string& tag, IRuleUPtr rule) -> void;
 
 private:
     LavParser();
@@ -33,7 +31,7 @@ private:
 
 private:
     utils::Logger log_;
-    // std::unordered_map<std::string, IRule::RuleData> ruleMap_;
+    std::unordered_map<std::string, std::unique_ptr<IRule>> ruleMap_;
 };
 
 } // namespace lav::core

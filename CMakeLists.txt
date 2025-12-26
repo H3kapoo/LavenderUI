@@ -38,13 +38,13 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Core/LavParser/LavParser.cpp
         src/Core/LavParser/ParseHelpers.cpp
         src/Core/LavParser/Rules/AppRule.cpp
-        # src/Core/LavParser/Rules/PaneRule.cpp
-        # src/Core/LavParser/Rules/ImageRule.cpp
+        src/Core/LavParser/Rules/PaneRule.cpp
+        src/Core/LavParser/Rules/ImageRule.cpp
         src/Core/LavParser/Rules/ButtonRule.cpp
-        # src/Core/LavParser/Rules/LabelRule.cpp
-        # src/Core/LavParser/Rules/SliderRule.cpp
+        src/Core/LavParser/Rules/LabelRule.cpp
+        src/Core/LavParser/Rules/SliderRule.cpp
         src/Core/LavParser/Rules/DropdownRule.cpp
-        # src/Core/LavParser/Rules/SplitPaneRule.cpp
+        src/Core/LavParser/Rules/SplitPaneRule.cpp
 
         # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp

@@ -37,24 +37,7 @@ int main()
     window.lock()->setColor(utils::hexToVec4("#38455eff"));
 
     // UISplitPanePtr sp = utils::make<UISplitPane>();
-    // sp->setColor(utils::hexToVec4("#ffffffff"));
-    // sp->getBaseLayoutData()
-    //     .setScale({1_fill, 1_fill})
-    //     .setType(LayoutBase::Type::HORIZONTAL);
-
-    // auto p = sp->createPane(1.0f, {30, 10'000});
-    // auto p2 = sp->createPane(3.0f, {30, 10'000});
-    // // sp->removePaneIdx(0);
-    // // sp->removePaneIdx(0);
-    // // sp->removePaneIdx(0);
-    // auto p3 = sp->createPane(3.0f, {30, 10'000});
-
-    // auto sp3 = sp->createSubsplit(4.0f, {30, 10'000});
-    // // auto sp3 = sp->createPane(4.0f, {30, 10'000});
-
-    // sp3.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
-    // auto pp = sp3.lock()->createPane(1.0f, {30, 10'000});
-    // auto pp2 = sp3.lock()->createPane(1.0f, {30, 10'000});
+    // UISplitPanePtr sp = utils::as<UISplitPane>(window.lock()->getElements()[1]);
     
     // auto dd = utils::as<UIDropdown>(window.lock()->getElements()[0]->getElements()[0]);
     // auto firstOpt = utils::as<UIButton>(dd->getOptionsHolder().lock()->getElements()[0]);

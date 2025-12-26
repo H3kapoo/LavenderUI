@@ -2,26 +2,33 @@
 
 #include "src/Core/LavParser/Rules/IRule.hpp"
 #include "src/Node/UILabel.hpp"
+#include "src/Core/LavParser/ParseHelpers.hpp"
 
 namespace lav::core
 {
-auto LabelRule::getRule() const -> RuleSignature
+auto LabelRule::construct(const RuleMap&, const XmlNode& xmlNode,
+    node::UIBasePtr, const bool) const -> node::UIBasePtr
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UIBasePtr
+    node::UILabelPtr label = utils::make<node::UILabel>();
+    parseAndApply(label, xmlNode->attributes);
+    return label;
+}
+
+auto LabelRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
+{
+    const auto& ph = ParseHelper::get();
+    node::UILabelPtr obj = utils::as<node::UILabel>(object);
+    for (const auto&[key, value] : attribs)
     {
-        node::UILabelPtr obj = utils::make<node::UILabel>();
-        for (const auto&[key, value] : attribs)
+        if (key == "scale")
         {
-            if (key == "scale")
-            {
-                obj->getBaseLayoutData().setScale(parseHelper_.toScale(value));
-            }
-            else if (key == "text")
-            {
-                obj->setText(value);
-            }
+            obj->getBaseLayoutData().setScale(ph.toScale(value));
         }
-        return obj;
-    };
+        else if (key == "text")
+        {
+            obj->setText(value);
+        }
+    }
 }
 } // namespace lav::core

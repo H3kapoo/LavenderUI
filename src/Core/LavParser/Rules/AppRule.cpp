@@ -2,27 +2,35 @@
 
 #include "src/Core/LavParser/Rules/IRule.hpp"
 #include "src/Core/LavParser/ParseHelpers.hpp"
+#include "src/Node/UIBase.hpp"
 #include "src/Node/UIWindow.hpp"
 
 namespace lav::core
 {
-auto AppRule::construct(node::UIBasePtr parent,
-    const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr
+auto AppRule::construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+    node::UIBasePtr, const bool) const -> node::UIBasePtr
 {
     node::UIWindowPtr win = utils::make<node::UIWindow>("Test", glm::ivec2{1280, 720});
     parseAndApply(win, xmlNode->attributes);
 
     for (const auto& childXmlNode : xmlNode->children)
     {
-        auto child = IRule::ruleMap_[childXmlNode->nodeName]->construct(win, childXmlNode);
-        win->add(child);
+        const auto& nName = childXmlNode->nodeName;
+        if (!ruleMap.contains(nName))
+        {
+            log_.error("No rule to parse '{}' found!", nName);
+            continue;
+        }
+
+        auto newUINode = ruleMap.at(nName)->construct(ruleMap, childXmlNode, win, false);
+        win->add(newUINode);
     }
 
     return win;
 }
 
 auto AppRule::parseAndApply(node::UIBasePtr object,
-    const hk::XMLDecoder::AttrPairVec& attribs) -> void
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
     node::UIWindowPtr win = utils::as<node::UIWindow>(object);

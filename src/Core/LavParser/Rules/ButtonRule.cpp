@@ -8,23 +8,16 @@
 
 namespace lav::core
 {
-auto ButtonRule::construct(node::UIBasePtr parent,
-    const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr
+auto ButtonRule::construct(const RuleMap&, const XmlNode& xmlNode,
+    node::UIBasePtr, const bool) const -> node::UIBasePtr
 {
     node::UIButtonPtr btn = utils::make<node::UIButton>();
     parseAndApply(btn, xmlNode->attributes);
-    // it doesn't have user-appendable children so this shouldnt run
-    // for (const auto& childXmlNode : xmlNode->children)
-    // {
-    //     Obj child = Rules[childXmlNode->name]->construct(obj, childXmlNode);
-    //     obj->add(child);
-    // }
-
     return btn;
 }
 
 auto ButtonRule::parseAndApply(node::UIBasePtr object,
-    const hk::XMLDecoder::AttrPairVec& attribs) -> void
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
     node::UIButtonPtr btn = utils::as<node::UIButton>(object);

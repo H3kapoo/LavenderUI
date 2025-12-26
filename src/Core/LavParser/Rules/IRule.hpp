@@ -1,22 +1,22 @@
 #pragma once
 
-#include <functional>
-
 #include "src/Node/UIBase.hpp"
 #include "vendor/xml/HkXml.hpp"
 
 namespace lav::core
 {
+class IRule;
+using IRuleUPtr = std::unique_ptr<IRule>;
+using RuleMap = std::unordered_map<std::string, IRuleUPtr>;
+using XmlNode = hk::XMLDecoder::NodeSPtr;
+using XmlNodeVec = hk::XMLDecoder::NodeVec;
+using XmlAttribVec = hk::XMLDecoder::AttrPairVec;
 class IRule
 {
 public:
     virtual ~IRule() = default;
-    virtual auto construct(node::UIBasePtr parent,
-        const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr = 0;
-    virtual auto parseAndApply(node::UIBasePtr object,
-        const hk::XMLDecoder::AttrPairVec& attribs) -> void = 0;
-
-public:
-    static inline std::unordered_map<std::string, std::unique_ptr<IRule>> ruleMap_ = {};
+    virtual auto construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+    node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr = 0;
+    virtual auto parseAndApply(node::UIBasePtr object, const XmlAttribVec& attribs) const -> void = 0;
 };
 } // namespace lav::core

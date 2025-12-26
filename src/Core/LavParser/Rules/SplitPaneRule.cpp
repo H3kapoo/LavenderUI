@@ -8,63 +8,88 @@
 
 namespace lav::core
 {
-auto SplitPaneRule::getRule() const -> IRule::RuleData
+auto SplitPaneRule::construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+    node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr
 {
-    return {getConstructRule(), getAdditionRule()};
+    node::UISplitPanePtr newSplitPane{nullptr};
+    if (!shouldAddToParent)
+    {
+        newSplitPane = utils::make<node::UISplitPane>();
+        parseAndApply(newSplitPane, xmlNode->attributes);
+    }
+
+    if (!ruleMap.contains("Pane"))
+    {
+        log_.error("No rule for '{}' found! This is mandatory for SplitPane!", "Pane");
+        return newSplitPane;
+    }
+
+    node::UISplitPanePtr castParent{nullptr};
+    for (const auto& childXmlNode : xmlNode->children)
+    {
+        if (shouldAddToParent && childXmlNode->nodeName == "SplitPane")
+        {
+            castParent = utils::as<node::UISplitPane>(parent);
+            auto ss = castParent->createSubsplit(1.0f, {30, 10'000}).lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(ss, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, ss, true);
+        }
+        else if (shouldAddToParent && childXmlNode->nodeName == "Pane")
+        {
+            castParent = utils::as<node::UISplitPane>(parent);
+            auto pane = castParent->createPane(1.0f, {30, 10'000}).lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(pane, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, pane, true);
+        }
+        else if (!shouldAddToParent && childXmlNode->nodeName == "SplitPane")
+        {
+            auto ss = newSplitPane->createSubsplit(1.0f, {30, 10'000}).lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(ss, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, ss, true);
+        }
+        else if (!shouldAddToParent && childXmlNode->nodeName == "Pane")
+        {
+            auto pane = newSplitPane->createPane(1.0f, {30, 10'000}).lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(pane, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, pane, true);
+        }
+    }
+
+    return newSplitPane;
 }
 
-auto SplitPaneRule::getConstructRule() const -> ConstructRule
+auto SplitPaneRule::parseAndApply(node::UIBasePtr object,
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
-    return [this](const hk::XMLDecoder::AttrPairVec& attribs) -> node::UISplitPanePtr
+    const auto& ph = ParseHelper::get();
+    node::UISplitPanePtr sp = utils::as<node::UISplitPane>(object);
+    for (const auto&[key, value] : attribs)
     {
-        const auto& ph = ParseHelper::get();
-        node::UISplitPanePtr obj = utils::make<node::UISplitPane>();
-        for (const auto&[key, value] : attribs)
+        if (key == "scale")
         {
-            if (key == "scale")
-            {
-                obj->getBaseLayoutData().setScale(ph.toScale(value));
-            }
-            else if (key == "border")
-            {
-                obj->getBaseLayoutData().setBorder(ph.toBorder(value));
-            }
-            else if (key == "color")
-            {
-                obj->setColor(ph.toColor(value));
-            }
-            else if (key == "bcolor")
-            {
-                obj->setBorderColor(ph.toColor(value));
-            }
-            else if (key == "ori" || key == "orientation")
-            {
-                obj->getBaseLayoutData().setType(ph.toOrientation(value));
-            }
-            else if (key == "splits")
-            {
-                // obj->setSplitDistribution(ph.toRelVector(value));
-            }
+            sp->getBaseLayoutData().setScale(ph.toScale(value));
         }
-        return obj;
-    };
-}
-
-auto SplitPaneRule::getAdditionRule() const -> AddRule
-{
-    return [this](node::UIBasePtr parent, node::UIBasePtr child) -> void
-    {
-        auto castSplitPane = utils::as<node::UISplitPane>(parent);
-        if (child->getTypeId() == node::UIPane::typeId)
+        else if (key == "border")
         {
-            auto castPane = utils::as<node::UIPane>(child);
-            // castSplitPane->createPane(std::move(castPane), 1.0f, {30, 10'000});
+            sp->getBaseLayoutData().setBorder(ph.toBorder(value));
         }
-        else if (child->getTypeId() == node::UISplitPane::typeId)
+        else if (key == "color")
         {
-            auto castSubsplit = utils::as<node::UISplitPane>(child);
-            // castSplitPane->createSubsplit(std::move(castSubsplit), 1.0f, {30, 10'000});
+            sp->setColor(ph.toColor(value));
         }
-    };
+        else if (key == "bcolor")
+        {
+            sp->setBorderColor(ph.toColor(value));
+        }
+        else if (key == "ori" || key == "orientation")
+        {
+            sp->getBaseLayoutData().setType(ph.toOrientation(value));
+        }
+        else if (key == "splits")
+        {
+            //TBD
+            // sp->setSplitDistribution(ph.toRelVector(value));
+        }
+    }
 }
 } // namespace lav::core

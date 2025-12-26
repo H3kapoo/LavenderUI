@@ -9,58 +9,58 @@
 
 namespace lav::core
 {
-auto DropdownRule::construct(node::UIBasePtr parent,
-    const hk::XMLDecoder::NodeSPtr& xmlNode) -> node::UIBasePtr
+auto DropdownRule::construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+        node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr
 {
-    node::UIDropdownPtr dd = utils::make<node::UIDropdown>();
-    parseAndApply(dd, xmlNode->attributes);
+    node::UIDropdownPtr newDropdown{nullptr};
+    if (!shouldAddToParent)
+    {
+        newDropdown = utils::make<node::UIDropdown>();
+        parseAndApply(newDropdown, xmlNode->attributes);
+    }
 
-    utils::Logger log{"DDRULE"};
+    if (!ruleMap.contains("Button"))
+    {
+        log_.error("No rule for '{}' found! This is mandatory for SplitPane!", "Button");
+        return newDropdown;
+    }
+
+    node::UIDropdownPtr castParent{nullptr};
     for (const auto& childXmlNode : xmlNode->children)
     {
-        if (parent->getTypeId() == node::UIDropdown::typeId)
+        if (shouldAddToParent && childXmlNode->nodeName == "Dropdown")
         {
-            node::UIDropdownPtr castParent = utils::as<node::UIDropdown>(parent);
-            if (childXmlNode->nodeName == "Dropdown")
-            {
-                log.error("bla");
-                auto sm = castParent->addSubMenu("").lock();
-                IRule::ruleMap_[childXmlNode->nodeName]->parseAndApply(sm, childXmlNode->attributes);
-                IRule::ruleMap_[childXmlNode->nodeName]->construct(sm, childXmlNode);
-            }
-            else if (childXmlNode->nodeName == "Button")
-            {
-                log.error("ra");
-                auto btn = castParent->addOption("");
-                IRule::ruleMap_[childXmlNode->nodeName]->parseAndApply(btn.lock(), childXmlNode->attributes);
-                IRule::ruleMap_[childXmlNode->nodeName]->construct(castParent, childXmlNode);
-            }
+            castParent = utils::as<node::UIDropdown>(parent);
+            auto sm = castParent->addSubMenu("").lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(sm, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, sm, true);
         }
-        else // parent is not Dropdown
+        else if (shouldAddToParent && childXmlNode->nodeName == "Button")
         {
-            if (childXmlNode->nodeName == "Dropdown")
-            {
-                log.error("nod");
-                auto sm = dd->addSubMenu("").lock();
-                IRule::ruleMap_[childXmlNode->nodeName]->parseAndApply(sm, childXmlNode->attributes);
-                IRule::ruleMap_[childXmlNode->nodeName]->construct(sm, childXmlNode);
-            }
-            else if (childXmlNode->nodeName == "Button")
-            {
-                auto btn = dd->addOption("");
-                IRule::ruleMap_[childXmlNode->nodeName]->parseAndApply(btn.lock(), childXmlNode->attributes);
-                IRule::ruleMap_[childXmlNode->nodeName]->construct(dd, childXmlNode);
-            }
+            castParent = utils::as<node::UIDropdown>(parent);
+            auto btn = castParent->addOption("");
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(btn.lock(), childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, nullptr, false);
+        }
+        else if (!shouldAddToParent && childXmlNode->nodeName == "Dropdown")
+        {
+            auto sm = newDropdown->addSubMenu("").lock();
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(sm, childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, sm, true);
+        }
+        else if (!shouldAddToParent && childXmlNode->nodeName == "Button")
+        {
+            auto btn = newDropdown->addOption("");
+            ruleMap.at(childXmlNode->nodeName)->parseAndApply(btn.lock(), childXmlNode->attributes);
+            ruleMap.at(childXmlNode->nodeName)->construct(ruleMap, childXmlNode, nullptr, false);
         }
     }
 
-    // Unused if parent is already a Dropdown
-    return dd;
-    // return parent->getTypeId() != node::UIDropdown::typeId ? dd : nullptr;
+    return newDropdown;
 }
 
 auto DropdownRule::parseAndApply(node::UIBasePtr object,
-    const hk::XMLDecoder::AttrPairVec& attribs) -> void
+    const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
     node::UIDropdownPtr obj = utils::as<node::UIDropdown>(object);
@@ -100,7 +100,6 @@ auto DropdownRule::toOpenDir(const std::string& value) const -> node::UIDropdown
     if (value == "L" || value == "Left") { return node::UIDropdown::OpenDir::LEFT; }
     if (value == "R" || value == "Right") { return node::UIDropdown::OpenDir::RIGHT; }
 
-    utils::Logger log_{"DropdownRule"};
     log_.error("Invalid open direction: '{}'", value);
     return node::UIDropdown::OpenDir::BOTTOM;
 }

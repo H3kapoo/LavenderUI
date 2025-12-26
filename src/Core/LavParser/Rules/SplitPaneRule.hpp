@@ -8,10 +8,12 @@ namespace lav::core
 class SplitPaneRule : public IRule
 {
 public:
-    auto getRule() const -> IRule::RuleData override;
+    auto construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
+        node::UIBasePtr parent, const bool shouldAddToParent) const -> node::UIBasePtr override;
+    auto parseAndApply(node::UIBasePtr object,
+        const XmlAttribVec& attribs) const -> void override;
 
 private:
-    auto getConstructRule() const -> ConstructRule;
-    auto getAdditionRule() const -> AddRule;
+    utils::Logger log_{"SplitPaneRule"};
 };
 } // namespace lav::core
