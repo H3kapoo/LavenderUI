@@ -85,8 +85,8 @@ struct MouseScrollEvt : public IEventCRTP<MouseScrollEvt>
 struct SliderEvt : public IEventCRTP<SliderEvt>
 {
     SliderEvt() {}
-    SliderEvt(float valueIn) : value{valueIn} {}
-    float value{0};
+    SliderEvt(double valueIn) : value{valueIn} {}
+    double value{0};
 };
 
 struct WindowResizeEvt : public IEventCRTP<WindowResizeEvt>

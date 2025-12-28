@@ -270,9 +270,9 @@ auto BaseCalculator::calculateAlignmentForElements(node::UIBase* node,
 }
 
 auto BaseCalculator::calculateElementOverflow(node::UIBase* parent,
-    const glm::vec2 shrinkScaleBy) const -> glm::vec2
+    const glm::vec2 shrinkScaleBy) const -> glm::dvec2
 {
-    glm::vec2 boxScale{0, 0};
+    glm::dvec2 boxScale{0, 0};
     const auto& elements = parent->getElements();
     const auto& pLayout = parent->getBaseLayoutData();
     const auto& pContentPos = pLayout.getContentBoxPos();
@@ -285,8 +285,8 @@ auto BaseCalculator::calculateElementOverflow(node::UIBase* parent,
         const auto& eLayout = element->getBaseLayoutData();
         const auto& fullPos = eLayout.getFullBoxPos();
         const auto& fullScale = eLayout.getFullBoxScale();
-        boxScale.x = std::max(boxScale.x, fullPos.x + fullScale.x);
-        boxScale.y = std::max(boxScale.y, fullPos.y + fullScale.y);
+        boxScale.x = std::max(boxScale.x, (double)(fullPos.x + fullScale.x));
+        boxScale.y = std::max(boxScale.y, (double)(fullPos.y + fullScale.y));
     }
 
     return boxScale - (pContentPos + pContentScale);

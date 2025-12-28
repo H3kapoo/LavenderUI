@@ -134,7 +134,7 @@ public:
 
         @return Positive overflow value is there is any overflow. Negative value otherwise.
     */
-    auto calculateElementOverflow(node::UIBase* parent, const glm::vec2 shrinkScaleBy = {}) const -> glm::vec2;
+    auto calculateElementOverflow(node::UIBase* parent, const glm::vec2 shrinkScaleBy = {}) const -> glm::dvec2;
 
     /**
         @brief Expand or shrink elements on the line depending on if their scale is less or greater

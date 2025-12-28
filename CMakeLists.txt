@@ -75,6 +75,7 @@ if(${PLATFORM_NAME} MATCHES "Linux")
         src/Node/UIImage.cpp
         src/Node/UIDropdown.cpp
         src/Node/UISplitPane.cpp
+        src/Node/UIRecycleList.cpp
         # src/UIElements/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
 

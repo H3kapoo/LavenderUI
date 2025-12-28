@@ -16,14 +16,14 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UISlider, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UISlider);
 
-    auto getScrollPercentage() -> float;
-    auto getScrollValue() -> float;
+    auto getScrollPercentage() -> double;
+    auto getScrollValue() -> double;
     auto getKnobBaseLayoutData() -> core::LayoutBase&;
     auto getLabel() -> UILabelWPtr;
 
-    auto setScrollValue(const float value) -> void;
-    auto setScrollFrom(const float value) -> void;
-    auto setScrollTo(const float value) -> void;
+    auto setScrollValue(const double value) -> void;
+    auto setScrollFrom(const double value) -> void;
+    auto setScrollTo(const double value) -> void;
     auto setScrollSensitivity(const float value) -> void;
     auto setKnobColor(const glm::vec4& value) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
@@ -36,16 +36,16 @@ protected:
     auto onEvent(node::UIStatePtr& state) -> void override;
 
 private:
-    auto calculatePercentage(const glm::ivec2& mPos) -> float;
+    auto calculatePercentage(const glm::ivec2& mPos) -> double;
 
 protected:
     core::LayoutBase knobLayout_;
-    glm::vec4 knobColor_;
     UILabelPtr label_;
-    float percentage_;
-    float scrollFrom_;
-    float scrollTo_;
-    float scrollValue_;
+    glm::vec4 knobColor_;
+    double scrollFrom_;
+    double scrollTo_;
+    double scrollValue_;
+    double percentage_;
 
 private:
     glm::ivec2 distToKnobCenter_;

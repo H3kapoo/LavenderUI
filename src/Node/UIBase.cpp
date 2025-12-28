@@ -6,7 +6,6 @@
 
 #include "src/Core/ResourceHandler/ShaderLoader.hpp"
 #include "src/Core/ResourceHandler/MeshLoader.hpp"
-#include "src/Node/UIWindow.hpp"
 #include "src/Utils/Misc.hpp"
 
 namespace lav::node

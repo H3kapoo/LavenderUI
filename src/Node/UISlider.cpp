@@ -11,12 +11,12 @@ namespace lav::node
 UISlider::UISlider(UIBaseInitData&& initData)
     : UIBase(std::move(initData))
     , knobLayout_()
-    , knobColor_(utils::hexToVec4("#afafafff"))
     , label_(utils::make<UILabel>())
-    , percentage_(0.0f)
+    , knobColor_(utils::hexToVec4("#afafafff"))
     , scrollFrom_(0.0f)
     , scrollTo_(100.0f)
     , scrollValue_(0.0f)
+    , percentage_(0.0f)
     , distToKnobCenter_(0.0f)
     , sensitivity_(5.0f)
     , invertVertical_(false)
@@ -114,7 +114,7 @@ auto UISlider::onEvent(node::UIStatePtr& state) -> void
     setText(std::to_string((int)scrollValue_));
 }
 
-auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
+auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> double
 {
     const auto& computedPos = layoutBase_.getComputedPos();
     const auto& computedScale = layoutBase_.getComputedScale();
@@ -127,7 +127,7 @@ auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> float
     }
     else if (layoutBase_.isVertical())
     {
-        const float remapped = utils::remap(mPos.y,
+        const double remapped = utils::remap(mPos.y,
             computedPos.y + halfKnobScale.y, computedPos.y + computedScale.y - halfKnobScale.y,
             0.0f, 1.0f);
         return invertVertical_ ? remapped : 1.0f - remapped;
@@ -140,26 +140,26 @@ auto UISlider::getKnobBaseLayoutData() -> core::LayoutBase& { return knobLayout_
 
 auto UISlider::getLabel() -> UILabelWPtr { return label_; }
 
-auto UISlider::getScrollPercentage() -> float { return percentage_; }
+auto UISlider::getScrollPercentage() -> double { return percentage_; }
 
-auto UISlider::getScrollValue() -> float
+auto UISlider::getScrollValue() -> double
 {
     scrollValue_ = utils::remap(percentage_, 0.0f, 1.0f, scrollFrom_, scrollTo_);
     return scrollValue_;
 }
 
-auto UISlider::setScrollValue(const float value) -> void
+auto UISlider::setScrollValue(const double value) -> void
 {
     percentage_ = utils::remap(value, scrollFrom_, scrollTo_, 0.0f, 1.0f);
 }
 
-auto UISlider::setScrollFrom(const float value) -> void
+auto UISlider::setScrollFrom(const double value) -> void
 {
     scrollFrom_ = value;
     setText(std::to_string((int)getScrollValue()));
 }
 
-auto UISlider::setScrollTo(const float value) -> void
+auto UISlider::setScrollTo(const double value) -> void
 {
     scrollTo_ = value;
     setText(std::to_string((int)getScrollValue()));

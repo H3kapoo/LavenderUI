@@ -10,6 +10,7 @@
 #include "src/Node/UIDropdown.hpp"
 #include "src/Node/UIImage.hpp"
 #include "src/Node/UILabel.hpp"
+#include "src/Node/UIRecycleList.hpp"
 #include "src/Node/UISlider.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UISplitPane.hpp"
@@ -17,9 +18,39 @@
 #include "src/Utils/Logger.hpp"
 #include "src/Utils/Misc.hpp"
 
+#include <algorithm>
+#include <ranges>
+
 using namespace lav::core;
 using namespace lav::node;
 using namespace lav;
+
+struct DerivedModel : UIRecycleList::Model
+{
+    DerivedModel(const std::vector<uint64_t>& data)
+        : data_(data)
+    {}
+    const std::vector<uint64_t>& data_;
+
+    auto makeAtIndex(UIButtonPtr& btn, const uint64_t index) -> void
+    {
+        if (index >= data_.size()) { return; }
+
+        btn->setText(std::to_string(data_[index]));
+        btn->setColor(index % 2
+            ? utils::hexToVec4("#adadadff")
+            : utils::hexToVec4("#e46b6bff"));
+        btn->listenEvent<core::MouseLeftReleaseEvt>(
+            [this, index](const auto& e)
+            {
+                (void)e;
+                utils::Logger log{"InsideBtn"};
+                log.debug("clicked on {} data {}", index, data_[index]);
+            });
+    }
+
+    auto getItemsCount() -> uint64_t { return data_.size(); }
+};
 
 int main()
 {
@@ -28,48 +59,32 @@ int main()
     log.debug("version {}", __cplusplus);
 
     App& app = App::get();
-
     if (!app.init()) { return 1; }
     app.enableTitleWithFPS();
-    UIWindowWPtr window = app.loadLavView("views/test.xml");
+    // UIWindowWPtr window = app.loadLavView("views/test.xml");
 
-    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
+    UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     window.lock()->setColor(utils::hexToVec4("#38455eff"));
+    window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
-    // UISplitPanePtr sp = utils::make<UISplitPane>();
-    // UISplitPanePtr sp = utils::as<UISplitPane>(window.lock()->getElements()[1]);
+    std::vector<uint64_t> data =
+        // std::views::iota(0u, 10'200'001u) |
+        std::views::iota(0u, 10'000u) |
+        // std::views::filter([](uint32_t x){ return true; }) |
+        std::ranges::to<std::vector<uint64_t>>();
     
-    // auto dd = utils::as<UIDropdown>(window.lock()->getElements()[0]->getElements()[0]);
-    // auto firstOpt = utils::as<UIButton>(dd->getOptionsHolder().lock()->getElements()[0]);
-    // firstOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp](const auto&)
-    // {
-    //     log.info("clicked on first option");
-    //     auto ppx = sp->createPane(2.0f, {30, 10'000});
-    // });
+    // std::ranges::for_each(data, [&log](uint32_t x){ log.info("{}", x); });
 
-    // auto secondOpt = utils::as<UIButton>(dd->getOptionsHolder().lock()->getElements()[1]);
-    // secondOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp](const auto&)
-    // {
-    //     log.info("clicked on second option");
-    //     sp->removePaneIdx(1);
-    // });
+    UIRecycleListPtr rl = utils::make<UIRecycleList>();
+    rl->setScrollEnabled();
+    rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
+    // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    // auto thirdMenu = utils::as<UIDropdown>(dd->getOptionsHolder().lock()->getElements()[2]);
-    // auto menuFirstOpt = utils::as<UIButton>(thirdMenu->getOptionsHolder().lock()->getElements()[0]);
-    // menuFirstOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp3](const auto&)
-    // {
-    //     log.info("clicked on first option from menu");
-    //     auto ppx = sp3.lock()->createPane(2.0f, {30, 10'000});
-    // });
+    rl->setModel(std::make_unique<DerivedModel>(data));
 
-    // auto menuSecondOpt = utils::as<UIButton>(thirdMenu->getOptionsHolder().lock()->getElements()[1]);
-    // menuSecondOpt->listenEvent<core::MouseLeftReleaseEvt>([&log, sp3](const auto&)
-    // {
-    //     log.info("clicked on second option from menu");
-    //     sp3.lock()->removePaneIdx(0);
-    // });
-
-    // window.lock()->add(sp);
+    // auto pane = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
+    // pane.lock()->add(rl);
+    window.lock()->add(rl);
 
     app.run();
     return 0;
