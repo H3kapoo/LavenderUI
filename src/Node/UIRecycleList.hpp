@@ -3,6 +3,7 @@
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
+#include "src/Utils/Logger.hpp"
 
 namespace lav::node
 {
@@ -18,6 +19,7 @@ public:
         virtual ~AbstractModel() = default;
         virtual auto dataForIndex(UIButtonPtr&, const uint64_t) -> void = 0;
         virtual auto getItemsCount() -> uint64_t = 0;
+        virtual auto getDataIndexFromVisualIndex(const uint64_t) -> uint64_t = 0;
     };
 
     struct BasicModel : AbstractModel
@@ -32,7 +34,7 @@ public:
         {
             if (index >= data_.size()) { return; }
 
-            inOutItem->setText(std::to_string(data_[index]));
+            inOutItem->setText(std::to_string(data_[getDataIndexFromVisualIndex(index)]));
             inOutItem->setColor(index % 2
                 ? utils::hexToVec4("#adadadff")
                 : utils::hexToVec4("#e46b6bff"));
@@ -45,7 +47,42 @@ public:
                 });
         }
 
-        auto getItemsCount() -> uint64_t { return data_.size(); }
+        virtual auto getDataIndexFromVisualIndex(const uint64_t idx) -> uint64_t { return idx; }
+        virtual auto getItemsCount() -> uint64_t { return data_.size(); }
+    };
+
+    struct FilteredModel : BasicModel
+    {
+        FilteredModel(const std::vector<uint64_t>& data,
+            const std::function<bool(uint64_t)> pred)
+            : BasicModel(data)
+            , pred_(pred)
+            , mapping_()
+        {
+            mapping_.reserve(data_.size());
+            for (uint64_t dIdx = 0; dIdx < data_.size(); dIdx++)
+            {
+                if (!pred(data_[dIdx])) { continue; }
+                mapping_.push_back(dIdx);
+
+                //               x
+                // idx   0 1 2 3 4 5 6
+                // data  1 2 3 4 5 6 7
+                // mapp  0 2 4
+
+                // data_[map[index]]
+            }
+        }
+
+        auto getDataIndexFromVisualIndex(const uint64_t idx) -> uint64_t
+        {
+            return mapping_[idx];
+        }
+
+        auto getItemsCount() -> uint64_t { return mapping_.size(); }
+
+        const std::function<bool(uint64_t)> pred_;
+        std::vector<uint64_t> mapping_;
     };
 
 public:

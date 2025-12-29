@@ -41,7 +41,7 @@ int main()
     window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
     std::vector<uint64_t> data =
-        std::views::iota(0u, 10'200'001u) |
+        std::views::iota(0u, 200'001u) |
         // std::views::iota(0u, 1u) |
         // std::views::filter([](uint32_t x){ return true; }) |
         std::ranges::to<std::vector<uint64_t>>();
@@ -51,7 +51,11 @@ int main()
     rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
     // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    rl->setModel(std::make_unique<UIRecycleList::BasicModel>(data));
+    rl->setModel(
+        std::make_unique<UIRecycleList::FilteredModel>(
+            data,
+            [](uint64_t x) -> bool { return x % 2;}
+        ));
 
     // auto pane = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
     // pane.lock()->add(rl);
