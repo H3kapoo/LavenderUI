@@ -110,7 +110,7 @@ auto UIRecycleList::resolveVisibleItems() -> void
 
         auto itemObj = utils::make<UIButton>();
 
-        model_->makeAtIndex(itemObj, index);
+        model_->dataForIndex(itemObj, index);
 
         itemObj->getBaseLayoutData()
             .setScale(scale);
@@ -121,7 +121,7 @@ auto UIRecycleList::resolveVisibleItems() -> void
     oldVisibleCount_ = visibleCount_;
 }
 
-auto UIRecycleList::setModel(std::unique_ptr<Model> model) -> void
+auto UIRecycleList::setModel(std::unique_ptr<AbstractModel> model) -> void
 {
     model_ = std::move(model);
 }

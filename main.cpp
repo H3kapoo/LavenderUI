@@ -25,33 +25,6 @@ using namespace lav::core;
 using namespace lav::node;
 using namespace lav;
 
-struct DerivedModel : UIRecycleList::Model
-{
-    DerivedModel(const std::vector<uint64_t>& data)
-        : data_(data)
-    {}
-    const std::vector<uint64_t>& data_;
-
-    auto makeAtIndex(UIButtonPtr& btn, const uint64_t index) -> void
-    {
-        if (index >= data_.size()) { return; }
-
-        btn->setText(std::to_string(data_[index]));
-        btn->setColor(index % 2
-            ? utils::hexToVec4("#adadadff")
-            : utils::hexToVec4("#e46b6bff"));
-        btn->listenEvent<core::MouseLeftReleaseEvt>(
-            [this, index](const auto& e)
-            {
-                (void)e;
-                utils::Logger log{"InsideBtn"};
-                log.debug("clicked on {} data {}", index, data_[index]);
-            });
-    }
-
-    auto getItemsCount() -> uint64_t { return data_.size(); }
-};
-
 int main()
 {
     utils::Logger log("Main");
@@ -68,19 +41,17 @@ int main()
     window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
     std::vector<uint64_t> data =
-        // std::views::iota(0u, 10'200'001u) |
-        std::views::iota(0u, 20u) |
+        std::views::iota(0u, 10'200'001u) |
+        // std::views::iota(0u, 1u) |
         // std::views::filter([](uint32_t x){ return true; }) |
         std::ranges::to<std::vector<uint64_t>>();
-    
-    // std::ranges::for_each(data, [&log](uint32_t x){ log.info("{}", x); });
 
     UIRecycleListPtr rl = utils::make<UIRecycleList>();
     rl->setScrollEnabled();
     rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
     // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    rl->setModel(std::make_unique<DerivedModel>(data));
+    rl->setModel(std::make_unique<UIRecycleList::BasicModel>(data));
 
     // auto pane = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
     // pane.lock()->add(rl);
