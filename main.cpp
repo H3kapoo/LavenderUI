@@ -69,7 +69,7 @@ int main()
 
     std::vector<uint64_t> data =
         // std::views::iota(0u, 10'200'001u) |
-        std::views::iota(0u, 10'000u) |
+        std::views::iota(0u, 20u) |
         // std::views::filter([](uint32_t x){ return true; }) |
         std::ranges::to<std::vector<uint64_t>>();
     

@@ -40,31 +40,19 @@ auto UIRecycleList::onLayout() -> void
         vScroll_ ? vScroll_->setScrollValue(0) : void();
     }
 
-    const glm::i64vec2 savedScrollValue = 
-    {
-        hScroll_ ? hScroll_->getScrollValue() : 0,
-        vScroll_ ? vScroll_->getScrollValue() : 0
-    };
+    glm::i64vec2 overflow{0, 0};
+    overflow.y = model_->getItemsCount() * rowSize_ - layoutBase_.getComputedScale().y;
+    setInternalScrollOverflow(overflow);
 
     resolveVisibleItems();
 
-    glm::i64vec2 overflow = calculateLayout();
-    overflow.y = model_->getItemsCount() * rowSize_ - layoutBase_.getComputedScale().y;
-
-    log_.warn("| {}", layoutBase_.getComputedScale().y);
-
-    if (setInternalScrollOverflow(overflow))
-    {
-        overflow = calculateLayout();
-        overflow.y = model_->getItemsCount() * rowSize_ - layoutBase_.getComputedScale().y;
-        setInternalScrollOverflow(overflow);
-    }
+    calculateLayout();
 
     const auto& calculator = core::PaneCalculator::get();
     calculator.calculateElementsOffsetDueToScroll(this,
     {
-        savedScrollValue.x,
-        savedScrollValue.y % rowSize_
+        0,
+        vScroll_ ? (int64_t)vScroll_->getScrollValue() % rowSize_ : 0
     });
 }
 
