@@ -11,6 +11,14 @@ namespace lav::node
 {
 UIRecycleList::UIRecycleList(UIBaseInitData&& initData)
     : UIPane(std::move(initData))
+    , model_{nullptr}
+    , topOfTheListIdx_{0}
+    , oldTopOfTheListIdx_{-1}
+    , visibleCount_{0}
+    , oldVisibleCount_{-1}
+    , tolerance_{2}
+    , rowSize_{16}
+    , outsideChange_(0)
 {
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
 }
@@ -88,7 +96,8 @@ auto UIRecycleList::resolveVisibleItems() -> void
 
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
     visibleCount_ = layoutBase_.getComputedScale().y / rowSize_ + tolerance_;
-    if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
+    if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_
+        && model_->getItemsCount() == outsideChange_)
     {
         return;
     }
@@ -119,6 +128,7 @@ auto UIRecycleList::resolveVisibleItems() -> void
     }
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
+    outsideChange_ = model_->getItemsCount();
 }
 
 auto UIRecycleList::setModel(std::unique_ptr<AbstractModel> model) -> void
