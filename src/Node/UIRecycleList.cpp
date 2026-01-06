@@ -3,6 +3,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
+#include "src/Core/ViewModels/ListAbstractModel.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Utils/Misc.hpp"
@@ -12,15 +13,26 @@ namespace lav::node
 UIRecycleList::UIRecycleList(UIBaseInitData&& initData)
     : UIPane(std::move(initData))
     , model_{nullptr}
+    , selectedId_(0)
     , topOfTheListIdx_{0}
     , oldTopOfTheListIdx_{-1}
     , visibleCount_{0}
     , oldVisibleCount_{-1}
     , tolerance_{2}
     , rowSize_{16}
-    , outsideChange_(0)
 {
+    setScrollEnabled(false, true);
+    // setBorderColor(utils::hexToVec4("#eefcffff"));
+    setBorderColor(utils::hexToVec4("#c0cbcdff"));
+    setColor(utils::hexToVec4("#c0cbcdff"));
+    // setColor(utils::hexToVec4("#eefcffff"));
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
+    layoutBase_.setBorder(4);
+    // layoutBase_.setBorder({4, 4, 4, 0});
+
+    // vScroll_->getBaseLayoutData().setBorder({0, 0, 4, 0});
+    vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
+    // vScroll_->setBorderColor(utils::hexToVec4("#df6adfff"));
 }
 
 auto UIRecycleList::onRender(const glm::mat4& projection) -> void
@@ -43,13 +55,13 @@ auto UIRecycleList::onLayout() -> void
 {
     /* Slider value needs to be reset to zero if there's no need for it anymore after an
     item has closed. */
-    if (model_->getItemsCount() * rowSize_ - layoutBase_.getComputedScale().y <= 0)
+    if (model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
     {
         vScroll_ ? vScroll_->setScrollValue(0) : void();
     }
 
     glm::i64vec2 overflow{0, 0};
-    overflow.y = model_->getItemsCount() * rowSize_ - layoutBase_.getComputedScale().y;
+    overflow.y = model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y;
     setInternalScrollOverflow(overflow);
 
     resolveVisibleItems();
@@ -95,9 +107,8 @@ auto UIRecycleList::resolveVisibleItems() -> void
     using namespace lav::core;
 
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
-    visibleCount_ = layoutBase_.getComputedScale().y / rowSize_ + tolerance_;
-    if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_
-        && model_->getItemsCount() == outsideChange_)
+    visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
+    if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
     {
         return;
     }
@@ -114,25 +125,35 @@ auto UIRecycleList::resolveVisibleItems() -> void
     };
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
-        uint64_t index = topOfTheListIdx_ + i;
-        if (index >= model_->getItemsCount()) { break; }
+        uint64_t viewRow = topOfTheListIdx_ + i;
+        if (viewRow >= model_->getRowCount()) { break; }
 
         auto itemObj = utils::make<UIButton>();
 
-        model_->dataForIndex(itemObj, index);
+        ModelIndex idx = model_->index(viewRow, 0, ModelIndex{});
 
-        itemObj->getBaseLayoutData()
-            .setScale(scale);
+        itemObj->setText(model_->data(idx));
+
+        /* Set private stuff on the visual object. */
+        itemObj->getBaseLayoutData().setScale(scale);
+        itemObj->setColor(viewRow % 2
+            ? utils::hexToVec4("#adadadff")
+            : utils::hexToVec4("#e46b6bff"));
+        itemObj->listenEvent<core::MouseLeftReleaseEvt>(
+            [this, idx](const auto&)
+            {
+                ViewLMBRelease evt{idx};
+                eventsMgr_.emitEvent<ViewLMBRelease>(evt);
+            });
 
         UIBase::add(itemObj);
     }
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
-    outsideChange_ = model_->getItemsCount();
 }
 
-auto UIRecycleList::setModel(std::unique_ptr<AbstractModel> model) -> void
+auto UIRecycleList::setModel(const core::ListAbstractModelPtr model) -> void
 {
-    model_ = std::move(model);
+    model_ = model;
 }
 } // namespace lav::node

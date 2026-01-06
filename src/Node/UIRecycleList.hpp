@@ -1,10 +1,8 @@
 #pragma once
 
-#include "src/Node/Model/AbstractModel.hpp"
+#include "src/Core/ViewModels/ListAbstractModel.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
-#include "src/Node/UIButton.hpp"
-#include "src/Utils/Logger.hpp"
 
 namespace lav::node
 {
@@ -18,7 +16,7 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIRecycleList, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIRecycleList);
 
-    auto setModel(std::unique_ptr<AbstractModel> model) -> void;
+    auto setModel(core::ListAbstractModelPtr model) -> void;
     auto setRowSize(const uint32_t value) -> void;
 
 protected:
@@ -31,14 +29,14 @@ private:
     auto resolveVisibleItems() -> void;
 
 private:
-    std::unique_ptr<AbstractModel> model_;
+    core::ListAbstractModelPtr model_;
+    uint64_t selectedId_;
     int64_t topOfTheListIdx_;
     int64_t oldTopOfTheListIdx_;
     int32_t visibleCount_;
     int32_t oldVisibleCount_;
     uint32_t tolerance_;
     uint32_t rowSize_;
-    uint64_t outsideChange_;
 };
 using UIRecycleListPtr = std::shared_ptr<UIRecycleList>;
 using UIRecycleListWPtr = std::weak_ptr<UIRecycleList>;

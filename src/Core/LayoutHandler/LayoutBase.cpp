@@ -63,6 +63,8 @@ auto LayoutBase::distanceToCenter(const glm::ivec2& p) const -> float
 
 auto LayoutBase::computeViewBox(const LayoutBase& parentAttribs) -> void
 {
+    // TODO: Needs to be enhanced to support padding as well
+
     /* Take the intersection between this object's pos+scale & parent's already computed
         viewable area box minus parent borders.*/
     const glm::vec2 pBorderPos = { parentAttribs.getBorder().left, parentAttribs.getBorder().top };
