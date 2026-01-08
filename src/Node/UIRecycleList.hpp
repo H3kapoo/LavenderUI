@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/Core/ViewModels/ListAbstractModel.hpp"
+#include "src/Core/ViewModels/AbstractModel.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
 
@@ -16,7 +16,7 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIRecycleList, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIRecycleList);
 
-    auto setModel(core::ListAbstractModelPtr model) -> void;
+    auto setModel(core::AbstractModelPtr model) -> void;
     auto setRowSize(const uint32_t value) -> void;
 
 protected:
@@ -29,7 +29,7 @@ private:
     auto resolveVisibleItems() -> void;
 
 private:
-    core::ListAbstractModelPtr model_;
+    core::AbstractModelPtr model_;
     uint64_t selectedId_;
     int64_t topOfTheListIdx_;
     int64_t oldTopOfTheListIdx_;

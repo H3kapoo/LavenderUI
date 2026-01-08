@@ -1,197 +1,223 @@
 #include "UITreeView.hpp"
 
-#include "src/ElementComposable/IEvent.hpp"
-#include "src/ElementComposable/LayoutBase.hpp"
-#include "src/LayoutCalculator/BasicCalculator.hpp"
-#include "src/UIElements/UIButton.hpp"
-#include "src/UIElements/UISlider.hpp"
-#include "src/WindowManagement/Input.hpp"
+#include "src/Core/EventHandler/IEvent.hpp"
+#include "src/Core/LayoutHandler/LayoutBase.hpp"
+#include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
+#include "src/Core/ViewModels/AbstractModel.hpp"
+#include "src/Core/ViewModels/TreeModels.hpp"
+#include "src/Node/UIButton.hpp"
+#include "src/Core/Binders/GPUBinder.hpp"
+#include "src/Utils/Misc.hpp"
 
-namespace src::uielements
+namespace lav::node
 {
-UITreeView::UITreeView()
-    : UIPane(getTypeInfo())
+UITreeView::UITreeView(UIBaseInitData&& initData)
+    : UIPane(std::move(initData))
+    , model_{nullptr}
+    , selectedId_(0)
+    , topOfTheListIdx_{0}
+    , oldTopOfTheListIdx_{-1}
+    , visibleCount_{0}
+    , oldVisibleCount_{-1}
+    , tolerance_{2}
+    , rowSize_{16}
 {
-    setType(LayoutBase::Type::VERTICAL);
+    setScrollEnabled(false, true);
+    setBorderColor(utils::hexToVec4("#c0cbcdff"));
+    setColor(utils::hexToVec4("#c0cbcdff"));
+    layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
+    layoutBase_.setBorder(4);
+    vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
 }
 
-auto UITreeView::render(const glm::mat4& projection) -> void
+auto UITreeView::onRender(const glm::mat4& projection) -> void
 {
     /* Draw base */
     mesh_.bind();
     shader_.bind();
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4("uMatrixTransform", getTransform());
-    shader_.uploadVec4f("uColor", getColor());
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    static auto l = [](const UIBasePtr& e) { return e->getCustomTagId () == UISlider::scrollTagId; };
-    renderNextExcept(projection, l);
-    renderNextSingle(projection, vSlider_);
-    renderNextSingle(projection, hSlider_);
+    shader_.uploadMat4("uMatrixTransform", layoutBase_.getTransform());
+    shader_.uploadVec4f("uColor", baseColor_);
+    shader_.uploadVec2f("uResolution", layoutBase_.getComputedScale());
+    shader_.uploadVec4f("uBorderSize", layoutBase_.getBorder());
+    shader_.uploadVec4f("uBorderRadii", layoutBase_.getBorderRadius());
+    shader_.uploadVec4f("uBorderColor", borderColor_);
+    shader_.uploadInt("uUseTexture", 0);
+    core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UITreeView::layout() -> void
+auto UITreeView::onLayout() -> void
 {
-    using namespace layoutcalculator;
-    const auto& calculator = BasicCalculator::get();
+    /* Slider value needs to be reset to zero if there's no need for it anymore after an
+    item has closed. */
+    if (flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
+    {
+        vScroll_ ? vScroll_->setScrollValue(0) : void();
+    }
+
+    glm::i64vec2 overflow{0, 0};
+    overflow.y = flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y;
+    setInternalScrollOverflow(overflow);
 
     resolveVisibleItems();
 
-    glm::ivec2 overflow{0, 0};
-    do
+    calculateLayout();
+
+    const auto& calculator = core::PaneCalculator::get();
+    calculator.calculateElementsOffsetDueToScroll(this,
     {
-        const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
-        calculator.calculateScaleForGenericElement(this, sliderImpact);
-        calculator.calculatePositionForGenericElement(this, sliderImpact);
-
-        overflow = calculator.calculateElementOverflow(this, sliderImpact);
-        overflow.y = flatItems_.size() * rowSize_ - getComputedScale().y;
-    
-    } while (updateSlidersWithOverflow(overflow));
-
-    calculator.calculateElementsOffsetDueToScroll(this, {
-        hSlider_ ? hSlider_->getScrollValue() : 0,
-        vSlider_ ? (uint32_t)vSlider_->getScrollValue() % rowSize_ : 0});
-
-    layoutNext();
+        0,
+        vScroll_ ? (int64_t)vScroll_->getScrollValue() % rowSize_ : 0
+    });
 }
 
-auto UITreeView::event(state::UIStatePtr& state) -> void
+auto UITreeView::calculateLayout() -> glm::i64vec2
 {
-    /* Let the base do the generic stuff like mouse move pre-pass. */
-    UIBase::event(state);
+    const auto& calculator = core::PaneCalculator::get();
+    glm::i64vec2 overflow{0, 0};
 
-    updateClosestSlider(state);
+    const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
+    calculator.calculateScaleForGenericElement(this, sliderImpact);
+    calculator.calculatePositionForGenericElement(this, sliderImpact);
 
-    // const auto eId = state->currentEventId;
+    overflow = calculator.calculateElementOverflow(this, sliderImpact);
 
-    eventNext(state);
+    return overflow;
+}
+
+auto UITreeView::onEvent(node::UIStatePtr& state) -> void
+{
+    const auto eId = state->currentEventId;
+    if (eId == core::MouseMoveEvt::eventId)
+    {
+        if (layoutBase_.isPointInsideView(state->mousePos))
+        {
+            state->closestScrollId = getClosestScrollbar(state->mousePos);
+        }
+    }
 }
 
 auto UITreeView::resolveVisibleItems() -> void
 {
-    /* Slider value needs to be reset to zero if there's no need for it anymore after an
-    item has closed. */
-    if (flatItems_.size() * rowSize_ - getComputedScale().y <= 0)
-    {
-        vSlider_ ? vSlider_->setScrollValue(0) : void();
-        // TODO: Not ok if there's still overflow on X axis
-        // hSlider_ ? hSlider_->setScrollValue(0) : void();
-    }
-
-    topOfTheListIdx_ = vSlider_ ? vSlider_->getScrollValue() / rowSize_ : 0;
-    visibleCount_ = getComputedScale().y / rowSize_ + 2;
-
+    topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
+    visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
     {
         return;
     }
 
-    remove([](const auto&){ return true; });
+    UIBase::remove([this](const auto& e)
+    {
+        return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
+    });
+
+    core::LayoutBase::ScaleXY scale
+    {
+        1_fill,
+        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
+    };
+
 
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
-        uint32_t index = topOfTheListIdx_ + i;
-        if (index >= flatItems_.size()) { break; }
+        uint64_t viewRow = topOfTheListIdx_ + i;
+        if (viewRow >= flattenedList_.size()) { break; }
 
-        // auto ref = std::make_shared<Button>("Item");
         auto itemObj = utils::make<UIButton>();
-        // auto itemObj = utils::make<UISlider>();
-        itemObj->setColor(flatItems_[index]->color);
-        itemObj->setText(flatItems_[index]->text);
-        itemObj->setScale({200_px, LayoutBase::Scale(rowSize_, LayoutBase::ScaleType::PX)})
-            .setMargin({0, 0, flatItems_[index]->depth * 20, 0});
 
-        itemObj->listenTo<elementcomposable::MouseLeftReleaseEvt>(
-            [this, index](const auto& e)
+        // core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
+        core::ModelIndex idx = flattenedList_[viewRow];
+
+        itemObj->setText(model_->data(idx));
+
+        /* Set private stuff on the visual object. */
+        itemObj->getBaseLayoutData().setScale(scale);
+        itemObj->setColor(viewRow % 2
+            ? utils::hexToVec4("#adadadff")
+            : utils::hexToVec4("#e46b6bff"));
+        itemObj->listenEvent<core::MouseLeftReleaseEvt>(
+            [this, idx](const auto&)
             {
-                log_.debug("clicked on {}", flatItems_[index]->text);
-                flatItems_[index]->open = !flatItems_[index]->open;
-                oldVisibleCount_ = 0;
-                refreshItems();
-
-                layout();
+                core::ViewLMBRelease evt{idx};
+                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
             });
-        add(itemObj);
+
+        UIBase::add(itemObj);
     }
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
 }
 
-auto UITreeView::addItem(ItemPtr&& item) -> void
+auto UITreeView::computeFlatList() -> void
 {
-    treeRoots_.emplace_back(item);
-}
+    log_.warn("start --------");
+    const core::ModelIndex root{};
 
-auto UITreeView::addItem(const ItemPtr& item) -> void
-{
-    treeRoots_.emplace_back(item);
-}
-
-auto UITreeView::removeItem(const ItemPtr& item) -> bool
-{
-    return std::erase(treeRoots_, item);
-}
-
-auto UITreeView::refreshItems() -> void
-{
     /*
-        The tree will be flattened into a normal linear vector so that it is easier to
-        index the elements using operator[] when it comes to using only a part of the tree
-        for rendering/layout purposes. The flattened list will only contain items that are
-        toggled open.
+        - Root
+            - Root_A
+                - A_0
+                - A_1
+            - Root_B
+            - Root_C
+                - C_0
+                - C_1
+                - C_2
+                    - C2_Child_0
+                    - C2_Child_1
+                    - C2_Child_2
+                - C_3
+                - C_4
+                - C_5
 
-        depth 0:      a       b
-                    / | \      \
-        depth 1:   c  d  e      f
-                      \
-        depth 2:       g
-
-        Flattened list will be (assuming all open): a c d g e b f
-        -- a           -- a
-           -- c        -- c
-           -- d        -- d
-              -- g     -- g
-           -- e        -- e
-        -- b           -- b
-           -- f        -- f
-
-        We will use pre-order traversal to populate the flat list.
+        [ Root, Root_A, A_0, A_1, Root_B, Root_C, C_0, C_1, C_2, C2_Child_0, C2_Child_1, C2_Child_2,
+            C_3, C_4, C_5 ]
     */
 
-    /* Note: An optimization could be done in the future such that tree[index] gives us
-        the visible element that would be at that index if the tree was flat.
-        A custom class iterator maybe for Item? This will half the memory needed to store items. */
-
-    flatItems_.clear();
-    auto recurseFlat = [this](const auto& self, const ItemPtrVec& items, const int32_t depth) -> void
+    auto recurse = [this](auto&& self, const core::ModelIndex r) -> void
     {
-        for (const auto& item : items)
+        // log_.error("pushing {} {}", r.row, r.internalPtr ? "not_root" : "root");
+        log_.error("rows in r {}", model_->data(r));
+        flattenedList_.push_back(r);
+        // const uint32_t rows = model_->getRowCount(r);
+        for (uint32_t i = 0; i < model_->getRowCount(r); ++i)
         {
-            item->depth = depth;
-            flatItems_.emplace_back(item);
-            if (item->open)
-            {
-                self(self, item->subItems, depth + 1);
-            }
+            const core::ModelIndex m = model_->index(i, 0, r);
+            //TODO: Something is wrong if we get root back again by this time
+            // log_.error("we have {} rows in {} ", model_->getRowCount(m), model_->data(m));
+
+            self(self, m);
         }
     };
-    recurseFlat(recurseFlat, treeRoots_, 0);
+
+    recurse(recurse, root);
+
+    /*
+
+        MI(MAX, MAX, nullptr) -> 3 rows Root
+            MI(0, 0, root_) -> 2 rows Root_A
+                MI(0, 0, Root_A) -> A_0
+
+
+
+        ModelIndex{MAX, MAX, nullptr} -> 3 rows (parent) -> Root
+            ModelIndex(0, 0, root) -> 2 rows, go back
+                ModelIndex(0, 0, ModelIndex(0, 0, root)) -> 2 rows, go back
+            ModelIndex(1, 0, root) -> 0 rows, go back
+            ModelIndex(2, 0, root) -> 0 rows, go back
+            
+    */
+
+    for (const auto& x : flattenedList_)
+    {
+        // log_.error("we have {} {}", x.row, x.internalPtr ? "not_root" : "root");
+        log_.error("we have {} ", model_->data(x));
+    }
 }
 
-auto UITreeView::Item::addItem(ItemPtr&& item) -> void
+auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
 {
-    subItems.emplace_back(std::move(item));
+    model_ = model;
+    computeFlatList();
 }
-
-auto UITreeView::Item::addItem(const ItemPtr& item) -> void
-{
-    subItems.emplace_back(item);
-}
-
-auto UITreeView::Item::removeItem(const ItemPtr& item) -> bool
-{
-    return std::erase(subItems, item);
-}
-} // namespace src::uielements
+} // namespace lav::node

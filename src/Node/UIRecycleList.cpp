@@ -3,7 +3,7 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "src/Core/ViewModels/ListAbstractModel.hpp"
+#include "src/Core/ViewModels/ListModels.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Utils/Misc.hpp"
@@ -104,8 +104,6 @@ auto UIRecycleList::onEvent(node::UIStatePtr& state) -> void
 
 auto UIRecycleList::resolveVisibleItems() -> void
 {
-    using namespace lav::core;
-
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
     visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
@@ -118,10 +116,10 @@ auto UIRecycleList::resolveVisibleItems() -> void
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
     });
 
-    LayoutBase::ScaleXY scale
+    core::LayoutBase::ScaleXY scale
     {
         1_fill,
-        LayoutBase::Scale(rowSize_, LayoutBase::ScaleType::PX)
+        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
     };
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
@@ -130,7 +128,7 @@ auto UIRecycleList::resolveVisibleItems() -> void
 
         auto itemObj = utils::make<UIButton>();
 
-        ModelIndex idx = model_->index(viewRow, 0, ModelIndex{});
+        core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
 
         itemObj->setText(model_->data(idx));
 
@@ -142,8 +140,8 @@ auto UIRecycleList::resolveVisibleItems() -> void
         itemObj->listenEvent<core::MouseLeftReleaseEvt>(
             [this, idx](const auto&)
             {
-                ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<ViewLMBRelease>(evt);
+                core::ViewLMBRelease evt{idx};
+                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
             });
 
         UIBase::add(itemObj);
@@ -152,7 +150,7 @@ auto UIRecycleList::resolveVisibleItems() -> void
     oldVisibleCount_ = visibleCount_;
 }
 
-auto UIRecycleList::setModel(const core::ListAbstractModelPtr model) -> void
+auto UIRecycleList::setModel(const core::AbstractModelPtr model) -> void
 {
     model_ = model;
 }
