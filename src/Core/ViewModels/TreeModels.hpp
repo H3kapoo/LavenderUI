@@ -27,44 +27,73 @@ public:
     {}
 
     auto index(const uint32_t row, const uint32_t,
-        const ModelIndex parent) const -> ModelIndex override
+        const ModelIndex parentIdx) const -> ModelIndex override
     {
-        if (!parent.isValid()) { return ModelIndex{row, 0, root_}; }
+        SimpleTreeItem<T>* parentItem = parentIdx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(parentIdx.internalPtr)
+            : root_;
 
-        SimpleTreeItem<T>* data = static_cast<SimpleTreeItem<T>*>(parent.internalPtr);
-        if (row >= data->children[parent.row]->children.size())
-        { 
-            return ModelIndex{};
+        return ModelIndex{row, 0, parentItem->children[row]};
+    }
+
+    auto parent(const ModelIndex idx) const -> ModelIndex
+    {
+        SimpleTreeItem<T>* item = idx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
+            : root_;
+        
+        if (item == root_) { return ModelIndex{}; }
+
+        SimpleTreeItem<T>* parentItem = item->parent;
+        if (!parentItem) { return ModelIndex{}; }
+
+        SimpleTreeItem<T>* grandParentItem = parentItem->parent;
+        if (!grandParentItem) { return ModelIndex{}; }
+
+        for (uint32_t i = 0; i < grandParentItem->children.size(); ++i)
+        {
+            if (grandParentItem->children[i] == parentItem)
+            {
+                return ModelIndex{i, 0, parentItem};
+            }
         }
 
-        ModelIndex mi{row, 0, data->children[parent.row]};
-        return mi;
+        return ModelIndex{};
+    }
+
+    auto depth(const ModelIndex& idx) const -> uint32_t
+    {
+        SimpleTreeItem<T>* item = idx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
+            : root_;
+        
+        uint32_t depth{0};
+        item = item->parent;
+        while (item != root_)
+        {
+            item = item->parent;
+            depth++;
+        }
+
+        return depth;
     }
 
     auto data(const ModelIndex idx) const -> std::string override
     {
-        // means we root
-        if (!idx.isValid())
-        {
-            return root_->data;
-        }
+        SimpleTreeItem<T>* item = idx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
+            : root_;
 
-        SimpleTreeItem<T>* data = static_cast<SimpleTreeItem<T>*>(idx.internalPtr);
-        if (idx.row >= data->children.size()) { return "No Data"; }
-
-        return data->children[idx.row]->data;
-        // return std::to_string(data_.at(idx.row));
+        if (!idx.isValid()) { return std::string{}; }
+        return item->data;
     }
 
-    auto getRowCount(const ModelIndex parent) const -> uint32_t override
+    auto getRowCount(const ModelIndex idx) const -> uint32_t override
     {
-        // we root
-        if (!parent.isValid()) { return root_->children.size(); }
-
-        SimpleTreeItem<T>* data = static_cast<SimpleTreeItem<T>*>(parent.internalPtr);
-        if (parent.row >= data->children.size()) { return 0; }
-
-        return data->children[parent.row]->children.size();
+        SimpleTreeItem<T>* item = idx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
+            : root_;
+        return item->children.size();
     }
 
 protected:

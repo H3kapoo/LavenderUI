@@ -13,10 +13,7 @@ struct ModelIndex
     uint32_t column{UINT32_MAX};
     void* internalPtr{nullptr};
 
-    bool isValid() const
-    {
-        return row != UINT32_MAX && column != UINT32_MAX;
-    }
+    bool isValid() const { return row != UINT32_MAX && column != UINT32_MAX; }
 };
 
 struct ViewLMBRelease : public core::IEventCRTP<ViewLMBRelease>
@@ -34,6 +31,7 @@ public:
         const ModelIndex parent) const -> ModelIndex = 0;
     virtual auto data(const ModelIndex idx) const -> std::string = 0;
     virtual auto getRowCount(const ModelIndex parent = ModelIndex{}) const -> uint32_t = 0;
+    virtual auto depth(const ModelIndex& idx) const -> uint32_t { return 0; }
 };
 using AbstractModelPtr = std::shared_ptr<AbstractModel>;
 } // namespace lav::core

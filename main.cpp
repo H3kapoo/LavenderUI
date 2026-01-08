@@ -50,6 +50,24 @@ SimpleTreeItemS* createTree()
     SimpleTreeItemS* A_1 = createData("A_1", root_A);
     root_A->children = {A_0, A_1};
 
+    for (int32_t i = 2; i < 7; i++)
+    {
+        SimpleTreeItemS* A_x = createData("A_" + std::to_string(i), root_A);
+        root_A->children.push_back(A_x);
+    }
+
+    for (int32_t i = 0; i < 20; i++)
+    {
+        SimpleTreeItemS* B_x = createData("B_" + std::to_string(i), root_A);
+        
+        if (i % 3 == 0)
+        {
+            SimpleTreeItemS* B_x_child_x = createData("B_Child_" + std::to_string(i), B_x);
+            B_x->children.push_back(B_x_child_x);
+        }
+        root_B->children.push_back(B_x);
+    }
+
     SimpleTreeItemS* C_0 = createData("C_0", root_C);
     SimpleTreeItemS* C_1 = createData("C_1", root_C);
     SimpleTreeItemS* C_2 = createData("C_2", root_C);
@@ -60,10 +78,10 @@ SimpleTreeItemS* createTree()
     // root_C->children = {C_0, C_1, C_2, C_3};
     // root_C->children = {C_0, C_1};
 
-    // SimpleTreeItemS* C2_Child_0 = createData("C2_Child_0", C_2);
-    // SimpleTreeItemS* C2_Child_1 = createData("C2_Child_1", C_2);
-    // SimpleTreeItemS* C2_Child_2 = createData("C2_Child_2", C_2);
-    // C_2->children = {C2_Child_0, C2_Child_1, C2_Child_2};
+    SimpleTreeItemS* C2_Child_0 = createData("C2_Child_0", C_2);
+    SimpleTreeItemS* C2_Child_1 = createData("C2_Child_1", C_2);
+    SimpleTreeItemS* C2_Child_2 = createData("C2_Child_2", C_2);
+    C_2->children = {C2_Child_0, C2_Child_1, C2_Child_2};
 
     /*
         - Root
@@ -131,7 +149,7 @@ int main()
             // log.error("clicked node id is {}", e.index.data);
             return;
         }
-        log.error("clicked node id is {}", data->children[e.index.row]->data);
+        log.error("clicked node id is {}", data->data);
     });
 
     window.lock()->add(tv);

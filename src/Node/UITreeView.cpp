@@ -111,12 +111,6 @@ auto UITreeView::resolveVisibleItems() -> void
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
     });
 
-    core::LayoutBase::ScaleXY scale
-    {
-        1_fill,
-        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
-    };
-
 
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
@@ -128,10 +122,20 @@ auto UITreeView::resolveVisibleItems() -> void
         // core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
         core::ModelIndex idx = flattenedList_[viewRow];
 
-        itemObj->setText(model_->data(idx));
+        const uint32_t depth = model_->depth(idx);
+        const int32_t margin = 50.0f * depth;
+        itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(depth));
 
         /* Set private stuff on the visual object. */
-        itemObj->getBaseLayoutData().setScale(scale);
+        core::LayoutBase::ScaleXY scale
+        {
+            core::LayoutBase::Scale(130 + margin, core::LayoutBase::ScaleType::PX),
+            core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
+        };
+
+        itemObj->getBaseLayoutData()
+            .setScale(scale)
+            .setMargin({0, 0, margin, 0});
         itemObj->setColor(viewRow % 2
             ? utils::hexToVec4("#adadadff")
             : utils::hexToVec4("#e46b6bff"));
@@ -153,60 +157,20 @@ auto UITreeView::computeFlatList() -> void
     log_.warn("start --------");
     const core::ModelIndex root{};
 
-    /*
-        - Root
-            - Root_A
-                - A_0
-                - A_1
-            - Root_B
-            - Root_C
-                - C_0
-                - C_1
-                - C_2
-                    - C2_Child_0
-                    - C2_Child_1
-                    - C2_Child_2
-                - C_3
-                - C_4
-                - C_5
-
-        [ Root, Root_A, A_0, A_1, Root_B, Root_C, C_0, C_1, C_2, C2_Child_0, C2_Child_1, C2_Child_2,
-            C_3, C_4, C_5 ]
-    */
-
-    auto recurse = [this](auto&& self, const core::ModelIndex r) -> void
+    auto genFlatlist = [this](auto&& self, const core::ModelIndex r) -> void
     {
-        // log_.error("pushing {} {}", r.row, r.internalPtr ? "not_root" : "root");
-        log_.error("rows in r {}", model_->data(r));
-        flattenedList_.push_back(r);
-        // const uint32_t rows = model_->getRowCount(r);
+        if (r.isValid())
+        {
+            flattenedList_.push_back(r);
+        }
         for (uint32_t i = 0; i < model_->getRowCount(r); ++i)
         {
             const core::ModelIndex m = model_->index(i, 0, r);
-            //TODO: Something is wrong if we get root back again by this time
-            // log_.error("we have {} rows in {} ", model_->getRowCount(m), model_->data(m));
-
             self(self, m);
         }
     };
 
-    recurse(recurse, root);
-
-    /*
-
-        MI(MAX, MAX, nullptr) -> 3 rows Root
-            MI(0, 0, root_) -> 2 rows Root_A
-                MI(0, 0, Root_A) -> A_0
-
-
-
-        ModelIndex{MAX, MAX, nullptr} -> 3 rows (parent) -> Root
-            ModelIndex(0, 0, root) -> 2 rows, go back
-                ModelIndex(0, 0, ModelIndex(0, 0, root)) -> 2 rows, go back
-            ModelIndex(1, 0, root) -> 0 rows, go back
-            ModelIndex(2, 0, root) -> 0 rows, go back
-            
-    */
+    genFlatlist(genFlatlist, root);
 
     for (const auto& x : flattenedList_)
     {
