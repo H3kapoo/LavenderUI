@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_set>
+
 #include "src/Core/ViewModels/AbstractModel.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
@@ -40,7 +42,7 @@ private:
     uint32_t rowSize_;
 
     std::vector<core::ModelIndex> flattenedList_;
-    std::vector<core::ModelIndex> expandedList_;
+    std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
 };
 using UITreeViewPtr = std::shared_ptr<UITreeView>;
 using UITreeViewWPtr = std::weak_ptr<UITreeView>;

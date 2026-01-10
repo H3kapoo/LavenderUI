@@ -72,7 +72,7 @@ struct UIBaseInitData
     elements internally by means of UIBase:: direct calls.
 */
 #define INSERT_ADD_REMOVE_NOT_ALLOWED(UIElement)\
-    auto add(const UIBasePtr&) -> bool override\
+    auto add(const UIBasePtr&, const int32_t) -> bool override\
     {\
         log_.warn("Element doesn't allow addition of new elements!");\
         return false;\
@@ -132,7 +132,7 @@ public:
 
     // TODO: These shall be all protected. If the node wants to be able to add something, expose
     // that explicitly.
-    virtual auto add(const UIBasePtr& element) -> bool;
+    virtual auto add(const UIBasePtr& element, const int32_t pos = -1) -> bool;
     virtual auto add(const UIBasePtrVec& elements) -> void;
     virtual auto remove(const std::function<bool(const UIBasePtr&)>& pred) -> uint32_t;
     virtual auto remove(const UIBasePtr& element) -> bool;

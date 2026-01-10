@@ -4,7 +4,6 @@
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
 #include "src/Core/ViewModels/AbstractModel.hpp"
-#include "src/Core/ViewModels/TreeModels.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Utils/Misc.hpp"
@@ -142,6 +141,19 @@ auto UITreeView::resolveVisibleItems() -> void
         itemObj->listenEvent<core::MouseLeftReleaseEvt>(
             [this, idx](const auto&)
             {
+                if (!expandedSet_.contains(idx))
+                {
+                    log_.warn("opening node..");
+                    expandedSet_.insert(idx);
+                }
+                else
+                {
+                    log_.warn("closing node..");
+                    expandedSet_.erase(idx);
+                }
+                oldVisibleCount_ = 0;
+                computeFlatList();
+                onLayout();
                 core::ViewLMBRelease evt{idx};
                 eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
             });
@@ -154,15 +166,15 @@ auto UITreeView::resolveVisibleItems() -> void
 
 auto UITreeView::computeFlatList() -> void
 {
-    log_.warn("start --------");
     const core::ModelIndex root{};
+
+    flattenedList_.clear();
 
     auto genFlatlist = [this](auto&& self, const core::ModelIndex r) -> void
     {
-        if (r.isValid())
-        {
-            flattenedList_.push_back(r);
-        }
+        if (r.isValid()) { flattenedList_.push_back(r); }
+        if (!expandedSet_.contains(r)) { return; }
+
         for (uint32_t i = 0; i < model_->getRowCount(r); ++i)
         {
             const core::ModelIndex m = model_->index(i, 0, r);
@@ -182,6 +194,11 @@ auto UITreeView::computeFlatList() -> void
 auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
 {
     model_ = model;
+
+    // invalid root is always in expandedSet and cannot be removed
+    core::ModelIndex root{};
+    expandedSet_.insert(root);
+
     computeFlatList();
 }
 } // namespace lav::node

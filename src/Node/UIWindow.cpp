@@ -367,6 +367,9 @@ auto UIWindow::mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset)
     {
         emitEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
     }
+
+    /* Simulate mouse wiggling in place as underlying hoveredId might change. */
+    mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
 }
 
 auto UIWindow::windowResizeSolver(const uint32_t x, const uint32_t y) -> void

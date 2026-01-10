@@ -6,6 +6,7 @@
 #include "src/Core/LavParser/LavParser.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/ResourceHandler/Mesh.hpp"
+#include "src/Core/ViewModels/ListModels.hpp"
 #include "src/Core/ViewModels/TreeModels.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Node/UIBase.hpp"
@@ -44,7 +45,6 @@ SimpleTreeItemS* createTree()
     SimpleTreeItemS* root_B = createData("Root_B", root);
     SimpleTreeItemS* root_C = createData("Root_C", root);
     root->children = {root_A, root_B, root_C};
-    // root->children = {root_C};
 
     SimpleTreeItemS* A_0 = createData("A_0", root_A);
     SimpleTreeItemS* A_1 = createData("A_1", root_A);
@@ -75,8 +75,6 @@ SimpleTreeItemS* createTree()
     SimpleTreeItemS* C_4 = createData("C_4", root_C);
     SimpleTreeItemS* C_5 = createData("C_5", root_C);
     root_C->children = {C_0, C_1, C_2, C_3, C_4, C_5};
-    // root_C->children = {C_0, C_1, C_2, C_3};
-    // root_C->children = {C_0, C_1};
 
     SimpleTreeItemS* C2_Child_0 = createData("C2_Child_0", C_2);
     SimpleTreeItemS* C2_Child_1 = createData("C2_Child_1", C_2);
@@ -123,33 +121,37 @@ int main()
     window.lock()->setColor(utils::hexToVec4("#38455eff"));
     window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
-    // std::vector<uint64_t> data =
-    //     std::views::iota(0u, 100u) |
-    //     std::ranges::to<std::vector<uint64_t>>();
+    std::vector<uint32_t> data =
+        std::views::iota(0u, 100u) |
+        std::ranges::to<std::vector<uint32_t>>();
 
-    UITreeViewPtr tv = utils::make<UITreeView>();
+    // UITreeViewPtr tv = utils::make<UITreeView>();
+    UIRecycleListPtr tv = utils::make<UIRecycleList>();
     tv->setScrollEnabled();
     tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    SimpleTreeItemS* root = createTree();
-    TreeBasicModel<std::string> model{root};
+    ListBasicModel model{data};
+    // SimpleTreeItemS* root = createTree();
+    // TreeBasicModel<std::string> model{root};
     // ListOrderedModel orderedModel{model};
     // ListFilteredModel filterModel{orderedModel,
     //     [](const uint64_t x) -> bool { return x % 2;}};
 
-    tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
+    tv->setModel(std::make_unique<ListBasicModel>(model));
+    // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
     // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
 
-    tv->listenEvent<core::ViewLMBRelease>([&log](const auto& e)
+    tv->listenEvent<core::ViewLMBRelease>([&log, &data](const auto& e)
     {
-        SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
-            (e.index.internalPtr);
-        if (!data)
-        {
-            // log.error("clicked node id is {}", e.index.data);
-            return;
-        }
-        log.error("clicked node id is {}", data->data);
+        // SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
+        //     (e.index.internalPtr);
+        // if (!data)
+        // {
+        //     // log.error("clicked node id is {}", e.index.data);
+        //     return;
+        // }
+        // log.error("clicked node id is {}", data->data);
+        log.error("clicked node id is {}", data[e.index.row]);
     });
 
     window.lock()->add(tv);

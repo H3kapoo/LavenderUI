@@ -25,7 +25,7 @@ UIBase::UIBase(UIBaseInitData&& initData)
     , isIgnoringEvents_(false)
 {}
 
-auto UIBase::add(const UIBasePtr& element) -> bool
+auto UIBase::add(const UIBasePtr& element, const int32_t pos) -> bool
 {
     if (!element)
     {
@@ -47,7 +47,15 @@ auto UIBase::add(const UIBasePtr& element) -> bool
 
     element->isParented_ = true;
     element->parent_ = weak_from_this();
-    elements_.emplace_back(element);
+
+    if (pos >= 0)
+    {
+        elements_.insert(elements_.begin() + pos, element);
+    }
+    else
+    {
+        elements_.emplace_back(element);
+    }
     return true;
 }
 

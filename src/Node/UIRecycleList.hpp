@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/Core/ViewModels/AbstractModel.hpp"
+#include "src/Node/UIButton.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
 
@@ -27,6 +28,8 @@ protected:
 private:
     auto calculateLayout() -> glm::i64vec2;
     auto resolveVisibleItems() -> void;
+    auto makeUINodeAt(const uint32_t viewRowIdx) -> UIButtonPtr;
+    auto getUINodeAt(uint32_t viewRowIdx) -> UIBasePtr;
 
 private:
     core::AbstractModelPtr model_;
@@ -37,6 +40,15 @@ private:
     int32_t oldVisibleCount_;
     uint32_t tolerance_;
     uint32_t rowSize_;
+
+    // std::vector<uint32_t> oldVisibleRows_;
+    // std::vector<uint32_t> visibleRows_;
+    uint32_t currentVisibleRowStartIdx_{0};
+    uint32_t currentVisibleRowEndIdx_{0};
+    uint32_t wantedVisibleRowStartIdx_{0};
+    uint32_t wantedVisibleRowEndIdx_{0};
+
+    std::vector<UIButtonPtr> uiButtonPool_;
 };
 using UIRecycleListPtr = std::shared_ptr<UIRecycleList>;
 using UIRecycleListWPtr = std::weak_ptr<UIRecycleList>;

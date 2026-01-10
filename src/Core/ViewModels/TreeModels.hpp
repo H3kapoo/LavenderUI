@@ -61,7 +61,7 @@ public:
         return ModelIndex{};
     }
 
-    auto depth(const ModelIndex& idx) const -> uint32_t
+    auto depth(const ModelIndex& idx) const -> uint32_t override
     {
         SimpleTreeItem<T>* item = idx.isValid()
             ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
