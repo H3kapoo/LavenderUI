@@ -4,6 +4,7 @@
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
 #include "src/Node/InternalUse/UIScroll.hpp"
+#include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
 #include "src/Utils/Misc.hpp"
@@ -37,7 +38,7 @@ UIRecycleList::UIRecycleList(UIBaseInitData&& initData)
     // vScroll_->setBorderColor(utils::hexToVec4("#df6adfff"));
 
     // mock
-    for (int32_t i = 0; i < 60; ++i)
+    for (int32_t i = 0; i < 160; ++i)
     {
         auto itemObj = utils::make<UIButton>();
         uiButtonPool_.push_back(itemObj);
@@ -114,44 +115,68 @@ auto UIRecycleList::onEvent(node::UIStatePtr& state) -> void
 auto UIRecycleList::resolveVisibleItems() -> void
 {
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
+    // visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
     {
         return;
     }
 
-    // UIBase::remove([this](const auto& e)
-    // {
-    //     return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
-    // });
-
     wantedVisibleRowStartIdx_ = topOfTheListIdx_;
     wantedVisibleRowEndIdx_ = topOfTheListIdx_ + visibleCount_;
+
+    // log_.error("CS {} CE {}", currentVisibleRowStartIdx_, currentVisibleRowEndIdx_);
+    // log_.error("WS {} WE {}", wantedVisibleRowStartIdx_, wantedVisibleRowEndIdx_);
 
     // Decide here what to remove
     if (wantedVisibleRowStartIdx_ > currentVisibleRowStartIdx_)
     {
         // remove start
         const uint32_t diff = wantedVisibleRowStartIdx_ - currentVisibleRowStartIdx_;
-        log_.warn("diff {}", diff);
-        for (uint32_t i = 0; i < diff; ++i)
+        uint32_t deleted{0};
+        uint32_t idx{0};
+        while (diff > deleted)
         {
-            UIBase::remove(getUINodeAt(i));
+            if (elements_.at(idx)->getTypeId() == node::UIScroll::typeId)
+            {
+                idx++;
+                continue;
+            }
+            UIBase::remove(elements_.at(idx));
+            deleted++;
         }
     }
+
     if (wantedVisibleRowEndIdx_ < currentVisibleRowEndIdx_)
     {
         // remove end
-        uint32_t viewRowIdx{0};
-        // UIBase::remove(getUINodeAt(viewRowIdx));
+        const uint32_t diff = currentVisibleRowEndIdx_ - wantedVisibleRowEndIdx_;
+        uint32_t deleted{0};
+        int32_t idx = elements_.size() - 1;
+        while (diff > deleted)
+        {
+            if (elements_.at(idx)->getTypeId() == node::UIScroll::typeId)
+            {
+                idx--;
+                continue;
+            }
+
+            UIBase::remove(elements_.at(idx));
+            deleted++;
+            idx--;
+        }
     }
     
     // Decide here what to add
     if (wantedVisibleRowStartIdx_ < currentVisibleRowStartIdx_)
     {
         // add start
-        uint32_t viewRowIdx{0};
-        // UIBase::add(makeUINodeAt(viewRowIdx), 0);
+        uint32_t ctr{0};
+        for (uint32_t i = wantedVisibleRowStartIdx_; i < currentVisibleRowStartIdx_; ++i)
+        {
+            UIBase::add(makeUINodeAt(i), ctr);
+            ctr++;
+        }
     }
 
     if (wantedVisibleRowEndIdx_ > currentVisibleRowEndIdx_)
@@ -160,11 +185,16 @@ auto UIRecycleList::resolveVisibleItems() -> void
         for (uint32_t i = currentVisibleRowEndIdx_; i < wantedVisibleRowEndIdx_; ++i)
         {
             UIBase::add(makeUINodeAt(i));
-            log_.warn("added at end {}", i);
         }
     }
 
     /*
+        CS 20 CE 24
+        WS 17 WE 26
+
+        18 17 20 21 22 23 24
+
+
         CS 20 CE 44
         WS 17 WE 51
 
@@ -216,8 +246,6 @@ auto UIRecycleList::resolveVisibleItems() -> void
         this way we don't need to remove all the elements, only a particular group
     */
 
-    log_.error("CS {} CE {}", currentVisibleRowStartIdx_, currentVisibleRowEndIdx_);
-    log_.error("WS {} WE {}", wantedVisibleRowStartIdx_, wantedVisibleRowEndIdx_);
 
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
@@ -229,8 +257,8 @@ auto UIRecycleList::makeUINodeAt(const uint32_t viewRowIdx) -> UIButtonPtr
 {
     if (viewRowIdx >= model_->getRowCount()) { return nullptr; }
 
-    // auto itemObj = utils::make<UIButton>();
-    auto itemObj = uiButtonPool_[viewRowIdx];
+    auto itemObj = utils::make<UIButton>();
+    // auto itemObj = uiButtonPool_[viewRowIdx];
 
     core::ModelIndex idx = model_->index(viewRowIdx, 0, core::ModelIndex{});
 
@@ -256,18 +284,16 @@ auto UIRecycleList::makeUINodeAt(const uint32_t viewRowIdx) -> UIButtonPtr
 
 auto UIRecycleList::getUINodeAt(uint32_t idx) -> UIBasePtr
 {
-    if (idx >= elements_.size()) { return nullptr; }
-    if (elements_[idx]->getTypeId() == node::UIScroll::typeId)
-    {
-        idx++;
-    }
-    if (idx >= elements_.size()) { return nullptr; }
+    std::vector<UIBasePtr> filtered;
+    std::copy_if(elements_.begin(), elements_.end(),
+        std::back_inserter(filtered),
+        [](const auto& obj)
+        {
+            return obj->getTypeId() != node::UIScroll::typeId;
+        });
 
-    // while (elements_[idx]->getTypeId() == node::UIScroll::typeId)
-    // {
-    //     idx += 1;
-    // }
-    return elements_[idx];
+    if (idx >= filtered.size()) { return nullptr; }
+    return filtered[idx];
 }
 
 auto UIRecycleList::setModel(const core::AbstractModelPtr model) -> void
