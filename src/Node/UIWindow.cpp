@@ -63,6 +63,69 @@ auto UIWindow::run() -> bool
     core::GPUBinder::get().clearColor(getColor());
     core::GPUBinder::get().clearAllBufferBits();
 
+    /* Layout. */
+    const bool shouldWiggleMouseInPlace = resolveLayoutTask();
+
+    /*
+        After layout is calculated it may happen that elements got removed/added and the previously
+        calculated hovered element became invalid.
+        In such cases, wiggle the mouse in place so that new events can propagate to the correct elements.
+        In theory the bellow solver shouldn't trigger any element to add/remove elements again, but if they do,
+        they shall calculate the layout again for themselves alone.
+    */
+    if (shouldWiggleMouseInPlace)
+    {
+        mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
+    }
+
+    /* Render. */
+    resolveRenderTask();
+
+    /* Change current mouse cursor icon if needed. */
+    if (uiState_->wantedCursorType.has_value())
+    {
+        core::WindowBinder::get().setStandardCursor(window_, uiState_->wantedCursorType.value());
+        uiState_->currentCursorType = uiState_->wantedCursorType;
+        uiState_->wantedCursorType.reset();
+    }
+
+    /* Buffer swapping and timings measurement. */
+    core::WindowBinder::get().swapBuffers(window_);
+
+    const double nowTime = core::WindowBinder::get().getTime();
+    deltaTime_ = nowTime - startTime_;
+
+    return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit_;
+}
+
+auto UIWindow::resolvePendingRawEvents() -> void
+{
+    /*
+        Call the solvers for all pending events. This will trigger specific subevents for
+        each impacted element (MouseRelease/MouseExit/etc). Don't forget to clear at the end.
+    */
+    for (const auto& rawEventCallback : pendingRawEventCallbacks_)
+    {
+        rawEventCallback();
+    }
+    clearAllUniquePendingRawEvents();
+
+    //TODO: May be deprecated now
+    /*
+        After resolving the pending events, it might happen that some elements got removed and as such
+        it could of been the hovered element that got removed. We need to rescan and resent events
+        to the newly found hovered item. Think of this as wiggling the mouse in place once.
+    */
+    // if (isElementRemovedViaEvent_)
+    // {
+    //     isElementRemovedViaEvent_ = false;
+    //     mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
+    // }
+}
+
+auto UIWindow::resolveLayoutTask() -> bool
+{
+    bool anyTreeChanged{false};
     processingQueue_.push(shared_from_this());
     while (!processingQueue_.empty())
     {
@@ -76,6 +139,22 @@ auto UIWindow::run() -> bool
         }
         calculateDynamicViewBoundsForChildElements(element);
 
+        if (element->getAndConsumeTreeChangeIfAny()) { anyTreeChanged = true; }
+
+        for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
+    }
+
+    return anyTreeChanged;
+}
+
+auto UIWindow::resolveRenderTask() -> void
+{
+    processingQueue_.push(shared_from_this());
+    while (!processingQueue_.empty())
+    {
+        UIBasePtr element = processingQueue_.front();
+        processingQueue_.pop();
+
         if (shouldElementBeRendered(element))
         {
             setupScissorAreaForElement(element, projection_);
@@ -84,21 +163,6 @@ auto UIWindow::run() -> bool
 
         for (const auto& childEl : element->getElements()) { processingQueue_.push(childEl); }
     }
-
-    /* Change current mouse cursor icon if needed. */
-    if (uiState_->wantedCursorType.has_value())
-    {
-        core::WindowBinder::get().setStandardCursor(window_, uiState_->wantedCursorType.value());
-        uiState_->currentCursorType = uiState_->wantedCursorType;
-        uiState_->wantedCursorType.reset();
-    }
-
-    core::WindowBinder::get().swapBuffers(window_);
-
-    const double nowTime = core::WindowBinder::get().getTime();
-    deltaTime_ = nowTime - startTime_;
-
-    return core::WindowBinder::get().shouldWindowClose(window_) || shouldManuallyQuit_;
 }
 
 auto UIWindow::quit() -> void { shouldManuallyQuit_ = true; }
@@ -208,35 +272,11 @@ auto UIWindow::clearAllUniquePendingRawEvents() -> void
     pendingRawEventIds_.clear();
 }
 
-auto UIWindow::resolvePendingRawEvents() -> void
-{
-    /*
-        Call the solvers for all pending events. This will trigger specific subevents for
-        each impacted element (MouseRelease/MouseExit/etc). Don't forget to clear at the end.
-    */
-    for (const auto& rawEventCallback : pendingRawEventCallbacks_)
-    {
-        rawEventCallback();
-    }
-    clearAllUniquePendingRawEvents();
-
-    /*
-        After resolving the pending events, it might happen that some elements got removed and as such
-        it could of been the hovered element that got removed. We need to rescan and resent events
-        to the newly found hovered item. Think of this as wiggling the mouse in place once.
-    */
-    if (isElementRemovedViaEvent_)
-    {
-        isElementRemovedViaEvent_ = false;
-        mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
-    }
-}
-
 auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t> nodeId) -> void
 {
     uiState_->currentEventId = evt.getEventId();
 
-    // TODO: Storing weak_ptrs to the nodes would be much more efficient
+    // TODO: Storing weak_ptrs to the nodes would be much more effici`ent
     // and we could use the processing queue just to find the hovered node
     processingQueue_.push(shared_from_this());
     while (!processingQueue_.empty())
@@ -288,6 +328,7 @@ auto UIWindow::scanForHoveredNode() -> void
         */
         if (node->layoutBase_.getZIndex() > maxZIndexSoFar
             && node->layoutBase_.isPointInsideView(uiState_->mousePos))
+            // && node->layoutBase_.isPointInside(uiState_->mousePos))
         {
             uiState_->hoveredId = node->getId();
             uiState_->hoveredTypeId = node->getTypeId();
@@ -361,15 +402,15 @@ auto UIWindow::mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset)
 {
     uiState_->scrollOffset = {xOffset, yOffset};
 
+    /* Simulate mouse wiggling in place as underlying hoveredId might change. */
+    mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
+
     emitEventTo(core::MouseScrollEvt{}, uiState_->hoveredId);
     if (uiState_->hoveredId != uiState_->closestScrollId
         && uiState_->hoveredTypeId != node::UISlider::typeId)
     {
         emitEventTo(core::MouseScrollEvt{}, uiState_->closestScrollId);
     }
-
-    /* Simulate mouse wiggling in place as underlying hoveredId might change. */
-    mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
 }
 
 auto UIWindow::windowResizeSolver(const uint32_t x, const uint32_t y) -> void

@@ -28,8 +28,10 @@ protected:
 private:
     auto calculateLayout() -> glm::i64vec2;
     auto resolveVisibleItems() -> void;
-    auto makeUINodeAt(const uint32_t viewRowIdx) -> UIButtonPtr;
-    auto getUINodeAt(uint32_t viewRowIdx) -> UIBasePtr;
+    auto growVisibleItems(const int32_t count, const bool atFront) -> void;
+    auto shrinkVisibleItems(const int32_t count, const bool atFront) -> void;
+    auto fillVisibleItems(const uint32_t viewRowIdx, const int32_t count, const bool atFront) -> void;
+    auto getElementAt(const uint32_t index) -> UIBasePtr;
 
 private:
     core::AbstractModelPtr model_;
@@ -41,8 +43,6 @@ private:
     uint32_t tolerance_;
     uint32_t rowSize_;
 
-    // std::vector<uint32_t> oldVisibleRows_;
-    // std::vector<uint32_t> visibleRows_;
     uint32_t currentVisibleRowStartIdx_{0};
     uint32_t currentVisibleRowEndIdx_{0};
     uint32_t wantedVisibleRowStartIdx_{0};

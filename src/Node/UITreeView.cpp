@@ -19,7 +19,7 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     , visibleCount_{0}
     , oldVisibleCount_{-1}
     , tolerance_{2}
-    , rowSize_{16}
+    , rowSize_{22}
 {
     setScrollEnabled(false, true);
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
@@ -27,6 +27,13 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
     layoutBase_.setBorder(4);
     vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
+
+    // mock
+    for (int32_t i = 0; i < 160; ++i)
+    {
+        auto itemObj = utils::make<UIButton>();
+        uiButtonPool_.push_back(itemObj);
+    }
 }
 
 auto UITreeView::onRender(const glm::mat4& projection) -> void
@@ -98,6 +105,11 @@ auto UITreeView::onEvent(node::UIStatePtr& state) -> void
 
 auto UITreeView::resolveVisibleItems() -> void
 {
+    // TODO: If we have enough space to accomodate new items as is, then do not remove
+    // the items that are already in place. This minimizes the times we need to do
+    // this complex op
+    // Not sure if this goes the other way around, if there are less items to show than
+    // current visible count.
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
     visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
@@ -110,20 +122,19 @@ auto UITreeView::resolveVisibleItems() -> void
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
     });
 
-
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
         uint64_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= flattenedList_.size()) { break; }
 
-        auto itemObj = utils::make<UIButton>();
+        auto itemObj = uiButtonPool_[viewRow % uiButtonPool_.size()];
 
-        // core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
         core::ModelIndex idx = flattenedList_[viewRow];
 
         const uint32_t depth = model_->depth(idx);
         const int32_t margin = 50.0f * depth;
-        itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(depth));
+        // itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(depth));
+        itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(itemObj->getId()));
 
         /* Set private stuff on the visual object. */
         core::LayoutBase::ScaleXY scale
@@ -141,31 +152,32 @@ auto UITreeView::resolveVisibleItems() -> void
         itemObj->listenEvent<core::MouseLeftReleaseEvt>(
             [this, idx](const auto&)
             {
-                if (!expandedSet_.contains(idx))
-                {
-                    log_.warn("opening node..");
-                    expandedSet_.insert(idx);
-                }
-                else
-                {
-                    log_.warn("closing node..");
-                    expandedSet_.erase(idx);
-                }
+                core::ViewLMBRelease evt{idx};
+                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
+
+                /*
+                    Note: After each expansion/collapse, we need to redo the flat list and recalculate the layout
+                    as things changed in the UITreeView's internal structure.
+                */
+                expandedSet_.contains(idx) ? (void)expandedSet_.erase(idx) : (void)expandedSet_.insert(idx);
+                
                 oldVisibleCount_ = 0;
                 computeFlatList();
                 onLayout();
-                core::ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
             });
 
         UIBase::add(itemObj);
     }
+    log_.warn("here");
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
 }
 
 auto UITreeView::computeFlatList() -> void
 {
+    // TODO: If Node A has child Node B with children and we collapse node A, Node B's children
+    // shall also be collapsed the next time we open Node A.
+    // Basically propagate collapse state "down the tree".
     const core::ModelIndex root{};
 
     flattenedList_.clear();
@@ -183,12 +195,6 @@ auto UITreeView::computeFlatList() -> void
     };
 
     genFlatlist(genFlatlist, root);
-
-    for (const auto& x : flattenedList_)
-    {
-        // log_.error("we have {} {}", x.row, x.internalPtr ? "not_root" : "root");
-        log_.error("we have {} ", model_->data(x));
-    }
 }
 
 auto UITreeView::setModel(const core::AbstractModelPtr model) -> void

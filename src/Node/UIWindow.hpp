@@ -42,12 +42,14 @@ public:
 private:
     using RawEventCallback = std::function<void()>;
 
+    auto resolvePendingRawEvents() -> void;
+    auto resolveLayoutTask() -> bool;
+    auto resolveRenderTask() -> void;
     auto setupInputCallbacks() -> void;
     auto initializeDefaultCursor() -> void;
     auto updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void;
     auto insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void;
     auto clearAllUniquePendingRawEvents() -> void;
-    auto resolvePendingRawEvents() -> void;
     auto emitEventTo(const core::IEvent& event, const std::optional<uint32_t> nodeId) -> void;
     auto scanForHoveredNode() -> void;
 
@@ -71,19 +73,18 @@ private:
 
 private:
     core::WindowBinder::InputCallbacks cbs_;
+    std::queue<UIBasePtr> processingQueue_;
+    std::vector<RawEventCallback> pendingRawEventCallbacks_;
+    std::unordered_set<uint32_t> pendingRawEventIds_;
     core::WindowHandle window_;
     glm::mat4 projection_;
     std::string title_;
-    std::queue<UIBasePtr> processingQueue_;
     UIStatePtr uiState_;
     double startTime_;
     double deltaTime_;
     bool shouldManuallyQuit_;
     bool isMainWindow_;
 
-    // Raw events
-    std::vector<RawEventCallback> pendingRawEventCallbacks_;
-    std::unordered_set<uint32_t> pendingRawEventIds_;
     bool isElementRemovedViaEvent_;
 
     static int32_t MAX_LAYERS;

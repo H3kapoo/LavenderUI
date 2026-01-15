@@ -45,6 +45,7 @@ auto UIBase::add(const UIBasePtr& element, const int32_t pos) -> bool
         return false;
     }
 
+    isTreeStructureChanged_ = true;
     element->isParented_ = true;
     element->parent_ = weak_from_this();
 
@@ -76,6 +77,8 @@ auto UIBase::remove(const std::function<bool(const UIBasePtr&)>& pred) -> uint32
                     log_.warn("Can't remove null or moved from node!");
                     return false;
                 }
+
+                isTreeStructureChanged_ = true;
                 e->parent_.reset();
                 e->isParented_ = false;
                 return true;
@@ -116,6 +119,13 @@ auto UIBase::resetElementsToDefault() -> void
 
         node->onResetToDefault();
     }
+}
+
+auto UIBase::getAndConsumeTreeChangeIfAny() -> bool
+{
+    const bool cache = isTreeStructureChanged_;
+    isTreeStructureChanged_ = false;
+    return cache;
 }
 
 auto UIBase::setIgnoreEvents(const bool ignore) -> void { isIgnoringEvents_ = ignore; }

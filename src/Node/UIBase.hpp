@@ -171,6 +171,8 @@ protected:
     virtual auto onEvent(UIStatePtr& state) -> void = 0;
     virtual auto onResetToDefault() -> void;
 
+    auto getAndConsumeTreeChangeIfAny() -> bool;
+
 private:
     static auto demangleName(const char* name) -> std::string;
 
@@ -190,6 +192,7 @@ protected:
     uint32_t depth_;
     bool isParented_;
     bool isIgnoringEvents_;
+    bool isTreeStructureChanged_;
 };
 } // namespace lav::node
 

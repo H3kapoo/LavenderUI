@@ -3,6 +3,7 @@
 #include <unordered_set>
 
 #include "src/Core/ViewModels/AbstractModel.hpp"
+#include "src/Node/UIButton.hpp"
 #include "src/Node/UIPane.hpp"
 #include "src/Node/UIBase.hpp"
 
@@ -41,6 +42,7 @@ private:
     uint32_t tolerance_;
     uint32_t rowSize_;
 
+    std::vector<UIButtonPtr> uiButtonPool_;
     std::vector<core::ModelIndex> flattenedList_;
     std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
 };

@@ -23,6 +23,7 @@
 #include "src/Utils/Misc.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <ranges>
 #include <thread>
 
@@ -50,13 +51,13 @@ SimpleTreeItemS* createTree()
     SimpleTreeItemS* A_1 = createData("A_1", root_A);
     root_A->children = {A_0, A_1};
 
-    for (int32_t i = 2; i < 7; i++)
+    for (int32_t i = 2; i < 77; i++)
     {
         SimpleTreeItemS* A_x = createData("A_" + std::to_string(i), root_A);
         root_A->children.push_back(A_x);
     }
 
-    for (int32_t i = 0; i < 20; i++)
+    for (int32_t i = 0; i < 20'000; i++)
     {
         SimpleTreeItemS* B_x = createData("B_" + std::to_string(i), root_A);
         
@@ -125,36 +126,51 @@ int main()
         std::views::iota(0u, 100u) |
         std::ranges::to<std::vector<uint32_t>>();
 
-    // UITreeViewPtr tv = utils::make<UITreeView>();
-    UIRecycleListPtr tv = utils::make<UIRecycleList>();
+    UITreeViewPtr tv = utils::make<UITreeView>();
+    // UIRecycleListPtr tv = utils::make<UIRecycleList>();
     tv->setScrollEnabled();
     tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    ListBasicModel model{data};
-    // SimpleTreeItemS* root = createTree();
-    // TreeBasicModel<std::string> model{root};
+    // ListBasicModel model{data};
+    SimpleTreeItemS* root = createTree();
+    TreeBasicModel<std::string> model{root};
     // ListOrderedModel orderedModel{model};
     // ListFilteredModel filterModel{orderedModel,
     //     [](const uint64_t x) -> bool { return x % 2;}};
 
-    tv->setModel(std::make_unique<ListBasicModel>(model));
-    // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
+    // tv->setModel(std::make_unique<ListBasicModel>(model));
+    tv->setScrollSensitivity(5);
+    tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
     // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
 
     tv->listenEvent<core::ViewLMBRelease>([&log, &data](const auto& e)
     {
-        // SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
-        //     (e.index.internalPtr);
-        // if (!data)
-        // {
-        //     // log.error("clicked node id is {}", e.index.data);
-        //     return;
-        // }
-        // log.error("clicked node id is {}", data->data);
-        log.error("clicked node id is {}", data[e.index.row]);
+        SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
+            (e.index.internalPtr);
+        if (!data)
+        {
+            // log.error("clicked node id is {}", e.index.data);
+            return;
+        }
+        log.error("clicked node id is {}", data->data);
+        // log.error("clicked node id is {}", data[e.index.row]);
     });
 
     window.lock()->add(tv);
+
+    // std::jthread t1([&data, &log]()
+    // {
+    //     static uint32_t ctr = 0;
+    //     while (ctr < 100)
+    //     {
+    //         std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    //         uint32_t value = ctr;
+    //         ctr++;
+    //         data.push_back(value);
+    //         log.debug("Adding new value {}", value);
+    //         WindowBinder::get().requestEmptyEvent();
+    //     }
+    // });
 
     app.run();
     return 0;
