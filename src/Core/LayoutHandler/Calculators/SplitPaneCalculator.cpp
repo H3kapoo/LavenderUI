@@ -1,4 +1,4 @@
-#include "SplitPaneCalculator.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
 
 namespace lav::core
 {

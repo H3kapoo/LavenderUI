@@ -1,4 +1,5 @@
-#include "Logger.hpp"
+#include "include/LavenderUI/Utils/Logger.hpp"
+
 #include <filesystem>
 
 namespace lav::utils

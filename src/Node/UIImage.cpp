@@ -1,9 +1,9 @@
-#include "UIImage.hpp"
+#include "include/LavenderUI/Node/UIImage.hpp"
 
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/LayoutHandler/BaseCalculator.hpp"
-#include "src/Core/ResourceHandler/TextureLoader.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/TextureLoader.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -37,7 +37,7 @@ auto UIImage::onLayout() -> void
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UIImage::onEvent(UIStatePtr&) -> void
+auto UIImage::onEvent(core::UIStatePtr&) -> void
 {}
 
 auto UIImage::setImage(const std::filesystem::path& path) -> bool

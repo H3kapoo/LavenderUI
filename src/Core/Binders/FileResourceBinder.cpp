@@ -1,7 +1,7 @@
-#include "FileResourceBinder.hpp"
+#include "include/LavenderUI/Core/Binders/FileResourceBinder.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "vendor/stb/stbi_image.hpp"
+#include "thirdparty/stb/stbi_image.hpp"
 
 namespace lav::core
 {

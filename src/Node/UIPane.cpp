@@ -1,11 +1,11 @@
-#include "UIPane.hpp"
+#include "include/LavenderUI/Node/UIPane.hpp"
 
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "src/Core/ResourceHandler/Shader.hpp"
-#include "src/Node/Helpers/UIState.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
+#include "include/LavenderUI/Core/State/UIState.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -49,7 +49,7 @@ auto UIPane::onLayout() -> void
     });
 }
 
-auto UIPane::onEvent(node::UIStatePtr& state) -> void
+auto UIPane::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseButtonEvt::eventId)
@@ -140,7 +140,7 @@ auto UIPane::removeAndSetIfNeeded(const UIScrollPtr scrollNode, const int32_t ov
 
 auto UIPane::getClosestScrollbar(const glm::ivec2 pMouse) const -> uint32_t
 {
-    uint32_t closestScrollbarId{node::NOTHING};
+    uint32_t closestScrollbarId{core::NOTHING};
 
     /* When outside the UIScroll, prioritize vertical bar no matter where the mouse is. */
     //TODO: Actually yes, take into consideration if we are inside the pane that has the scroll enabled

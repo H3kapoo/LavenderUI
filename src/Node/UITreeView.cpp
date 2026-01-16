@@ -1,12 +1,12 @@
-#include "UITreeView.hpp"
+#include "include/LavenderUI/Node/UITreeView.hpp"
 
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/LayoutBase.hpp"
-#include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "src/Core/ViewModels/AbstractModel.hpp"
-#include "src/Node/UIButton.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
+#include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
+#include "include/LavenderUI/Node/UIButton.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -91,7 +91,7 @@ auto UITreeView::calculateLayout() -> glm::i64vec2
     return overflow;
 }
 
-auto UITreeView::onEvent(node::UIStatePtr& state) -> void
+auto UITreeView::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseMoveEvt::eventId)
@@ -175,6 +175,30 @@ auto UITreeView::resolveVisibleItems() -> void
 
 auto UITreeView::computeFlatList() -> void
 {
+    /*
+        The tree will be flattened into a normal linear vector so that it is easier to
+        index the elements using operator[] when it comes to using only a part of the tree
+        for rendering/layout purposes. The flattened list will only contain items that are
+        toggled open.
+
+        depth 0:      a       b
+                    / | \      \
+        depth 1:   c  d  e      f
+                      \
+        depth 2:       g
+
+        Flattened list will be (assuming all open): a c d g e b f
+        -- a           -- a
+           -- c        -- c
+           -- d        -- d
+              -- g     -- g
+           -- e        -- e
+        -- b           -- b
+           -- f        -- f
+
+        We will use pre-order traversal to populate the flat list.
+    */
+
     // TODO: If Node A has child Node B with children and we collapse node A, Node B's children
     // shall also be collapsed the next time we open Node A.
     // Basically propagate collapse state "down the tree".
@@ -206,5 +230,10 @@ auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
     expandedSet_.insert(root);
 
     computeFlatList();
+}
+
+auto UITreeView::setRowSize(const uint32_t value) -> void
+{
+    rowSize_ = value;
 }
 } // namespace lav::node

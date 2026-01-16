@@ -1,6 +1,7 @@
-#include "FontLoader.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/ResourceHandler/Font.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/FontLoader.hpp"
+
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
 
 namespace lav::core
 {
@@ -58,7 +59,7 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
 
     if (fontSize < MIN_FONT_SIZE || fontSize > MAX_FONT_SIZE)
     {
-        log_.error("Failed to load font: \"%s\". Size is out of bounds: %d. Will keep previous font size.",
+        log_.error("Failed to load font: \"{}\". Size is out of bounds: {}. Will keep previous font size.",
             fontPath.c_str(), fontSize);
         return font;
     }
@@ -66,7 +67,7 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
     FT_Face ftFace;
     if (FT_New_Face(ftLib_, fontPath.c_str(), 0, &ftFace))
     {
-        log_.error("Failed to load font: \"%s\". Will keep previous font.", fontPath.c_str());
+        log_.error("Failed to load font: \"{}\". Will keep previous font.", fontPath.c_str());
         return font;
     }
 

@@ -1,11 +1,11 @@
-#include "UIButton.hpp"
+#include "include/LavenderUI/Node/UIButton.hpp"
 
 #include <optional>
 
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Utils/Misc.hpp"
-#include "src/Core/LayoutHandler/BaseCalculator.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 
 namespace lav::node
 {
@@ -45,7 +45,7 @@ auto UIButton::onLayout() -> void
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UIButton::onEvent(UIStatePtr& state) -> void
+auto UIButton::onEvent(core::UIStatePtr& state) -> void
 {
     if (!isBtnEnabled_) { return; }
 

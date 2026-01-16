@@ -1,7 +1,7 @@
 #include "UIScroll.hpp"
 
-#include "src/Node/UIBase.hpp"
-#include "src/Node/UISlider.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
+#include "include/LavenderUI/Node/UISlider.hpp"
 
 namespace lav::node
 {
@@ -20,7 +20,7 @@ auto UIScroll::onLayout() -> void
     UISlider::onLayout();
 }
 
-auto UIScroll::onEvent(node::UIStatePtr& state) -> void
+auto UIScroll::onEvent(core::UIStatePtr& state) -> void
 {
     return UISlider::onEvent(state);
 }

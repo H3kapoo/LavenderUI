@@ -1,10 +1,10 @@
-#include "UILabel.hpp"
+#include "include/LavenderUI/Node/UILabel.hpp"
 
 #include <optional>
 
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -50,7 +50,7 @@ auto UILabel::onLayout() -> void
     textAttribs_.setPosition({p.x, p.y, layoutBase_.getZIndex()});
 }
 
-auto UILabel::onEvent(UIStatePtr& state) -> void
+auto UILabel::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftClickEvt::eventId)

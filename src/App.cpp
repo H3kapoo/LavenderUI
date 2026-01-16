@@ -1,11 +1,11 @@
-#include "App.hpp"
+#include "include/LavenderUI/App.hpp"
 
 #include <algorithm>
 
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/Binders/WindowBinder.hpp"
-#include "src/Core/LavParser/LavParser.hpp"
-#include "src/Node/UIBase.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include "include/LavenderUI/Core/ViewParser/LavParser.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
 
 namespace lav
 {

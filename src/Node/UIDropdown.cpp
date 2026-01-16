@@ -1,13 +1,13 @@
-#include "UIDropdown.hpp"
+#include "include/LavenderUI/Node/UIDropdown.hpp"
 
-#include "src/Core/Binders/WindowBinder.hpp"
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/Calculators/DropdownCalculator.hpp"
-#include "src/Core/LayoutHandler/LayoutBase.hpp"
-#include "src/Node/Helpers/UIState.hpp"
-#include "src/Node/UIBase.hpp"
-#include "src/Node/UIButton.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/DropdownCalculator.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "include/LavenderUI/Core/State/UIState.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
+#include "include/LavenderUI/Node/UIButton.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -43,7 +43,7 @@ auto UIDropdown::onLayout() -> void
     calculator.calculatePositionForDropdownElement(this);
 }
 
-auto UIDropdown::onEvent(node::UIStatePtr& state) -> void
+auto UIDropdown::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftReleaseEvt::eventId)

@@ -1,10 +1,11 @@
-#include "LayoutBase.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 
-#include "src/Utils/Misc.hpp"
-#include "vendor/glm/ext/vector_float2.hpp"
-#include "vendor/glm/gtc/matrix_transform.hpp"
-#include "vendor/glm/trigonometric.hpp"
 #include <cmath>
+
+#include "include/LavenderUI/Utils/Misc.hpp"
+#include "thirdparty/glm/ext/vector_float2.hpp"
+#include "thirdparty/glm/gtc/matrix_transform.hpp"
+#include "thirdparty/glm/trigonometric.hpp"
 
 namespace lav::core
 {

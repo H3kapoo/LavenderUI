@@ -1,10 +1,9 @@
 set -xe
 
-CXX=$(which g++-14) cmake -B artifacts -GNinja .
-cmake --build artifacts
+CXX=$(which g++-14) cmake -B bbuild -GNinja .
+cmake --build bbuild
 
-cd debug
-mv toying ../toying
+cd lib
+cp lavenderui ../lavenderui
 cd ..
-rm -rf debug/
-./toying
+./lavenderui

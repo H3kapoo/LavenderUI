@@ -1,6 +1,7 @@
-#include "TextureLoader.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/Binders/FileResourceBinder.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/TextureLoader.hpp"
+
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/Binders/FileResourceBinder.hpp"
 
 namespace lav::core
 {

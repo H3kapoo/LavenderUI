@@ -1,12 +1,12 @@
-#include "UIBase.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
 
 #include <algorithm>
 #include <cxxabi.h>
 #include <queue>
 
-#include "src/Core/ResourceHandler/ShaderLoader.hpp"
-#include "src/Core/ResourceHandler/MeshLoader.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/MeshLoader.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {

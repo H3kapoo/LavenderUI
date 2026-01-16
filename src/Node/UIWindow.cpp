@@ -1,21 +1,21 @@
-#include "UIWindow.hpp"
+#include "include/LavenderUI/Node/UIWindow.hpp"
 
 #include <algorithm>
 #include <optional>
 
-#include "src/App.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/Binders/WindowBinder.hpp"
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/BaseCalculator.hpp"
-#include "src/Node/Helpers/UIState.hpp"
+#include "include/LavenderUI/App.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
+#include "include/LavenderUI/Core/State/UIState.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
+#include "include/LavenderUI/Node/UIDropdown.hpp"
+#include "include/LavenderUI/Node/UIPane.hpp"
+#include "include/LavenderUI/Node/UISlider.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 #include "src/Node/InternalUse/UIScroll.hpp"
-#include "src/Node/UIBase.hpp"
-#include "src/Node/UIDropdown.hpp"
-#include "src/Node/UIPane.hpp"
-#include "src/Node/UISlider.hpp"
-#include "src/Utils/Misc.hpp"
-#include "vendor/glm/ext/matrix_clip_space.hpp"
+#include "thirdparty/glm/ext/matrix_clip_space.hpp"
 
 namespace lav::node
 {
@@ -27,7 +27,7 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     : UIBase({"UIWindow", "elemVert.glsl", "elemFrag.glsl"})
     , window_(core::WindowBinder::get().createWindow(title, size))
     , title_(title)
-    , uiState_(utils::make<UIState>())
+    , uiState_(utils::make<core::UIState>())
     , startTime_(0)
     , deltaTime_(0)
     , shouldManuallyQuit_(false)
@@ -73,7 +73,7 @@ auto UIWindow::run() -> bool
         In theory the bellow solver shouldn't trigger any element to add/remove elements again, but if they do,
         they shall calculate the layout again for themselves alone.
     */
-    if (shouldWiggleMouseInPlace && uiState_->hoveredId != node::NOTHING)
+    if (shouldWiggleMouseInPlace && uiState_->hoveredId != core::NOTHING)
     {
         // TODO: Maybe it can be improved even more to skip any redundant wiggles.
         mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
@@ -344,7 +344,7 @@ auto UIWindow::mouseMoveSolver(const int32_t newX, const int32_t newY) -> void
 {
     const glm::ivec2 newMouse = utils::clamp({newX, newY}, {0, 0}, uiState_->windowSize);
     uint32_t prevHoveredId = uiState_->hoveredId;
-    uiState_->hoveredId = node::NOTHING;
+    uiState_->hoveredId = core::NOTHING;
     uiState_->mouseDiff = newMouse - uiState_->mousePos;
     uiState_->mousePos = newMouse;
 
@@ -352,7 +352,7 @@ auto UIWindow::mouseMoveSolver(const int32_t newX, const int32_t newY) -> void
     uint32_t currHoveredId = uiState_->hoveredId;
 
     /* Entered the window for the first time */
-    if (prevHoveredId == node::NOTHING)
+    if (prevHoveredId == core::NOTHING)
     {
         emitEventTo(core::MouseEnterEvt{}, currHoveredId);
     }
@@ -365,7 +365,7 @@ auto UIWindow::mouseMoveSolver(const int32_t newX, const int32_t newY) -> void
     }
 
     /* Handle dragging on the clicked id */
-    if (uiState_->clickedId != node::NOTHING
+    if (uiState_->clickedId != core::NOTHING
         && uiState_->mouseAction == Action::PRESS
         && uiState_->mouseButton == Mouse::LEFT)
     {
@@ -391,7 +391,7 @@ auto UIWindow::mouseButtonSolver(const uint32_t btn, const uint32_t action) -> v
     else if (btn == Mouse::LEFT && action == Action::RELEASE)
     {
         uiState_->isDragging = false;
-        uiState_->clickedId = node::NOTHING;
+        uiState_->clickedId = core::NOTHING;
         emitEventTo(core::MouseLeftReleaseEvt{}, uiState_->selectedId);
     }
 
@@ -431,8 +431,8 @@ auto UIWindow::windowMouseEnterSolver(const bool entered) -> void
     else
     {
         emitEventTo(core::MouseExitEvt{}, uiState_->hoveredId);
-        uiState_->hoveredId = node::NOTHING;
-        uiState_->prevHoveredId = node::NOTHING;
+        uiState_->hoveredId = core::NOTHING;
+        uiState_->prevHoveredId = core::NOTHING;
     }
 }
 
@@ -468,7 +468,7 @@ auto UIWindow::onLayout() -> void
     calculator.calculateAlignmentForElements(this, overflow);
 }
 
-auto UIWindow::onEvent(UIStatePtr& state) -> void
+auto UIWindow::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseEnterEvt::eventId)

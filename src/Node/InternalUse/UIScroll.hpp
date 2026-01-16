@@ -1,7 +1,7 @@
 #pragma once
 
-#include "src/Node/UIBase.hpp"
-#include "src/Node/UISlider.hpp"
+#include "include/LavenderUI/Node/UIBase.hpp"
+#include "include/LavenderUI/Node/UISlider.hpp"
 
 namespace lav::node
 {
@@ -19,7 +19,7 @@ public:
 private:
     auto onRender(const glm::mat4& projection) -> void override;
     auto onLayout() -> void override;
-    auto onEvent(node::UIStatePtr& state) -> void override;
+    auto onEvent(core::UIStatePtr& state) -> void override;
 
 public:
     static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index */;

@@ -1,8 +1,8 @@
-#include "MeshLoader.hpp"
+#include "include/LavenderUI/Core/ResourceHandler/MeshLoader.hpp"
 
 #include <vector>
 
-#include "src/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 
 namespace lav::core
 {

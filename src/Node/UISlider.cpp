@@ -1,10 +1,10 @@
-#include "UISlider.hpp"
+#include "include/LavenderUI/Node/UISlider.hpp"
 
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
-#include "src/Node/UILabel.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
+#include "include/LavenderUI/Node/UILabel.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -68,7 +68,7 @@ auto UISlider::onLayout() -> void
     calculator.calculatePositionForGenericElement(this);
 }
 
-auto UISlider::onEvent(node::UIStatePtr& state) -> void
+auto UISlider::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
     if (eId == core::MouseScrollEvt::eventId)

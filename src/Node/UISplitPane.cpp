@@ -1,13 +1,13 @@
-#include "UISplitPane.hpp"
+#include "include/LavenderUI/Node/UISplitPane.hpp"
 
-#include "src/Core/EventHandler/IEvent.hpp"
-#include "src/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
-#include "src/Core/LayoutHandler/LayoutBase.hpp"
-#include "src/Core/Binders/GPUBinder.hpp"
-#include "src/Node/Helpers/UIState.hpp"
-#include "src/Node/UIButton.hpp"
-#include "src/Node/UIPane.hpp"
-#include "src/Utils/Misc.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include "include/LavenderUI/Core/State/UIState.hpp"
+#include "include/LavenderUI/Node/UIButton.hpp"
+#include "include/LavenderUI/Node/UIPane.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
@@ -61,7 +61,7 @@ auto UISplitPane::onLayout() -> void
     calculator.calculateSplitPaneElements(this, draggedHandleId_, mousePos_);
 }
 
-auto UISplitPane::onEvent(node::UIStatePtr& state) -> void
+auto UISplitPane::onEvent(core::UIStatePtr& state) -> void
 {
     if (state->currentEventId == core::MouseMoveEvt::eventId)
     {
@@ -173,7 +173,7 @@ auto UISplitPane::removePaneIdx(const uint32_t idx) -> void
     }
 }
 
-auto UISplitPane::handleSpecificEventsOnHandles(node::UIStatePtr& state) -> void
+auto UISplitPane::handleSpecificEventsOnHandles(core::UIStatePtr& state) -> void
 {
     if (draggedHandleId_ == NO_HANDLE_ACQUIRED
         && state->currentEventId == core::MouseMoveEvt::eventId

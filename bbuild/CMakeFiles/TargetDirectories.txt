@@ -1,0 +1,3 @@
+/home/hekapoo/Documents/probe/LavenderUI/bbuild/CMakeFiles/lavenderui.dir
+/home/hekapoo/Documents/probe/LavenderUI/bbuild/CMakeFiles/edit_cache.dir
+/home/hekapoo/Documents/probe/LavenderUI/bbuild/CMakeFiles/rebuild_cache.dir
