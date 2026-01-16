@@ -73,8 +73,9 @@ auto UIWindow::run() -> bool
         In theory the bellow solver shouldn't trigger any element to add/remove elements again, but if they do,
         they shall calculate the layout again for themselves alone.
     */
-    if (shouldWiggleMouseInPlace)
+    if (shouldWiggleMouseInPlace && uiState_->hoveredId != node::NOTHING)
     {
+        // TODO: Maybe it can be improved even more to skip any redundant wiggles.
         mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
     }
 

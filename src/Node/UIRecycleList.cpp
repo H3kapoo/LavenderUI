@@ -3,7 +3,6 @@
 #include "src/Core/EventHandler/IEvent.hpp"
 #include "src/Core/LayoutHandler/LayoutBase.hpp"
 #include "src/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "src/Node/InternalUse/UIScroll.hpp"
 #include "src/Node/UIBase.hpp"
 #include "src/Node/UIButton.hpp"
 #include "src/Core/Binders/GPUBinder.hpp"
@@ -16,13 +15,13 @@ UIRecycleList::UIRecycleList(UIBaseInitData&& initData)
     : UIPane(std::move(initData))
     , model_{nullptr}
     , selectedId_(0)
+    , tolerance_{2}
+    // , rowSize_{16}
+    , rowSize_{28}
     , topOfTheListIdx_{0}
     , oldTopOfTheListIdx_{-1}
     , visibleCount_{0}
     , oldVisibleCount_{-1}
-    , tolerance_{2}
-    // , rowSize_{16}
-    , rowSize_{28}
 {
     setScrollEnabled(false, true);
     // setBorderColor(utils::hexToVec4("#eefcffff"));
@@ -121,9 +120,6 @@ auto UIRecycleList::resolveVisibleItems() -> void
         return;
     }
 
-    wantedVisibleRowStartIdx_ = topOfTheListIdx_;
-    wantedVisibleRowEndIdx_ = topOfTheListIdx_ + visibleCount_;
-
     UIBase::remove([this](const auto& e)
     {
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
@@ -168,91 +164,6 @@ auto UIRecycleList::resolveVisibleItems() -> void
 
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
-    currentVisibleRowStartIdx_ = wantedVisibleRowStartIdx_;
-    currentVisibleRowEndIdx_ = wantedVisibleRowEndIdx_;
-}
-
-auto UIRecycleList::growVisibleItems(const int32_t count, const bool atFront) -> void
-{
-    if (count <= 0) { return; }
-
-    auto itemObj = utils::make<UIButton>();
-    UIBase::add(itemObj, atFront ? 0 : elements_.size());
-}
-
-auto UIRecycleList::shrinkVisibleItems(const int32_t count, const bool atFront) -> void
-{
-    if (count <= 0) { return; }
-
-    int32_t ctr{0};
-    while (ctr < count)
-    {
-        const uint32_t atIndex = atFront ? 0 : elements_.size() - 1;
-        UIBase::remove(elements_.at(atIndex));
-        ctr++;
-    }
-}
-
-auto UIRecycleList::fillVisibleItems(const uint32_t viewRowIdx, const int32_t count,
-    const bool atFront) -> void
-{
-    return;
-    for (int32_t i = 0; i < count; ++i)
-    {
-        const uint32_t vr = viewRowIdx + i;
-        if (vr >= model_->getRowCount()) { return; }
-
-        auto x = atFront ? elements_[i] : elements_[elements_.size() - 1 - i];
-        UIButtonPtr itemObj = utils::as<UIButton>(x);
-        // auto itemObj = utils::make<UIButton>();
-        // auto itemObj = uiButtonPool_[viewRowIdx];
-
-        core::ModelIndex idx = model_->index(vr, 0, core::ModelIndex{});
-
-        itemObj->setText(model_->data(idx));
-
-        /* Set private stuff on the visual object. */
-        using core::LayoutBase;
-        LayoutBase::ScaleXY scale { 1_fill, LayoutBase::Scale(rowSize_, LayoutBase::ScaleType::PX) };
-
-        itemObj->getBaseLayoutData().setScale(scale);
-        itemObj->setColor(vr % 2
-            ? utils::hexToVec4("#adadadff")
-            : utils::hexToVec4("#e46b6bff"));
-        itemObj->listenEvent<core::MouseLeftReleaseEvt>(
-            [this, idx](const auto&)
-            {
-                core::ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
-            });
-    }
-}
-
-auto UIRecycleList::getElementAt(const uint32_t idx) -> UIBasePtr
-{
-    std::vector<UIBasePtr> filtered;
-    std::copy_if(elements_.begin(), elements_.end(),
-        std::back_inserter(filtered),
-        [](const auto& obj)
-        {
-            return obj->getTypeId() != node::UIScroll::typeId;
-        });
-
-    if (idx >= filtered.size()) { return nullptr; }
-    return filtered[idx];
-    // uint32_t wantedIdx = idx;
-    // if (wantedIdx >= elements_.size()) { return nullptr; }
-
-    // /* If we encounter Vscroll, go one step ahead & exit if there's nothing ahead. */
-    // if (elements_[wantedIdx]->getTypeId() == node::UIScroll::typeId) { wantedIdx++; }
-    // if (wantedIdx >= elements_.size()) { return nullptr; }
-
-    // /* If we encounter Hscroll, go one step ahead & exit if there's nothing ahead. */
-    // if (elements_[wantedIdx]->getTypeId() == node::UIScroll::typeId) { wantedIdx++; }
-    // if (wantedIdx >= elements_.size()) { return nullptr; }
-
-    // /* WantedIdx will have the correct index to retreive the UIButton element. */
-    // return elements_[wantedIdx];
 }
 
 auto UIRecycleList::setModel(const core::AbstractModelPtr model) -> void

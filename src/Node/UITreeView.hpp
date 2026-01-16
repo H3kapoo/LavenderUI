@@ -33,18 +33,17 @@ private:
     auto computeFlatList() -> void;
 
 private:
+    std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
+    std::vector<core::ModelIndex> flattenedList_;
+    std::vector<UIButtonPtr> uiButtonPool_;
     core::AbstractModelPtr model_;
-    uint64_t selectedId_;
-    int64_t topOfTheListIdx_;
-    int64_t oldTopOfTheListIdx_;
-    int32_t visibleCount_;
-    int32_t oldVisibleCount_;
+    uint32_t selectedId_;
     uint32_t tolerance_;
     uint32_t rowSize_;
-
-    std::vector<UIButtonPtr> uiButtonPool_;
-    std::vector<core::ModelIndex> flattenedList_;
-    std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
+    int32_t topOfTheListIdx_;
+    int32_t oldTopOfTheListIdx_;
+    int32_t visibleCount_;
+    int32_t oldVisibleCount_;
 };
 using UITreeViewPtr = std::shared_ptr<UITreeView>;
 using UITreeViewWPtr = std::weak_ptr<UITreeView>;

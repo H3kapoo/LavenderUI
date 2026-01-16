@@ -14,12 +14,12 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     : UIPane(std::move(initData))
     , model_{nullptr}
     , selectedId_(0)
+    , tolerance_{2}
+    , rowSize_{22}
     , topOfTheListIdx_{0}
     , oldTopOfTheListIdx_{-1}
     , visibleCount_{0}
     , oldVisibleCount_{-1}
-    , tolerance_{2}
-    , rowSize_{22}
 {
     setScrollEnabled(false, true);
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
@@ -110,6 +110,7 @@ auto UITreeView::resolveVisibleItems() -> void
     // this complex op
     // Not sure if this goes the other way around, if there are less items to show than
     // current visible count.
+    // This is true for RecycleList as well
     topOfTheListIdx_ = vScroll_ ? vScroll_->getScrollValue() / rowSize_ : 0;
     visibleCount_ = layoutBase_.getContentBoxScale().y / rowSize_ + tolerance_;
     if (topOfTheListIdx_ == oldTopOfTheListIdx_ && visibleCount_ == oldVisibleCount_)
@@ -168,7 +169,6 @@ auto UITreeView::resolveVisibleItems() -> void
 
         UIBase::add(itemObj);
     }
-    log_.warn("here");
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
 }
