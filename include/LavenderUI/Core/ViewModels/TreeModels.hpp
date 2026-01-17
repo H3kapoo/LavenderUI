@@ -60,6 +60,14 @@ public:
 
         return ModelIndex{};
     }
+    
+    auto hasChildren(const ModelIndex& idx) -> bool override
+    {
+        SimpleTreeItem<T>* item = idx.isValid()
+            ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
+            : root_;
+        return !item->children.empty();
+    }
 
     auto depth(const ModelIndex& idx) const -> uint32_t override
     {

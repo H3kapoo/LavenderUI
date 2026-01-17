@@ -32,7 +32,6 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     , deltaTime_(0)
     , shouldManuallyQuit_(false)
     , isMainWindow_(isFirstWindow_)
-    , isElementRemovedViaEvent_(false)
 {
     initializeDefaultCursor();
     updateWindowSizeAndProjection(size);
@@ -110,18 +109,6 @@ auto UIWindow::resolvePendingRawEvents() -> void
         rawEventCallback();
     }
     clearAllUniquePendingRawEvents();
-
-    //TODO: May be deprecated now
-    /*
-        After resolving the pending events, it might happen that some elements got removed and as such
-        it could of been the hovered element that got removed. We need to rescan and resent events
-        to the newly found hovered item. Think of this as wiggling the mouse in place once.
-    */
-    // if (isElementRemovedViaEvent_)
-    // {
-    //     isElementRemovedViaEvent_ = false;
-    //     mouseMoveSolver(uiState_->mousePos.x, uiState_->mousePos.y);
-    // }
 }
 
 auto UIWindow::resolveLayoutTask() -> bool
@@ -289,11 +276,7 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
 
         if (!nodeId || nodeId.value() == node->getId())
         {
-            uint32_t elementBefore = node->getElements().size();
             node->onEvent(uiState_);
-            uint32_t elementsAfter = node->getElements().size();
-
-            if (elementBefore > elementsAfter) { isElementRemovedViaEvent_ = true; }
         }
 
         for (const auto& childNode : node->getElements()) { processingQueue_.push(childNode); }
@@ -304,6 +287,9 @@ auto UIWindow::emitEventTo(const core::IEvent& evt, const std::optional<uint32_t
 
 auto UIWindow::scanForHoveredNode() -> void
 {
+    /* No need to recheck the hovered item if we are currently holding onto something down. */
+    if (uiState_->clickedId != core::NOTHING) { return; }
+
     /*
         TODO: Propagate functions work at nodeId level and each time we propagate something we need to
         go thru the tree and find the node, it's very inefficient.
@@ -329,7 +315,6 @@ auto UIWindow::scanForHoveredNode() -> void
         */
         if (node->layoutBase_.getZIndex() > maxZIndexSoFar
             && node->layoutBase_.isPointInsideView(uiState_->mousePos))
-            // && node->layoutBase_.isPointInside(uiState_->mousePos))
         {
             uiState_->hoveredId = node->getId();
             uiState_->hoveredTypeId = node->getTypeId();
@@ -474,24 +459,20 @@ auto UIWindow::onEvent(core::UIStatePtr& state) -> void
     if (eId == core::MouseEnterEvt::eventId)
     {
         core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        /* We can safely ignore bubbling down the tree as we found the entered element. */
         eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
     }
     else if (eId == core::MouseExitEvt::eventId)
     {
         core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        /* We can safely ignore bubbling down the tree as we found the entered element. */
         eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
     else if (eId == core::MouseLeftClickEvt::eventId)
     {
-        /* We can safely ignore bubbling down the tree as we found the clicked element. */
         core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
         eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
     }
     else if (eId == core::MouseLeftReleaseEvt::eventId)
     {
-        /* We can safely ignore bubbling down the tree as we found the clicked element. */
         core::MouseLeftReleaseEvt e;
         eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
     }

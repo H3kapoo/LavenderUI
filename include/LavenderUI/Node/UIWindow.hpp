@@ -85,8 +85,6 @@ private:
     bool shouldManuallyQuit_;
     bool isMainWindow_;
 
-    bool isElementRemovedViaEvent_;
-
     static int32_t MAX_LAYERS;
     static bool isFirstWindow_;
 };

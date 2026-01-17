@@ -4,9 +4,9 @@
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
 #include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
+#include "src/Node/InternalUse/UITreeItem.hpp"
 
 namespace lav::node
 {
@@ -31,8 +31,8 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     // mock
     for (int32_t i = 0; i < 160; ++i)
     {
-        auto itemObj = utils::make<UIButton>();
-        uiButtonPool_.push_back(itemObj);
+        auto itemObj = utils::make<UITreeItem>();
+        uiItemPool_.push_back(itemObj);
     }
 }
 
@@ -128,34 +128,40 @@ auto UITreeView::resolveVisibleItems() -> void
         uint64_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= flattenedList_.size()) { break; }
 
-        auto itemObj = uiButtonPool_[viewRow % uiButtonPool_.size()];
+        auto itemObj = uiItemPool_[viewRow % uiItemPool_.size()];
+        auto[expandBtn, infoBtn] = itemObj->getButtonPair();
 
         core::ModelIndex idx = flattenedList_[viewRow];
 
         const uint32_t depth = model_->depth(idx);
         const int32_t margin = 50.0f * depth;
-        // itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(depth));
-        itemObj->setText(model_->data(idx) + " /\\ " + std::to_string(itemObj->getId()));
+
+        const std::string expandText = model_->hasChildren(idx)
+            ? expandedSet_.contains(idx) ? "^" : ">"
+            : "";
+        const std::string infoText = model_->data(idx) + " /\\ " + std::to_string(itemObj->getId());
+        expandBtn->setText(expandText);
+        infoBtn->setText(infoText);
 
         /* Set private stuff on the visual object. */
         core::LayoutBase::ScaleXY scale
         {
-            core::LayoutBase::Scale(130 + margin, core::LayoutBase::ScaleType::PX),
+            core::LayoutBase::Scale(150 + margin, core::LayoutBase::ScaleType::PX),
             core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
         };
 
         itemObj->getBaseLayoutData()
             .setScale(scale)
             .setMargin({0, 0, margin, 0});
-        itemObj->setColor(viewRow % 2
+        expandBtn->setColor(viewRow % 2
             ? utils::hexToVec4("#adadadff")
             : utils::hexToVec4("#e46b6bff"));
-        itemObj->listenEvent<core::MouseLeftReleaseEvt>(
+        infoBtn->setColor(viewRow % 2
+            ? utils::hexToVec4("#adadadff")
+            : utils::hexToVec4("#e46b6bff"));
+        expandBtn->listenEvent<core::MouseLeftReleaseEvt>(
             [this, idx](const auto&)
             {
-                core::ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
-
                 /*
                     Note: After each expansion/collapse, we need to redo the flat list and recalculate the layout
                     as things changed in the UITreeView's internal structure.
@@ -166,7 +172,12 @@ auto UITreeView::resolveVisibleItems() -> void
                 computeFlatList();
                 onLayout();
             });
-
+        infoBtn->listenEvent<core::MouseLeftReleaseEvt>(
+            [this, idx](const auto&)
+            {
+                core::ViewLMBRelease evt{idx};
+                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
+            });
         UIBase::add(itemObj);
     }
     oldTopOfTheListIdx_ = topOfTheListIdx_;
@@ -227,6 +238,7 @@ auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
 
     // invalid root is always in expandedSet and cannot be removed
     core::ModelIndex root{};
+    expandedSet_.clear();
     expandedSet_.insert(root);
 
     computeFlatList();

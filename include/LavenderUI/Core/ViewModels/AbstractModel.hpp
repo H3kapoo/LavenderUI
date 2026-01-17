@@ -61,6 +61,7 @@ public:
     virtual auto data(const ModelIndex idx) const -> std::string = 0;
     virtual auto getRowCount(const ModelIndex parent = ModelIndex{}) const -> uint32_t = 0;
     virtual auto depth(const ModelIndex&) const -> uint32_t { return 0; }
+    virtual auto hasChildren(const ModelIndex&) -> bool { return false; }
 };
 using AbstractModelPtr = std::shared_ptr<AbstractModel>;
 } // namespace lav::core

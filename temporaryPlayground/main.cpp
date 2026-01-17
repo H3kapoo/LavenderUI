@@ -1,30 +1,14 @@
 #include "include/LavenderUI/App.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
-#include "include/LavenderUI/Core/ViewParser/LavParser.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Mesh.hpp"
 #include "include/LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "include/LavenderUI/Core/ViewModels/TreeModels.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UIDropdown.hpp"
-#include "include/LavenderUI/Node/UIImage.hpp"
-#include "include/LavenderUI/Node/UILabel.hpp"
 #include "include/LavenderUI/Node/UIList.hpp"
-#include "include/LavenderUI/Node/UISlider.hpp"
-#include "include/LavenderUI/Node/UIPane.hpp"
 #include "include/LavenderUI/Node/UISplitPane.hpp"
 #include "include/LavenderUI/Node/UITreeView.hpp"
 #include "include/LavenderUI/Node/UIWindow.hpp"
 #include "include/LavenderUI/Utils/Logger.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 
-#include <algorithm>
-#include <chrono>
 #include <ranges>
-#include <thread>
 
 using namespace lav::core;
 using namespace lav::node;
@@ -147,7 +131,7 @@ int main()
 
     rl->setModel(std::make_unique<ListBasicModel>(model));
     rl->setScrollSensitivity(5);
-    rl->setRowSize(20);
+    rl->setRowSize(18);
     // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
     // // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
 

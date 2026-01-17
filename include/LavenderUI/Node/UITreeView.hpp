@@ -3,12 +3,14 @@
 #include <unordered_set>
 
 #include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
 #include "include/LavenderUI/Node/UIPane.hpp"
 #include "include/LavenderUI/Node/UIBase.hpp"
 
 namespace lav::node
 {
+/* Fwd declare internal use only detail */
+class UITreeItem;
+
 /**
     @brief
     Class used to display and cycle around many list items in a performant lazy way.
@@ -35,7 +37,7 @@ private:
 private:
     std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
     std::vector<core::ModelIndex> flattenedList_;
-    std::vector<UIButtonPtr> uiButtonPool_;
+    std::vector<std::shared_ptr<UITreeItem>> uiItemPool_;
     core::AbstractModelPtr model_;
     uint32_t selectedId_;
     uint32_t tolerance_;

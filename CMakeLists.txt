@@ -85,6 +85,7 @@ function(setup_for_linux_x86_64)
         src/Node/UIList.cpp
         src/Node/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
+        src/Node/InternalUse/UITreeItem.cpp
 
         # Misc
         src/Utils/Logger.cpp
@@ -113,6 +114,8 @@ function(setup_for_linux_x86_64)
         GLEW GL
         X11
         freetype png z brotlidec brotlicommon bz2
+        # TODO: All this to end up depending on png, z, brotlidec, bla bla..not worth it.
+        # Maybe packaging dynamic freetype is better
     )
 
 endfunction()
@@ -133,3 +136,7 @@ endfunction(main)
 
 # Entry
 main()
+
+# set_target_properties(MyApp PROPERTIES
+#     INSTALL_RPATH "$ORIGIN/../lib"
+# )

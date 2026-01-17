@@ -1,3 +1,4 @@
+# Absolute path is used in order to make VSCode LSP work, nothing more.
 CompileFlags:
     Add:
         - "-std=c++23"
