@@ -1,12 +1,14 @@
 #pragma once
 
 #include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
 #include "include/LavenderUI/Node/UIPane.hpp"
 #include "include/LavenderUI/Node/UIBase.hpp"
 
 namespace lav::node
 {
+/* Fwd declare internal use only detail */
+class UIViewItem;
+
 /**
     @brief
     Class used to display and cycle around many list items in a performant lazy way.
@@ -28,9 +30,11 @@ protected:
 private:
     auto calculateLayout() -> glm::i64vec2;
     auto resolveVisibleItems() -> void;
+    auto allocatePool() -> void;
+    auto prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& item) -> void;
 
 private:
-    std::vector<UIButtonPtr> uiButtonPool_;
+    std::vector<std::shared_ptr<UIViewItem>> uiViewItemPool_;
     core::AbstractModelPtr model_;
     uint32_t selectedId_;
     uint32_t tolerance_;

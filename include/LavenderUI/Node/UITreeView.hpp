@@ -9,7 +9,7 @@
 namespace lav::node
 {
 /* Fwd declare internal use only detail */
-class UITreeItem;
+class UIViewItem;
 
 /**
     @brief
@@ -33,11 +33,13 @@ private:
     auto calculateLayout() -> glm::i64vec2;
     auto resolveVisibleItems() -> void;
     auto computeFlatList() -> void;
+    auto prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& item) -> void;
+    auto allocatePool() -> void;
 
 private:
     std::unordered_set<core::ModelIndex, core::ModelIndexHash> expandedSet_;
     std::vector<core::ModelIndex> flattenedList_;
-    std::vector<std::shared_ptr<UITreeItem>> uiItemPool_;
+    std::vector<std::shared_ptr<UIViewItem>> uiItemPool_;
     core::AbstractModelPtr model_;
     uint32_t selectedId_;
     uint32_t tolerance_;

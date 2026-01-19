@@ -1,7 +1,5 @@
 #include "include/LavenderUI/Node/UIList.hpp"
 
-#include <sstream>
-
 #include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
@@ -9,6 +7,7 @@
 #include "include/LavenderUI/Node/UIButton.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
+#include "src/Node/InternalUse/UIViewItem.hpp"
 
 namespace lav::node
 {
@@ -25,24 +24,12 @@ UIList::UIList(UIBaseInitData&& initData)
     , oldVisibleCount_{-1}
 {
     setScrollEnabled(false, true);
-    // setBorderColor(utils::hexToVec4("#eefcffff"));
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
     setColor(utils::hexToVec4("#c0cbcdff"));
-    // setColor(utils::hexToVec4("#eefcffff"));
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
     layoutBase_.setBorder(4);
-    // layoutBase_.setBorder({4, 4, 4, 0});
 
-    // vScroll_->getBaseLayoutData().setBorder({0, 0, 4, 0});
     vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
-    // vScroll_->setBorderColor(utils::hexToVec4("#df6adfff"));
-
-    // mock
-    for (int32_t i = 0; i < 160; ++i)
-    {
-        auto itemObj = utils::make<UIButton>();
-        uiButtonPool_.push_back(itemObj);
-    }
 }
 
 auto UIList::onRender(const glm::mat4& projection) -> void
@@ -126,45 +113,64 @@ auto UIList::resolveVisibleItems() -> void
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
     });
 
-    core::LayoutBase::ScaleXY scale
-    {
-        1_fill,
-        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
-    };
+    allocatePool();
 
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
         uint64_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= model_->getRowCount()) { break; }
 
-        // auto itemObj = utils::make<UIButton>();
-        auto itemObj = uiButtonPool_[viewRow % uiButtonPool_.size()];
+        auto itemObj = uiViewItemPool_[viewRow % uiViewItemPool_.size()];
 
-        core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
-
-        itemObj->setText(model_->data(idx));
-
-        /* Set private stuff on the visual object. */
-        itemObj->getBaseLayoutData().setScale(scale);
-        itemObj->setColor(viewRow % 2
-            ? utils::hexToVec4("#adadadff")
-            : utils::hexToVec4("#e46b6bff"));
-        itemObj->listenEvent<core::MouseLeftReleaseEvt>(
-            [this, idx](const auto&)
-            {
-                core::ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
-                /*
-                    Note: No need to call onLayout() here as the layout itself will not be changed,
-                    only values inside the elements will be changed as opposed to UITreeView in which
-                    elements can be removed/added and layout needs to be forcefully recomputed.
-                */
-            });
+        prepareItem(viewRow, itemObj);
         UIBase::add(itemObj);
     }
 
     oldTopOfTheListIdx_ = topOfTheListIdx_;
     oldVisibleCount_ = visibleCount_;
+}
+
+auto UIList::allocatePool() -> void
+{
+    if (uiViewItemPool_.size() >= static_cast<uint32_t>(visibleCount_)) { return; }
+
+    for (int32_t i = 0; i < visibleCount_; ++i)
+    {
+        auto itemObj = utils::make<UIViewItem>();
+        uiViewItemPool_.push_back(itemObj);
+    }
+}
+
+auto UIList::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& item) -> void
+{
+    core::LayoutBase::ScaleXY scale
+    {
+        1_fill,
+        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
+    };
+
+    core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
+
+    auto[expandBtn, infoBtn] = item->getButtonPair();
+    expandBtn->getBaseLayoutData().setScale({0_px});
+    infoBtn->setText(model_->data(idx));
+
+    item->getBaseLayoutData().setScale(scale);
+
+    infoBtn->setColor(viewRow % 2
+        ? utils::hexToVec4("#adadadff")
+        : utils::hexToVec4("#e46b6bff"));
+    infoBtn->listenEvent<core::MouseLeftReleaseEvt>(
+        [this, idx](const auto&)
+        {
+            core::ViewLMBRelease evt{idx};
+            eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
+            /*
+                Note: No need to call onLayout() here as the layout itself will not be changed,
+                only values inside the elements will be changed as opposed to UITreeView in which
+                elements can be removed/added and layout needs to be forcefully recomputed.
+            */
+        });
 }
 
 auto UIList::setModel(const core::AbstractModelPtr model) -> void

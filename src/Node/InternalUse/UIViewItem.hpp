@@ -5,10 +5,10 @@
 
 namespace lav::node
 {
-class UITreeItem : public UIBase
+class UIViewItem : public UIBase
 {
 public:
-    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UITreeItem, "elemVert.glsl", "elemFrag.glsl");
+    INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIViewItem, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UITreeItem);
 
     auto getButtonPair() -> std::pair<UIButtonPtr, UIButtonPtr>; /* No need for weak ptr, internal specific use. */
@@ -22,6 +22,6 @@ private:
     UIButtonPtr button1_;
     UIButtonPtr button2_;
 };
-using UITreeItemPtr = std::shared_ptr<UITreeItem>;
-using UITreeItemWPtr = std::weak_ptr<UITreeItem>;
+using UITreeItemPtr = std::shared_ptr<UIViewItem>;
+using UITreeItemWPtr = std::weak_ptr<UIViewItem>;
 } // namespace lav::node

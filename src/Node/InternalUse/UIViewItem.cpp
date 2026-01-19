@@ -1,4 +1,4 @@
-#include "src/Node/InternalUse/UITreeItem.hpp"
+#include "src/Node/InternalUse/UIViewItem.hpp"
 
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
@@ -7,7 +7,7 @@
 
 namespace lav::node
 {
-UITreeItem::UITreeItem(UIBaseInitData&& initData)
+UIViewItem::UIViewItem(UIBaseInitData&& initData)
     : UIBase(std::move(initData))
     , button1_(utils::make<UIButton>())
     , button2_(utils::make<UIButton>())
@@ -27,7 +27,7 @@ UITreeItem::UITreeItem(UIBaseInitData&& initData)
     UIBase::add(button2_);
 }
 
-auto UITreeItem::onRender(const glm::mat4& projection) -> void
+auto UIViewItem::onRender(const glm::mat4& projection) -> void
 {
     /* Draw base */
     mesh_.bind();
@@ -43,7 +43,7 @@ auto UITreeItem::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 }
 
-auto UITreeItem::onLayout() -> void
+auto UIViewItem::onLayout() -> void
 {
     const auto& calculator = core::BaseCalculator::get();
 
@@ -51,10 +51,10 @@ auto UITreeItem::onLayout() -> void
     calculator.calculatePositionForGenericElement(this, {0, 0});
 }
 
-auto UITreeItem::onEvent(core::UIStatePtr& state) -> void
+auto UIViewItem::onEvent(core::UIStatePtr& state) -> void
 {}
 
-auto UITreeItem::getButtonPair() -> std::pair<UIButtonPtr, UIButtonPtr>
+auto UIViewItem::getButtonPair() -> std::pair<UIButtonPtr, UIButtonPtr>
 {
     return {button1_, button2_};
 }

@@ -6,7 +6,7 @@
 #include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
-#include "src/Node/InternalUse/UITreeItem.hpp"
+#include "src/Node/InternalUse/UIViewItem.hpp"
 
 namespace lav::node
 {
@@ -27,13 +27,6 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);
     layoutBase_.setBorder(4);
     vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
-
-    // mock
-    for (int32_t i = 0; i < 160; ++i)
-    {
-        auto itemObj = utils::make<UITreeItem>();
-        uiItemPool_.push_back(itemObj);
-    }
 }
 
 auto UITreeView::onRender(const glm::mat4& projection) -> void
@@ -123,61 +116,16 @@ auto UITreeView::resolveVisibleItems() -> void
         return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
     });
 
+    allocatePool();
+
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
         uint64_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= flattenedList_.size()) { break; }
 
         auto itemObj = uiItemPool_[viewRow % uiItemPool_.size()];
-        auto[expandBtn, infoBtn] = itemObj->getButtonPair();
+        prepareItem(viewRow, itemObj);
 
-        core::ModelIndex idx = flattenedList_[viewRow];
-
-        const uint32_t depth = model_->depth(idx);
-        const int32_t margin = 50.0f * depth;
-
-        const std::string expandText = model_->hasChildren(idx)
-            ? expandedSet_.contains(idx) ? "^" : ">"
-            : "";
-        const std::string infoText = model_->data(idx) + " /\\ " + std::to_string(itemObj->getId());
-        expandBtn->setText(expandText);
-        infoBtn->setText(infoText);
-
-        /* Set private stuff on the visual object. */
-        core::LayoutBase::ScaleXY scale
-        {
-            core::LayoutBase::Scale(150 + margin, core::LayoutBase::ScaleType::PX),
-            core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
-        };
-
-        itemObj->getBaseLayoutData()
-            .setScale(scale)
-            .setMargin({0, 0, margin, 0});
-        expandBtn->setColor(viewRow % 2
-            ? utils::hexToVec4("#adadadff")
-            : utils::hexToVec4("#e46b6bff"));
-        infoBtn->setColor(viewRow % 2
-            ? utils::hexToVec4("#adadadff")
-            : utils::hexToVec4("#e46b6bff"));
-        expandBtn->listenEvent<core::MouseLeftReleaseEvt>(
-            [this, idx](const auto&)
-            {
-                /*
-                    Note: After each expansion/collapse, we need to redo the flat list and recalculate the layout
-                    as things changed in the UITreeView's internal structure.
-                */
-                expandedSet_.contains(idx) ? (void)expandedSet_.erase(idx) : (void)expandedSet_.insert(idx);
-                
-                oldVisibleCount_ = 0;
-                computeFlatList();
-                onLayout();
-            });
-        infoBtn->listenEvent<core::MouseLeftReleaseEvt>(
-            [this, idx](const auto&)
-            {
-                core::ViewLMBRelease evt{idx};
-                eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
-            });
         UIBase::add(itemObj);
     }
     oldTopOfTheListIdx_ = topOfTheListIdx_;
@@ -230,6 +178,81 @@ auto UITreeView::computeFlatList() -> void
     };
 
     genFlatlist(genFlatlist, root);
+}
+
+auto UITreeView::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& item) -> void
+{
+    auto[expandBtn, infoBtn] = item->getButtonPair();
+
+    core::ModelIndex idx = flattenedList_[viewRow];
+
+    const uint32_t depth = model_->depth(idx);
+    const int32_t margin = 50.0f * depth;
+
+    const std::string expandText = model_->hasChildren(idx)
+        ? expandedSet_.contains(idx) ? "^" : ">"
+        : "";
+    const std::string infoText = model_->data(idx) + " /\\ " + std::to_string(item->getId());
+    expandBtn->setText(expandText);
+    infoBtn->setText(infoText);
+
+    // if (expandText.empty()) { expandBtn->setDisabled(); }
+    // else { expandBtn->setEnabled(); }
+
+    core::LayoutBase::ScaleXY scale
+    {
+        core::LayoutBase::Scale(150 + margin, core::LayoutBase::ScaleType::PX),
+        // 1_fill,
+        core::LayoutBase::Scale(rowSize_, core::LayoutBase::ScaleType::PX)
+    };
+
+    item->getBaseLayoutData()
+        .setScale(scale)
+        .setMargin({0, 0, margin, 0});
+        // .setPadding({0, 0, margin, 0});
+    // infoBtn->getBaseLayoutData().setScale({150_px, 1_fill});
+    // expandBtn->getBaseLayoutData()
+    //     .setMargin({0, 0, margin, 0});
+    expandBtn->setColor(viewRow % 2
+        ? utils::hexToVec4("#adadadff")
+        : utils::hexToVec4("#e46b6bff"));
+    infoBtn->setColor(viewRow % 2
+        ? utils::hexToVec4("#adadadff")
+        : utils::hexToVec4("#e46b6bff"));
+    // item->setColor(viewRow % 2
+    //     ? utils::hexToVec4("#adadadff")
+    //     : utils::hexToVec4("#e46b6bff"));
+
+    expandBtn->listenEvent<core::MouseLeftReleaseEvt>(
+        [this, idx](const auto&)
+        {
+            /*
+                Note: After each expansion/collapse, we need to redo the flat list and recalculate the layout
+                as things changed in the UITreeView's internal structure.
+            */
+            expandedSet_.contains(idx) ? (void)expandedSet_.erase(idx) : (void)expandedSet_.insert(idx);
+            
+            oldVisibleCount_ = 0;
+            computeFlatList();
+            onLayout();
+        });
+    infoBtn->listenEvent<core::MouseLeftReleaseEvt>(
+        [this, idx](const auto&)
+        {
+            core::ViewLMBRelease evt{idx};
+            eventsMgr_.emitEvent<core::ViewLMBRelease>(evt);
+        });
+}
+
+auto UITreeView::allocatePool() -> void
+{
+    if (uiItemPool_.size() >= static_cast<uint32_t>(visibleCount_)) { return; }
+
+    for (int32_t i = 0; i < visibleCount_; ++i)
+    {
+        auto itemObj = utils::make<UIViewItem>();
+        uiItemPool_.push_back(itemObj);
+    }
 }
 
 auto UITreeView::setModel(const core::AbstractModelPtr model) -> void

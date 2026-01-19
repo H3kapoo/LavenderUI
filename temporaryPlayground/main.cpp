@@ -164,8 +164,9 @@ int main()
         label->setText(data->data);
     });
 
-    rl->listenEvent<core::ViewLMBRelease>([&log, &data](const auto& e)
+    rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
     {
+        rl->setRowSize(26);
         log.error("clicked node id is {}", data[e.index.row]);
     });
 

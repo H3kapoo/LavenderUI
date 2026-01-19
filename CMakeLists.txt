@@ -85,7 +85,7 @@ function(setup_for_linux_x86_64)
         src/Node/UIList.cpp
         src/Node/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
-        src/Node/InternalUse/UITreeItem.cpp
+        src/Node/InternalUse/UIViewItem.cpp
 
         # Misc
         src/Utils/Logger.cpp
