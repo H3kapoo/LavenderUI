@@ -122,15 +122,18 @@ int main()
     SimpleTreeItemS* root = createTree();
     TreeBasicModel<std::string> treeModel{root};
     // // ListOrderedModel orderedModel{model};
-    // // ListFilteredModel filterModel{orderedModel,
-    // //     [](const uint64_t x) -> bool { return x % 2;}};
+    ListFilteredModel filterModel{model,
+        [](const uint64_t x) -> bool { return x % 2;}};
 
     tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
-    tv->setScrollSensitivity(5);
+    tv->setAlternatingRowEnabled();
+    tv->setScrollSensitivity(15);
     tv->setRowSize(20);
 
-    rl->setModel(std::make_unique<ListBasicModel>(model));
-    rl->setScrollSensitivity(5);
+    // rl->setModel(std::make_unique<ListBasicModel>(model));
+    rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    rl->setAlternatingRowEnabled();
+    rl->setScrollSensitivity(15);
     rl->setRowSize(18);
     // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
     // // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
@@ -166,7 +169,6 @@ int main()
 
     rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
     {
-        rl->setRowSize(26);
         log.error("clicked node id is {}", data[e.index.row]);
     });
 

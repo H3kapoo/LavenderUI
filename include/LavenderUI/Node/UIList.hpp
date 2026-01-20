@@ -21,6 +21,7 @@ public:
 
     auto setModel(core::AbstractModelPtr model) -> void;
     auto setRowSize(const uint32_t value) -> void;
+    auto setAlternatingRowEnabled(const bool value = true) -> void;
 
 protected:
     virtual auto onRender(const glm::mat4& projection) -> void override;
@@ -28,7 +29,8 @@ protected:
     virtual auto onEvent(core::UIStatePtr& state) -> void override;
 
 private:
-    auto calculateLayout() -> glm::i64vec2;
+    auto calculateLayout() -> void;
+    auto resolveOverflow() -> void;
     auto resolveVisibleItems() -> void;
     auto allocatePool() -> void;
     auto prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& item) -> void;
@@ -43,7 +45,7 @@ private:
     int32_t oldTopOfTheListIdx_;
     int32_t visibleCount_;
     int32_t oldVisibleCount_;
-
+    bool isAlternatingRowPattern_;
 };
 using UIRecycleListPtr = std::shared_ptr<UIList>;
 using UIRecycleListWPtr = std::weak_ptr<UIList>;

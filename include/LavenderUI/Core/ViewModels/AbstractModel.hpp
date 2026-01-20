@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <variant>
 
 #include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 
@@ -14,7 +15,7 @@ struct ModelIndex
     void* internalPtr{nullptr};
 
     ModelIndex() {}
-    ModelIndex(uint32_t r) : row(r) {}
+    ModelIndex(uint32_t r) : row(r), column{0} {}
     ModelIndex(uint32_t r, uint32_t c, void* ip)
         : row(r)
         , column(c)
@@ -55,13 +56,29 @@ struct ViewLMBRelease : public core::IEventCRTP<ViewLMBRelease>
 class AbstractModel
 {
 public:
+    enum EModelRole
+    {
+        DISPLAY = 0,
+        COLOR = 1,
+        ALTERNATE_COLOR_1 = 2,
+        ALTERNATE_COLOR_2 = 3
+    };
+
+    using ModelVariant = std::variant<std::string, glm::vec4>;
+
+public:
     virtual ~AbstractModel() = default;
     virtual auto index(const uint32_t row, const uint32_t column,
         const ModelIndex parent) const -> ModelIndex = 0;
-    virtual auto data(const ModelIndex idx) const -> std::string = 0;
+    virtual auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant = 0;
     virtual auto getRowCount(const ModelIndex parent = ModelIndex{}) const -> uint32_t = 0;
     virtual auto depth(const ModelIndex&) const -> uint32_t { return 0; }
     virtual auto hasChildren(const ModelIndex&) -> bool { return false; }
+
+// TODO: Prevent crashing in case the variant doesnt contain the expected type
+#define GET_STR_ROLE(model, idx, role) std::get<std::string>(model->data(idx, role))
+#define GET_STR_ROLE2(model, idx, role) std::get<std::string>(model.data(idx, role))
+#define GET_VEC4_ROLE(model, idx, role) std::get<glm::vec4>(model->data(idx, role))
 };
 using AbstractModelPtr = std::shared_ptr<AbstractModel>;
 } // namespace lav::core

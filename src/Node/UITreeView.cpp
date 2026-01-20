@@ -20,6 +20,7 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     , oldTopOfTheListIdx_{-1}
     , visibleCount_{0}
     , oldVisibleCount_{-1}
+    , isAlternatingRowPattern_{false}
 {
     setScrollEnabled(false, true);
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
@@ -47,41 +48,23 @@ auto UITreeView::onRender(const glm::mat4& projection) -> void
 
 auto UITreeView::onLayout() -> void
 {
-    /* Slider value needs to be reset to zero if there's no need for it anymore after an
-    item has closed. */
-    if (flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
-    {
-        vScroll_ ? vScroll_->setScrollValue(0) : void();
-    }
-
-    glm::i64vec2 overflow{0, 0};
-    overflow.y = flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y;
-    setInternalScrollOverflow(overflow);
-
+    resolveOverflow();
     resolveVisibleItems();
-
     calculateLayout();
-
-    const auto& calculator = core::PaneCalculator::get();
-    calculator.calculateElementsOffsetDueToScroll(this,
-    {
-        0,
-        vScroll_ ? (int64_t)vScroll_->getScrollValue() % rowSize_ : 0
-    });
 }
 
-auto UITreeView::calculateLayout() -> glm::i64vec2
+auto UITreeView::calculateLayout() -> void
 {
     const auto& calculator = core::PaneCalculator::get();
-    glm::i64vec2 overflow{0, 0};
-
     const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
     calculator.calculateScaleForGenericElement(this, sliderImpact);
     calculator.calculatePositionForGenericElement(this, sliderImpact);
 
-    overflow = calculator.calculateElementOverflow(this, sliderImpact);
-
-    return overflow;
+    calculator.calculateElementsOffsetDueToScroll(this,
+    {
+        0,
+        vScroll_ ? (int32_t)vScroll_->getScrollValue() % rowSize_ : 0
+    });
 }
 
 auto UITreeView::onEvent(core::UIStatePtr& state) -> void
@@ -94,6 +77,22 @@ auto UITreeView::onEvent(core::UIStatePtr& state) -> void
             state->closestScrollId = getClosestScrollbar(state->mousePos);
         }
     }
+}
+
+auto UITreeView::resolveOverflow() -> void
+{
+    /*
+        Slider value needs to be reset to zero if there's no need for it anymore after an
+        item has closed.
+    */
+    if (flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
+    {
+        vScroll_ ? vScroll_->setScrollValue(0) : void();
+    }
+
+    glm::vec2 overflow{0, 0};
+    overflow.y = flattenedList_.size() * rowSize_ - layoutBase_.getContentBoxScale().y;
+    setInternalScrollOverflow(overflow);
 }
 
 auto UITreeView::resolveVisibleItems() -> void
@@ -120,7 +119,7 @@ auto UITreeView::resolveVisibleItems() -> void
 
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
-        uint64_t viewRow = topOfTheListIdx_ + i;
+        uint32_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= flattenedList_.size()) { break; }
 
         auto itemObj = uiItemPool_[viewRow % uiItemPool_.size()];
@@ -192,9 +191,26 @@ auto UITreeView::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>
     const std::string expandText = model_->hasChildren(idx)
         ? expandedSet_.contains(idx) ? "^" : ">"
         : "";
-    const std::string infoText = model_->data(idx) + " /\\ " + std::to_string(item->getId());
+    const std::string display = GET_STR_ROLE(model_, idx, core::AbstractModel::EModelRole::DISPLAY);
+    const std::string infoText = display + " /\\ " + std::to_string(item->getId());
+
     expandBtn->setText(expandText);
     infoBtn->setText(infoText);
+
+    glm::vec4 bgColor;
+    if (isAlternatingRowPattern_)
+    {
+        bgColor = viewRow % 2
+            ? GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::ALTERNATE_COLOR_1)
+            : GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::ALTERNATE_COLOR_2);
+    }
+    else
+    {
+        bgColor = GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::COLOR);
+    }
+
+    expandBtn->setColor(bgColor);
+    infoBtn->setColor(bgColor);
 
     // if (expandText.empty()) { expandBtn->setDisabled(); }
     // else { expandBtn->setEnabled(); }
@@ -209,19 +225,6 @@ auto UITreeView::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>
     item->getBaseLayoutData()
         .setScale(scale)
         .setMargin({0, 0, margin, 0});
-        // .setPadding({0, 0, margin, 0});
-    // infoBtn->getBaseLayoutData().setScale({150_px, 1_fill});
-    // expandBtn->getBaseLayoutData()
-    //     .setMargin({0, 0, margin, 0});
-    expandBtn->setColor(viewRow % 2
-        ? utils::hexToVec4("#adadadff")
-        : utils::hexToVec4("#e46b6bff"));
-    infoBtn->setColor(viewRow % 2
-        ? utils::hexToVec4("#adadadff")
-        : utils::hexToVec4("#e46b6bff"));
-    // item->setColor(viewRow % 2
-    //     ? utils::hexToVec4("#adadadff")
-    //     : utils::hexToVec4("#e46b6bff"));
 
     expandBtn->listenEvent<core::MouseLeftReleaseEvt>(
         [this, idx](const auto&)
@@ -259,8 +262,9 @@ auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
 {
     model_ = model;
 
-    // invalid root is always in expandedSet and cannot be removed
+    /* UITreeView always has an invisible root that's in the expanded list and cannot be removed. */
     core::ModelIndex root{};
+
     expandedSet_.clear();
     expandedSet_.insert(root);
 
@@ -270,5 +274,10 @@ auto UITreeView::setModel(const core::AbstractModelPtr model) -> void
 auto UITreeView::setRowSize(const uint32_t value) -> void
 {
     rowSize_ = value;
+}
+
+auto UITreeView::setAlternatingRowEnabled(const bool value) -> void
+{
+    isAlternatingRowPattern_ = value;
 }
 } // namespace lav::node

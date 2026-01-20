@@ -86,14 +86,24 @@ public:
         return depth;
     }
 
-    auto data(const ModelIndex idx) const -> std::string override
+    auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant override
     {
         SimpleTreeItem<T>* item = idx.isValid()
             ? static_cast<SimpleTreeItem<T>*>(idx.internalPtr)
             : root_;
 
-        if (!idx.isValid()) { return std::string{}; }
-        return item->data;
+        if (!idx.isValid()) { return ModelVariant{}; }
+
+        if (role == EModelRole::DISPLAY)
+            return item->data;
+        if (role == EModelRole::COLOR)
+            return utils::hexToVec4("#e46b6bff");
+        if (role == EModelRole::ALTERNATE_COLOR_1)
+            return utils::hexToVec4("#adadadff");
+        if (role == EModelRole::ALTERNATE_COLOR_2)
+            return utils::hexToVec4("#e46b6bff");
+
+        return ModelVariant{};
     }
 
     auto getRowCount(const ModelIndex idx) const -> uint32_t override

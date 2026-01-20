@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
+#include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::core
 {
@@ -21,9 +22,20 @@ public:
         return ModelIndex(row);
     }
 
-    auto data(const ModelIndex idx) const -> std::string override
+    auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant override
     {
-        return std::to_string(data_.at(idx.row));
+        if (!idx.isValid()) { return ModelVariant{}; }
+
+        if (role == EModelRole::DISPLAY)
+            return std::to_string(data_.at(idx.row));
+        if (role == EModelRole::COLOR)
+            return utils::hexToVec4("#e46b6bff");
+        if (role == EModelRole::ALTERNATE_COLOR_1)
+            return utils::hexToVec4("#adadadff");
+        if (role == EModelRole::ALTERNATE_COLOR_2)
+            return utils::hexToVec4("#e46b6bff");
+
+        return ModelVariant{};
     }
 
     auto getRowCount(const ModelIndex) const -> uint32_t override { return data_.size(); }
@@ -48,7 +60,9 @@ public:
         std::sort(order_.begin(), order_.end(),
             [this](const auto& miA, const auto& miB) -> bool
             {
-                return std::stoi(source_.data(miA)) > std::stoi(source_.data(miB));
+                std::string a = std::get<0>(source_.data(miA, EModelRole::DISPLAY));
+                std::string b = std::get<0>(source_.data(miB, EModelRole::DISPLAY));
+                return std::stoi(a) > std::stoi(b);
             });
     }
 
@@ -59,10 +73,10 @@ public:
         return ModelIndex{order_[row]};
     }
 
-    auto data(const ModelIndex idx) const -> std::string override
+    auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant override
     {
-        if (!idx.isValid()) { return "No Data"; }
-        return source_.data(idx);
+        if (!idx.isValid()) { return ModelVariant{"No Data"}; }
+        return source_.data(idx, role);
     }
 
     auto getRowCount(const ModelIndex) const -> uint32_t override { return order_.size(); }
@@ -85,7 +99,8 @@ public:
         mapping_.reserve(source_.getRowCount());
         for (uint32_t dIdx = 0; dIdx < source_.getRowCount(); dIdx++)
         {
-            const std::string data = source_.data(ModelIndex{dIdx, 0, nullptr});
+            const ModelIndex idx{dIdx, 0, nullptr};
+            const std::string data = GET_STR_ROLE2(source_, idx, core::AbstractModel::EModelRole::DISPLAY);
             if (pred_(std::stoi(data))) { continue; }
             mapping_.push_back(source_.index(dIdx, 0, ModelIndex{}));
         }
@@ -98,10 +113,10 @@ public:
         return ModelIndex{mapping_[row]};
     }
 
-    auto data(const ModelIndex idx) const -> std::string override
+    auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant override
     {
         if (!idx.isValid()) { return "No Data"; }
-        return source_.data(idx);
+        return source_.data(idx, role);
     }
 
     auto getRowCount(const ModelIndex) const -> uint32_t override { return mapping_.size(); }

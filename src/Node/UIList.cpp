@@ -3,8 +3,8 @@
 #include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
+#include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
 #include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 #include "src/Node/InternalUse/UIViewItem.hpp"
@@ -16,12 +16,12 @@ UIList::UIList(UIBaseInitData&& initData)
     , model_{nullptr}
     , selectedId_(0)
     , tolerance_{2}
-    // , rowSize_{16}
     , rowSize_{28}
     , topOfTheListIdx_{0}
     , oldTopOfTheListIdx_{-1}
     , visibleCount_{0}
     , oldVisibleCount_{-1}
+    , isAlternatingRowPattern_{false}
 {
     setScrollEnabled(false, true);
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
@@ -50,41 +50,23 @@ auto UIList::onRender(const glm::mat4& projection) -> void
 
 auto UIList::onLayout() -> void
 {
-    /* Slider value needs to be reset to zero if there's no need for it anymore after an
-    item has closed. */
-    if (model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
-    {
-        vScroll_ ? vScroll_->setScrollValue(0) : void();
-    }
-
-    glm::i64vec2 overflow{0, 0};
-    overflow.y = model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y;
-    setInternalScrollOverflow(overflow);
-
+    resolveOverflow();
     resolveVisibleItems();
-
     calculateLayout();
-
-    const auto& calculator = core::PaneCalculator::get();
-    calculator.calculateElementsOffsetDueToScroll(this,
-    {
-        0,
-        vScroll_ ? (int64_t)vScroll_->getScrollValue() % rowSize_ : 0
-    });
 }
 
-auto UIList::calculateLayout() -> glm::i64vec2
+auto UIList::calculateLayout() -> void
 {
     const auto& calculator = core::PaneCalculator::get();
-    glm::i64vec2 overflow{0, 0};
 
     const auto sliderImpact = calculator.calculateSlidersScaleAndPos(this);
     calculator.calculateScaleForGenericElement(this, sliderImpact);
     calculator.calculatePositionForGenericElement(this, sliderImpact);
-
-    overflow = calculator.calculateElementOverflow(this, sliderImpact);
-
-    return overflow;
+    calculator.calculateElementsOffsetDueToScroll(this,
+    {
+        0,
+        vScroll_ ? (int32_t)vScroll_->getScrollValue() % rowSize_ : 0
+    });
 }
 
 auto UIList::onEvent(core::UIStatePtr& state) -> void
@@ -97,6 +79,22 @@ auto UIList::onEvent(core::UIStatePtr& state) -> void
             state->closestScrollId = getClosestScrollbar(state->mousePos);
         }
     }
+}
+
+auto UIList::resolveOverflow() -> void
+{
+    /*
+        Slider value needs to be reset to zero if there's no need for it anymore after an
+        item has closed.
+    */
+    if (model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y <= 0)
+    {
+        vScroll_ ? vScroll_->setScrollValue(0) : void();
+    }
+
+    glm::ivec2 overflow{0, 0};
+    overflow.y = model_->getRowCount() * rowSize_ - layoutBase_.getContentBoxScale().y;
+    setInternalScrollOverflow(overflow);
 }
 
 auto UIList::resolveVisibleItems() -> void
@@ -117,7 +115,7 @@ auto UIList::resolveVisibleItems() -> void
 
     for (int32_t i = 0; i < visibleCount_; ++i)
     {
-        uint64_t viewRow = topOfTheListIdx_ + i;
+        uint32_t viewRow = topOfTheListIdx_ + i;
         if (viewRow >= model_->getRowCount()) { break; }
 
         auto itemObj = uiViewItemPool_[viewRow % uiViewItemPool_.size()];
@@ -152,14 +150,27 @@ auto UIList::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& it
     core::ModelIndex idx = model_->index(viewRow, 0, core::ModelIndex{});
 
     auto[expandBtn, infoBtn] = item->getButtonPair();
-    expandBtn->getBaseLayoutData().setScale({0_px});
-    infoBtn->setText(model_->data(idx));
 
+    const std::string display = GET_STR_ROLE(model_, idx, core::AbstractModel::EModelRole::DISPLAY);
+    infoBtn->setText(display);
+
+    glm::vec4 bgColor;
+    if (isAlternatingRowPattern_)
+    {
+        bgColor = viewRow % 2
+            ? GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::ALTERNATE_COLOR_1)
+            : GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::ALTERNATE_COLOR_2);
+    }
+    else
+    {
+        bgColor = GET_VEC4_ROLE(model_, idx, core::AbstractModel::EModelRole::COLOR);
+    }
+
+    infoBtn->setColor(bgColor);
+
+    expandBtn->getBaseLayoutData().setScale({0_px});
     item->getBaseLayoutData().setScale(scale);
 
-    infoBtn->setColor(viewRow % 2
-        ? utils::hexToVec4("#adadadff")
-        : utils::hexToVec4("#e46b6bff"));
     infoBtn->listenEvent<core::MouseLeftReleaseEvt>(
         [this, idx](const auto&)
         {
@@ -181,5 +192,10 @@ auto UIList::setModel(const core::AbstractModelPtr model) -> void
 auto UIList::setRowSize(const uint32_t value) -> void
 {
     rowSize_ = value;
+}
+
+auto UIList::setAlternatingRowEnabled(const bool value) -> void
+{
+    isAlternatingRowPattern_ = value;
 }
 } // namespace lav::node
