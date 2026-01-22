@@ -186,6 +186,7 @@ auto UIList::prepareItem(const uint32_t viewRow, std::shared_ptr<UIViewItem>& it
 
 auto UIList::setModel(const core::AbstractModelPtr model) -> void
 {
+    oldVisibleCount_ = -1;
     model_ = model;
 }
 

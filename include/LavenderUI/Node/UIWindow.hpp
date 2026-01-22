@@ -60,6 +60,7 @@ private:
     auto windowMouseEnterSolver(const bool entered) -> void;
     auto keyButtonSolver(const uint32_t key, const uint32_t scancode, const uint32_t action,
         const uint32_t mods) -> void;
+    auto characterSolver(const uint32_t codepoint) -> void;
 
     auto onRender(const glm::mat4& projection) -> void override;
     auto onLayout() -> void override;

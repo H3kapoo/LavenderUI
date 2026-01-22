@@ -77,6 +77,7 @@ function(setup_for_linux_x86_64)
         src/Node/UIWindow.cpp
         src/Node/UIButton.cpp
         src/Node/UILabel.cpp
+        src/Node/UILineEdit.cpp
         src/Node/UIPane.cpp
         src/Node/UISlider.cpp
         src/Node/UIImage.cpp

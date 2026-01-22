@@ -58,7 +58,7 @@ auto UIDropdown::onEvent(core::UIStatePtr& state) -> void
     if (isOpen()
         && state->hoveredId != id_
         && eId == core::MouseButtonEvt::eventId
-        && state->mouseAction == lav::RELEASE
+        && state->mouseAction == lav::Action::RELEASE
         && !isSelectedMyDropdownChildRecursive(state->selectedId))
     {
         closeDropdown();

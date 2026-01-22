@@ -1,6 +1,10 @@
 #include "include/LavenderUI/App.hpp"
+#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "include/LavenderUI/Core/ViewModels/TreeModels.hpp"
+#include "include/LavenderUI/Node/UILineEdit.hpp"
 #include "include/LavenderUI/Node/UIList.hpp"
 #include "include/LavenderUI/Node/UISplitPane.hpp"
 #include "include/LavenderUI/Node/UITreeView.hpp"
@@ -8,6 +12,7 @@
 #include "include/LavenderUI/Utils/Logger.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 
+#include <exception>
 #include <ranges>
 
 using namespace lav::core;
@@ -107,7 +112,8 @@ int main()
     // window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
     std::vector<uint32_t> data =
-        std::views::iota(0u, 100u) |
+        // std::views::iota(0u, 200u) |
+        std::views::iota(0u, 20'000u) |
         std::ranges::to<std::vector<uint32_t>>();
 
     UITreeViewPtr tv = utils::make<UITreeView>();
@@ -123,7 +129,7 @@ int main()
     TreeBasicModel<std::string> treeModel{root};
     // // ListOrderedModel orderedModel{model};
     ListFilteredModel filterModel{model,
-        [](const uint64_t x) -> bool { return x % 2;}};
+        [](const uint64_t x) -> bool { return x % 2; }};
 
     tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
     tv->setAlternatingRowEnabled();
@@ -142,7 +148,7 @@ int main()
 
     auto pane1 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
     rl->getBaseLayoutData().setScale({1_fill});
-    pane1.lock()->add(rl);
+    pane1.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
 
     auto pane2 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(1);
     tv->getBaseLayoutData().setScale({1_fill});
@@ -154,6 +160,38 @@ int main()
     auto label = utils::as<UILabel>(pane32.lock()->getElements()[0]);
     label->setText("Schimbat");
 
+    UILineEditPtr le = utils::make<UILineEdit>();
+    le->setText("1");
+    le->setColor(utils::hexToVec4("#62f562ff"));
+    le->getBaseLayoutData().setScale({1_fill, 30_px}).setMargin({0, 0, 2, 0});
+
+    le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
+    {
+        log.error("text changed {}", e.text);
+        try
+        {
+            int32_t num = std::stoi(e.text);
+            filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
+
+            rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+            WindowBinder::get().requestEmptyEvent();
+        } catch(std::exception& ex)
+        {
+            (void)ex;
+        }
+    });
+
+    pane1.lock()->add(le);
+    pane1.lock()->add(rl);
+
+    pane32.lock()->listenEvent<core::FocusGainEvt>([&log](const auto&)
+    {
+        log.error("focus gain!");
+    });
+    pane32.lock()->listenEvent<core::FocusLostEvt>([&log](const auto&)
+    {
+        log.error("focus lost!");
+    });
     tv->listenEvent<core::ViewLMBRelease>([&log, &label](const auto& e)
     {
         SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>

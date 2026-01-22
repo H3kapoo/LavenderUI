@@ -184,7 +184,13 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .characterCallback = 
-            [this](uint32_t cp){ (void)cp; },
+            [this](uint32_t codepoint)
+            {
+                insertUniquePendingRawEvent(core::CharacterEvt{}, [this, codepoint]()
+                {
+                    characterSolver(codepoint);
+                });
+            },
         .mouseMoveCallback = 
             [this](int32_t x, int32_t y)
             {
@@ -367,13 +373,18 @@ auto UIWindow::mouseButtonSolver(const uint32_t btn, const uint32_t action) -> v
     uiState_->mouseButton = static_cast<lav::Mouse>(btn);
     uiState_->mouseAction = static_cast<lav::Action>(action);
 
-    if (btn == Mouse::LEFT && action == Action::PRESS)
+    if (static_cast<lav::Mouse>(btn) == Mouse::LEFT && static_cast<lav::Action>(action) == Action::PRESS)
     {
+        const uint32_t prevSelectedId = uiState_->selectedId;
+
         uiState_->clickedId = uiState_->hoveredId;
         uiState_->selectedId = uiState_->hoveredId;
+
         emitEventTo(core::MouseLeftClickEvt{}, uiState_->clickedId);
+        emitEventTo(core::FocusLostEvt{}, prevSelectedId);
+        emitEventTo(core::FocusGainEvt{}, uiState_->selectedId);
     }
-    else if (btn == Mouse::LEFT && action == Action::RELEASE)
+    else if (static_cast<lav::Mouse>(btn) == Mouse::LEFT && static_cast<lav::Action>(action) == Action::RELEASE)
     {
         uiState_->isDragging = false;
         uiState_->clickedId = core::NOTHING;
@@ -424,18 +435,41 @@ auto UIWindow::windowMouseEnterSolver(const bool entered) -> void
 auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_t action,
     const uint32_t) -> void
 {
-    if (action == Action::RELEASE || action == Action::REPEAT) { return; }
-    if (key == Key::ESC)
+    const lav::Key castKey = static_cast<lav::Key>(key);
+    const lav::Action castAction = static_cast<lav::Action>(action);
+
+    //TODO: REPEAT Shall have a rate limiter
+    if (castAction == Action::RELEASE || castAction == Action::REPEAT) { return; }
+
+    if (castKey == Key::ESC)
     {
         core::WindowBinder::get().close(window_);
     }
-    else if (key == Key::C)
+    // TODO: This is now broken and it makes the code crash.
+    // Most probably its something to do with adding while iterating in ::App
+    else if (castKey == Key::C)
     {
-        App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
+        // App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
     }
-    else if (key == Key::P)
+    else if (castKey == Key::P)
     {
-        log_.debug("\n{}", shared_from_this());
+        // log_.debug("\n{}", shared_from_this());
+    }
+
+    uiState_->keyStates[key] = static_cast<lav::Action>(action);
+    uiState_->keyRecent = castKey;
+    if (uiState_->selectedId != core::NOTHING)
+    {
+        emitEventTo(core::KeyboardEvt{}, uiState_->selectedId);
+    }
+}
+
+auto UIWindow::characterSolver(const uint32_t codepoint) -> void
+{
+    uiState_->codepointRecent = codepoint;
+    if (uiState_->selectedId != core::NOTHING)
+    {
+        emitEventTo(core::CharacterEvt{}, uiState_->selectedId);
     }
 }
 

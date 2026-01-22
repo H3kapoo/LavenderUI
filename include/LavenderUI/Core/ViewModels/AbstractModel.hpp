@@ -61,7 +61,7 @@ public:
         DISPLAY = 0,
         COLOR = 1,
         ALTERNATE_COLOR_1 = 2,
-        ALTERNATE_COLOR_2 = 3
+        ALTERNATE_COLOR_2 = 3,
     };
 
     using ModelVariant = std::variant<std::string, glm::vec4>;

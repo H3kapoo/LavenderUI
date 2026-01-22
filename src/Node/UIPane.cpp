@@ -74,6 +74,16 @@ auto UIPane::onEvent(core::UIStatePtr& state) -> void
         core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
         eventsMgr_.emitEvent<core::MouseExitEvt>(e);
     }
+    else if (eId == core::FocusGainEvt::eventId)
+    {
+        core::FocusGainEvt e;
+        eventsMgr_.emitEvent<core::FocusGainEvt>(e);
+    }
+    else if (eId == core::FocusLostEvt::eventId)
+    {
+        core::FocusLostEvt e;
+        eventsMgr_.emitEvent<core::FocusLostEvt>(e);
+    }
 }
 
 auto UIPane::calculateLayout() -> glm::ivec2

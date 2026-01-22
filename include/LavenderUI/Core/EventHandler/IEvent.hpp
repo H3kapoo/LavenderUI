@@ -2,11 +2,12 @@
 
 #include <cstdint>
 
+#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::core
 {
-
+// TODO: This class needs to be split in individual concrete events
 struct IEvent
 {
     virtual ~IEvent() = default;
@@ -39,9 +40,9 @@ struct MouseMoveEvt : public IEventCRTP<MouseMoveEvt>
 struct MouseButtonEvt : public IEventCRTP<MouseButtonEvt>
 {
     MouseButtonEvt() {}
-    MouseButtonEvt(uint8_t btnIn, uint8_t actionIn) : btn{btnIn}, action{actionIn} {}
-    uint8_t btn{0};
-    uint8_t action{0};
+    MouseButtonEvt(lav::Mouse btnIn, lav::Action actionIn) : btn{btnIn}, action{actionIn} {}
+    lav::Mouse btn{0};
+    lav::Action action{0};
 };
 
 struct MouseLeftClickEvt : public IEventCRTP<MouseLeftClickEvt>
@@ -98,4 +99,23 @@ struct WindowResizeEvt : public IEventCRTP<WindowResizeEvt>
 
 struct KeyboardEvt : public IEventCRTP<KeyboardEvt>
 {};
+
+struct CharacterEvt : public IEventCRTP<CharacterEvt>
+{};
+
+struct FocusGainEvt : public IEventCRTP<FocusGainEvt>
+{};
+
+struct FocusLostEvt : public IEventCRTP<FocusLostEvt>
+{};
+
+struct TextChangedEvt : public IEventCRTP<TextChangedEvt>
+{
+    TextChangedEvt() {}
+    TextChangedEvt(const std::string& textIn) : text{textIn} {}
+    std::string text;
+};
+
+// TODO: needs to be moved out of here
+
 } // namespace lav::core

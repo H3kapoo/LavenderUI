@@ -38,7 +38,12 @@ public:
         return ModelVariant{};
     }
 
-    auto getRowCount(const ModelIndex) const -> uint32_t override { return data_.size(); }
+    auto getRawDisplayData(const ModelIndex idx) const -> uint32_t
+    {
+        return data_.at(idx.row);
+    }
+
+    auto getRowCount(const ModelIndex = ModelIndex{}) const -> uint32_t override { return data_.size(); }
 
 protected:
     const std::vector<uint32_t>& data_;
@@ -93,15 +98,22 @@ public:
         const std::function<bool(uint32_t)> pred)
         : mapping_()
         , source_(source)
-        , pred_(pred)
+    {
+        rebuild(pred);
+    }
+
+    auto rebuild(const std::function<bool(uint32_t)> pred) -> void
     {
         mapping_.clear();
         mapping_.reserve(source_.getRowCount());
+        ModelIndex idx{0, 0, nullptr};
         for (uint32_t dIdx = 0; dIdx < source_.getRowCount(); dIdx++)
         {
-            const ModelIndex idx{dIdx, 0, nullptr};
+            idx.row = dIdx;
+            // For huge lists, getting the value raw is way better. User needs to create custom Model.
+            // Otherwise they need to settle for the generic slow version.
             const std::string data = GET_STR_ROLE2(source_, idx, core::AbstractModel::EModelRole::DISPLAY);
-            if (pred_(std::stoi(data))) { continue; }
+            if (!pred(std::stoi(data))) { continue; }
             mapping_.push_back(source_.index(dIdx, 0, ModelIndex{}));
         }
     }
@@ -124,7 +136,6 @@ public:
 private:
     std::vector<ModelIndex> mapping_;
     const AbstractModel& source_;
-    const std::function<bool(uint32_t)> pred_;
 };
 
 } // namespace lav::core

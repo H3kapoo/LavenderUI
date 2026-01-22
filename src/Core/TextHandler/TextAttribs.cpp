@@ -64,6 +64,17 @@ auto TextAttribs::setText(std::string text) -> void
     }
 }
 
+auto TextAttribs::appendChar(const char chr, const int32_t pos) -> void
+{
+    (void)pos;
+    setText(getText() + chr);
+}
+
+auto TextAttribs::eraseChar(const int32_t) -> void
+{
+    text_.pop_back();
+}
+
 auto TextAttribs::setPosition(const glm::ivec3& pos) -> void
 {
     pos_ = pos;

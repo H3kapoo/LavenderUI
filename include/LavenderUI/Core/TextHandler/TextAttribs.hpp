@@ -21,6 +21,9 @@ public:
 
     auto setFont(const std::filesystem::path& fontPath) -> void;
     auto setText(std::string text) -> void;
+    auto appendChar(const char chr, const int32_t pos = -1) -> void;
+    auto eraseChar(const int32_t pos = -1) -> void;
+
     auto setPosition(const glm::ivec3& pos) -> void;
     auto setValidBounds(const glm::vec2& start, const glm::vec2& scale) -> void;
 

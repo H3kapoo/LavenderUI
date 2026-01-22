@@ -18,6 +18,9 @@ static constexpr uint32_t NOTHING = 0;
 */
 struct UIState
 {
+    lav::Action keyStates[lav::KeyLastId];
+    std::optional<lav::Key> keyRecent{std::nullopt};
+    std::optional<uint32_t> codepointRecent{std::nullopt};
     glm::ivec2 mousePos{0, 0};
     glm::ivec2 mouseDiff{0, 0};
     glm::ivec2 scrollOffset{0, 0};
@@ -36,6 +39,7 @@ struct UIState
     lav::Mouse mouseButton{NOTHING};
     std::optional<lav::Cursor> currentCursorType{lav::Cursor::ARROW};
     std::optional<lav::Cursor> wantedCursorType{std::nullopt};
+
     bool isDragging{false};
 };
 using UIStatePtr = std::shared_ptr<UIState>;
