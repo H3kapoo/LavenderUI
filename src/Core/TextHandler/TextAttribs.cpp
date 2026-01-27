@@ -64,6 +64,11 @@ auto TextAttribs::setText(std::string text) -> void
     }
 }
 
+auto TextAttribs::getPosAtCursor(const glm::ivec2 mousePos) -> uint32_t
+{
+    return 0;
+}
+
 auto TextAttribs::appendChar(const char chr, const int32_t pos) -> void
 {
     (void)pos;

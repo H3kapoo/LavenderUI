@@ -112,8 +112,9 @@ int main()
     // window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
     std::vector<uint32_t> data =
-        // std::views::iota(0u, 200u) |
-        std::views::iota(0u, 20'000u) |
+        std::views::iota(0u, 200u) |
+        // std::views::iota(0u, 200'000u) |
+        // std::views::iota(0u, 500'000u) |
         std::ranges::to<std::vector<uint32_t>>();
 
     UITreeViewPtr tv = utils::make<UITreeView>();
@@ -161,13 +162,18 @@ int main()
     label->setText("Schimbat");
 
     UILineEditPtr le = utils::make<UILineEdit>();
-    le->setText("1");
+    le->setText("13456789");
     le->setColor(utils::hexToVec4("#62f562ff"));
-    le->getBaseLayoutData().setScale({1_fill, 30_px}).setMargin({0, 0, 2, 0});
+    le->getBaseLayoutData().setScale({1_fill, 30_px});
+
+    UILineEditPtr le2 = utils::make<UILineEdit>();
+    le2->setText("13456789");
+    le2->setColor(utils::hexToVec4("#daf562ff"));
+    le2->getBaseLayoutData().setScale({1_fill, 30_px});
 
     le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
     {
-        log.error("text changed {}", e.text);
+        // log.error("text changed {}", e.text);
         try
         {
             int32_t num = std::stoi(e.text);
@@ -182,6 +188,7 @@ int main()
     });
 
     pane1.lock()->add(le);
+    pane1.lock()->add(le2);
     pane1.lock()->add(rl);
 
     pane32.lock()->listenEvent<core::FocusGainEvt>([&log](const auto&)

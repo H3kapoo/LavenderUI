@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include "include/LavenderUI/Core/TextHandler/TextAttribs.hpp"
+#include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
 #include "include/LavenderUI/Node/UIBase.hpp"
 
 namespace lav::node
@@ -18,7 +18,7 @@ public:
     INSERT_ADD_REMOVE_NOT_ALLOWED(UILineEdit);
 
     auto setText(const std::string& text) -> UILineEdit&;
-    auto setFont(const std::filesystem::path& fontPath) -> void;
+    auto setFont(const std::filesystem::path& fontPath) -> UILineEdit&;
 
     auto getText() const -> std::string;
 
@@ -28,7 +28,7 @@ private:
     virtual auto onEvent(core::UIStatePtr& state) -> void override;
 
 protected:
-    core::TextAttribs textAttribs_;
+    core::TextHandler textHandler_;
     std::string placeholderText_;
     std::optional<glm::vec4> overrideColor_;
 };

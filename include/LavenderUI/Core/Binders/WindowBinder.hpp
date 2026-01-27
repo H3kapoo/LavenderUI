@@ -11,8 +11,8 @@
 
 #ifdef LAV_USE_GLFW_WINDOWING
 #define GLFW_EXPOSE_NATIVE_X11
-#include "thirdparty/glfw/include/GLFW/glfw3.h"
-#include "thirdparty/glfw/include/GLFW/glfw3native.h"
+    #include "thirdparty/glfw/include/GLFW/glfw3.h"
+    #include "thirdparty/glfw/include/GLFW/glfw3native.h"
 #endif
 
 #include "include/LavenderUI/Utils/Logger.hpp"
@@ -30,28 +30,31 @@ using WindowHandle = GLFWwindow*;
 using WindowCursor = GLFWcursor*;
 #endif
 
-using KeyCallback = std::function<void(int32_t key, int32_t scanCode, int32_t action, int32_t mods)>;
-using CharacterCallback = std::function<void(uint32_t codepoint)>;
-using MouseButtonCallback = std::function<void(uint8_t btn, uint8_t action)>;
-using MouseMoveCallback = std::function<void(int32_t x, int32_t y)>;
-using MouseScrollCallback = std::function<void(int8_t xOffset, int8_t yOffset)>;
-using WindowSizeCallback = std::function<void(uint32_t x, uint32_t y)>;
-using WindowMouseEnterCallback = std::function<void(bool entered)>;
-using WindowFileDropCallback = std::function<void(int32_t count, const char** paths)>;
+using KeyCallback = std::function<void(
+    const int32_t key, const int32_t scanCode, const int32_t action, const int32_t mods)>;
+using CharacterCallback = std::function<void(const uint32_t codepoint)>;
+using MouseButtonCallback = std::function<void(const uint8_t btn, const uint8_t action)>;
+using MouseMoveCallback = std::function<void(const int32_t x, const int32_t y)>;
+using MouseScrollCallback = std::function<void(const int8_t xOffset, const int8_t yOffset)>;
+using WindowSizeCallback = std::function<void(const uint32_t x, const uint32_t y)>;
+using WindowMouseEnterCallback = std::function<void(const bool entered)>;
+using WindowFileDropCallback = std::function<void(const int32_t count, const char** paths)>;
+using WindowFocusCallback = std::function<void(const bool focused)>;
 
 class WindowBinder
 {
 public:
     struct InputCallbacks
     {
-        KeyCallback keyCallback{[](auto, auto, auto, auto){}};
-        CharacterCallback characterCallback{[](auto){}};
-        MouseMoveCallback mouseMoveCallback{[](auto, auto){}};
-        MouseButtonCallback mouseBtnCallback{[](auto, auto){}};
-        MouseScrollCallback mouseScrollCallback{[](auto, auto){}};
-        WindowSizeCallback windowSizeCallback{[](auto, auto){}};
-        WindowMouseEnterCallback windowMouseEntered{[](auto){}};
-        WindowFileDropCallback windowFileDrop{[](auto, auto){}};
+        KeyCallback                 keyCallback{[](auto, auto, auto, auto){}};
+        CharacterCallback           characterCallback{[](auto){}};
+        MouseMoveCallback           mouseMoveCallback{[](auto, auto){}};
+        MouseButtonCallback         mouseBtnCallback{[](auto, auto){}};
+        MouseScrollCallback         mouseScrollCallback{[](auto, auto){}};
+        WindowSizeCallback          windowSizeCallback{[](auto, auto){}};
+        WindowMouseEnterCallback    windowMouseEntered{[](auto){}};
+        WindowFileDropCallback      windowFileDrop{[](auto, auto){}};
+        WindowFocusCallback         windowFocus{[](auto){}};
     };
 
 public:

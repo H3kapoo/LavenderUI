@@ -73,7 +73,7 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
 
     FT_Set_Pixel_Sizes(ftFace, fontSize, fontSize);
 
-    // /* Generate MAX_GLYPHS levels deep texture. */
+    /* Generate MAX_GLYPHS levels deep texture. */
     GPUBinder::get().unpackAlignment();
     font->textureId = GPUBinder::get().createTexture(
         fontSize,

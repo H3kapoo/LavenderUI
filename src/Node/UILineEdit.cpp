@@ -1,20 +1,25 @@
 #include "include/LavenderUI/Node/UILineEdit.hpp"
 
+#include <chrono>
 #include <optional>
 
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
 #include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 
 namespace lav::node
 {
 UILineEdit::UILineEdit(UIBaseInitData&& data)
     : UIBase(std::move(data))
-    , textAttribs_()
+    , textHandler_("assets/shaders/basicTextVert.glsl", "assets/shaders/basicTextFrag.glsl")
     , placeholderText_()
     , overrideColor_(std::nullopt)
 {
+    textHandler_.setBlinkTime(std::chrono::milliseconds(500));
+    textHandler_.setEditable(true);
     layoutBase_.setScale({200_px, 50_px});
 }
 
@@ -33,26 +38,22 @@ auto UILineEdit::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
-    const auto& textShader_ = textAttribs_.getShader();
-    const auto& textBuffer = textAttribs_.getBuffer();
-    textShader_.bind();
-    textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
-    textShader_.uploadMat4("uMatrixProjection", projection);
-    textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
-    textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
-    textShader_.uploadTexture2DArray("uTextureArray", 0, textAttribs_.getFont()->textureId);
-    core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
+    textHandler_.render(projection);
 }
 
 auto UILineEdit::onLayout() -> void
 {
     const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
-        - textAttribs_.computeMaxSize() / 2.0f;
-    textAttribs_.setPosition({p.x, p.y, layoutBase_.getZIndex()});
+        - textHandler_.computeMaxSize() / 2.0f;
+
+    textHandler_.setAnchorPos(p);
+    textHandler_.setStartZIndex(layoutBase_.getZIndex());
 }
 
 auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
 {
+    // TODO: Need to collapse all the generic events into one generic callable function
+    // Everything that has to do with the class logic shall be implemented separately
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftClickEvt::eventId)
     {
@@ -81,17 +82,13 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
     }
     else if (eId == core::CharacterEvt::eventId)
     {
-        // TODO: Technically its a uint32_t because in the future utf-8 shall be supported
-        // but for now, the ASCII set is enough
-        char recentCp = static_cast<char>(state->codepointRecent.value());
-        textAttribs_.appendChar(recentCp);
-
+        const char recentCp = static_cast<char>(state->codepointRecent.value());
+        textHandler_.appendAtCaretPos(recentCp);
         core::TextChangedEvt e{getText()};
         eventsMgr_.emitEvent<core::TextChangedEvt>(e);
     }
     else if (eId == core::KeyboardEvt::eventId)
     {
-        char val = static_cast<char>(state->keyRecent.value());
         if (state->keyRecent.value() == lav::Key::ENTER)
         {
             setText("");
@@ -100,13 +97,24 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
         }
         else if (state->keyRecent.value() == lav::Key::BACKSPACE)
         {
-            textAttribs_.eraseChar();
+            textHandler_.removeAtCaretPos();
+
             core::TextChangedEvt e{getText()};
             eventsMgr_.emitEvent<core::TextChangedEvt>(e);
+        }
+        else if (state->keyRecent.value() == lav::Key::LEFT)
+        {
+            textHandler_.moveCaretLeft();
+        }
+        else if (state->keyRecent.value() == lav::Key::RIGHT)
+        {
+            textHandler_.moveCaretRight();
         }
     }
     else if (eId == core::FocusGainEvt::eventId)
     {
+        textHandler_.setFocused(true);
+
         layoutBase_.setBorder({1});
         setBorderColor(utils::hexToVec4("#505350ff"));
 
@@ -115,15 +123,27 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
     }
     else if (eId == core::FocusLostEvt::eventId)
     {
+        textHandler_.setFocused(false);
+
         layoutBase_.setBorder({0});
         core::FocusLostEvt e;
         eventsMgr_.emitEvent<core::FocusLostEvt>(e);
     }
 }
 
-auto UILineEdit::setText(const std::string& text) -> UILineEdit& { textAttribs_.setText(text); return *this; }
+auto UILineEdit::setText(const std::string& text) -> UILineEdit&
+{
+    textHandler_.setText(text); return *this;
+}
 
-auto UILineEdit::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
+auto UILineEdit::setFont(const std::filesystem::path& fontPath) -> UILineEdit&
+{
+    textHandler_.setFont(fontPath);
+    return *this;
+}
 
-auto UILineEdit::getText() const -> std::string { return textAttribs_.getText(); }
+auto UILineEdit::getText() const -> std::string
+{
+    return textHandler_.getText();
+}
 } // namespace src::uinodes

@@ -109,6 +109,9 @@ struct FocusGainEvt : public IEventCRTP<FocusGainEvt>
 struct FocusLostEvt : public IEventCRTP<FocusLostEvt>
 {};
 
+struct WindowFocusEvt : public IEventCRTP<WindowFocusEvt>
+{};
+
 struct TextChangedEvt : public IEventCRTP<TextChangedEvt>
 {
     TextChangedEvt() {}

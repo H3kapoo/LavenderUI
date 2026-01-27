@@ -8,7 +8,6 @@
 #include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/State/UIState.hpp"
 #include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
 
 namespace lav::node
 {
@@ -58,6 +57,7 @@ private:
     auto mouseScrollSolver(const uint32_t xOffset, const uint32_t yOffset) -> void;
     auto windowResizeSolver(const uint32_t newX, const uint32_t newY) -> void;
     auto windowMouseEnterSolver(const bool entered) -> void;
+    auto windowFocusSolver(const bool focused) -> void;
     auto keyButtonSolver(const uint32_t key, const uint32_t scancode, const uint32_t action,
         const uint32_t mods) -> void;
     auto characterSolver(const uint32_t codepoint) -> void;

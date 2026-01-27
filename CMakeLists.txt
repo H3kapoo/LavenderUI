@@ -71,6 +71,9 @@ function(setup_for_linux_x86_64)
 
         # Text
         src/Core/TextHandler/TextAttribs.cpp
+        src/Core/TextHandler/TextHandler.cpp
+        src/Core/TextHandler/SimpleText.cpp
+        src/Core/TextHandler/CaretHelper.cpp
 
         # UI Nodes
         src/Node/UIBase.cpp

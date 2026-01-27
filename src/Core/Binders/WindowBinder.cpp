@@ -280,6 +280,14 @@ auto WindowBinder::setInputCallbacks(WindowHandle handle, const InputCallbacks& 
                 glfwGetWindowUserPointer(returnHandle));
             cbsData->windowFileDrop(count, paths);
         });
+
+    glfwSetWindowFocusCallback(handle,
+        [](WindowHandle returnHandle, int32_t focus)
+        {
+            const InputCallbacks* cbsData = static_cast<InputCallbacks*>(
+                glfwGetWindowUserPointer(returnHandle));
+            cbsData->windowFocus(static_cast<bool>(focus));
+        });
 }
 
 } // namespace lav::core

@@ -19,7 +19,7 @@
 
 namespace lav::node
 {
-/* Static declarations */
+/* Static definitions */
 int32_t UIWindow::MAX_LAYERS = 1000;
 bool UIWindow::isFirstWindow_ = true;
 
@@ -176,7 +176,7 @@ auto UIWindow::setupInputCallbacks() -> void
     */
     cbs_ = {
         .keyCallback =
-            [this](uint32_t key, uint32_t sc, uint32_t action, uint32_t mods)
+            [this](const uint32_t key, const uint32_t sc, const uint32_t action, const uint32_t mods)
             {
                 insertUniquePendingRawEvent(core::KeyboardEvt{}, [this, key, sc, action, mods]()
                 {
@@ -184,7 +184,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .characterCallback = 
-            [this](uint32_t codepoint)
+            [this](const uint32_t codepoint)
             {
                 insertUniquePendingRawEvent(core::CharacterEvt{}, [this, codepoint]()
                 {
@@ -192,7 +192,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .mouseMoveCallback = 
-            [this](int32_t x, int32_t y)
+            [this](const int32_t x, const int32_t y)
             {
                 insertUniquePendingRawEvent(core::MouseMoveEvt{}, [this, x, y]()
                 {
@@ -200,7 +200,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .mouseBtnCallback = 
-            [this](uint8_t btn, uint8_t action)
+            [this](const uint8_t btn, const uint8_t action)
             {
                 insertUniquePendingRawEvent(core::MouseButtonEvt{}, [this, btn, action]()
                 {
@@ -208,7 +208,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .mouseScrollCallback = 
-            [this](int8_t xOffset, int8_t yOffset)
+            [this](const int8_t xOffset, const int8_t yOffset)
             {
                 insertUniquePendingRawEvent(core::MouseScrollEvt{}, [this, xOffset, yOffset]()
                 {
@@ -216,7 +216,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .windowSizeCallback = 
-            [this](uint32_t newX, uint32_t newY)
+            [this](const uint32_t newX, const uint32_t newY)
             {
                 insertUniquePendingRawEvent(core::WindowResizeEvt{}, [this, newX, newY]()
                 {
@@ -224,7 +224,7 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .windowMouseEntered = 
-            [this](bool entered)
+            [this](const bool entered)
             {
                 insertUniquePendingRawEvent(core::WindowResizeEvt{}, [this, entered]()
                 {
@@ -232,11 +232,19 @@ auto UIWindow::setupInputCallbacks() -> void
                 });
             },
         .windowFileDrop =
-            [this](int32_t count, const char** paths)
+            [this](const int32_t count, const char** paths)
             {
                 (void)count;
                 (void)paths;
                 for (int32_t i = 0; i < count; ++i) {}
+            },
+        .windowFocus =
+            [this](const bool focused)
+            {
+                insertUniquePendingRawEvent(core::WindowFocusEvt{}, [this, focused]()
+                {
+                    windowFocusSolver(focused);
+                });
             }
     };
 
@@ -381,8 +389,12 @@ auto UIWindow::mouseButtonSolver(const uint32_t btn, const uint32_t action) -> v
         uiState_->selectedId = uiState_->hoveredId;
 
         emitEventTo(core::MouseLeftClickEvt{}, uiState_->clickedId);
-        emitEventTo(core::FocusLostEvt{}, prevSelectedId);
-        emitEventTo(core::FocusGainEvt{}, uiState_->selectedId);
+
+        if (prevSelectedId != uiState_->selectedId)
+        {
+            emitEventTo(core::FocusLostEvt{}, prevSelectedId);
+            emitEventTo(core::FocusGainEvt{}, uiState_->selectedId);
+        }
     }
     else if (static_cast<lav::Mouse>(btn) == Mouse::LEFT && static_cast<lav::Action>(action) == Action::RELEASE)
     {
@@ -429,6 +441,15 @@ auto UIWindow::windowMouseEnterSolver(const bool entered) -> void
         emitEventTo(core::MouseExitEvt{}, uiState_->hoveredId);
         uiState_->hoveredId = core::NOTHING;
         uiState_->prevHoveredId = core::NOTHING;
+    }
+}
+
+auto UIWindow::windowFocusSolver(const bool focused) -> void
+{
+    /* If focus is lost, the selectedId shall be notified of loss of focus aswell. */
+    if (!focused && uiState_->selectedId != core::NOTHING)
+    {
+        emitEventTo(core::FocusLostEvt{}, uiState_->selectedId);
     }
 }
 

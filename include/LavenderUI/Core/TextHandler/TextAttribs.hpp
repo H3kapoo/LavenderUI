@@ -23,6 +23,7 @@ public:
     auto setText(std::string text) -> void;
     auto appendChar(const char chr, const int32_t pos = -1) -> void;
     auto eraseChar(const int32_t pos = -1) -> void;
+    auto getPosAtCursor(const glm::ivec2 mousePos) -> uint32_t;
 
     auto setPosition(const glm::ivec3& pos) -> void;
     auto setValidBounds(const glm::vec2& start, const glm::vec2& scale) -> void;

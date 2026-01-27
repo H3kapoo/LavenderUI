@@ -2,7 +2,6 @@
 
 #include <string>
 #include <memory>
-#include <vector>
 
 #include "thirdparty/glm/glm.hpp"
 
