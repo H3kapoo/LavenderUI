@@ -65,7 +65,7 @@ auto TextHandler::appendAtCaretPos(const char chr) -> void
 
 auto TextHandler::removeAtCaretPos() -> void
 {
-    if (!isEditable_) { return; }
+    if (!isEditable_ || storedText_.empty()) { return; }
     storedText_.pop_back();
     notifyTyping();
 }
@@ -90,6 +90,7 @@ auto TextHandler::setFocused(const bool focused) -> void
     {
         CaretHelper::get().start();
         CaretHelper::get().setBlinkTime(blinkIntervalMs_);
+        CaretHelper::get().setCaretColor(caretColor_);
     }
     else
     {
@@ -97,6 +98,11 @@ auto TextHandler::setFocused(const bool focused) -> void
     }
 
     focused_ = focused;
+}
+
+auto TextHandler::setCaretColor(const glm::vec4& color) -> void
+{
+    caretColor_ = color;
 }
 
 auto TextHandler::setText(const std::string& text) -> void

@@ -40,6 +40,7 @@ private:
 
 private:
     utils::Logger log_;
+    glm::vec4 caretColor_;
     std::chrono::milliseconds blinkIntervalMs_;
     bool focused_;
     bool isEditable_;

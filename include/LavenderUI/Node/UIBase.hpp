@@ -171,6 +171,7 @@ protected:
     virtual auto onEvent(core::UIStatePtr& state) -> void = 0;
     virtual auto onResetToDefault() -> void;
 
+    auto processAndEmitGenericMouseEvents(const core::UIStatePtr& state) -> void;
     auto getAndConsumeTreeChangeIfAny() -> bool;
 
 private:

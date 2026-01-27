@@ -20,6 +20,7 @@ public:
     auto stop() -> void;
     auto requestKeepAlive() -> void;
     auto setBlinkTime(const std::chrono::milliseconds& ms) -> void;
+    auto setCaretColor(const glm::vec4 color) -> void;
     auto setCaretScale(const glm::ivec2 scale) -> void;
     auto setCaretPos(const glm::ivec2 pos) -> void;
 
@@ -31,6 +32,7 @@ private:
     auto operator =(const CaretHelper&) -> CaretHelper& = delete;
     auto operator =(CaretHelper&&) -> CaretHelper& = delete;
 
+    auto startBlinkLogic() -> void;
     auto getCaretTransform() -> const glm::mat4;
 
 private:

@@ -17,9 +17,12 @@ UILineEdit::UILineEdit(UIBaseInitData&& data)
     , textHandler_("assets/shaders/basicTextVert.glsl", "assets/shaders/basicTextFrag.glsl")
     , placeholderText_()
     , overrideColor_(std::nullopt)
+    , numericOnly_(false)
 {
     textHandler_.setBlinkTime(std::chrono::milliseconds(500));
     textHandler_.setEditable(true);
+    textHandler_.setTextColor(utils::hexToVec4("#333333ff"));
+    textHandler_.setCaretColor(utils::hexToVec4("#333333ff"));
     layoutBase_.setScale({200_px, 50_px});
 }
 
@@ -52,40 +55,21 @@ auto UILineEdit::onLayout() -> void
 
 auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
 {
-    // TODO: Need to collapse all the generic events into one generic callable function
-    // Everything that has to do with the class logic shall be implemented separately
+    UIBase::processAndEmitGenericMouseEvents(state);
+
     const auto eId = state->currentEventId;
-    if (eId == core::MouseLeftClickEvt::eventId)
-    {
-        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
-    }
-    else if (eId == core::MouseLeftReleaseEvt::eventId)
-    {
-        core::MouseLeftReleaseEvt e;
-        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
-    }
-    else if (eId == core::MouseDragEvt::eventId)
-    {
-        core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
-    }
-    else if (eId == core::MouseEnterEvt::eventId)
-    {
-        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
-    }
-    else if (eId == core::MouseExitEvt::eventId)
-    {
-        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
-    }
-    else if (eId == core::CharacterEvt::eventId)
+    if (eId == core::CharacterEvt::eventId)
     {
         const char recentCp = static_cast<char>(state->codepointRecent.value());
-        textHandler_.appendAtCaretPos(recentCp);
-        core::TextChangedEvt e{getText()};
-        eventsMgr_.emitEvent<core::TextChangedEvt>(e);
+        const bool shouldAccept = performFiltering(recentCp);
+
+        if (shouldAccept)
+        {
+            textHandler_.appendAtCaretPos(recentCp);
+
+            core::TextChangedEvt e{getText()};
+            eventsMgr_.emitEvent<core::TextChangedEvt>(e);
+        }
     }
     else if (eId == core::KeyboardEvt::eventId)
     {
@@ -131,15 +115,41 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
     }
 }
 
-auto UILineEdit::setText(const std::string& text) -> UILineEdit&
+auto UILineEdit::performFiltering(const char codepoint) -> bool
 {
-    textHandler_.setText(text); return *this;
+    bool filterPassed{false};
+    const bool numericRule = codepoint >= '0' && codepoint <= '9';
+    if (numericOnly_ && numericRule)
+    {
+        filterPassed = true;
+    }
+    else if (!numericOnly_)
+    {
+        filterPassed = true;
+    }
+
+    return filterPassed;
 }
 
-auto UILineEdit::setFont(const std::filesystem::path& fontPath) -> UILineEdit&
+auto UILineEdit::enableNumbericOnly(const bool enable) -> void
+{
+    numericOnly_ = enable;
+}
+
+auto UILineEdit::setText(const std::string& text) -> void
+{
+    textHandler_.setText(text);
+}
+
+auto UILineEdit::setFont(const std::filesystem::path& fontPath) -> void
 {
     textHandler_.setFont(fontPath);
-    return *this;
+}
+
+auto UILineEdit::setTextColor(const glm::vec4& color) -> void
+{
+    textHandler_.setTextColor(color);
+    textHandler_.setCaretColor(color);
 }
 
 auto UILineEdit::getText() const -> std::string

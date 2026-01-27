@@ -4,6 +4,7 @@
 #include <cxxabi.h>
 #include <queue>
 
+#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
 #include "include/LavenderUI/Core/ResourceHandler/MeshLoader.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
@@ -118,6 +119,51 @@ auto UIBase::resetElementsToDefault() -> void
         }
 
         node->onResetToDefault();
+    }
+}
+
+auto UIBase::processAndEmitGenericMouseEvents(const core::UIStatePtr& state) -> void
+{
+    const auto eId = state->currentEventId;
+    if (eId == core::MouseLeftClickEvt::eventId)
+    {
+        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
+    }
+    else if (eId == core::MouseLeftReleaseEvt::eventId)
+    {
+        core::MouseLeftReleaseEvt e;
+        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
+    }
+    else if (eId == core::MouseDragEvt::eventId)
+    {
+        core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
+    }
+    else if (eId == core::MouseEnterEvt::eventId)
+    {
+        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
+    }
+    else if (eId == core::MouseExitEvt::eventId)
+    {
+        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
+    }
+    else if (eId == core::MouseScrollEvt::eventId)
+    {
+        core::MouseScrollEvt scrollEvt{state->scrollOffset.x, state->scrollOffset.y}; 
+        eventsMgr_.emitEvent<core::MouseScrollEvt>(scrollEvt);
+    }
+    else if (eId == core::MouseButtonEvt::eventId)
+    {
+        core::MouseButtonEvt e{state->mouseButton, state->mouseAction};
+        eventsMgr_.emitEvent<core::MouseButtonEvt>(e);
+    }
+    else if (state->currentEventId == core::MouseMoveEvt::eventId)
+    {
+        core::MouseMoveEvt e{state->mousePos.x, state->mousePos.y};
+        eventsMgr_.emitEvent<core::MouseMoveEvt>(e);
     }
 }
 

@@ -163,6 +163,7 @@ int main()
 
     UILineEditPtr le = utils::make<UILineEdit>();
     le->setText("13456789");
+    le->enableNumbericOnly(true);
     le->setColor(utils::hexToVec4("#62f562ff"));
     le->getBaseLayoutData().setScale({1_fill, 30_px});
 

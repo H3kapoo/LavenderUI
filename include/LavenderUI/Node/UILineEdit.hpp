@@ -17,8 +17,10 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UILineEdit, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UILineEdit);
 
-    auto setText(const std::string& text) -> UILineEdit&;
-    auto setFont(const std::filesystem::path& fontPath) -> UILineEdit&;
+    auto enableNumbericOnly(const bool enable = true) -> void;
+    auto setText(const std::string& text) -> void;
+    auto setFont(const std::filesystem::path& fontPath) -> void;
+    auto setTextColor(const glm::vec4& color) -> void;
 
     auto getText() const -> std::string;
 
@@ -27,10 +29,13 @@ private:
     virtual auto onLayout() -> void override;
     virtual auto onEvent(core::UIStatePtr& state) -> void override;
 
+    auto performFiltering(const char codepoint) -> bool;
+
 protected:
     core::TextHandler textHandler_;
     std::string placeholderText_;
     std::optional<glm::vec4> overrideColor_;
+    bool numericOnly_;
 };
 using UILineEditPtr = std::shared_ptr<UILineEdit>;
 using UILineEditWPtr = std::weak_ptr<UILineEdit>;

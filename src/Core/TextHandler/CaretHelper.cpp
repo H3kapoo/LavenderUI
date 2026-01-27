@@ -57,34 +57,8 @@ auto CaretHelper::start() -> void
     if (started_) { return; }
 
     started_ = true;
-    // TODO: Ideally this shall be a job in a threadpool queue, but it's fine for now
-    blinkThread_ = std::make_unique<std::jthread>(
-        [this]()
-        {
-            using namespace std::literals::chrono_literals;
-            while (started_)
-            {
-                /*
-                    Blink is served as MS but getTime() returns time in seconds since app start.
-                    We need to convert the MS in S to do the comparisons.
-                */
-                const double seconds = blinkIntervalMs_.count() / 1000.0f;
 
-                renderCaret_ = !renderCaret_;
-
-                const double now = core::WindowBinder::get().getTime();
-
-                /* Always keep caret active if the user recently typed. */
-                if (now - lastKeepAliveTimeSec_ < seconds) { renderCaret_ = true; }
-
-                core::WindowBinder::get().requestEmptyEvent();
-
-                /* Sleep for intervalMs OR until we are notified by stop() to pack and fuck off. */
-                std::unique_lock<std::mutex> lock(mtx_);
-                cv_.wait_for(lock, blinkIntervalMs_,
-                    [this]() -> bool { return !started_; });
-            }
-        });
+    blinkThread_ = std::make_unique<std::jthread>([this](){ startBlinkLogic(); });
 }
 
 auto CaretHelper::stop() -> void
@@ -94,11 +68,40 @@ auto CaretHelper::stop() -> void
     lastBlinkTime_ = 0;
     lastKeepAliveTimeSec_ = 0;
     cv_.notify_one();
+    blinkThread_.reset();
 }
 
 auto CaretHelper::requestKeepAlive() -> void
 {
     lastKeepAliveTimeSec_ = core::WindowBinder::get().getTime();
+}
+
+auto CaretHelper::startBlinkLogic() -> void
+{
+    // TODO: Ideally this shall be a job in a threadpool queue, but it's fine for now
+    using namespace std::literals::chrono_literals;
+    while (started_)
+    {
+        /*
+            Blink is served as MS but getTime() returns time in seconds since app start.
+            We need to convert the MS in S to do the comparisons.
+        */
+        const double seconds = blinkIntervalMs_.count() / 1000.0f;
+
+        renderCaret_ = !renderCaret_;
+
+        const double now = core::WindowBinder::get().getTime();
+
+        /* Always keep caret active if the user recently typed. */
+        if (now - lastKeepAliveTimeSec_ < seconds) { renderCaret_ = true; }
+
+        core::WindowBinder::get().requestEmptyEvent();
+
+        /* Sleep for intervalMs OR until we are notified by stop() to pack and fuck off. */
+        std::unique_lock<std::mutex> lock(mtx_);
+        cv_.wait_for(lock, blinkIntervalMs_,
+            [this]() -> bool { return !started_; });
+    }
 }
 
 auto CaretHelper::getCaretTransform() -> const glm::mat4
@@ -107,6 +110,11 @@ auto CaretHelper::getCaretTransform() -> const glm::mat4
     model = glm::translate(model, glm::vec3(caretPos_.x, caretPos_.y, 1));
     model = glm::scale(model, glm::vec3(caretScale_, 1));
     return model;
+}
+
+auto CaretHelper::setCaretColor(const glm::vec4 color) -> void
+{
+    caretColor_ = color;
 }
 
 auto CaretHelper::setCaretScale(const glm::ivec2 scale) -> void
