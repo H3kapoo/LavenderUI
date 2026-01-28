@@ -2,7 +2,11 @@
 
 #include <optional>
 
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseEnter.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftClick.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"

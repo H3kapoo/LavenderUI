@@ -1,7 +1,7 @@
 #include "include/LavenderUI/Node/UIPane.hpp"
 
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
 #include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
 #include "include/LavenderUI/Core/State/UIState.hpp"
@@ -52,38 +52,14 @@ auto UIPane::onLayout() -> void
 auto UIPane::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
-    if (eId == core::MouseButtonEvt::eventId)
-    {
-        core::MouseButtonEvt e{state->mouseButton, state->mouseAction};
-        eventsMgr_.emitEvent<core::MouseButtonEvt>(e);
-    }
-    else if (state->currentEventId == core::MouseMoveEvt::eventId)
+    if (state->currentEventId == core::MouseMoveEvt::eventId)
     {
         if (layoutBase_.isPointInsideView(state->mousePos))
         {
             state->closestScrollId = getClosestScrollbar(state->mousePos);
         }
     }
-    else if (state->currentEventId == core::MouseEnterEvt::eventId)
-    {
-        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
-    }
-    else if (state->currentEventId == core::MouseExitEvt::eventId)
-    {
-        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
-    }
-    else if (eId == core::FocusGainEvt::eventId)
-    {
-        core::FocusGainEvt e;
-        eventsMgr_.emitEvent<core::FocusGainEvt>(e);
-    }
-    else if (eId == core::FocusLostEvt::eventId)
-    {
-        core::FocusLostEvt e;
-        eventsMgr_.emitEvent<core::FocusLostEvt>(e);
-    }
+    UIBase::processAndEmitGenericMouseEvents(state);
 }
 
 auto UIPane::calculateLayout() -> glm::ivec2

@@ -1,6 +1,10 @@
 #include "include/LavenderUI/Node/UISplitPane.hpp"
 
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseButton.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"

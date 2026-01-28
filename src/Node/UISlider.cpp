@@ -1,7 +1,12 @@
 #include "include/LavenderUI/Node/UISlider.hpp"
 
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseScroll.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseEnter.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftClick.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/Slide.hpp"
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
 #include "include/LavenderUI/Node/UILabel.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
@@ -76,15 +81,15 @@ auto UISlider::onEvent(core::UIStatePtr& state) -> void
         // NOTE: inverting affects horizontal sliders. No side effects really.
         setScrollValue(scrollValue_ + state->scrollOffset.y * sensitivity_ * (invertVertical_ ? -1 : 1));
 
-        core::SliderEvt sliderEvt{getScrollValue()}; 
-        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
+        core::SlideEvt slideEvt{getScrollValue()}; 
+        eventsMgr_.emitEvent<core::SlideEvt>(slideEvt);
     }
     else if (eId == core::MouseDragEvt::eventId)
     {
         percentage_ = calculatePercentage(state->mousePos - distToKnobCenter_);
 
-        core::SliderEvt sliderEvt{getScrollValue()};
-        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
+        core::SlideEvt slideEvt{getScrollValue()};
+        eventsMgr_.emitEvent<core::SlideEvt>(slideEvt);
 
         core::MouseDragEvt e;
         eventsMgr_.emitEvent<core::MouseDragEvt>(e);
@@ -97,8 +102,8 @@ auto UISlider::onEvent(core::UIStatePtr& state) -> void
         distToKnobCenter_ = utils::valueIfLowerAbs(distToKnobCenter_, knobHalf);
         percentage_ = calculatePercentage(state->mousePos - distToKnobCenter_);
 
-        core::SliderEvt sliderEvt{getScrollValue()};
-        eventsMgr_.emitEvent<core::SliderEvt>(sliderEvt);
+        core::SlideEvt sliderEvt{getScrollValue()};
+        eventsMgr_.emitEvent<core::SlideEvt>(sliderEvt);
     }
     else if (eId == core::MouseEnterEvt::eventId)
     {

@@ -9,10 +9,15 @@
 
 namespace lav::core
 {
+/**
+    @brief Responsible for managing the lifetime and attributes of the caret blinking symbol.
+
+    @note Singleton class as there can only be one caret at the time for now.
+    @note Multiline caret selection will break with current implementation but it's not needed right now.
+*/
 class CaretHelper
 {
 public:
-
     static auto get() -> CaretHelper&;
 
     auto render(const glm::mat4& projection) -> void;

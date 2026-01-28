@@ -52,32 +52,7 @@ auto UILabel::onLayout() -> void
 
 auto UILabel::onEvent(core::UIStatePtr& state) -> void
 {
-    const auto eId = state->currentEventId;
-    if (eId == core::MouseLeftClickEvt::eventId)
-    {
-        core::MouseLeftClickEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseLeftClickEvt>(e);
-    }
-    else if (eId == core::MouseLeftReleaseEvt::eventId)
-    {
-        core::MouseLeftReleaseEvt e;
-        eventsMgr_.emitEvent<core::MouseLeftReleaseEvt>(e);
-    }
-    else if (eId == core::MouseDragEvt::eventId)
-    {
-        core::MouseDragEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseDragEvt>(e);
-    }
-    else if (eId == core::MouseEnterEvt::eventId)
-    {
-        core::MouseEnterEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseEnterEvt>(e);
-    }
-    else if (eId == core::MouseExitEvt::eventId)
-    {
-        core::MouseExitEvt e{state->mousePos.x, state->mousePos.y};
-        eventsMgr_.emitEvent<core::MouseExitEvt>(e);
-    }
+    UIBase::processAndEmitGenericMouseEvents(state);
 }
 
 auto UILabel::setText(const std::string& text) -> UILabel& { textAttribs_.setText(text); return *this; }

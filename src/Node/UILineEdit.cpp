@@ -5,7 +5,11 @@
 
 #include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
 #include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/Character.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/Keyboard.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp"
+#include "include/LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp"
 #include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
 #include "include/LavenderUI/Utils/Misc.hpp"
