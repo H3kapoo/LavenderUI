@@ -484,6 +484,7 @@ auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_
     else if (castKey == Key::C)
     {
         // App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
+        App::get().createWindow("new_frame", {200, 300});
     }
     else if (castKey == Key::P)
     {

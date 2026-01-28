@@ -23,30 +23,30 @@ namespace lav
 class App
 {
 public:
-    App(const App&) = delete;
-    App(App&&) = delete;
-    auto operator=(const App&) -> App& = delete;
-    auto operator=(App&&) -> App& = delete;
-
     static auto get() -> App&;
 
     auto init() -> bool;
     auto run() -> void;
     auto loadLavView(const std::filesystem::path& viewPath) -> node::UIWindowWPtr;
     auto createWindow(const std::string& title, const glm::ivec2 size) -> node::UIWindowWPtr;
-    auto findWindow(const uint64_t windowId) -> node::UIWindowWPtr;
+    auto findWindow(const uint32_t windowId) -> node::UIWindowWPtr;
     auto setWaitEvents(const bool waitEvents = true) -> void;
     auto enableTitleWithFPS(const bool enable = true) -> void;
 
 private:
     App();
     ~App();
+    App(const App&) = delete;
+    App(App&&) = delete;
+    auto operator=(const App&) -> App& = delete;
+    auto operator=(App&&) -> App& = delete;
 
-    auto runPerWindow(const node::UIWindowPtr& frame) -> bool;
+    auto runPerWindow(const node::UIWindowPtr frame) -> bool;
 
 private:
     utils::Logger log_{"App"};
     std::vector<node::UIWindowPtr> windows_;
+    std::unordered_set<uint32_t> toRemoveWindows_;
     bool keepRunning_;
     bool shouldUpdateTitle_;
     bool showFps_;

@@ -31,6 +31,7 @@ UIBase::UIBase(UIBaseInitData&& initData)
     , depth_(0)
     , isParented_(false)
     , isIgnoringEvents_(false)
+    , isTreeStructureChanged_(false)
 {}
 
 auto UIBase::add(const UIBasePtr& element, const int32_t pos) -> bool

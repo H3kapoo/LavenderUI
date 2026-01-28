@@ -79,6 +79,7 @@ auto CaretHelper::requestKeepAlive() -> void
 auto CaretHelper::startBlinkLogic() -> void
 {
     // TODO: Ideally this shall be a job in a threadpool queue, but it's fine for now
+    // TODO: Since we use jthread, use stop_token for cooperative termination
     using namespace std::literals::chrono_literals;
     while (started_)
     {
@@ -98,6 +99,7 @@ auto CaretHelper::startBlinkLogic() -> void
         core::WindowBinder::get().requestEmptyEvent();
 
         /* Sleep for intervalMs OR until we are notified by stop() to pack and fuck off. */
+        // TODO: Dont create a lock each while loop
         std::unique_lock<std::mutex> lock(mtx_);
         cv_.wait_for(lock, blinkIntervalMs_,
             [this]() -> bool { return !started_; });
