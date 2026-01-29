@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
 
 #include <regex>
 
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

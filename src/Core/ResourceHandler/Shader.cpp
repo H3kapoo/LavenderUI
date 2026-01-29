@@ -1,7 +1,7 @@
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include "LavenderUI/Core/Binders/WindowBinder.hpp"
+#include <LavenderUI/Core/EventHandler/IEvent.hpp>
 
 namespace lav::core
 {

@@ -4,7 +4,7 @@
 #include <memory>
 #include <variant>
 
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
+#include <LavenderUI/Core/EventHandler/IEvent.hpp>
 
 namespace lav::core
 {

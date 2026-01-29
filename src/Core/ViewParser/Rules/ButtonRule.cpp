@@ -1,10 +1,10 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UIButton.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

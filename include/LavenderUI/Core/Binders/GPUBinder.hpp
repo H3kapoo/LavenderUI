@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

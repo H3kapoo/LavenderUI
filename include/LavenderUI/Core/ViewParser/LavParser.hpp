@@ -4,10 +4,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "thirdparty/xml/HkXml.hpp"
+#include <xml/HkXml.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
 
 namespace lav::core
 {

@@ -1,8 +1,8 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/LabelRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/LabelRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UILabel.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UILabel.hpp>
 
 namespace lav::core
 {

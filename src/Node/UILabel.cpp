@@ -1,10 +1,10 @@
-#include "include/LavenderUI/Node/UILabel.hpp"
+#include <LavenderUI/Node/UILabel.hpp>
 
 #include <optional>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/EventHandler/IEvent.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

@@ -11,12 +11,12 @@
 
 #ifdef LAV_USE_GLFW_WINDOWING
 #define GLFW_EXPOSE_NATIVE_X11
-    #include "thirdparty/glfw/include/GLFW/glfw3.h"
-    #include "thirdparty/glfw/include/GLFW/glfw3native.h"
+    #include <glfw/include/GLFW/glfw3.h>
+    #include <glfw/include/GLFW/glfw3native.h>
 #endif
 
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav
 {

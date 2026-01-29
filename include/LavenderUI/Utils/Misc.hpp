@@ -4,7 +4,7 @@
 #include <memory>
 #include <random>
 
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
 
 
 /* Fwd declaration for UIBase */

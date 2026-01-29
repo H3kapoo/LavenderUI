@@ -1,13 +1,13 @@
-#include "include/LavenderUI/Node/UITreeView.hpp"
+#include <LavenderUI/Node/UITreeView.hpp>
 
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
-#include "src/Node/InternalUse/UIViewItem.hpp"
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp>
+#include <LavenderUI/Core/ViewModels/AbstractModel.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
+#include <LavenderUI/Node/InternalUse/UIViewItem.hpp>
 
 namespace lav::node
 {

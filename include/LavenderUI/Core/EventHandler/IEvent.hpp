@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

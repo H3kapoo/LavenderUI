@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Node/UIButton.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
+#include <LavenderUI/Node/UIButton.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
 {

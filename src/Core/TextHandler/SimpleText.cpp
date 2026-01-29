@@ -1,13 +1,13 @@
-#include "include/LavenderUI/Core/TextHandler/SimpleText.hpp"
+#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/FontLoader.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/MeshLoader.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
-#include "thirdparty/glm/ext/matrix_transform.hpp"
+#include <glm/ext/matrix_transform.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
+#include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
+#include <LavenderUI/Core/ResourceHandler/FontLoader.hpp>
+#include <LavenderUI/Core/ResourceHandler/MeshLoader.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

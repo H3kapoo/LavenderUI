@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Texture.hpp"
+#include <LavenderUI/Utils/Logger.hpp>
+#include <LavenderUI/Core/ResourceHandler/Texture.hpp>
 
 namespace lav::core
 {

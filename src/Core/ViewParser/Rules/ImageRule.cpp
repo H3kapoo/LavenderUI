@@ -1,8 +1,8 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/ImageRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/ImageRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Node/UIImage.hpp"
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Node/UIImage.hpp>
 
 namespace lav::core
 {

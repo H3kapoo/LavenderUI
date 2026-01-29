@@ -1,4 +1,4 @@
-#include "include/LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
+#include <LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp>
 
 namespace lav::core
 {

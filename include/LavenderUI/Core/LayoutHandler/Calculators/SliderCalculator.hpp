@@ -1,9 +1,9 @@
 #pragma once
 
-#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Node/UISlider.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/LayoutHandler/BaseCalculator.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Node/UISlider.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

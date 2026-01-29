@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Mesh.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "include/LavenderUI/Core/EventHandler/Events.hpp"
-#include "include/LavenderUI/Core/State/UIState.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/EventHandler/IEvent.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/ResourceHandler/Mesh.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
+#include <LavenderUI/Core/EventHandler/Events.hpp>
+#include <LavenderUI/Core/State/UIState.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::node
 {

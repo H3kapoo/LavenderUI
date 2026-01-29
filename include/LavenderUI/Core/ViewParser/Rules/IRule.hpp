@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "thirdparty/xml/HkXml.hpp"
+#include <xml/HkXml.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::core
 {

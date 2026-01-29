@@ -1,19 +1,19 @@
-#include "include/LavenderUI/Core/ViewParser/LavParser.hpp"
+#include <LavenderUI/Core/ViewParser/LavParser.hpp>
 
 #include <cstdlib>
 #include <fstream>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/AppRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/LabelRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/ImageRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/PaneRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/SliderRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "thirdparty/xml/HkXml.hpp"
+#include <xml/HkXml.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/AppRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/LabelRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/ImageRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/PaneRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/SliderRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::core
 {

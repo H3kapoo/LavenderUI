@@ -3,8 +3,8 @@
 #include <vector>
 #include <functional>
 
-#include "include/LavenderUI/Core/ViewModels/AbstractModel.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/ViewModels/AbstractModel.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

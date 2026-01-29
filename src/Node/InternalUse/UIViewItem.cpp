@@ -1,9 +1,9 @@
-#include "src/Node/InternalUse/UIViewItem.hpp"
+#include <LavenderUI/Node/InternalUse/UIViewItem.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/LayoutHandler/BaseCalculator.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {
@@ -51,7 +51,7 @@ auto UIViewItem::onLayout() -> void
     calculator.calculatePositionForGenericElement(this, {0, 0});
 }
 
-auto UIViewItem::onEvent(core::UIStatePtr& state) -> void
+auto UIViewItem::onEvent(core::UIStatePtr&) -> void
 {}
 
 auto UIViewItem::getButtonPair() -> std::pair<UIButtonPtr, UIButtonPtr>

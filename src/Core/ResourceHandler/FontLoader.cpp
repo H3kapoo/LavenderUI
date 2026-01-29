@@ -1,7 +1,7 @@
-#include "include/LavenderUI/Core/ResourceHandler/FontLoader.hpp"
+#include <LavenderUI/Core/ResourceHandler/FontLoader.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
 
 namespace lav::core
 {

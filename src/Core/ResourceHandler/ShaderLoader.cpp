@@ -1,4 +1,4 @@
-#include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
+#include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
 
 #include <filesystem>
 #include <fstream>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
 
 namespace lav::core
 {

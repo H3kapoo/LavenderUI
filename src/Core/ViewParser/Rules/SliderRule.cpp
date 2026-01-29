@@ -1,8 +1,8 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/SliderRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/SliderRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UISlider.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UISlider.hpp>
 
 namespace lav::core
 {

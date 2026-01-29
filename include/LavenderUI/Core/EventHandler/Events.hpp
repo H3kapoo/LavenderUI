@@ -4,7 +4,7 @@
 #include <typeindex>
 #include <unordered_map>
 
-#include "IEvent.hpp"
+#include "LavenderUI/Core/EventHandler/IEvent.hpp"
 
 namespace lav::core
 {

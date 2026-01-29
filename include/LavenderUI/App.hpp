@@ -3,8 +3,8 @@
 #include <filesystem>
 #include <vector>
 
-#include "include/LavenderUI/Node/UIWindow.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Node/UIWindow.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav
 {

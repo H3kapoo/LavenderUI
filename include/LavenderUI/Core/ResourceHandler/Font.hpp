@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace lav::core
 {

@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
+#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
 
 #include <chrono>
 
-#include "include/LavenderUI/Core/TextHandler/CaretHelper.hpp"
-#include "include/LavenderUI/Core/TextHandler/SimpleText.hpp"
+#include <LavenderUI/Core/TextHandler/CaretHelper.hpp>
+#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
 
 namespace lav::core
 {

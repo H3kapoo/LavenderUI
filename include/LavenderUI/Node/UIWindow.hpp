@@ -4,10 +4,10 @@
 #include <queue>
 #include <unordered_set>
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Core/EventHandler/IEvent.hpp"
-#include "include/LavenderUI/Core/State/UIState.hpp"
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Core/EventHandler/IEvent.hpp>
+#include <LavenderUI/Core/State/UIState.hpp>
+#include <LavenderUI/Core/Binders/WindowBinder.hpp>
 
 namespace lav::node
 {

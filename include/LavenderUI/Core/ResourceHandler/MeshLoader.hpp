@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

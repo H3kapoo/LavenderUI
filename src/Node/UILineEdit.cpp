@@ -1,18 +1,18 @@
-#include "include/LavenderUI/Node/UILineEdit.hpp"
+#include <LavenderUI/Node/UILineEdit.hpp>
 
 #include <chrono>
 #include <optional>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/Character.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/Keyboard.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/Binders/WindowBinder.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/Character.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/Keyboard.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

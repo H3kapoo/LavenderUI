@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Core/TextHandler/TextAttribs.hpp"
+#include <LavenderUI/Core/TextHandler/TextAttribs.hpp>
 
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/FontLoader.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
-#include "thirdparty/glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
+#include <LavenderUI/Core/ResourceHandler/FontLoader.hpp>
+#include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
 
 namespace lav::core
 {

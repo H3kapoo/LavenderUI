@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <unordered_map>
 
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include <LavenderUI/Utils/Logger.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
 
 namespace lav::core
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UILabel.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UILabel.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

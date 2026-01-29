@@ -2,11 +2,11 @@
 
 #include <filesystem>
 
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Mesh.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
+#include <LavenderUI/Core/ResourceHandler/Mesh.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
+#include <glm/glm.hpp>
 
 namespace lav::core
 {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
-#include "src/Node/InternalUse/UIScroll.hpp"
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
+#include <LavenderUI/Node/InternalUse/UIScroll.hpp>
 
 namespace lav::node
 {

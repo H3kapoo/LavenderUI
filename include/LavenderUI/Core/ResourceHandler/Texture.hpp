@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <memory>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
 
 namespace lav::core
 {

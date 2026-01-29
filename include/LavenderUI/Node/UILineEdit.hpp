@@ -2,8 +2,8 @@
 
 #include <optional>
 
-#include "include/LavenderUI/Core/TextHandler/TextHandler.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
+#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
 {

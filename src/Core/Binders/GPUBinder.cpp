@@ -1,10 +1,10 @@
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
 
 #include <numeric>
 #include <type_traits>
 
-#include "thirdparty/glew/include/GL/glew.h"
-#include "thirdparty/glm/gtc/type_ptr.hpp"
+#include <glew/include/GL/glew.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace lav::core
 {

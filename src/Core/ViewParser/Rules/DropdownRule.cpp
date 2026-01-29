@@ -1,11 +1,11 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UIDropdown.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UIDropdown.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

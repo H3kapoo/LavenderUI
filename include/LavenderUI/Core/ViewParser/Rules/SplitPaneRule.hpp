@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Node/UIDropdown.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Node/UIDropdown.hpp>
 
 namespace lav::core
 {

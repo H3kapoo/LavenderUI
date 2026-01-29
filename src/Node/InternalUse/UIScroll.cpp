@@ -1,7 +1,7 @@
-#include "UIScroll.hpp"
+#include <LavenderUI/Node/InternalUse/UIScroll.hpp>
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UISlider.hpp"
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UISlider.hpp>
 
 namespace lav::node
 {

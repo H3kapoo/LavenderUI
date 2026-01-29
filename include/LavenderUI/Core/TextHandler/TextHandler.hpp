@@ -2,8 +2,8 @@
 
 #include <filesystem>
 
-#include "include/LavenderUI/Core/TextHandler/SimpleText.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

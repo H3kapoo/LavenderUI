@@ -1,37 +1,39 @@
 cmake_minimum_required(VERSION 3.22)
 
-# All this needs glm, glew, glfw3 and freetype2
+# NOTE
+# GLEW, GLFW and FreeType2 shall be used as shared libs both for usage and dev
+# STBI_IMAGE and GLM are header only and need to be reachable only for dev
+
+# NOTE 2
+# XML Parser is also needed but this is a "lib" not currently integrated, it is "shipped" as is from git
+#   only for dev
+
 project("lavenderui")
 set(CXX_STANDARD 23)
 set(PLATFORM_NAME ${CMAKE_SYSTEM_NAME})
 
 # C++ Flags
+# set(VERBOSE_FLAG "--verbose")
+set(COMPILE_FEATURES "cxx_std_23")
 set(LIB_DEBUG_INFO_FLAGS "-ggdb -g")
 set(LIB_EXTRA_WARNINGS "-Wall -Wextra -Wshadow")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LIB_EXTRA_WARNINGS} ${LIB_DEBUG_INFO_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${VERBOSE_FLAG} ${LIB_EXTRA_WARNINGS} ${LIB_DEBUG_INFO_FLAGS}")
 
 # Output library path
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
-function(setup_for_linux_x86_64)
-    message(NOTICE "[>] Configuring for Linux x86_64!")
+# Dependencies include paths
+set(GLEW_INCLUDE_PATH     "thirdparty/glew/include/")
+set(GLFW_INCLUDE_PATH     "thirdparty/glfw/include/")
+set(FREETYPE_INCLUDE_PATH "thirdparty/freetype/include/")
 
-    # Thirdparty
-    set(GLEW_INCLUDE_PATH     "thirdparty/glew/include/")
-    set(GLFW_INCLUDE_PATH     "thirdparty/glfw/include/")
-    set(FREETYPE_INCLUDE_PATH "thirdparty/freetype/include/")
+# Dependencies lib paths
+set(GLEW_LIB_PATH     "thirdparty/glew/lib/")
+set(GLFW_LIB_PATH     "thirdparty/glfw/lib/")
+set(FREETYPE_LIB_PATH "thirdparty/freetype/lib/")
 
-    set(GLEW_LIB_PATH     "thirdparty/glew/lib/")
-    set(GLFW_LIB_PATH     "thirdparty/glfw/lib/")
-    set(FREETYPE_LIB_PATH "thirdparty/freetype/lib/")
-
-    # Include dirs for thirdparty
-    include_directories (${CMAKE_SOURCE_DIR})
-    include_directories (${GLEW_INCLUDE_PATH})
-    include_directories (${GLFW_INCLUDE_PATH})
-    include_directories (${FREETYPE_INCLUDE_PATH})
-
+function(addSources)
     add_executable(${PROJECT_NAME}
         temporaryPlayground/main.cpp
         src/App.cpp
@@ -98,45 +100,84 @@ function(setup_for_linux_x86_64)
         thirdparty/xml/HkXml.cpp
         thirdparty/xml/Utility.cpp
     )
+endfunction(addSources)
 
-    # Compile features (C++ 23)
-    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
 
-    # Needed for absolute include paths
-    target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR})
+function (addIncludePaths)
+    # Include dirs for project itself
+    include_directories(${CMAKE_SOURCE_DIR}/include)
+    include_directories(${CMAKE_SOURCE_DIR}/thirdparty)
 
-    # Link libs directories
+    # Include dirs for thirdparty
+    include_directories (${GLEW_INCLUDE_PATH})
+    include_directories (${GLFW_INCLUDE_PATH})
+    include_directories (${FREETYPE_INCLUDE_PATH})
+endfunction(addIncludePaths)
+
+
+function(addCompileFeaturesToTarget)
+    target_compile_features(${PROJECT_NAME} PRIVATE ${COMPILE_FEATURES})
+endfunction(addCompileFeaturesToTarget)
+
+
+function(addLibraryPaths)
     target_link_directories(${PROJECT_NAME} PRIVATE
         ${GLEW_LIB_PATH}
         ${GLFW_LIB_PATH}
         ${FREETYPE_LIB_PATH}
     )
+endfunction(addLibraryPaths)
 
-    # Link libs
+
+function(linkTargetWithLibs_x86_64_Linux)
     target_link_libraries(${PROJECT_NAME}
         glfw3
         GLEW GL
         X11
         freetype png z brotlidec brotlicommon bz2
-        # TODO: All this to end up depending on png, z, brotlidec, bla bla..not worth it.
-        # Maybe packaging dynamic freetype is better
     )
+endfunction(linkTargetWithLibs_x86_64_Linux)
 
-endfunction()
 
-function(setup_for_windows_x86_64)
+function(setupForLinux_x86_64)
+    message(NOTICE "[>] Configuring for Linux x86_64!")
+
+    addIncludePaths()
+    addSources()
+
+    addCompileFeaturesToTarget()
+
+    addLibraryPaths()
+    linkTargetWithLibs_x86_64_Linux()
+
+    message(NOTICE "[>] DONE for Linux x86_64!")
+endfunction(setupForLinux_x86_64)
+
+
+function(setupForWindows_x86_64)
+    message(NOTICE "[>] Configuring for Windows x86_64!")
     message(FATAL_ERROR "Shit operating system not yet supported!")
-endfunction(setup_for_windows_x86_64)
+
+    # addIncludePaths()
+    # addSources()
+
+    # addCompileFeaturesToTarget()
+
+    # addLibraryPaths()
+    # linkTargetWithLibs_x86_64_Windows()
+
+endfunction(setupForWindows_x86_64)
 
 function(main)
     if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        setup_for_linux_x86_64()
+        setupForLinux_x86_64()
     elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        setup_for_windows_x86_64()
+        setupForWindows_x86_64()
     else()
         message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
     endif()
 endfunction(main)
+
 
 # Entry
 main()

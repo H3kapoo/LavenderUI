@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Utils/Logger.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
 {

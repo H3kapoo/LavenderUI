@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Node/UIImage.hpp"
+#include <LavenderUI/Node/UIImage.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/BaseCalculator.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/TextureLoader.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/LayoutHandler/BaseCalculator.hpp>
+#include <LavenderUI/Core/ResourceHandler/TextureLoader.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

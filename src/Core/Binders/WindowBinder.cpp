@@ -1,6 +1,6 @@
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
+#include <LavenderUI/Core/Binders/WindowBinder.hpp>
 
-#include "thirdparty/glfw/include/GLFW/glfw3.h"
+#include <glfw/include/GLFW/glfw3.h>
 
 namespace lav::core
 {

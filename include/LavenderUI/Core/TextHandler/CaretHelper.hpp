@@ -4,8 +4,8 @@
 #include <condition_variable>
 #include <thread>
 
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
 
 namespace lav::core
 {

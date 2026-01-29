@@ -3,7 +3,7 @@
 #include <sstream>
 #include <vector>
 
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
 
 namespace lav::core
 {

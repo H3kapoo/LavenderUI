@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Core/TextHandler/CaretHelper.hpp"
+#include <LavenderUI/Core/TextHandler/CaretHelper.hpp>
 
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
-#include "thirdparty/glm/ext/matrix_transform.hpp"
+#include <glm/ext/matrix_transform.hpp>
+#include <LavenderUI/Core/Binders/WindowBinder.hpp>
+#include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

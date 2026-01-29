@@ -1,9 +1,6 @@
 #pragma once
 
-#include <memory>
-
-#include "include/LavenderUI/Core/Binders/WindowBinder.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <LavenderUI/Core/Binders/WindowBinder.hpp>
 
 namespace lav::core
 {

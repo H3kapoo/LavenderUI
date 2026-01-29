@@ -2,8 +2,8 @@
 
 #include <optional>
 
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UILabel.hpp"
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UILabel.hpp>
 
 namespace lav::node
 {

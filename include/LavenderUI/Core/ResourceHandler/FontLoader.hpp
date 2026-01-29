@@ -3,9 +3,9 @@
 #include <string>
 #include <unordered_map>
 
-#include "include/LavenderUI/Utils/Logger.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
-#include "thirdparty/freetype/include/freetype/freetype.h"
+#include <LavenderUI/Utils/Logger.hpp>
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
+#include <freetype/include/freetype/freetype.h>
 
 namespace lav::core
 {

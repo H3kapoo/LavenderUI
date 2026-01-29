@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/LavenderUI/Core/ResourceHandler/Texture.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
+#include <LavenderUI/Core/ResourceHandler/Texture.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
 {

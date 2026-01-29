@@ -1,17 +1,17 @@
-#include "include/LavenderUI/Node/UISplitPane.hpp"
+#include <LavenderUI/Node/UISplitPane.hpp>
 
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseButton.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/State/UIState.hpp"
-#include "include/LavenderUI/Node/UIButton.hpp"
-#include "include/LavenderUI/Node/UIPane.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseButton.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp>
+#include <LavenderUI/Core/LayoutHandler/Calculators/SplitPaneCalculator.hpp>
+#include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/State/UIState.hpp>
+#include <LavenderUI/Node/UIButton.hpp>
+#include <LavenderUI/Node/UIPane.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

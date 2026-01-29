@@ -1,10 +1,10 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UIPane.hpp"
-#include "include/LavenderUI/Node/UISplitPane.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UIPane.hpp>
+#include <LavenderUI/Node/UISplitPane.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
 {

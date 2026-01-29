@@ -1,15 +1,15 @@
-#include "include/LavenderUI/Node/UISlider.hpp"
+#include <LavenderUI/Node/UISlider.hpp>
 
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseScroll.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseEnter.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseLeftClick.hpp"
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/Slide.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp"
-#include "include/LavenderUI/Node/UILabel.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseScroll.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseEnter.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseExit.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseLeftClick.hpp>
+#include <LavenderUI/Core/EventHandler/CoreEvents/Slide.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/LayoutHandler/Calculators/SliderCalculator.hpp>
+#include <LavenderUI/Node/UILabel.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {

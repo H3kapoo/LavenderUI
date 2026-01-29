@@ -1,6 +1,6 @@
-#include "include/LavenderUI/Core/ResourceHandler/Mesh.hpp"
+#include <LavenderUI/Core/ResourceHandler/Mesh.hpp>
 
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
 
 namespace lav::core
 {

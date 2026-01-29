@@ -1,9 +1,9 @@
-#include "include/LavenderUI/Core/ViewParser/Rules/PaneRule.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/PaneRule.hpp>
 
-#include "include/LavenderUI/Core/ViewParser/Rules/IRule.hpp"
-#include "include/LavenderUI/Core/ViewParser/ParseHelpers.hpp"
-#include "include/LavenderUI/Node/UIBase.hpp"
-#include "include/LavenderUI/Node/UIPane.hpp"
+#include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
+#include <LavenderUI/Core/ViewParser/ParseHelpers.hpp>
+#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Node/UIPane.hpp>
 
 namespace lav::core
 {

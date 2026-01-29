@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "include/LavenderUI/Core/ResourceHandler/Font.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "thirdparty/glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <LavenderUI/Core/ResourceHandler/Font.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
 
 namespace lav::core
 {

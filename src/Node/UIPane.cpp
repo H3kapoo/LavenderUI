@@ -1,11 +1,11 @@
-#include "include/LavenderUI/Node/UIPane.hpp"
+#include <LavenderUI/Node/UIPane.hpp>
 
-#include "include/LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp"
-#include "include/LavenderUI/Core/Binders/GPUBinder.hpp"
-#include "include/LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp"
-#include "include/LavenderUI/Core/ResourceHandler/Shader.hpp"
-#include "include/LavenderUI/Core/State/UIState.hpp"
-#include "include/LavenderUI/Utils/Misc.hpp"
+#include <LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp>
+#include <LavenderUI/Core/Binders/GPUBinder.hpp>
+#include <LavenderUI/Core/LayoutHandler/Calculators/PaneCalculator.hpp>
+#include <LavenderUI/Core/ResourceHandler/Shader.hpp>
+#include <LavenderUI/Core/State/UIState.hpp>
+#include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {
@@ -52,7 +52,7 @@ auto UIPane::onLayout() -> void
 auto UIPane::onEvent(core::UIStatePtr& state) -> void
 {
     const auto eId = state->currentEventId;
-    if (state->currentEventId == core::MouseMoveEvt::eventId)
+    if (eId == core::MouseMoveEvt::eventId)
     {
         if (layoutBase_.isPointInsideView(state->mousePos))
         {
