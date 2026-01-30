@@ -32,20 +32,23 @@ auto WindowBinder::init() -> bool
         return false;
     }
 
+    /* An initial hidden window will be created in order to hold and share context with other windows. */
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_VISIBLE, false);
 
-    initWindowHandle_ = glfwCreateWindow(100, 100, "dummy", NULL, NULL);
+    initWindowHandle_ = glfwCreateWindow(1, 1, "dummy", NULL, NULL);
 
     glfwWindowHint(GLFW_VISIBLE, true);
     glfwMakeContextCurrent(initWindowHandle_);
     enableVSync(true);
 
-#ifdef __linux__
+#if defined(__linux__)
     initDisplay_ = glfwGetX11Display();
     initContext_ = glXGetCurrentContext();
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    // TODO
 #endif
 
     cursors_[Cursor::ARROW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
@@ -90,8 +93,10 @@ auto WindowBinder::createWindow(const std::string& title, const glm::ivec2 size)
 
 auto WindowBinder::makeContextCurrent(WindowHandle handle) -> void
 {
-#ifdef __linux__
+#if defined(__linux__)
     glXMakeCurrent(initDisplay_, glfwGetX11Window(handle), initContext_);
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    // TODO
 #else
     glfwMakeContextCurrent(windowHandle_);
 #endif
@@ -99,7 +104,7 @@ auto WindowBinder::makeContextCurrent(WindowHandle handle) -> void
 
 auto WindowBinder::enableVSync(const bool enable) -> void
 {
-#ifdef __linux__
+#if defined(__linux__)
     /* Unfortunately due to drivers or my limited knowledge we can only have the main window obey
     the vSync rule. As soon as there are 2 or more windows it looks like it doesn't want to apply anymore. */
 
@@ -115,7 +120,8 @@ auto WindowBinder::enableVSync(const bool enable) -> void
     {
         log_.error("Not found {}", __func__);
     }
-
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    // TODO
 #else
     glfwSwapInterval(enable);
 #endif
@@ -130,7 +136,7 @@ auto WindowBinder::maskEvents(WindowHandle handle) -> void
        attribute associated with that event.
        Not sure if the behavior is similar on Windows/MacOS. */
 
-#ifdef __linux__
+#if defined(__linux__)
     XWindowAttributes attributes;
 
     XGetWindowAttributes(initDisplay_, glfwGetX11Window(handle), &attributes);
@@ -139,6 +145,8 @@ auto WindowBinder::maskEvents(WindowHandle handle) -> void
     long new_mask = current_mask & ~PropertyChangeMask;
 
     XSelectInput(initDisplay_, glfwGetX11Window(handle), new_mask);
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+
 #endif
 }
 
@@ -164,8 +172,11 @@ auto WindowBinder::swapBuffers(WindowHandle handle) -> void
         utils::Logger("WINDOW").error("No context is bound!");
         return;
     }
-#ifdef __linux__
+
+#if defined(__linux__)
     glXSwapBuffers(initDisplay_, glfwGetX11Window(handle));
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    // TODO
 #else
     glfwSwapBuffers(handle);
 #endif

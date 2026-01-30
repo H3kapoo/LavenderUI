@@ -3,8 +3,8 @@
 #include <string>
 #include <functional>
 
-#ifdef __linux__
-#include <GL/glx.h>
+#if defined(__linux__)
+    #include <GL/glx.h>
 #endif
 
 #define LAV_USE_GLFW_WINDOWING
@@ -96,14 +96,17 @@ private:
     WindowHandle initWindowHandle_;
     std::unordered_map<lav::Cursor, GLFWcursor*> cursors_;
 
-#ifdef __linux__
+#if defined(__linux__)
     /*
         In order for all windows to share a single context, and thus the same resources, we need
         to go native, beyond normal handling. All resources will be shared with the init
-        window created at the beggining of the app.
+        window created at the beggining of the app. This is especially needed to share VAOs.
     */
     Display* initDisplay_{nullptr};
     GLXContext initContext_;
+
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+    // TODO:
 #endif
 };
 } // namespace lav::core

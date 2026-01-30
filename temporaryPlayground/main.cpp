@@ -113,6 +113,13 @@ int main()
     // window.lock()->setColor(utils::hexToVec4("#38455eff"));
     // window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
+    // UILineEditPtr le3 = utils::make<UILineEdit>();
+    // le3->setText("13456789");
+
+    // window.lock()->add(le3);
+    // app.run();
+    // return 0;
+
     std::vector<uint32_t> data =
         std::views::iota(0u, 200u) |
         // std::views::iota(0u, 200'000u) |
