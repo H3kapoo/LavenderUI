@@ -86,7 +86,8 @@ private:
     bool shouldManuallyQuit_;
     bool isMainWindow_;
 
-    static int32_t MAX_LAYERS;
+    static int32_t MAX_UNIQUE_EVENTS_;
+    static int32_t MAX_LAYERS_;
     static bool isFirstWindow_;
 };
 using UIWindowPtr = std::shared_ptr<UIWindow>;

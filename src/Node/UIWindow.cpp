@@ -33,7 +33,8 @@
 namespace lav::node
 {
 /* Static definitions */
-int32_t UIWindow::MAX_LAYERS = 1000;
+int32_t UIWindow::MAX_UNIQUE_EVENTS_ = 8;
+int32_t UIWindow::MAX_LAYERS_ = 1000;
 bool UIWindow::isFirstWindow_ = true;
 
 UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
@@ -186,7 +187,13 @@ auto UIWindow::setupInputCallbacks() -> void
         The map of unique events is needed due to the fact that during event polling the windowing API
         can receive, for example, multiple Mouse_Moved events and we don't want to process all of them.
         We acknowledge them but we only care about the latest event of that type.
+        Also during Window creation from user input event handling can invalidate `pendingRawEventCallbacks_`
+        references (the vector reallocates). To mitigate that, we can reserve a small amount of slots so the
+        vector never reallocates.
     */
+
+    pendingRawEventCallbacks_.reserve(MAX_LAYERS_);
+
     cbs_ = {
         .keyCallback =
             [this](const uint32_t key, const uint32_t sc, const uint32_t action, const uint32_t mods)
@@ -235,6 +242,8 @@ auto UIWindow::setupInputCallbacks() -> void
                 {
                     windowResizeSolver(newX, newY);
                 });
+                // needed only on WINDOWS
+                // run();
             },
         .windowMouseEntered = 
             [this](const bool entered)
@@ -270,7 +279,7 @@ auto UIWindow::updateWindowSizeAndProjection(const glm::ivec2 newSize) -> void
     uiState_->windowSize = newSize;
 
     /* Camera is looking into -Z by default. Here, higher Z means closer to the camera. */
-    projection_ = glm::ortho(0.0f, (float)newSize.x, (float)newSize.y, 0.0f, -(float)MAX_LAYERS, 0.0f);
+    projection_ = glm::ortho(0.0f, (float)newSize.x, (float)newSize.y, 0.0f, -(float)MAX_LAYERS_, 0.0f);
 }
 
 auto UIWindow::insertUniquePendingRawEvent(const core::IEvent& e, const RawEventCallback& cb) -> void

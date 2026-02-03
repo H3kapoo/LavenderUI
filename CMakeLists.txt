@@ -9,7 +9,9 @@ cmake_minimum_required(VERSION 3.22)
 #   only for dev
 
 project("lavenderui")
-set(CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(PLATFORM_NAME ${CMAKE_SYSTEM_NAME})
 
 # C++ Flags
@@ -33,6 +35,7 @@ set(GLEW_LIB_PATH     "thirdparty/glew/lib/")
 set(GLFW_LIB_PATH     "thirdparty/glfw/lib/")
 set(FREETYPE_LIB_PATH "thirdparty/freetype/lib/")
 
+# Sources
 function(addSources)
     add_executable(${PROJECT_NAME}
         temporaryPlayground/main.cpp
@@ -154,24 +157,39 @@ function(setupForLinux_x86_64)
 endfunction(setupForLinux_x86_64)
 
 
+function(linkTargetWithLibs_x86_64_Windows)
+    target_link_libraries(${PROJECT_NAME}
+        glew32
+        glfw3
+        opengl32
+        gdi32
+        user32
+        kernel32
+        shell32
+        freetype-6
+    )
+endfunction(linkTargetWithLibs_x86_64_Windows)
+
+
 function(setupForWindows_x86_64)
     message(NOTICE "[>] Configuring for Windows x86_64!")
-    message(FATAL_ERROR "Shit operating system not yet supported!")
 
-    # addIncludePaths()
-    # addSources()
+    addIncludePaths()
+    addSources()
 
-    # addCompileFeaturesToTarget()
+    addCompileFeaturesToTarget()
 
-    # addLibraryPaths()
-    # linkTargetWithLibs_x86_64_Windows()
+    addLibraryPaths()
+    linkTargetWithLibs_x86_64_Windows()
 
 endfunction(setupForWindows_x86_64)
 
 function(main)
-    if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
         setupForLinux_x86_64()
-    elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "Windows")
+        setupForWindows_x86_64()
+    elseif ("${CMAKE_SYSTEM_NAME}" MATCHES "MSYS")
         setupForWindows_x86_64()
     else()
         message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")

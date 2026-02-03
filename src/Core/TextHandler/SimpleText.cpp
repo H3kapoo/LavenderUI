@@ -24,6 +24,7 @@ SimpleText::SimpleText(const fs::path& vertShaderPath, const fs::path& fragShade
 
 auto SimpleText::render(const glm::mat4& projection) -> void
 {
+    if (storedText_.empty()) { return; }
     mesh_.bind();
     shader_.bind();
     shader_.uploadVec4f("uColor", textColor_);

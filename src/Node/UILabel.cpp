@@ -32,6 +32,7 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
+    if (textAttribs_.getText().empty()) { return; }
     const auto& textShader_ = textAttribs_.getShader();
     const auto& textBuffer = textAttribs_.getBuffer();
     textShader_.bind();

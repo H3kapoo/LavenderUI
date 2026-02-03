@@ -1,5 +1,11 @@
 #include <LavenderUI/Core/Binders/WindowBinder.hpp>
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    /* Define the native part here since in .hpp we will have name clashes. */
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <glfw/include/GLFW/glfw3native.h>
+#endif
+
 #include <glfw/include/GLFW/glfw3.h>
 
 namespace lav::core
@@ -47,8 +53,8 @@ auto WindowBinder::init() -> bool
 #if defined(__linux__)
     initDisplay_ = glfwGetX11Display();
     initContext_ = glXGetCurrentContext();
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    // TODO
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    initContext_ = wglGetCurrentContext();
 #endif
 
     cursors_[Cursor::ARROW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
@@ -87,6 +93,40 @@ auto WindowBinder::createWindow(const std::string& title, const glm::ivec2 size)
     maskEvents(windowHandle);
     enableVSync(true);
 
+    // TODO: Needs to be checked on windows why setting the text of the window spams the event queue
+    // HWND hwnd = glfwGetWin32Window(windowHandle);
+
+    // SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(GetWindowLongPtr(hwnd, GWLP_WNDPROC)));
+
+    // auto wndProcLambda = [](HWND hwndParam, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT
+    // {
+    //     WNDPROC originalGLFWProc = reinterpret_cast<WNDPROC>(GetWindowLongPtr(hwndParam, GWLP_USERDATA));
+    //     switch(msg)
+    //     {
+    //         case 12:
+    //         case 127:
+    //         case 174:
+    //             return DefWindowProc(hwndParam, msg, wParam, lParam);
+
+    //             // std::cout << "spam? " << msg << "\n";
+
+    //             // return 0;
+    //         // case WM_MOUSEMOVE:
+    //         // case WM_PAINT:
+    //         //     // Ignore these events
+    //         //     return 0;
+    //         default:
+    //             std::cout << "some event" << msg << "\n";
+    //             return CallWindowProc(originalGLFWProc, hwndParam, msg, wParam, lParam);
+    //     }
+    // };
+
+    // // Convert lambda to raw function pointer
+    // LRESULT(CALLBACK *wndProcPtr)(HWND, UINT, WPARAM, LPARAM) = wndProcLambda;
+
+    // // Subclass the window
+    // // SetWindowLongPtr(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(wndProcPtr));
+
     log_.info("Window '{}/{{{}, {}}}' has been created!", title, size.x, size.y);
     return windowHandle;
 }
@@ -95,8 +135,8 @@ auto WindowBinder::makeContextCurrent(WindowHandle handle) -> void
 {
 #if defined(__linux__)
     glXMakeCurrent(initDisplay_, glfwGetX11Window(handle), initContext_);
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    // TODO
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    wglMakeCurrent(GetDC(glfwGetWin32Window(handle)), initContext_);
 #else
     glfwMakeContextCurrent(windowHandle_);
 #endif
@@ -110,7 +150,7 @@ auto WindowBinder::enableVSync(const bool enable) -> void
 
     typedef int (*PFNGLXSWAPINTERVALMESAPROC)(unsigned int);
     PFNGLXSWAPINTERVALMESAPROC glXSwapIntervalMESA = reinterpret_cast<PFNGLXSWAPINTERVALMESAPROC>(
-    glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXSwapIntervalMESA")));
+        glXGetProcAddressARB(reinterpret_cast<const GLubyte*>("glXSwapIntervalMESA")));
 
     if (glXSwapIntervalMESA)
     {
@@ -120,8 +160,19 @@ auto WindowBinder::enableVSync(const bool enable) -> void
     {
         log_.error("Not found {}", __func__);
     }
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    // TODO
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    typedef BOOL (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int interval);
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = reinterpret_cast<PFNWGLSWAPINTERVALEXTPROC>(
+        wglGetProcAddress("wglSwapIntervalEXT"));
+
+    if (wglSwapIntervalEXT)
+    {
+        wglSwapIntervalEXT(enable);
+    }
+    else
+    {
+        log_.error("Not found {}", __func__);
+    }
 #else
     glfwSwapInterval(enable);
 #endif
@@ -145,8 +196,8 @@ auto WindowBinder::maskEvents(WindowHandle handle) -> void
     long new_mask = current_mask & ~PropertyChangeMask;
 
     XSelectInput(initDisplay_, glfwGetX11Window(handle), new_mask);
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    (void*)handle;
 #endif
 }
 
@@ -175,8 +226,8 @@ auto WindowBinder::swapBuffers(WindowHandle handle) -> void
 
 #if defined(__linux__)
     glXSwapBuffers(initDisplay_, glfwGetX11Window(handle));
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    // TODO
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    SwapBuffers(GetDC(glfwGetWin32Window(handle)));
 #else
     glfwSwapBuffers(handle);
 #endif
@@ -244,14 +295,22 @@ auto WindowBinder::setInputCallbacks(WindowHandle handle, const InputCallbacks& 
             cbsData->characterCallback(codepoint);
         });
 
-    glfwSetWindowSizeCallback(handle,
+    // glfwSetWindowSizeCallback(handle,
+    //     [](WindowHandle returnHandle, int32_t x, int32_t y)
+    //     {
+    //         const InputCallbacks* cbsData = static_cast<InputCallbacks*>(
+    //             glfwGetWindowUserPointer(returnHandle));
+    //         cbsData->windowSizeCallback(x, y);
+    //     });
+
+    glfwSetFramebufferSizeCallback(handle,
         [](WindowHandle returnHandle, int32_t x, int32_t y)
         {
             const InputCallbacks* cbsData = static_cast<InputCallbacks*>(
                 glfwGetWindowUserPointer(returnHandle));
             cbsData->windowSizeCallback(x, y);
         });
-    
+
     glfwSetCursorPosCallback(handle,
         [](WindowHandle returnHandle, double x, double y)
         {
