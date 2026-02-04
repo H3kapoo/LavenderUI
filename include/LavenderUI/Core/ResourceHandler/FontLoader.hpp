@@ -14,13 +14,13 @@ class FontLoader
 public:
     static FontLoader& get();
 
-    FontPtr loadFont(const std::string& fontPath, const int32_t fontSize = 16);
+    FontPtr loadFont(const fs::path& fontPath, const int32_t fontSize = 16);
 
 private:
     FontLoader();
     ~FontLoader();
 
-    FontPtr loadFontInternal(const std::string& fontPath, const int32_t fontSize);
+    FontPtr loadFontInternal(const fs::path& fontPath, const int32_t fontSize);
 
     /* Cannot be copied or moved */
     FontLoader(const FontLoader&) = delete;

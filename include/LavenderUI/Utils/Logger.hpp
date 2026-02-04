@@ -6,7 +6,7 @@
 #include <iostream>
 #include <ostream>
 #include <string>
-#include <print>
+#include <format>
 #include <chrono>
 
 namespace lav::utils
@@ -91,9 +91,10 @@ private:
         using namespace std::chrono;
         zoned_time nowLocal{current_zone(), time_point_cast<milliseconds>(system_clock::now())};
 
-        std::print(*outStream_, "[{:%F %T}]{}[{}] [{}] ", nowLocal, color, prefix, name_);
-        std::println(*outStream_, fmt, std::forward<Args>(args)...);
-        std::print(*outStream_, "\033[m");
+        /* Toned down from using <print> as it seem it is hard to find the lib on windows. */
+        *outStream_ << std::format("[{:%F %T}]{}[{}] [{}] ", nowLocal, color, prefix, name_);
+        *outStream_ << std::format(fmt, std::forward<Args>(args)...);
+        *outStream_ << "\n\033[m";
     }
 
 private:

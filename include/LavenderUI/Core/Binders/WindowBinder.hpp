@@ -3,31 +3,31 @@
 #include <string>
 #include <functional>
 
-#if defined(__linux__)
-    #include <GL/glx.h>
-#endif
-
 #define LAV_USE_GLFW_WINDOWING
 
-#ifdef LAV_USE_GLFW_WINDOWING
-#define GLFW_EXPOSE_NATIVE_X11
-    #include <glfw/include/GLFW/glfw3.h>
-    #include <glfw/include/GLFW/glfw3native.h>
+#include <glew/include/GL/glew.h>
+
+#if defined(__linux__)
+    #include <GL/glx.h>
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    /* Note: Cannot include <window.h> due to defines clash-up. */
+    struct HGLRC__;
+    using HGLRC = HGLRC__*;
 #endif
+
+#include <glfw/include/GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <LavenderUI/Utils/Logger.hpp>
 
-namespace lav
-{
-enum class Cursor : uint32_t;
-}
+/* Fwd declare default cursors enum type. */
+namespace lav { enum class Cursor : uint32_t; }
 
 namespace lav::core
 {
 #ifdef LAV_USE_GLFW_WINDOWING
-using WindowHandle = GLFWwindow*;
-using WindowCursor = GLFWcursor*;
+    using WindowHandle = GLFWwindow*;
+    using WindowCursor = GLFWcursor*;
 #endif
 
 using KeyCallback = std::function<void(
@@ -105,8 +105,8 @@ private:
     Display* initDisplay_{nullptr};
     GLXContext initContext_;
 
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-    // TODO:
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+    HGLRC initContext_;
 #endif
 };
 } // namespace lav::core

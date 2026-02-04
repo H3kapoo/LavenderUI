@@ -8,7 +8,7 @@
             "name": "Debug test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/lavenderui",
+            "program": "${workspaceFolder}/lib/lavenderui.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

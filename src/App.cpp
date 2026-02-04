@@ -15,10 +15,7 @@ App::App()
     , keepRunning_(true)
     , shouldUpdateTitle_(false)
     , showFps_(false)
-{
-    // log_.warn("capacity {}", windows_.capacity());
-    // windows_.reserve(6);
-}
+{}
 
 App::~App()
 {
@@ -116,7 +113,7 @@ auto App::runPerWindow(const node::UIWindowPtr window) -> bool
         // TODO: FPS counting is still all over the place in high FPS range when multiple windows are present.
         const auto fps = std::to_string(1.0f / window->getDeltaTime());
         const auto title = window->getTitle();
-        window->setTitle(title + " | " + fps, false);
+        // window->setTitle(title + " | " + fps, false);
     }
 
     return shouldFrameBeRemoved;

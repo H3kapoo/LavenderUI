@@ -18,7 +18,7 @@ FileResourceBinder::FileResourceBinder()
 auto FileResourceBinder::loadTextureData(const std::filesystem::path& path) const -> LoadInfo
 {
     LoadInfo info;
-    unsigned char* data = stbi_load(path.c_str(), &info.width, &info.height, &info.numChannels, 0);
+    unsigned char* data = stbi_load(path.string().c_str(), &info.width, &info.height, &info.numChannels, 0);
     if (!data)
     {
         log_.error("Cannot load texture '{}'. Check path correctness!", path.string());

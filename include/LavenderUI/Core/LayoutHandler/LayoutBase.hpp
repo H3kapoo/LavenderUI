@@ -267,14 +267,14 @@ auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
 
 namespace lav
 {
-core::LayoutBase::Scale operator"" _fill(unsigned long long);
-core::LayoutBase::Scale operator"" _fit(unsigned long long);
-core::LayoutBase::Scale operator"" _rel(long double value);
-core::LayoutBase::Scale operator"" _px(unsigned long long value);
-core::LayoutBase::Scale operator"" _fr(unsigned long long value);
+core::LayoutBase::Scale operator""_fill(unsigned long long);
+core::LayoutBase::Scale operator""_fit(unsigned long long);
+core::LayoutBase::Scale operator""_rel(long double value);
+core::LayoutBase::Scale operator""_px(unsigned long long value);
+core::LayoutBase::Scale operator""_fr(unsigned long long value);
 
-core::LayoutBase::Position operator"" _abs(unsigned long long value);
-core::LayoutBase::Position operator"" _comp(unsigned long long value);
+core::LayoutBase::Position operator""_abs(unsigned long long value);
+core::LayoutBase::Position operator""_comp(unsigned long long value);
 } // namespace lav
 
 /* Custom formatters */

@@ -26,32 +26,21 @@ FontLoader::~FontLoader()
     log_.debug("Deallocated.");
 }
 
-FontPtr FontLoader::loadFont(const std::string& fontPath, const int32_t fontSize)
+FontPtr FontLoader::loadFont(const fs::path& fontPath, const int32_t fontSize)
 {
-    std::string fontKey = fontPath + std::to_string(fontSize);
+    // std::string fontKey = fontPath + std::to_string(fontSize);
+    std::string fontKey = fontPath.string() + std::to_string(fontSize);
     if (fontPathToObject_.count(fontKey))
     {
         return fontPathToObject_.at(fontKey);
     }
 
-    // std::packaged_task<FontPtr()> task([this, fontPath, fontSize]()
-    // {
-    //     return loadFontInternal(fontPath, fontSize);
-    // });
-
-    // auto futureTask = task.get_future();
-
-    // if (BELoadingQueue::get().isThisMainThread()) { task(); }
-    // /* This is not the main thread */
-    // else { BELoadingQueue::get().pushTask(std::move(task)); }
-
-    // fontPathToObject_[fontKey] = futureTask.get();
     fontPathToObject_[fontKey] = loadFontInternal(fontPath, fontSize);
 
     return fontPathToObject_.at(fontKey);
 }
 
-FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t fontSize)
+FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fontSize)
 {
     FontPtr font = std::make_shared<Font>();
     font->fontSize = fontSize;
@@ -60,14 +49,14 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
     if (fontSize < MIN_FONT_SIZE || fontSize > MAX_FONT_SIZE)
     {
         log_.error("Failed to load font: \"{}\". Size is out of bounds: {}. Will keep previous font size.",
-            fontPath.c_str(), fontSize);
+            fontPath.string().c_str(), fontSize);
         return font;
     }
 
     FT_Face ftFace;
-    if (FT_New_Face(ftLib_, fontPath.c_str(), 0, &ftFace))
+    if (FT_New_Face(ftLib_, fontPath.string().c_str(), 0, &ftFace))
     {
-        log_.error("Failed to load font: \"{}\". Will keep previous font.", fontPath.c_str());
+        log_.error("Failed to load font: \"{}\". Will keep previous font.", fontPath.string().c_str());
         return font;
     }
 
@@ -122,7 +111,8 @@ FontPtr FontLoader::loadFontInternal(const std::string& fontPath, const int32_t 
         font->glyphData[i] = ch;
     }
 
-    log_.debug("Loaded font texture {} with size {} from \"{}\"", font->textureId, fontSize, fontPath);
+    log_.debug("Loaded font texture {} with size {} from \"{}\"", font->textureId, fontSize,
+        fontPath.string().c_str());
 
     /* Unbind texture and free FreeType resources */
     GPUBinder::get().bindIdToTextureType(GPUBinder::TextureType::Array2D, 0);

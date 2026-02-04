@@ -240,40 +240,40 @@ auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
 
 namespace lav
 {
-core::LayoutBase::Scale operator"" _fill(unsigned long long)
+core::LayoutBase::Scale operator""_fill(unsigned long long)
 {
     return core::LayoutBase::Scale{1.0f, core::LayoutBase::ScaleType::FILL};
 }
 
-core::LayoutBase::Scale operator"" _fit(unsigned long long)
+core::LayoutBase::Scale operator""_fit(unsigned long long)
 {
     return core::LayoutBase::Scale{1.0f, core::LayoutBase::ScaleType::FIT};
 }
 
-core::LayoutBase::Scale operator"" _px(unsigned long long value)
+core::LayoutBase::Scale operator""_px(unsigned long long value)
 {
     /* Loss of precision justified. */
     return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::PX};
 }
 
-core::LayoutBase::Scale operator"" _rel(long double value)
+core::LayoutBase::Scale operator""_rel(long double value)
 {
     /* Loss of precision justified. */
     return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::REL};
 }
 
-core::LayoutBase::Scale operator"" _fr(unsigned long long value)
+core::LayoutBase::Scale operator""_fr(unsigned long long value)
 {
     /* Loss of precision justified. */
     return core::LayoutBase::Scale{(float)value, core::LayoutBase::ScaleType::FR};
 }
 
-core::LayoutBase::Position operator"" _abs(unsigned long long value)
+core::LayoutBase::Position operator""_abs(unsigned long long value)
 {
     return core::LayoutBase::Position(value, core::LayoutBase::PositionType::ABS);
 }
 
-core::LayoutBase::Position operator"" _comp(unsigned long long value)
+core::LayoutBase::Position operator""_comp(unsigned long long value)
 {
     /* Won't really matter much as computed is the default and anything the user puts here is discared. */
     return core::LayoutBase::Position(value, core::LayoutBase::PositionType::COMPUTED);
