@@ -1,11 +1,13 @@
 #include <LavenderUI/Core/Binders/WindowBinder.hpp>
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+#if defined(__linux__)
+    #define GLFW_EXPOSE_NATIVE_X11
+#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
     /* Define the native part here since in .hpp we will have name clashes. */
     #define GLFW_EXPOSE_NATIVE_WIN32
-    #include <glfw/include/GLFW/glfw3native.h>
 #endif
 
+#include <glfw/include/GLFW/glfw3native.h>
 #include <glfw/include/GLFW/glfw3.h>
 
 namespace lav::core

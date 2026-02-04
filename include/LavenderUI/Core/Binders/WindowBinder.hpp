@@ -5,6 +5,8 @@
 
 #define LAV_USE_GLFW_WINDOWING
 
+#include <glew/include/GL/glew.h>
+
 #if defined(__linux__)
     #include <GL/glx.h>
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
@@ -13,21 +15,7 @@
     using HGLRC = HGLRC__*;
 #endif
 
-#include <glew/include/GL/glew.h>
-
-// TODO: Maybe we can move these defines in .cpp and use opaque types for Linux as well.
-#if defined(__linux__)
-    #define GLFW_EXPOSE_NATIVE_X11
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32)
-    /* Note: Defined in .cpp */
-#endif
-
 #include <glfw/include/GLFW/glfw3.h>
-
-// #ifdef LAV_USE_GLFW_WINDOWING
-//     #include <glfw/include/GLFW/glfw3.h>
-//     // #include <glfw/include/GLFW/glfw3native.h>
-// #endif
 
 #include <glm/glm.hpp>
 #include <LavenderUI/Utils/Logger.hpp>
