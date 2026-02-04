@@ -242,8 +242,16 @@ auto UIWindow::setupInputCallbacks() -> void
                 {
                     windowResizeSolver(newX, newY);
                 });
-                // needed only on WINDOWS
-                // run();
+                /* Note:
+                    On Windows while the window is being resized, the WM doesn't send events to the UI thread
+                    in order to unblock from waitEvents() and thus generate a run() call.
+                    The window enters a modal state and no events will be sent to unblock us until the resize is done.
+                    To bypass this, explicitly call the run() function here so we are processing each resize frame
+                    even if we are not called by App::run to do so.
+                */
+                #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
+                    run();
+                #endif
             },
         .windowMouseEntered = 
             [this](const bool entered)

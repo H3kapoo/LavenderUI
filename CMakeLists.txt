@@ -160,7 +160,7 @@ endfunction(setupForLinux_x86_64)
 function(linkTargetWithLibs_x86_64_Windows)
     target_link_libraries(${PROJECT_NAME}
         glew32
-        glfw3
+        winglfw3
         opengl32
         gdi32
         user32
