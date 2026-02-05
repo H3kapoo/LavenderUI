@@ -40,8 +40,12 @@ auto GPUBinder::init() -> bool
                 ->log_.error("Type {} Severity {} Message {}", type, severity, message);
         }, this );
 
-    log_.debug("GL Version {}", (const char*)glGetString(GL_VERSION));
-    log_.debug("GLSL Version {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    int32_t maxVertexUniforms;
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxVertexUniforms);
+
+    log_.debug("GL Version               {}", (const char*)glGetString(GL_VERSION));
+    log_.debug("GLSL Version             {}", (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    log_.debug("GLSL Max Vertex Uniforms {}", maxVertexUniforms);
 
     enable(Function::DEPTH);
     enable(Function::SCISSORS);

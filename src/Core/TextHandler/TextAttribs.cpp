@@ -4,12 +4,15 @@
 #include <LavenderUI/Core/ResourceHandler/Font.hpp>
 #include <LavenderUI/Core/ResourceHandler/FontLoader.hpp>
 #include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
+#include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
+#include <LavenderUI/Core/Config.hpp>
 
 namespace lav::core
 {
 TextAttribs::TextAttribs()
     : shader_(ShaderLoader::get().load(
-        "assets/shaders/basicTextVert.glsl", "assets/shaders/basicTextFrag.glsl"))
+        Config::shadersPath / "basicTextVert.glsl",
+        Config::shadersPath / "basicTextFrag.glsl"))
     , buffer_()
     , text_()
     , pos_(0.0f)

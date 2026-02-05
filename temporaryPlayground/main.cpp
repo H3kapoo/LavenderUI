@@ -13,6 +13,7 @@
 #include "LavenderUI/Node/UIWindow.hpp"
 #include "LavenderUI/Utils/Logger.hpp"
 #include "LavenderUI/Utils/Misc.hpp"
+#include "LavenderUI/Core/Config.hpp"
 
 #include <exception>
 #include <ranges>
@@ -107,7 +108,7 @@ int main()
     App& app = App::get();
     if (!app.init()) { return 1; }
     app.enableTitleWithFPS();
-    UIWindowWPtr window = app.loadLavView("temporaryPlayground/views/test.xml");
+    UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test.xml");
 
     // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
     // window.lock()->setColor(utils::hexToVec4("#38455eff"));

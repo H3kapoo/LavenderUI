@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <LavenderUI/Core/Binders/WindowBinder.hpp>
 #include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
+#include <LavenderUI/Core/Config.hpp>
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::core
@@ -14,7 +15,9 @@ auto CaretHelper::get() -> CaretHelper&
 }
 
 CaretHelper::CaretHelper()
-    : caretShader_(ShaderLoader::get().load("assets/shaders/elemVert.glsl", "assets/shaders/elemFrag.glsl" ))
+    : caretShader_(ShaderLoader::get().load(
+        Config::shadersPath / "elemVert.glsl",
+        Config::shadersPath / "elemFrag.glsl" ))
     , caretColor_(utils::hexToVec4("#dd4b4bff"))
     , caretScale_(1, 20)
     , caretPos_(0, 0)
