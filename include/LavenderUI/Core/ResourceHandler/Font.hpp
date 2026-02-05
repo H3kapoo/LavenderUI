@@ -2,19 +2,18 @@
 
 #include <string>
 #include <memory>
-#include <filesystem>
 
 #include <glm/glm.hpp>
 
+#include <LavenderUI/Core/Config.hpp>
+
 namespace lav::core
 {
-namespace fs = std::filesystem;
-
 static constexpr int32_t MAX_GLYPHS        {256};
 static constexpr int32_t DEFAULT_FONT_SIZE {16};
 static constexpr int32_t MIN_FONT_SIZE     {10};
 static constexpr int32_t MAX_FONT_SIZE     {88};
-static const fs::path DEFAULT_FONT_PATH {"assets/fonts/Arial.ttf"};
+static const fs::path DEFAULT_FONT_PATH {Config::fontsPath / "Arial.ttf"};
 
 struct Font
 {

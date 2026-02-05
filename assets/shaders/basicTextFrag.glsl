@@ -1,7 +1,7 @@
 #version 440 core
 
 uniform sampler2DArray uTextureArray;
-uniform int[256] uCharIndices;
+uniform int[128] uCharIndices;
 uniform vec4 uColor;
 
 out vec4 fragColor;

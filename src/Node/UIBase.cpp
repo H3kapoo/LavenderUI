@@ -14,6 +14,7 @@
 #include <LavenderUI/Core/EventHandler/CoreEvents/MouseScroll.hpp>
 #include <LavenderUI/Core/ResourceHandler/ShaderLoader.hpp>
 #include <LavenderUI/Core/ResourceHandler/MeshLoader.hpp>
+#include <LavenderUI/Core/Config.hpp>
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
@@ -24,8 +25,8 @@ UIBase::UIBase(UIBaseInitData&& initData)
     , log_("{}/{}", initData.name, id_)
     , mesh_(core::MeshLoader::get().loadQuad())
     , shader_(core::ShaderLoader::get().load(
-        "assets/shaders" / initData.vertexShader,
-        "assets/shaders" / initData.fragmentShader))
+        core::Config::shadersPath / initData.vertexShader,
+        core::Config::shadersPath / initData.fragmentShader))
     , baseColor_{utils::hexToVec4("#ffffffff")}
     , borderColor_{utils::hexToVec4("#979797ff")}
     , depth_(0)

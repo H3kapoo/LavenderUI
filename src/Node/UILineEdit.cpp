@@ -12,13 +12,16 @@
 #include <LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp>
 #include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
 #include <LavenderUI/Core/TextHandler/TextHandler.hpp>
+#include <LavenderUI/Core/Config.hpp>
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {
 UILineEdit::UILineEdit(UIBaseInitData&& data)
     : UIBase(std::move(data))
-    , textHandler_("assets/shaders/basicTextVert.glsl", "assets/shaders/basicTextFrag.glsl")
+    , textHandler_(
+        core::Config::shadersPath / "basicTextVert.glsl",
+        core::Config::shadersPath / "basicTextFrag.glsl")
     , placeholderText_()
     , overrideColor_(std::nullopt)
     , numericOnly_(false)

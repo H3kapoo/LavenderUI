@@ -43,7 +43,7 @@ auto WindowBinder::init() -> bool
     /* An initial hidden window will be created in order to hold and share context with other windows. */
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_VISIBLE, false);
 
     initWindowHandle_ = glfwCreateWindow(1, 1, "dummy", NULL, NULL);

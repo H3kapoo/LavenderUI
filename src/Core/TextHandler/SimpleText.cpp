@@ -24,6 +24,12 @@ SimpleText::SimpleText(const fs::path& vertShaderPath, const fs::path& fragShade
 
 auto SimpleText::render(const glm::mat4& projection) -> void
 {
+    // TODO:
+    // On Windows IGPU 620 at least, the max components we can have overall in a shader is 4096.
+    // If we reserve buffers of 256, it will not work and that is why it was reduced to 128 comps.
+    // It is suggested to move away from uploading huge chunks of matrix data to the GPU and use
+    // UBOs or SSBO for large data chunks like these.
+    // This may not happen on Linux Mesa or other newer intel igpus.
     if (storedText_.empty()) { return; }
     mesh_.bind();
     shader_.bind();
