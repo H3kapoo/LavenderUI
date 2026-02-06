@@ -17,7 +17,7 @@ class UIList : public UIPane
 {
 public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIList, "elemVert.glsl", "elemFrag.glsl");
-    INSERT_ADD_REMOVE_NOT_ALLOWED(UIRecycleList);
+    INSERT_ADD_REMOVE_NOT_ALLOWED(UIList);
 
     auto setModel(core::AbstractModelPtr model) -> void;
     auto setRowSize(const uint32_t value) -> void;
@@ -47,6 +47,6 @@ private:
     int32_t oldVisibleCount_;
     bool isAlternatingRowPattern_;
 };
-using UIRecycleListPtr = std::shared_ptr<UIList>;
-using UIRecycleListWPtr = std::weak_ptr<UIList>;
+using UIListPtr = std::shared_ptr<UIList>;
+using UIListWPtr = std::weak_ptr<UIList>;
 } // namespace lav::node

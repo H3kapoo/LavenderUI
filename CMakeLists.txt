@@ -57,6 +57,8 @@ function(addSources)
         src/Core/ViewParser/Rules/SliderRule.cpp
         src/Core/ViewParser/Rules/DropdownRule.cpp
         src/Core/ViewParser/Rules/SplitPaneRule.cpp
+        src/Core/ViewParser/Rules/ListRule.cpp
+        # src/Node/UITreeView.cpp
 
         # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp

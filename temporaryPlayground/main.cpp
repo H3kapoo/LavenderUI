@@ -122,112 +122,118 @@ int main()
     // return 0;
 
     std::vector<uint32_t> data =
-        std::views::iota(0u, 200u) |
+        // std::views::iota(0u, 200u) |
         // std::views::iota(0u, 200'000u) |
-        // std::views::iota(0u, 1'500'000u) |
+        std::views::iota(0u, 1'500'000u) |
         std::ranges::to<std::vector<uint32_t>>();
 
-    UITreeViewPtr tv = utils::make<UITreeView>();
-    tv->setScrollEnabled();
+    // UITreeViewPtr tv = utils::make<UITreeView>();
+    // tv->setScrollEnabled();
 
-    // tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
-
-    UIRecycleListPtr rl = utils::make<UIList>();
-    rl->setScrollEnabled();
-    // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
+    // // tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
     ListBasicModel model{data};
-    SimpleTreeItemS* root = createTree();
-    TreeBasicModel<std::string> treeModel{root};
-    // // ListOrderedModel orderedModel{model};
-    ListFilteredModel filterModel{model,
-        [](const uint64_t x) -> bool { return x % 2; }};
 
-    tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
-    tv->setAlternatingRowEnabled();
-    tv->setScrollSensitivity(15);
-    tv->setRowSize(20);
-
-    // rl->setModel(std::make_unique<ListBasicModel>(model));
-    rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    UIListPtr rl = utils::as<UIList>(
+        utils::as<UISplitPane>(window.lock()->getElements().at(1))
+            ->getPaneIdx(0).lock()->getElements().at(0)
+        );
+    rl->setModel(std::make_unique<ListBasicModel>(model));
     rl->setAlternatingRowEnabled();
-    rl->setScrollSensitivity(15);
-    rl->setRowSize(18);
-    // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
-    // // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    rl->setScrollEnabled();
 
-    // window.lock()->add(tv);
+    // // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
-    auto pane1 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
-    rl->getBaseLayoutData().setScale({1_fill});
-    pane1.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
+    // SimpleTreeItemS* root = createTree();
+    // TreeBasicModel<std::string> treeModel{root};
+    // // // ListOrderedModel orderedModel{model};
+    // ListFilteredModel filterModel{model,
+    //     [](const uint64_t x) -> bool { return x % 2; }};
 
-    auto pane2 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(1);
-    tv->getBaseLayoutData().setScale({1_fill});
-    pane2.lock()->remove([](auto&){ return true;});
-    pane2.lock()->add(tv);
+    // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
+    // tv->setAlternatingRowEnabled();
+    // tv->setScrollSensitivity(15);
+    // tv->setRowSize(20);
 
-    auto pane3 = utils::as<UISplitPane>(window.lock()->getElements()[1]->getElements()[4]);
-    auto pane32 = pane3->getPaneIdx(1);
-    auto label = utils::as<UILabel>(pane32.lock()->getElements()[0]);
-    label->setText("Schimbat");
+    // rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    // rl->setAlternatingRowEnabled();
+    // rl->setScrollSensitivity(15);
+    // rl->setRowSize(18);
+    // // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
+    // // // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
 
-    UILineEditPtr le = utils::make<UILineEdit>();
-    le->setText("13456789");
-    le->enableNumbericOnly(true);
-    le->setColor(utils::hexToVec4("#62f562ff"));
-    le->getBaseLayoutData().setScale({1_fill, 30_px});
+    // // window.lock()->add(tv);
 
-    UILineEditPtr le2 = utils::make<UILineEdit>();
-    le2->setText("13456789");
-    le2->setColor(utils::hexToVec4("#daf562ff"));
-    le2->getBaseLayoutData().setScale({1_fill, 30_px});
+    // auto pane1 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(0);
+    // rl->getBaseLayoutData().setScale({1_fill});
+    // pane1.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
 
-    le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
-    {
-        // log.error("text changed {}", e.text);
-        try
-        {
-            int32_t num = std::stoi(e.text);
-            filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
+    // auto pane2 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(1);
+    // tv->getBaseLayoutData().setScale({1_fill});
+    // pane2.lock()->remove([](auto&){ return true;});
+    // pane2.lock()->add(tv);
 
-            rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
-            WindowBinder::get().requestEmptyEvent();
-        } catch(std::exception& ex)
-        {
-            (void)ex;
-        }
-    });
+    // auto pane3 = utils::as<UISplitPane>(window.lock()->getElements()[1]->getElements()[4]);
+    // auto pane32 = pane3->getPaneIdx(1);
+    // auto label = utils::as<UILabel>(pane32.lock()->getElements()[0]);
+    // label->setText("Schimbat");
 
-    pane1.lock()->add(le);
-    pane1.lock()->add(le2);
-    pane1.lock()->add(rl);
+    // UILineEditPtr le = utils::make<UILineEdit>();
+    // le->setText("13456789");
+    // le->enableNumbericOnly(true);
+    // le->setColor(utils::hexToVec4("#62f562ff"));
+    // le->getBaseLayoutData().setScale({1_fill, 30_px});
 
-    pane32.lock()->listenEvent<core::FocusGainEvt>([&log](const auto&)
-    {
-        log.error("focus gain!");
-    });
-    pane32.lock()->listenEvent<core::FocusLostEvt>([&log](const auto&)
-    {
-        log.error("focus lost!");
-    });
-    tv->listenEvent<core::ViewLMBRelease>([&log, &label](const auto& e)
-    {
-        SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
-            (e.index.internalPtr);
-        if (!data)
-        {
-            // log.error("clicked node id is {}", e.index.data);
-            return;
-        }
-        // log.error("clicked node id is {}", data->data);
-        label->setText(data->data);
-    });
+    // UILineEditPtr le2 = utils::make<UILineEdit>();
+    // le2->setText("13456789");
+    // le2->setColor(utils::hexToVec4("#daf562ff"));
+    // le2->getBaseLayoutData().setScale({1_fill, 30_px});
 
-    rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
-    {
-        log.error("clicked node id is {}", data[e.index.row]);
-    });
+    // le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
+    // {
+    //     // log.error("text changed {}", e.text);
+    //     try
+    //     {
+    //         int32_t num = std::stoi(e.text);
+    //         filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
+
+    //         rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    //         WindowBinder::get().requestEmptyEvent();
+    //     } catch(std::exception& ex)
+    //     {
+    //         (void)ex;
+    //     }
+    // });
+
+    // pane1.lock()->add(le);
+    // pane1.lock()->add(le2);
+    // pane1.lock()->add(rl);
+
+    // pane32.lock()->listenEvent<core::FocusGainEvt>([&log](const auto&)
+    // {
+    //     log.error("focus gain!");
+    // });
+    // pane32.lock()->listenEvent<core::FocusLostEvt>([&log](const auto&)
+    // {
+    //     log.error("focus lost!");
+    // });
+    // tv->listenEvent<core::ViewLMBRelease>([&log, &label](const auto& e)
+    // {
+    //     SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
+    //         (e.index.internalPtr);
+    //     if (!data)
+    //     {
+    //         // log.error("clicked node id is {}", e.index.data);
+    //         return;
+    //     }
+    //     // log.error("clicked node id is {}", data->data);
+    //     label->setText(data->data);
+    // });
+
+    // rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
+    // {
+    //     log.error("clicked node id is {}", data[e.index.row]);
+    // });
 
     // std::jthread t1([&data, &log]()
     // {

@@ -19,6 +19,7 @@ auto PaneRule::construct(const RuleMap& ruleMap, const XmlNode& xmlNode,
 
     for (const auto& childXmlNode : xmlNode->children)
     {
+
         const auto& nName = childXmlNode->nodeName;
         if (!ruleMap.contains(nName))
         {

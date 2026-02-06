@@ -29,7 +29,9 @@
         </Dropdown>
     </Pane>
     <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
-        <Pane></Pane>
+        <Pane>
+            <List scale="Fill, Fill"/>
+        </Pane>
         <Pane scale="Fill, Fill" scroll="true">
             <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
             <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
@@ -43,5 +45,4 @@
             </Pane>
         </SplitPane>
     </SplitPane>
-
 </App>

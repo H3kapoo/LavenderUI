@@ -7,9 +7,10 @@
 #include <LavenderUI/Core/ViewParser/Rules/AppRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/ImageRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/LabelRule.hpp>
-#include <LavenderUI/Core/ViewParser/Rules/ImageRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/ListRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/PaneRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SliderRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp>
@@ -35,13 +36,7 @@ LavParser::LavParser()
     setRule("Dropdown", std::move(std::make_unique<DropdownRule>()));
     setRule("SplitPane", std::move(std::make_unique<SplitPaneRule>()));
     setRule("Label", std::move(std::make_unique<LabelRule>()));
-    // setRule("Pane", PaneRule().getRule());
-    // setRule("Img", ImageRule().getRule());
-    // setRule("Button", ButtonRule());
-    // // setContructRule("Label", LabelRule().getRule());
-    // setRule("Slider", SliderRule().getRule());
-    // setRule("Dropdown", DropdownRule().getRule());
-    // setRule("SplitPane", SplitPaneRule().getRule());
+    setRule("List", std::move(std::make_unique<ListRule>()));
 }
 
 auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec

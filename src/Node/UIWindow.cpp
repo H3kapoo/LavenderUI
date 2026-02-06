@@ -505,7 +505,7 @@ auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_
     }
     else if (castKey == Key::P)
     {
-        // log_.debug("\n{}", shared_from_this());
+        log_.debug("\n{}", shared_from_this());
     }
 
     uiState_->keyStates[key] = static_cast<lav::Action>(action);
