@@ -138,7 +138,7 @@ int main()
         utils::as<UISplitPane>(window.lock()->getElements().at(1))
             ->getPaneIdx(0).lock()->getElements().at(0)
         );
-    rl->setModel(std::make_unique<ListBasicModel>(model));
+    // rl->setModel(std::make_unique<ListBasicModel>(model));
     rl->setAlternatingRowEnabled();
     rl->setScrollEnabled();
 

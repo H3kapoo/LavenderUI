@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include <LavenderUI/Node/UIList.hpp>
 
 #include <LavenderUI/Core/EventHandler/CoreEvents/MouseMove.hpp>
@@ -31,6 +32,10 @@ UIList::UIList(UIBaseInitData&& initData)
     layoutBase_.setBorder(4);
 
     vScroll_->getBaseLayoutData().setMargin({0, 0, 4, 0});
+
+    std::unique_ptr<core::DefaultEmptyListModel> defaultModel =
+        std::make_unique<core::DefaultEmptyListModel>();
+    setModel(std::move(defaultModel));
 }
 
 auto UIList::onRender(const glm::mat4& projection) -> void

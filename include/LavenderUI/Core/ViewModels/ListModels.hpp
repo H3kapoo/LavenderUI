@@ -8,6 +8,29 @@
 
 namespace lav::core
 {
+
+class DefaultEmptyListModel : public AbstractModel
+{
+public:
+    DefaultEmptyListModel()
+    {}
+
+    auto index(const uint32_t row, const uint32_t,
+        const ModelIndex) const -> ModelIndex override
+    {
+        return ModelIndex(row);
+    }
+
+    auto data(const ModelIndex idx, const EModelRole role) const -> ModelVariant override
+    {
+        if (!idx.isValid()) { return ModelVariant{}; }
+
+        return ModelVariant{};
+    }
+
+    auto getRowCount(const ModelIndex = ModelIndex{}) const -> uint32_t override { return 0; }
+};
+
 class ListBasicModel : public AbstractModel
 {
 public:
