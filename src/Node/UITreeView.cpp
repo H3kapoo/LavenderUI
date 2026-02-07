@@ -23,7 +23,7 @@ UITreeView::UITreeView(UIBaseInitData&& initData)
     , oldVisibleCount_{-1}
     , isAlternatingRowPattern_{false}
 {
-    setScrollEnabled(false, true);
+    setScrollEnabled(true, true);
     setBorderColor(utils::hexToVec4("#c0cbcdff"));
     setColor(utils::hexToVec4("#c0cbcdff"));
     layoutBase_.setType(core::LayoutBase::Type::VERTICAL);

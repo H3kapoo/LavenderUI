@@ -114,7 +114,7 @@ auto UIList::resolveVisibleItems() -> void
 
     UIBase::remove([this](const auto& e)
     {
-        return e->getId() != vScroll_->getId() && e->getId() != hScroll_->getId();
+        return e->getId() != vScroll_->getId();
     });
 
     allocatePool();

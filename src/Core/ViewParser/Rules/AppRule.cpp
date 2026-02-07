@@ -61,6 +61,10 @@ auto AppRule::parseAndApply(node::UIBasePtr object,
         {
             win->getBaseLayoutData().setAlign(ph.toAlign(value));
         }
+        else if (key == "vid")
+        {
+            win->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

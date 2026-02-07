@@ -18,16 +18,20 @@ auto ListRule::parseAndApply(node::UIBasePtr object,
     const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
-    node::UIListPtr obj = utils::as<node::UIList>(object);
+    node::UIListPtr list = utils::as<node::UIList>(object);
     for (const auto&[key, value] : attribs)
     {
         if (key == "scale")
         {
-            obj->getBaseLayoutData().setScale(ph.toScale(value));
+            list->getBaseLayoutData().setScale(ph.toScale(value));
         }
         else if (key == "color")
         {
-            obj->setColor(ph.toColor(value));
+            list->setColor(ph.toColor(value));
+        }
+        else if (key == "vid")
+        {
+            list->setViewId(value);
         }
     }
 }

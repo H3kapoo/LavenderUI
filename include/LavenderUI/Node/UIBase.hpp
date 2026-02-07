@@ -26,6 +26,21 @@ using UIBasePtr = std::shared_ptr<UIBase>;
 using UIBaseWPtr = std::weak_ptr<UIBase>;
 using UIBasePtrVec = std::vector<UIBasePtr>;
 
+/** @brief Concept describing what it means to be a valid derived UI element */
+template<typename T>
+concept UIBaseDerivedConcept =
+    std::is_base_of_v<UIBase, std::remove_cvref_t<T>>
+    && !std::is_same_v<UIBase, std::remove_cvref_t<T>>;
+
+template<UIBaseDerivedConcept T>
+using UIBaseTPtr = std::shared_ptr<T>;
+
+template<UIBaseDerivedConcept T>
+using UIBaseTWPtr = std::weak_ptr<T>;
+
+template<UIBaseDerivedConcept T>
+using UIBaseTWPtrVec = std::vector<std::weak_ptr<T>>;
+
 /**
     @brief
     Each instantiation of UIBase needs to know what vertex/fragment/other shader it needs to load from
@@ -145,15 +160,76 @@ public:
         eventsMgr_.listenTo(callback);
     }
 
+    template <UIBaseDerivedConcept T>
+    auto findElementByViewId(const std::string& viewId, const bool recursive = true) -> UIBaseTWPtr<T>
+    {
+        return findElement<T>(
+            [viewId](const UIBasePtr e) -> bool { return e->getViewId() == viewId; },
+            recursive);
+    }
+
+    template <UIBaseDerivedConcept T>
+    auto findElementsByViewId(const std::string& viewId, const bool recursive = true) -> UIBaseTWPtrVec<T>
+    {
+        return findElements<T>(
+            [viewId](const UIBasePtr e) -> bool { return e->getViewId() == viewId; },
+            recursive);
+    }
+
+    template <UIBaseDerivedConcept T>
+    auto findElement(const std::function<bool(const UIBasePtr)>& pred,
+        const bool recursive = false) -> UIBaseTWPtr<T>
+    {
+        UIBaseTWPtr<T> result = std::weak_ptr<T>{};
+        for (auto el : elements_)
+        {
+            if (T::typeId == el->getTypeId() && pred(el))
+            {
+                return utils::as<T>(el);
+            }
+
+            if (recursive)
+            {
+                result = el->findElement<T>(pred, recursive);
+                if (!result.expired()) { return result; }
+            }
+        }
+        return {};
+    }
+
+    template <UIBaseDerivedConcept T>
+    auto findElements(const std::function<bool(const UIBasePtr)>& pred,
+        const bool recursive = false) const -> UIBaseTWPtrVec<T>
+    {
+        UIBaseTWPtrVec<T> result;
+        for (auto el : elements_)
+        {
+            if (T::typeId == el->getTypeId() && pred(el))
+            {
+                result.push_back(utils::as<T>(el));
+            }
+
+            if (recursive)
+            {
+                const auto temp = el->findElements<T>(pred, recursive);
+                result.insert(result.end(), temp.begin(), temp.end());
+            }
+        }
+        return result;
+    }
+
+
     auto resetElementsToDefault() -> void;
 
     auto setIgnoreEvents(const bool ignore = true) -> void;
     auto setColor(const glm::vec4& value) -> void;
     auto setBorderColor(const glm::vec4& value) -> void;
+    auto setViewId(const std::string& id) -> void;
 
     auto isParented() -> bool;
     auto isIgnoringEvents() -> bool;
     auto getId() -> uint32_t;
+    auto getViewId() const -> const std::string&;
     auto getParent() -> UIBaseWPtr;
     auto getGrandParent() -> UIBaseWPtr;
     auto getElements() -> UIBasePtrVec&;
@@ -181,9 +257,9 @@ protected:
     core::LayoutBase layoutBase_;
     core::Events eventsMgr_;
     std::string nameTag_;
+    std::string viewId_;
     UIBaseWPtr parent_;
     UIBasePtrVec elements_;
-    uint32_t customTagid_;
     uint32_t id_;
     utils::Logger log_;
     core::Mesh mesh_;

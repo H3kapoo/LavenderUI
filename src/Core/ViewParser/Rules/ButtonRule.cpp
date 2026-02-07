@@ -35,6 +35,10 @@ auto ButtonRule::parseAndApply(node::UIBasePtr object,
         {
             btn->setText(value);
         }
+        else if (key == "vid")
+        {
+            btn->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

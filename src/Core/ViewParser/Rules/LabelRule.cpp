@@ -18,16 +18,20 @@ auto LabelRule::parseAndApply(node::UIBasePtr object,
     const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
-    node::UILabelPtr obj = utils::as<node::UILabel>(object);
+    node::UILabelPtr label = utils::as<node::UILabel>(object);
     for (const auto&[key, value] : attribs)
     {
         if (key == "scale")
         {
-            obj->getBaseLayoutData().setScale(ph.toScale(value));
+            label->getBaseLayoutData().setScale(ph.toScale(value));
         }
         else if (key == "text")
         {
-            obj->setText(value);
+            label->setText(value);
+        }
+        else if (key == "vid")
+        {
+            label->setViewId(value);
         }
     }
 }

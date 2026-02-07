@@ -29,6 +29,10 @@ auto ImageRule::parseAndApply(node::UIBasePtr object,
         {
             obj->setImage(value);
         }
+        else if (key == "vid")
+        {
+            obj->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

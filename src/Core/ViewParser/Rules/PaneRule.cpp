@@ -77,6 +77,10 @@ auto PaneRule::parseAndApply(node::UIBasePtr object,
         {
             pane->setScrollEnabled(true, true);
         }
+        else if (key == "vid")
+        {
+            pane->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

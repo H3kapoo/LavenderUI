@@ -8,6 +8,7 @@
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
 #include "LavenderUI/Node/UILineEdit.hpp"
 #include "LavenderUI/Node/UIList.hpp"
+#include "LavenderUI/Node/UIPane.hpp"
 #include "LavenderUI/Node/UISplitPane.hpp"
 #include "LavenderUI/Node/UITreeView.hpp"
 #include "LavenderUI/Node/UIWindow.hpp"
@@ -122,33 +123,44 @@ int main()
     // return 0;
 
     std::vector<uint32_t> data =
-        // std::views::iota(0u, 200u) |
+        std::views::iota(0u, 200u) |
         // std::views::iota(0u, 200'000u) |
-        std::views::iota(0u, 1'500'000u) |
+        // std::views::iota(0u, 1'500'000u) |
         std::ranges::to<std::vector<uint32_t>>();
 
-    // UITreeViewPtr tv = utils::make<UITreeView>();
-    // tv->setScrollEnabled();
+
 
     // // tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
     ListBasicModel model{data};
+    ListFilteredModel filterModel{model,
+        [](const uint64_t x) -> bool { return x % 2; }};
 
-    UIListPtr rl = utils::as<UIList>(
-        utils::as<UISplitPane>(window.lock()->getElements().at(1))
-            ->getPaneIdx(0).lock()->getElements().at(0)
-        );
-    // rl->setModel(std::make_unique<ListBasicModel>(model));
+    // UIListPtr rl = window.lock().findElement<UIList>(recursive = true/false, lambda);
+
+    UIListPtr rl = window.lock()->findElementByViewId<UIList>("mylist").lock();
+
+    rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
     rl->setAlternatingRowEnabled();
-    rl->setScrollEnabled();
+    rl->setScrollSensitivity(15);
+    rl->setRowSize(18);
 
-    // // rl->getBaseLayoutData().setScale({300_px, 0.9_rel});
+    rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
+    {
+        log.error("clicked node id is {}", data[e.index.row]);
+    });
 
-    // SimpleTreeItemS* root = createTree();
-    // TreeBasicModel<std::string> treeModel{root};
+    std::vector<UIPaneWPtr> panes = window.lock()->findElements<UIPane>(
+        [](const UIBasePtr e) -> bool
+        {
+            // here we can safely assume "e" it's always of type T
+            return true;
+        }, true);
+    log.warn("elements size {}", panes.size());
+
+    SimpleTreeItemS* root = createTree();
+    TreeBasicModel<std::string> treeModel{root};
     // // // ListOrderedModel orderedModel{model};
-    // ListFilteredModel filterModel{model,
-    //     [](const uint64_t x) -> bool { return x % 2; }};
 
     // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
     // tv->setAlternatingRowEnabled();
@@ -157,8 +169,7 @@ int main()
 
     // rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
     // rl->setAlternatingRowEnabled();
-    // rl->setScrollSensitivity(15);
-    // rl->setRowSize(18);
+
     // // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(model));
     // // // tv->setModel(std::make_unique<ListFilteredModel>(filterModel));
 
@@ -168,15 +179,20 @@ int main()
     // rl->getBaseLayoutData().setScale({1_fill});
     // pane1.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
 
-    // auto pane2 = utils::as<UISplitPane>(window.lock()->getElements()[1])->getPaneIdx(1);
-    // tv->getBaseLayoutData().setScale({1_fill});
-    // pane2.lock()->remove([](auto&){ return true;});
-    // pane2.lock()->add(tv);
+    UITreeViewPtr tv = utils::make<UITreeView>();
+    tv->getBaseLayoutData().setScale({1_fill});
+    tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
+    tv->setAlternatingRowEnabled();
+
+    auto pane2 = window.lock()->findElementByViewId<UIPane>("sp_pane_2").lock();
+    pane2->add(tv);
+
+    auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
 
     // auto pane3 = utils::as<UISplitPane>(window.lock()->getElements()[1]->getElements()[4]);
     // auto pane32 = pane3->getPaneIdx(1);
     // auto label = utils::as<UILabel>(pane32.lock()->getElements()[0]);
-    // label->setText("Schimbat");
+    label->setText("Schimbat");
 
     // UILineEditPtr le = utils::make<UILineEdit>();
     // le->setText("13456789");
@@ -217,23 +233,23 @@ int main()
     // {
     //     log.error("focus lost!");
     // });
-    // tv->listenEvent<core::ViewLMBRelease>([&log, &label](const auto& e)
-    // {
-    //     SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
-    //         (e.index.internalPtr);
-    //     if (!data)
-    //     {
-    //         // log.error("clicked node id is {}", e.index.data);
-    //         return;
-    //     }
-    //     // log.error("clicked node id is {}", data->data);
-    //     label->setText(data->data);
-    // });
+    tv->listenEvent<core::ViewLMBRelease>([&log, &label](const auto& e)
+    {
+        SimpleTreeItem<std::string>* data = static_cast<SimpleTreeItem<std::string>*>
+            (e.index.internalPtr);
+        if (!data)
+        {
+            // log.error("clicked node id is {}", e.index.data);
+            return;
+        }
+        // log.error("clicked node id is {}", data->data);
+        label->setText(data->data);
+    });
 
-    // rl->listenEvent<core::ViewLMBRelease>([&log, &data, &rl](const auto& e)
-    // {
-    //     log.error("clicked node id is {}", data[e.index.row]);
-    // });
+    rl->listenEvent<core::ViewLMBRelease>([&log, &data](const auto& e)
+    {
+        log.error("clicked node id is {}", data[e.index.row]);
+    });
 
     // std::jthread t1([&data, &log]()
     // {

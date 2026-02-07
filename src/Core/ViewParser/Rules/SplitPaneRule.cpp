@@ -90,6 +90,10 @@ auto SplitPaneRule::parseAndApply(node::UIBasePtr object,
             //TBD
             // sp->setSplitDistribution(ph.toRelVector(value));
         }
+        else if (key == "vid")
+        {
+            sp->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

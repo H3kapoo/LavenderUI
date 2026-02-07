@@ -63,32 +63,36 @@ auto DropdownRule::parseAndApply(node::UIBasePtr object,
     const hk::XMLDecoder::AttrPairVec& attribs) const -> void
 {
     const auto& ph = ParseHelper::get();
-    node::UIDropdownPtr obj = utils::as<node::UIDropdown>(object);
+    node::UIDropdownPtr dd = utils::as<node::UIDropdown>(object);
     for (const auto&[key, value] : attribs)
     {
         if (key == "scale")
         {
-            obj->getBaseLayoutData().setScale(ph.toScale(value));
+            dd->getBaseLayoutData().setScale(ph.toScale(value));
         }
         else if (key == "border")
         {
-            obj->getBaseLayoutData().setBorder(ph.toBorder(value));
+            dd->getBaseLayoutData().setBorder(ph.toBorder(value));
         }
         else if (key == "text")
         {
-            obj->setText(value);
+            dd->setText(value);
         }
         else if (key == "dir")
         {
-            obj->setPreferredOpenDir(toOpenDir(value));
+            dd->setPreferredOpenDir(toOpenDir(value));
         }
         else if (key == "color")
         {
-            obj->setColor(ph.toColor(value));
+            dd->setColor(ph.toColor(value));
         }
         else if (key == "bcolor")
         {
-            obj->setBorderColor(ph.toColor(value));
+            dd->setBorderColor(ph.toColor(value));
+        }
+        else if (key == "vid")
+        {
+            dd->setViewId(value);
         }
     }
 }

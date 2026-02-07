@@ -53,6 +53,10 @@ auto SliderRule::parseAndApply(node::UIBasePtr object,
         {
             // Nothing yet, but we can
         }
+        else if (key == "vid")
+        {
+            slider->setViewId(value);
+        }
     }
 }
 } // namespace lav::core

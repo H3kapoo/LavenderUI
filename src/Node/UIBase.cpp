@@ -21,6 +21,7 @@ namespace lav::node
 {
 UIBase::UIBase(UIBaseInitData&& initData)
     : nameTag_(initData.name)
+    , viewId_("undefined")
     , id_(utils::genId())
     , log_("{}/{}", initData.name, id_)
     , mesh_(core::MeshLoader::get().loadQuad())
@@ -189,11 +190,15 @@ auto UIBase::setColor(const glm::vec4& value) -> void { baseColor_ = value; }
 
 auto UIBase::setBorderColor(const glm::vec4& value) -> void { borderColor_ = value; }
 
+auto UIBase::setViewId(const std::string& id) -> void { viewId_ = id; }
+
 auto UIBase::isParented() -> bool { return isParented_; }
 
 auto UIBase::isIgnoringEvents() -> bool { return isIgnoringEvents_; }
 
 auto UIBase::getId() -> uint32_t { return id_; }
+
+auto UIBase::getViewId() const -> const std::string& { return viewId_; }
 
 auto UIBase::getParent() -> UIBaseWPtr { return parent_; }
 
