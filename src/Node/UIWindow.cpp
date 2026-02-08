@@ -671,11 +671,27 @@ auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void
     core::WindowBinder::get().setTitle(window_, title);
 }
 
+auto UIWindow::setSize(const glm::ivec2 size) -> void
+{
+    core::WindowBinder::get().setSize(window_, size);
+    // updateWindowSizeAndProjection(size);
+}
+
+auto UIWindow::setFullScreen(const bool fullscreen) -> void
+{
+    core::WindowBinder::get().setFullScreen(window_, fullscreen);
+    // updateWindowSizeAndProjection(size);
+}
+
 auto UIWindow::getTitle() -> std::string { return title_; }
 
 auto UIWindow::getWindow() -> core::WindowHandle { return window_; }
 
 auto UIWindow::getDeltaTime() -> double { return deltaTime_; }
+
+auto UIWindow::getSize() -> glm::ivec2 { return uiState_->windowSize; }
+
+auto UIWindow::isFullScreen() -> bool { return false; }
 
 auto UIWindow::isMainWindow() -> bool { return isMainWindow_; }
 } // namespace lav::node

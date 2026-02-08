@@ -1,4 +1,4 @@
-<App ori="Vertical" launchScale="1280, 720" title="Title Here" align="Centerr">
+<App ori="Vertical" launchSize="1270, 720" title="Title Here" align="Centerr">
     <Pane vid="something" ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
         <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>
@@ -35,15 +35,16 @@
         </Pane>
         <Pane vid="sp_pane_2" scale="Fill, Fill" scroll="true">
             <TreeView vid="mytree" scale="Fill, Fill"/>
-            <!-- <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/> -->
-            <!-- <Img src="assets/textures/container.jpg" scale="200px, 300px"/> -->
+
         </Pane>
         <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
             <Pane>
                 <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
             </Pane>
-            <Pane>
+            <Pane scroll="true">
                 <Label vid="mylabel" scale="100px, 30px" text="some text"></Label>
+                <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
+                <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
             </Pane>
         </SplitPane>
     </SplitPane>

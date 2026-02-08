@@ -362,4 +362,13 @@ auto WindowBinder::setInputCallbacks(WindowHandle handle, const InputCallbacks& 
         });
 }
 
+auto WindowBinder::setSize(WindowHandle handle, const glm::ivec2 size) -> void
+{
+    glfwSetWindowSize(handle, size.x, size.y);
+}
+
+auto WindowBinder::setFullScreen(WindowHandle handle, const bool fullscreen) -> void
+{
+    fullscreen ? glfwMaximizeWindow(handle) : glfwRestoreWindow(handle);
+}
 } // namespace lav::core

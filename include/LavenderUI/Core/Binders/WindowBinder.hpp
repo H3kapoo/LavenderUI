@@ -80,6 +80,8 @@ public:
     auto destroyWindow(WindowHandle handle) -> void;
 
     auto setInputCallbacks(WindowHandle handle, const InputCallbacks& cbs) -> void;
+    auto setSize(WindowHandle handle, const glm::ivec2 size) -> void;
+    auto setFullScreen(WindowHandle handle, const bool fullscreen) -> void;
 
 private:
     WindowBinder();

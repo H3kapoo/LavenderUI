@@ -30,9 +30,13 @@ public:
     auto quit() -> void;
 
     auto setTitle(std::string title, const bool updateInteralText = true) -> void;
+    auto setSize(const glm::ivec2 size) -> void;
+    auto setFullScreen(const bool fullscreen = true) -> void;
     auto getTitle() -> std::string;
     auto getWindow() -> core::WindowHandle;
     auto getDeltaTime() -> double;
+    auto getSize() -> glm::ivec2;
+    auto isFullScreen() -> bool;
     auto isMainWindow() -> bool;
 
     /* Mandatory typeinfo */

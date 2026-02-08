@@ -249,8 +249,16 @@ int main()
         label->setText(data->data);
     });
 
-    rl->listenEvent<core::ViewLMBRelease>([&log, &data](const auto& e)
+    rl->listenEvent<core::ViewLMBRelease>([&log, &data, &window](const auto& e)
     {
+        if (e.index.row % 2 == 0)
+        {
+            window.lock()->setFullScreen(true);
+        }
+        else
+        {
+            window.lock()->setFullScreen(false);
+        }
         log.error("clicked node id is {}", data[e.index.row]);
     });
 

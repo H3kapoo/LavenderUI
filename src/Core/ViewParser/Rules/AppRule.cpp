@@ -35,21 +35,24 @@ auto AppRule::parseAndApply(node::UIBasePtr object,
     const auto& ph = ParseHelper::get();
     node::UIWindowPtr win = utils::as<node::UIWindow>(object);
 
-    std::string title;
-    glm::ivec2 size;
     for (const auto&[key, value] : attribs)
     {
         if (key == "title")
         {
-            title = value;
+            win->setTitle(value);
         }
-        else if (key == "launchScale")
+        else if (key == "launchSize")
         {
-            size = ph.toVec2D(value);
+            if (value == "+")
+            {
+                win->setFullScreen();
+            }
+            else
+            {
+                win->setSize(ph.toVec2D(value));
+            }
         }
     }
-    // win.setTitle..
-    // win.setSize...
 
     for (const auto&[key, value] : attribs)
     {
