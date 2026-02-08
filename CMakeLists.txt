@@ -57,8 +57,8 @@ function(addSources)
         src/Core/ViewParser/Rules/SliderRule.cpp
         src/Core/ViewParser/Rules/DropdownRule.cpp
         src/Core/ViewParser/Rules/SplitPaneRule.cpp
-        src/Core/ViewParser/Rules/ListRule.cpp
-        # src/Node/UITreeView.cpp
+        src/Core/ViewParser/Rules/ListViewRule.cpp
+        src/Core/ViewParser/Rules/TreeViewRule.cpp
 
         # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp
@@ -93,7 +93,7 @@ function(addSources)
         src/Node/UIImage.cpp
         src/Node/UIDropdown.cpp
         src/Node/UISplitPane.cpp
-        src/Node/UIList.cpp
+        src/Node/UIListView.cpp
         src/Node/UITreeView.cpp
         src/Node/InternalUse/UIScroll.cpp
         src/Node/InternalUse/UIViewItem.cpp

@@ -10,7 +10,8 @@
 #include <LavenderUI/Core/ViewParser/Rules/ImageRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/LabelRule.hpp>
-#include <LavenderUI/Core/ViewParser/Rules/ListRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/ListViewRule.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/TreeViewRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/PaneRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SliderRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp>
@@ -36,7 +37,8 @@ LavParser::LavParser()
     setRule("Dropdown", std::move(std::make_unique<DropdownRule>()));
     setRule("SplitPane", std::move(std::make_unique<SplitPaneRule>()));
     setRule("Label", std::move(std::make_unique<LabelRule>()));
-    setRule("List", std::move(std::make_unique<ListRule>()));
+    setRule("ListView", std::move(std::make_unique<ListViewRule>()));
+    setRule("TreeView", std::move(std::make_unique<TreeViewRule>()));
 }
 
 auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec

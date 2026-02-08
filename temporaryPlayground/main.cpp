@@ -7,7 +7,7 @@
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
 #include "LavenderUI/Node/UILineEdit.hpp"
-#include "LavenderUI/Node/UIList.hpp"
+#include "LavenderUI/Node/UIListView.hpp"
 #include "LavenderUI/Node/UIPane.hpp"
 #include "LavenderUI/Node/UISplitPane.hpp"
 #include "LavenderUI/Node/UITreeView.hpp"
@@ -128,8 +128,6 @@ int main()
         // std::views::iota(0u, 1'500'000u) |
         std::ranges::to<std::vector<uint32_t>>();
 
-
-
     // // tv->getBaseLayoutData().setScale({300_px, 0.9_rel});
 
     ListBasicModel model{data};
@@ -138,7 +136,7 @@ int main()
 
     // UIListPtr rl = window.lock().findElement<UIList>(recursive = true/false, lambda);
 
-    UIListPtr rl = window.lock()->findElementByViewId<UIList>("mylist").lock();
+    UIListViewPtr rl = window.lock()->findElementByViewId<UIListView>("mylist").lock();
 
     rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
     rl->setAlternatingRowEnabled();
@@ -179,13 +177,12 @@ int main()
     // rl->getBaseLayoutData().setScale({1_fill});
     // pane1.lock()->getBaseLayoutData().setType(LayoutBase::Type::VERTICAL);
 
-    UITreeViewPtr tv = utils::make<UITreeView>();
+    UITreeViewPtr tv = window.lock()->findElementByViewId<UITreeView>("mytree").lock();
     tv->getBaseLayoutData().setScale({1_fill});
     tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
     tv->setAlternatingRowEnabled();
-
-    auto pane2 = window.lock()->findElementByViewId<UIPane>("sp_pane_2").lock();
-    pane2->add(tv);
+    tv->setScrollSensitivity(15);
+    tv->setRowSize(18);
 
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
 
