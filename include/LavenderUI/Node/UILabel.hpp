@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include <LavenderUI/Core/TextHandler/TextAttribs.hpp>
+#include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
@@ -17,7 +17,7 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UILabel, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UILabel);
 
-    auto setText(const std::string& text) -> UILabel&;
+    auto setText(const std::string& text) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
 
     auto getText() const -> std::string;
@@ -28,7 +28,7 @@ private:
     virtual auto onEvent(core::UIStatePtr& state) -> void override;
 
 protected:
-    core::TextAttribs textAttribs_;
+    core::BasicTextHandler textHandler_;
     std::optional<glm::vec4> overrideColor_;
 };
 using UILabelPtr = std::shared_ptr<UILabel>;

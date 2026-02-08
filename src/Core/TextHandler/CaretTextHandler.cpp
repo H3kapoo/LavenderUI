@@ -1,23 +1,22 @@
-#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
+#include <LavenderUI/Core/TextHandler/CaretTextHandler.hpp>
 
 #include <chrono>
 
 #include <LavenderUI/Core/TextHandler/CaretHelper.hpp>
-#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
 
 namespace lav::core
 {
-TextHandler::TextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
-    : SimpleText(vertShaderPath, fragShaderPath)
+CaretTextHandler::CaretTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
+    : BasicTextHandler(vertShaderPath, fragShaderPath)
     , log_("TextHandler")
     , blinkIntervalMs_(std::chrono::milliseconds(500))
     , focused_(false)
     , isEditable_(false)
 {}
 
-auto TextHandler::render(const glm::mat4& projection) -> void
+auto CaretTextHandler::render(const glm::mat4& projection) -> void
 {
-    SimpleText::render(projection);
+    BasicTextHandler::render(projection);
 
     /* Check if caret needs to be displayed. */
     if (!isEditable_ || !focused_) { return; }
@@ -29,7 +28,7 @@ auto TextHandler::render(const glm::mat4& projection) -> void
     CaretHelper::get().render(projection);
 }
 
-auto TextHandler::simulateMouseAt(const glm::ivec2 pos) -> void
+auto CaretTextHandler::simulateMouseAt(const glm::ivec2 pos) -> void
 {
     // const glm::ivec2 scale = computeMaxSize();
     // const bool isMouseInside = (pos.x >= startPos_.x && pos.x <= startPos_.x + scale.x)
@@ -51,38 +50,38 @@ auto TextHandler::simulateMouseAt(const glm::ivec2 pos) -> void
     // }
 }
 
-auto TextHandler::notifyTyping() -> void
+auto CaretTextHandler::notifyTyping() -> void
 {
     CaretHelper::get().requestKeepAlive();
 }
 
-auto TextHandler::appendAtCaretPos(const char chr) -> void
+auto CaretTextHandler::appendAtCaretPos(const char chr) -> void
 {
     if (!isEditable_) { return; }
     storedText_ += chr;
     notifyTyping();
 }
 
-auto TextHandler::removeAtCaretPos() -> void
+auto CaretTextHandler::removeAtCaretPos() -> void
 {
     if (!isEditable_ || storedText_.empty()) { return; }
     storedText_.pop_back();
     notifyTyping();
 }
 
-auto TextHandler::moveCaretLeft(const uint32_t step) -> void
+auto CaretTextHandler::moveCaretLeft(const uint32_t step) -> void
 {
     (void)step;
     // TODO
 }
 
-auto TextHandler::moveCaretRight(const uint32_t step) -> void
+auto CaretTextHandler::moveCaretRight(const uint32_t step) -> void
 {
     (void)step;
     // TODO
 }
 
-auto TextHandler::setFocused(const bool focused) -> void
+auto CaretTextHandler::setFocused(const bool focused) -> void
 {
     if (!isEditable_) { return; }
 
@@ -100,28 +99,28 @@ auto TextHandler::setFocused(const bool focused) -> void
     focused_ = focused;
 }
 
-auto TextHandler::setCaretColor(const glm::vec4& color) -> void
+auto CaretTextHandler::setCaretColor(const glm::vec4& color) -> void
 {
     caretColor_ = color;
 }
 
-auto TextHandler::setText(const std::string& text) -> void
+auto CaretTextHandler::setText(const std::string& text) -> void
 {
-    SimpleText::setText(text);
+    BasicTextHandler::setText(text);
     notifyTyping();
 }
 
-auto TextHandler::setBlinkTime(const std::chrono::milliseconds& ms) -> void
+auto CaretTextHandler::setBlinkTime(const std::chrono::milliseconds& ms) -> void
 {
     blinkIntervalMs_ = ms;
 }
 
-auto TextHandler::setEditable(const bool editable) -> void
+auto CaretTextHandler::setEditable(const bool editable) -> void
 {
     isEditable_ = editable;
 }
 
-auto TextHandler::getText() const -> std::string
+auto CaretTextHandler::getText() const -> std::string
 {
     return storedText_;
 }

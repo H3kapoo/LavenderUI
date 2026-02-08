@@ -11,7 +11,6 @@
 #include <LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp>
 #include <LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp>
 #include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
-#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
 #include <LavenderUI/Core/Config.hpp>
 #include <LavenderUI/Utils/Misc.hpp>
 

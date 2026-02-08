@@ -78,9 +78,8 @@ function(addSources)
         src/Core/LayoutHandler/Calculators/SplitPaneCalculator.cpp
 
         # Text
-        src/Core/TextHandler/TextAttribs.cpp
-        src/Core/TextHandler/TextHandler.cpp
-        src/Core/TextHandler/SimpleText.cpp
+        src/Core/TextHandler/BasicTextHandler.cpp
+        src/Core/TextHandler/CaretTextHandler.cpp
         src/Core/TextHandler/CaretHelper.cpp
 
         # UI Nodes

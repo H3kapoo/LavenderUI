@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
+#include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 #include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
@@ -12,10 +12,10 @@ namespace lav::core
     Class that deals with rendering of a piece of text and also of the caret that comes along with
     and editable text zone.
 */
-class TextHandler : public SimpleText
+class CaretTextHandler : public BasicTextHandler
 {
 public:
-    TextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath);
+    CaretTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath);
 
     auto render(const glm::mat4& projection) -> void;
     auto simulateMouseAt(const glm::ivec2 pos) -> void;

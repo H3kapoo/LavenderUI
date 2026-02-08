@@ -1,4 +1,4 @@
-#include <LavenderUI/Core/TextHandler/SimpleText.hpp>
+#include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 
 #include <glm/ext/matrix_transform.hpp>
 #include <LavenderUI/Core/Binders/GPUBinder.hpp>
@@ -11,7 +11,7 @@
 
 namespace lav::core
 {
-SimpleText::SimpleText(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
+BasicTextHandler::BasicTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
     : shader_(ShaderLoader::get().load(vertShaderPath, fragShaderPath))
     , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
     , mesh_(MeshLoader::get().loadQuad())
@@ -22,7 +22,7 @@ SimpleText::SimpleText(const fs::path& vertShaderPath, const fs::path& fragShade
     , batchSize_(200)
 {}
 
-auto SimpleText::render(const glm::mat4& projection) -> void
+auto BasicTextHandler::render(const glm::mat4& projection) -> void
 {
     // TODO:
     // On Windows IGPU 620 at least, the max components we can have overall in a shader is 4096.
@@ -43,7 +43,7 @@ auto SimpleText::render(const glm::mat4& projection) -> void
     core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
 }
 
-auto SimpleText::fillRenderBatch() -> void
+auto BasicTextHandler::fillRenderBatch() -> void
 {
     soaBuffer_.glyphCode.clear();
     soaBuffer_.glyphModel.clear();
@@ -70,7 +70,7 @@ auto SimpleText::fillRenderBatch() -> void
     }
 }
 
-auto SimpleText::computeMaxSize() -> glm::vec2
+auto BasicTextHandler::computeMaxSize() -> glm::vec2
 {
     glm::vec2 size{0, 0};
     for (const uint8_t ch : storedText_)
@@ -82,29 +82,29 @@ auto SimpleText::computeMaxSize() -> glm::vec2
     return size;
 }
 
-auto SimpleText::setTextColor(const glm::vec4& color) -> void
+auto BasicTextHandler::setTextColor(const glm::vec4& color) -> void
 {
     textColor_ = color;
 }
 
-auto SimpleText::setText(const std::string& text) -> void
+auto BasicTextHandler::setText(const std::string& text) -> void
 {
     storedText_ = text; // not efficient, use other means in the future
     fillRenderBatch();
 }
 
-auto SimpleText::setFont(const fs::path& fontPath, const uint32_t size) -> void
+auto BasicTextHandler::setFont(const fs::path& fontPath, const uint32_t size) -> void
 {
     FontPtr wantedFont = FontLoader::get().loadFont(fontPath, size);
     if (wantedFont->textureId) { font_ = wantedFont; }
 }
 
-auto SimpleText::setBatchSize(const uint32_t size) -> void
+auto BasicTextHandler::setBatchSize(const uint32_t size) -> void
 {
     batchSize_ = size;
 }
 
-auto SimpleText::setAnchorPos(const glm::ivec2 pos) -> void
+auto BasicTextHandler::setAnchorPos(const glm::ivec2 pos) -> void
 {
     /* Z is reserved as render index. */
     startPos_.x = pos.x;
@@ -112,12 +112,12 @@ auto SimpleText::setAnchorPos(const glm::ivec2 pos) -> void
     fillRenderBatch();
 }
 
-auto SimpleText::setStartZIndex(const uint32_t index) -> void
+auto BasicTextHandler::setStartZIndex(const uint32_t index) -> void
 {
     startPos_.z = index;
 }
 
-auto SimpleText::getText() const -> std::string
+auto BasicTextHandler::getText() const -> std::string
 {
     return storedText_;
 }

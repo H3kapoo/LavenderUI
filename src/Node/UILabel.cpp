@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/Config.hpp"
 #include <LavenderUI/Node/UILabel.hpp>
 
 #include <optional>
@@ -10,7 +11,9 @@ namespace lav::node
 {
 UILabel::UILabel(UIBaseInitData&& data)
     : UIBase(std::move(data))
-    , textAttribs_()
+    , textHandler_(
+        core::Config::shadersPath / "basicTextVert.glsl",
+        core::Config::shadersPath / "basicTextFrag.glsl")
     , overrideColor_(std::nullopt)
 {
     layoutBase_.setScale({200_px, 50_px});
@@ -32,23 +35,16 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
-    if (textAttribs_.getText().empty()) { return; }
-    const auto& textShader_ = textAttribs_.getShader();
-    const auto& textBuffer = textAttribs_.getBuffer();
-    textShader_.bind();
-    textShader_.uploadVec4f("uColor", utils::hexToVec4("#141414ff"));
-    textShader_.uploadMat4("uMatrixProjection", projection);
-    textShader_.uploadMat4v("uModelMatrices", textBuffer.model);
-    textShader_.uploadIntv("uCharIndices", textBuffer.glyphCode);
-    textShader_.uploadTexture2DArray("uTextureArray", 0, textAttribs_.getFont()->textureId);
-    core::GPUBinder::get().renderBoundQuadInstanced(textAttribs_.getText().size());
+    textHandler_.render(projection);
 }
 
 auto UILabel::onLayout() -> void
 {
     const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
-        - textAttribs_.computeMaxSize() / 2.0f;
-    textAttribs_.setPosition({p.x, p.y, layoutBase_.getZIndex()});
+        - textHandler_.computeMaxSize() / 2.0f;
+
+    textHandler_.setAnchorPos(p);
+    textHandler_.setStartZIndex(layoutBase_.getZIndex());
 }
 
 auto UILabel::onEvent(core::UIStatePtr& state) -> void
@@ -56,9 +52,18 @@ auto UILabel::onEvent(core::UIStatePtr& state) -> void
     UIBase::processAndEmitGenericMouseEvents(state);
 }
 
-auto UILabel::setText(const std::string& text) -> UILabel& { textAttribs_.setText(text); return *this; }
+auto UILabel::setText(const std::string& text) -> void
+{
+    textHandler_.setText(text);
+}
 
-auto UILabel::setFont(const std::filesystem::path& fontPath) -> void { (void)fontPath; }
+auto UILabel::setFont(const std::filesystem::path& fontPath) -> void
+{
+    textHandler_.setFont(fontPath);
+}
 
-auto UILabel::getText() const -> std::string { return textAttribs_.getText(); }
+auto UILabel::getText() const -> std::string
+{
+    return textHandler_.getText();
+}
 } // namespace src::uinodes

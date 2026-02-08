@@ -16,10 +16,10 @@ namespace fs = std::filesystem;
     @brief
     Class that deals with managing a simple line of text with no caret or editing.
 */
-class SimpleText
+class BasicTextHandler
 {
 public:
-    SimpleText(const fs::path& vertShaderPath, const fs::path& fragShaderPath);
+    BasicTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath);
 
     auto render(const glm::mat4& projection) -> void;
     auto computeMaxSize() -> glm::vec2;

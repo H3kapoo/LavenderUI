@@ -2,7 +2,7 @@
 
 #include <optional>
 
-#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
+#include <LavenderUI/Core/TextHandler/CaretTextHandler.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
@@ -32,7 +32,7 @@ private:
     auto performFiltering(const char codepoint) -> bool;
 
 protected:
-    core::TextHandler textHandler_;
+    core::CaretTextHandler textHandler_;
     std::string placeholderText_;
     std::optional<glm::vec4> overrideColor_;
     bool numericOnly_;
