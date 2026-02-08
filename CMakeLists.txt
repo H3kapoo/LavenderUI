@@ -59,6 +59,7 @@ function(addSources)
         src/Core/ViewParser/Rules/SplitPaneRule.cpp
         src/Core/ViewParser/Rules/ListViewRule.cpp
         src/Core/ViewParser/Rules/TreeViewRule.cpp
+        src/Core/ViewParser/Rules/LineEditRule.cpp
 
         # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp

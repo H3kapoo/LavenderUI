@@ -29,7 +29,8 @@
         </Dropdown>
     </Pane>
     <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
-        <Pane>
+        <Pane ori="Vertical">
+            <LineEdit vid="list_le" scale="Fill, 30px" text="123" color="#6cdf6cff" numeric="true"/>
             <ListView vid="mylist" scale="Fill, Fill"/>
         </Pane>
         <Pane vid="sp_pane_2" scale="Fill, Fill" scroll="true">

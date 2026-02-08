@@ -185,11 +185,11 @@ int main()
     tv->setRowSize(18);
 
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
+    label->setText("Schimbat");
 
     // auto pane3 = utils::as<UISplitPane>(window.lock()->getElements()[1]->getElements()[4]);
     // auto pane32 = pane3->getPaneIdx(1);
     // auto label = utils::as<UILabel>(pane32.lock()->getElements()[0]);
-    label->setText("Schimbat");
 
     // UILineEditPtr le = utils::make<UILineEdit>();
     // le->setText("13456789");
@@ -197,26 +197,32 @@ int main()
     // le->setColor(utils::hexToVec4("#62f562ff"));
     // le->getBaseLayoutData().setScale({1_fill, 30_px});
 
-    // UILineEditPtr le2 = utils::make<UILineEdit>();
-    // le2->setText("13456789");
-    // le2->setColor(utils::hexToVec4("#daf562ff"));
-    // le2->getBaseLayoutData().setScale({1_fill, 30_px});
 
-    // le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
-    // {
-    //     // log.error("text changed {}", e.text);
-    //     try
-    //     {
-    //         int32_t num = std::stoi(e.text);
-    //         filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
 
-    //         rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
-    //         WindowBinder::get().requestEmptyEvent();
-    //     } catch(std::exception& ex)
-    //     {
-    //         (void)ex;
-    //     }
-    // });
+    UILineEditPtr le = window.lock()->findElementByViewId<UILineEdit>("list_le").lock();
+    le->listenEvent<core::TextChangedEvt>([&log, &filterModel, &rl](const auto& e)
+    {
+        // log.error("text changed {}", e.text);
+        try
+        {
+            int32_t num = std::stoi(e.text);
+            filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
+
+            rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+            WindowBinder::get().requestEmptyEvent();
+        } catch(std::exception& ex)
+        {
+            (void)ex;
+        }
+    });
+
+    UILineEditPtr le2 = utils::make<UILineEdit>();
+    le2->setText("13456789");
+    le2->setColor(utils::hexToVec4("#daf562ff"));
+    le2->getBaseLayoutData().setScale({1_fill, 30_px});
+
+    auto pp = le->getParent().lock();
+    utils::as<UIPane>(pp)->add(le2, 1);
 
     // pane1.lock()->add(le);
     // pane1.lock()->add(le2);

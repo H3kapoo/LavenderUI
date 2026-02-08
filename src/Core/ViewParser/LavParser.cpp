@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include <xml/HkXml.hpp>
+#include "LavenderUI/Core/ViewParser/Rules/LineEditRule.hpp"
 #include <LavenderUI/Core/ViewParser/Rules/AppRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/ButtonRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/DropdownRule.hpp>
@@ -11,11 +12,10 @@
 #include <LavenderUI/Core/ViewParser/Rules/IRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/LabelRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/ListViewRule.hpp>
-#include <LavenderUI/Core/ViewParser/Rules/TreeViewRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/PaneRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SliderRule.hpp>
 #include <LavenderUI/Core/ViewParser/Rules/SplitPaneRule.hpp>
-#include <LavenderUI/Node/UIBase.hpp>
+#include <LavenderUI/Core/ViewParser/Rules/TreeViewRule.hpp>
 
 namespace lav::core
 {
@@ -39,6 +39,7 @@ LavParser::LavParser()
     setRule("Label", std::move(std::make_unique<LabelRule>()));
     setRule("ListView", std::move(std::make_unique<ListViewRule>()));
     setRule("TreeView", std::move(std::make_unique<TreeViewRule>()));
+    setRule("LineEdit", std::move(std::make_unique<LineEditRule>()));
 }
 
 auto LavParser::parseFromFile(const std::filesystem::path& path) -> node::UIBasePtrVec
