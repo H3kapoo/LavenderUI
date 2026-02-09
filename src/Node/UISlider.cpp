@@ -141,11 +141,20 @@ auto UISlider::calculatePercentage(const glm::ivec2& mPos) -> double
     return 0.0f;
 }
 
-auto UISlider::getKnobBaseLayoutData() -> core::LayoutBase& { return knobLayout_; }
+auto UISlider::getKnobBaseLayoutData() -> core::LayoutBase&
+{
+    return knobLayout_;
+}
 
-auto UISlider::getLabel() -> UILabelWPtr { return label_; }
+auto UISlider::getLabel() -> UILabelWPtr
+{
+    return label_;
+}
 
-auto UISlider::getScrollPercentage() -> double { return percentage_; }
+auto UISlider::getScrollPercentage() -> double
+{
+    return percentage_;
+}
 
 auto UISlider::getScrollValue() -> double
 {
@@ -170,14 +179,23 @@ auto UISlider::setScrollTo(const double value) -> void
     setText(std::to_string((int)getScrollValue()));
 }
 
-auto UISlider::setScrollSensitivity(const float value) -> void { sensitivity_ = value; }
+auto UISlider::setScrollSensitivity(const float value) -> void
+{
+    sensitivity_ = value;
+}
 
-auto UISlider::setKnobColor(const glm::vec4& value) -> void { knobColor_ = value; }
+auto UISlider::setKnobColor(const glm::vec4& value) -> void
+{
+    knobColor_ = value;
+}
 
 auto UISlider::setText(const std::string& text) -> void { 
     // Disabled until we figure out more about how to deal with text
     label_->setText(text);
 }
 
-auto UISlider::setInvertAxis(const bool value) -> void { invertVertical_ = value; }
+auto UISlider::setInvertAxis(const bool value) -> void
+{
+    invertVertical_ = value;
+}
 } // namespace lav::node

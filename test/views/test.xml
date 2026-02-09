@@ -28,6 +28,20 @@
             </Dropdown>
         </Dropdown>
     </Pane>
+    <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+        <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+            <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+                <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+                    <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+                        <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+                            <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
+                            </Pane>
+                        </Pane>
+                    </Pane>
+                </Pane>
+            </Pane>
+        </Pane>
+    </Pane> -->
     <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
         <Pane ori="Vertical">
             <LineEdit vid="list_le" scale="Fill, 30px" text="123" color="#6cdf6cff" numeric="true"/>
@@ -35,7 +49,6 @@
         </Pane>
         <Pane vid="sp_pane_2" scale="Fill, Fill" scroll="true">
             <TreeView vid="mytree" scale="Fill, Fill"/>
-
         </Pane>
         <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
             <Pane>

@@ -20,9 +20,6 @@ private:
     auto onRender(const glm::mat4& projection) -> void override;
     auto onLayout() -> void override;
     auto onEvent(core::UIStatePtr& state) -> void override;
-
-public:
-    static uint32_t scrollIndexOffset /** @brief Scroll bars need to start at a higher z index */;
 };
 using UIScrollPtr = std::shared_ptr<UIScroll>;
 using UIScrollWPtr = std::weak_ptr<UIScroll>;

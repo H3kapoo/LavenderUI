@@ -11,13 +11,12 @@
 
 namespace lav::node
 {
-uint32_t UIDropdown::dropdownIndexOffset = 2;
-
 UIDropdown::UIDropdown(UIBaseInitData&& initData)
     : UIButton(std::move(initData))
     , optionsHolder_(utils::make<UIPane>())
     , openDir_(OpenDir::BOTTOM)
 {
+    setColor(utils::hexToVec4("#ffffff00"));
     layoutBase_.setScale({100_px, 36_px});
     optionsHolder_->setColor(utils::hexToVec4("#ffffffff"));
     optionsHolder_->getBaseLayoutData()
@@ -63,16 +62,6 @@ auto UIDropdown::onEvent(core::UIStatePtr& state) -> void
     {
         closeDropdown();
     }
-}
-
-auto UIDropdown::addOption(UIButtonPtr&& opt) -> void
-{
-    optionsHolder_->add(std::move(opt));
-}
-
-auto UIDropdown::addSubMenu(UIDropdownPtr&& subMenu) -> void
-{
-    optionsHolder_->add(subMenu);
 }
 
 auto UIDropdown::addOption(const std::string& optName) -> UIButtonWPtr

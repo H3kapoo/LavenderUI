@@ -26,8 +26,6 @@ public:
     INSERT_CONSTRUCT_COPY_MOVE_DEFS(UIDropdown, "elemVert.glsl", "elemFrag.glsl");
     INSERT_ADD_REMOVE_NOT_ALLOWED(UIDropdown);
 
-    auto addOption(UIButtonPtr&& opt) -> void;
-    auto addSubMenu(UIDropdownPtr&& subMenu) -> void;
     [[nodiscard]] auto addOption(const std::string& optName) -> UIButtonWPtr;
     [[nodiscard]] auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
 
@@ -36,9 +34,6 @@ public:
     auto isClosed() const -> bool;
     auto getOpenDirection() const -> OpenDir;
     auto getOptionsHolder() -> UIPaneWPtr;
-
-public:
-    static uint32_t dropdownIndexOffset /** @brief Dropdown's pane child needs to start at a higher z index */;
 
 private:
     auto onRender(const glm::mat4& projection) -> void override;

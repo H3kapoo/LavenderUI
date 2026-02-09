@@ -33,9 +33,16 @@
 namespace lav::node
 {
 /* Static definitions */
-int32_t UIWindow::MAX_UNIQUE_EVENTS_ = 8;
-int32_t UIWindow::MAX_LAYERS_ = 1000;
 bool UIWindow::isFirstWindow_ = true;
+const int32_t UIWindow::MAX_UNIQUE_EVENTS_ = 8;
+
+/** @brief Represents the index of between the Dropdown root element and the options holder.
+    Only one dropdown can be open at the same time.
+*/
+const int32_t UIWindow::DROPDOWN_ROOT_HOLDER_SEPARATION_INDEX = 100;
+
+/** @brief Represents the max amount of layers (highest z index) that we can have (render).*/
+const int32_t UIWindow::MAX_LAYERS_ = 1000;
 
 UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     : UIBase({"UIWindow", "elemVert.glsl", "elemFrag.glsl"})
@@ -620,48 +627,77 @@ auto UIWindow::setupStaticViewBoundsForElement(const UIBasePtr& element) -> void
     }
 }
 
-auto UIWindow::calculateDynamicViewBoundsForChildElements(const UIBasePtr& element) -> void
+auto UIWindow::calculateDynamicViewBoundsForChildElements(const UIBasePtr& parent) -> void
 {
     /*
-        After calculating the parent element, go through all it's child elements and calculate their view
-        scale and position based on how viewable the parent element is. We don't want child elements to oveflow
-        the parent's bounds.
-        Child elements ZIndex will also be setup here based on UI type and parent's ZIndex.
+        After calculating the parent element's layout, go through all it's child elements and calculate their view
+        scale/position based on how viewable the parent element is from the child's perspective.
+        We don't want child elements to oveflow the parent's bounds.
+        Child element's ZIndex will also be setup here based on UI type and parent's ZIndex.
     */
-    std::ranges::for_each(element->getElements(),
-        [&element, this](const auto& it)
+
+    int32_t maxZIndex{0};
+    std::pair<UIBasePtr, UIBasePtr> horiVertiScrollCache;
+    for (auto& it : parent->getElements())
+    {
+        int32_t indexToSet{0};
+        auto& itLayout = it->getBaseLayoutData();
+        const auto& nodeLayout = parent->getBaseLayoutData();
+        itLayout.computeViewBox(parent->getBaseLayoutData());
+
+        /* Index is used for layer rendering order with DEPTH_TEST enabled. */
+        if (!itLayout.isCustomIndex())
         {
-            auto& itLayout = it->getBaseLayoutData();
-            const auto& nodeLayout = element->getBaseLayoutData();
-            itLayout.computeViewBox(element->getBaseLayoutData());
+            indexToSet = nodeLayout.getZIndex() + 1;
+        }
 
-            /* Index is used for layer rendering order with DEPTH_TEST enabled. */
-            if (!itLayout.isCustomIndex())
+        /*
+            UIPanes that hold the options of a UIDropdown need to be some offset higher so as to not
+            be occluded by the UILabels of the options or other elements.
+        */
+        if (it->getTypeId() == UIPane::typeId && parent->getTypeId() == UIDropdown::typeId)
+        {
+            /* Only the root dropdown will have the separation applied and not the submenus. */
+            if (const auto gp = parent->getGrandParent().lock(); gp->getTypeId() != UIDropdown::typeId)
             {
-                itLayout.setZIndex(nodeLayout.getZIndex() + 1);
+                indexToSet = nodeLayout.getZIndex() + DROPDOWN_ROOT_HOLDER_SEPARATION_INDEX;
             }
 
-            /*
-                UIPanes that hold the options of a UIDropdown need to be some offset higher so as to not
-                be occluded by the UILabels of the options.
-                If element is UIPane but parent is UIDropdown scissor area is the whole UIPane area.
-            */
-            if (element->getTypeId() == UIDropdown::typeId && it->getTypeId() == UIPane::typeId)
-            {
-                itLayout.setZIndex(nodeLayout.getZIndex() + UIDropdown::dropdownIndexOffset);
-                itLayout.setViewPos(itLayout.getComputedPos());
-                itLayout.setViewScale(itLayout.getComputedScale());
-            }
+            /*  If element is UIPane and parent is UIDropdown then scissor area is the whole UIPane area. */
+            itLayout.setViewPos(itLayout.getComputedPos());
+            itLayout.setViewScale(itLayout.getComputedScale());
+        }
 
-            /* UIScroll elements of a pane will have a higher custom ZIndex */
-            if (it->getTypeId() == UIScroll::typeId)
-            {
-                itLayout.setZIndex(UIScroll::scrollIndexOffset - nodeLayout.getZIndex());
-            }
+        /* UIScroll elements of a pane will have a higher custom ZIndex */
+        if (it->getTypeId() == UIScroll::typeId)
+        {
+            if (!horiVertiScrollCache.first) { horiVertiScrollCache.first = it; }
+            else if (!horiVertiScrollCache.second) { horiVertiScrollCache.second = it; }
+        }
 
-            /* Depth is used mostly for printing. */
-            it->depth_ = element->depth_ + 1;
-        });
+        /* Compute max for this parent container.*/
+        maxZIndex = std::max(maxZIndex, indexToSet);
+
+        /* Finally set the index. */
+        itLayout.setZIndex(indexToSet);
+
+        /* Depth is used mostly for printing. */
+        it->depth_ = parent->depth_ + 1;
+    }
+
+    /* Set the scrollbar's Z index to be the max index of the scroll area. */
+    if (horiVertiScrollCache.first)
+    {
+        horiVertiScrollCache.first->getBaseLayoutData().setZIndex(maxZIndex + 1);
+    }
+
+    if (horiVertiScrollCache.second)
+    {
+        horiVertiScrollCache.second->getBaseLayoutData().setZIndex(maxZIndex + 1);
+    }
+
+    horiVertiScrollCache.first.reset();
+    horiVertiScrollCache.second.reset();
 }
 
 auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void

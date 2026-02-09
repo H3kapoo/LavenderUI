@@ -5,8 +5,6 @@
 
 namespace lav::node
 {
-uint32_t UIScroll::scrollIndexOffset = 250;
-
 UIScroll::UIScroll(UIBaseInitData&& initData) : UISlider(std::move(initData)) 
 {}
 

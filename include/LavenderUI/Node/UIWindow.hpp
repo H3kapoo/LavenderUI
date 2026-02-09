@@ -90,9 +90,10 @@ private:
     bool shouldManuallyQuit_;
     bool isMainWindow_;
 
-    static int32_t MAX_UNIQUE_EVENTS_;
-    static int32_t MAX_LAYERS_;
     static bool isFirstWindow_;
+    const static int32_t MAX_UNIQUE_EVENTS_;
+    const static int32_t DROPDOWN_ROOT_HOLDER_SEPARATION_INDEX;
+    const static int32_t MAX_LAYERS_;
 };
 using UIWindowPtr = std::shared_ptr<UIWindow>;
 using UIWindowWPtr = std::weak_ptr<UIWindow>;

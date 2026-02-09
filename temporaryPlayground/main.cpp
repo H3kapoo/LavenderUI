@@ -111,14 +111,14 @@ int main()
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test.xml");
 
-    // UIWindowWPtr window = app.createWindow("myWindow", {1280, 720});
-    // window.lock()->setColor(utils::hexToVec4("#38455eff"));
-    // window.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
+    // UIWindowWPtr window2 = app.createWindow("myWindow", {860, 480});
+    // window2.lock()->setColor(utils::hexToVec4("#38455eff"));
+    // window2.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
 
     // UILineEditPtr le3 = utils::make<UILineEdit>();
     // le3->setText("13456789");
 
-    // window.lock()->add(le3);
+    // window2.lock()->add(le3);
     // app.run();
     // return 0;
 
