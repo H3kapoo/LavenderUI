@@ -38,36 +38,7 @@ auto BasicTextHandler::render(const glm::mat4& projection) -> void
     shader_.uploadMat4v("uModelMatrices", soaBuffer_.glyphModel);
     shader_.uploadIntv("uCharIndices", soaBuffer_.glyphCode);
     shader_.uploadTexture2DArray("uTextureArray", 0, font_->textureId);
-    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
     core::GPUBinder::get().renderBoundQuadInstanced(storedText_.size());
-    core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, true);
-}
-
-auto BasicTextHandler::fillRenderBatch() -> void
-{
-    soaBuffer_.glyphCode.clear();
-    soaBuffer_.glyphModel.clear();
-    soaBuffer_.glyphCode.reserve(storedText_.size());
-    soaBuffer_.glyphModel.reserve(storedText_.size());
-
-    glm::ivec2 start{startPos_.x, startPos_.y};
-    auto ms = computeMaxSize();
-    for (const uint8_t chr : storedText_)
-    {
-        const auto& gd = font_->glyphData[chr];
-        const float cx = start.x + gd.bearing.x;
-        const float cy = start.y - gd.bearing.y + ms.y;
-
-        glm::mat4 model{glm::mat4(1.0f)};
-        model = glm::translate(model, glm::vec3(cx, cy, 1));
-        model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
-
-        /* Advance is stored in 1/64ths of a pixel by FT lib by some reason. Need to bitshift right. */
-        start.x += (gd.hAdvance >> 6);
-
-        soaBuffer_.glyphCode.emplace_back(gd.glyphCode);
-        soaBuffer_.glyphModel.emplace_back(std::move(model));
-    }
 }
 
 auto BasicTextHandler::computeMaxSize() -> glm::vec2
@@ -80,6 +51,58 @@ auto BasicTextHandler::computeMaxSize() -> glm::vec2
         size.y = std::max(size.y, (float)cp.bearing.y);
     }
     return size;
+}
+
+auto BasicTextHandler::fillRenderBatch() -> void
+{
+    soaBuffer_.glyphCode.clear();
+    soaBuffer_.glyphModel.clear();
+    soaBuffer_.glyphCode.reserve(storedText_.size());
+    soaBuffer_.glyphModel.reserve(storedText_.size());
+
+    glm::ivec2 start{startPos_.x, startPos_.y};
+
+    auto ms = computeMaxSize();
+    for (const uint8_t chr : storedText_)
+    {
+        const auto& gd = font_->glyphData[chr];
+        const float cx = start.x + gd.bearing.x;
+        const float cy = start.y - gd.bearing.y + ms.y;
+
+        glm::mat4 model{glm::mat4(1.0f)};
+        model = glm::translate(model, glm::vec3(cx, cy, startPos_.z));
+        model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
+
+        /* Advance is stored in 1/64ths of a pixel by FT lib by some reason. Need to bitshift right. */
+        start.x += (gd.hAdvance >> 6);
+
+        soaBuffer_.glyphCode.emplace_back(gd.glyphCode);
+        soaBuffer_.glyphModel.emplace_back(std::move(model));
+    }
+}
+
+auto BasicTextHandler::updateZIndex() -> void
+{
+    /*
+        In a 4X4 matrix in openGL, scale lives along the matrix diagonal and position lives
+        down the last column:
+
+        S_X NOP NOP P_X
+        NOP S_Y NOP P_Y
+        NOP NOP S_Z P_Z
+        NOP NOP NOP NOP
+
+        However when reading this as opengl wants it, we have to transpose the matrix
+        aka rows become columns and vice versa:
+
+        mat[row][col] -> mat[col][row]
+    */
+    float inc_ = 0.1;
+    for (auto& mat : soaBuffer_.glyphModel)
+    {
+        mat[3][2] = startPos_.z + inc_;
+        inc_ += 0.1f;
+    }
 }
 
 auto BasicTextHandler::setTextColor(const glm::vec4& color) -> void
@@ -115,6 +138,7 @@ auto BasicTextHandler::setAnchorPos(const glm::ivec2 pos) -> void
 auto BasicTextHandler::setStartZIndex(const uint32_t index) -> void
 {
     startPos_.z = index;
+    updateZIndex();
 }
 
 auto BasicTextHandler::getText() const -> std::string

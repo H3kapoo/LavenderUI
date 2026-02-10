@@ -35,6 +35,7 @@ public:
 
 private:
     auto fillRenderBatch() -> void;
+    auto updateZIndex() -> void;
 
 private:
     struct StructOfArraysBuffer
