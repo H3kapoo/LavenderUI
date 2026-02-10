@@ -62,6 +62,7 @@ auto BasicTextHandler::fillRenderBatch() -> void
 
     glm::ivec2 start{startPos_.x, startPos_.y};
 
+    float inc_ = 0.1;
     auto ms = computeMaxSize();
     for (const uint8_t chr : storedText_)
     {
@@ -70,7 +71,7 @@ auto BasicTextHandler::fillRenderBatch() -> void
         const float cy = start.y - gd.bearing.y + ms.y;
 
         glm::mat4 model{glm::mat4(1.0f)};
-        model = glm::translate(model, glm::vec3(cx, cy, startPos_.z));
+        model = glm::translate(model, glm::vec3(cx, cy, startPos_.z + inc_));
         model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
 
         /* Advance is stored in 1/64ths of a pixel by FT lib by some reason. Need to bitshift right. */
@@ -78,6 +79,7 @@ auto BasicTextHandler::fillRenderBatch() -> void
 
         soaBuffer_.glyphCode.emplace_back(gd.glyphCode);
         soaBuffer_.glyphModel.emplace_back(std::move(model));
+        inc_ += 0.1f;
     }
 }
 
@@ -100,7 +102,7 @@ auto BasicTextHandler::updateZIndex() -> void
     float inc_ = 0.1;
     for (auto& mat : soaBuffer_.glyphModel)
     {
-        mat[3][2] = startPos_.z + inc_;
+        mat[3][2] = startPos_.z + 1 + inc_;
         inc_ += 0.1f;
     }
 }
@@ -138,7 +140,7 @@ auto BasicTextHandler::setAnchorPos(const glm::ivec2 pos) -> void
 auto BasicTextHandler::setStartZIndex(const uint32_t index) -> void
 {
     startPos_.z = index;
-    updateZIndex();
+    fillRenderBatch();
 }
 
 auto BasicTextHandler::getText() const -> std::string
