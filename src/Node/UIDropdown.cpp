@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp"
 #include <LavenderUI/Node/UIDropdown.hpp>
 
 #include <LavenderUI/Core/EventHandler/CoreEvents/MouseButton.hpp>
@@ -47,20 +48,38 @@ auto UIDropdown::onEvent(core::UIStatePtr& state) -> void
     const auto eId = state->currentEventId;
     if (eId == core::MouseLeftReleaseEvt::eventId)
     {
-        isOpen() ? closeDropdown() : UIBase::add(optionsHolder_);
+        // TODO: openDropdown fun needs to be added for completeness
+        isOpen() ? close() : open();
     }
 
     /* Handle event exactly as my base type. */
     UIButton::onEvent(state);
 
-    /* Deal with click release anywhere else except THIS Dropdown object. */
-    if (isOpen()
-        && state->hoveredId != id_
-        && eId == core::MouseButtonEvt::eventId
-        && state->mouseAction == lav::Action::RELEASE
-        && !isSelectedMyDropdownChildRecursive(state->selectedId))
+    if (eId == core::MouseButtonEvt::eventId && isOpen() && state->hoveredId != getId())
     {
-        closeDropdown();
+        /*
+            Pressing click anywhere else except on this dropdown + it's children will close
+            the dropdown if open.
+        */
+        if (state->mouseAction == lav::Action::PRESS)
+        {
+            if (const auto el = getChildIfSelected(state->selectedId).lock(); !el)
+            {
+                close();
+            }
+        }
+        /*
+            Releasing click anywhere else except on this dropdown + button it's children will close
+            the dropdown if open. If release was on a UIDropdown, dropdown will stay open.
+        */
+        else if (state->mouseAction == lav::Action::RELEASE)
+        {
+            if (const auto el = getChildIfSelected(state->selectedId).lock();
+                el && el->getTypeId() != UIDropdown::typeId)
+            {
+                close();
+            }
+        }
     }
 }
 
@@ -80,48 +99,46 @@ auto UIDropdown::addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr
     return subDropdownMenu;
 }
 
-auto UIDropdown::closeDropdown() -> bool
+auto UIDropdown::open() -> void
 {
+    if (isOpen()) { return; }
+
+    UIBase::add(optionsHolder_);
+}
+
+auto UIDropdown::close() -> void
+{
+    if (!isOpen()) { return; }
+
     optionsHolder_->resetElementsToDefault();
     auto& holderEls = optionsHolder_->getElements();
     for (auto& el : holderEls)
     {
         if (el->getTypeId() == UIDropdown::typeId)
         {
-            utils::as<UIDropdown>(el)->closeDropdown();
+            utils::as<UIDropdown>(el)->close();
         }
     }
 
-    return UIBase::remove(optionsHolder_);
+    UIBase::remove(optionsHolder_);
 }
 
-auto UIDropdown::isSelectedMyDropdownChildRecursive(const uint32_t selectedId) -> bool
+auto UIDropdown::getChildIfSelected(const uint32_t selectedId) -> UIBaseWPtr
 {
     auto& holderEls = optionsHolder_->getElements();
     for (auto& el : holderEls)
     {
-        if (el->getTypeId() == UIDropdown::typeId)
-        {
-            if (el->getId() == selectedId) { return true; }
-            return utils::as<UIDropdown>(el)->isSelectedMyDropdownChildRecursive(selectedId);
-        }
-    }
-
-    return false;
-}
-
-auto UIDropdown::isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> UIBaseWPtr
-{
-    auto& holderEls = optionsHolder_->getElements();
-    for (auto& el : holderEls)
-    {
-        if (el->getTypeId() == UIButton::typeId)
+        if (el->getTypeId() == UIDropdown::typeId || el->getTypeId() == UIButton::typeId)
         {
             if (el->getId() == selectedId) { return el; }
         }
-        else
+
+        if (el->getTypeId() == UIDropdown::typeId)
         {
-            return utils::as<UIDropdown>(el)->isSelectedMyButtonChildRecursive(selectedId);
+            if (auto ret = utils::as<UIDropdown>(el)->getChildIfSelected(selectedId).lock())
+            {
+                return ret;
+            }
         }
     }
 

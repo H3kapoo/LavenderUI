@@ -15,7 +15,7 @@
                 <Button text="Ceva556"/>
             </Dropdown>
         </Dropdown>
-        <Dropdown scale="200px, Fill" text="Menu2" dir="Bottom" border="1, 0, 1, 1" color="#f0f0f0ff">
+        <Dropdown vid="my_dd" scale="200px, Fill" text="Menu2" dir="Bottom" border="1, 0, 1, 1" color="#f0f0f0ff">
             <Button text="Ceva"/>
             <Button text="Ceva2"/>
             <Dropdown text="Menu" dir="R">

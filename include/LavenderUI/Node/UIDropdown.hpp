@@ -28,6 +28,8 @@ public:
 
     [[nodiscard]] auto addOption(const std::string& optName) -> UIButtonWPtr;
     [[nodiscard]] auto addSubMenu(const std::string& subMenuName) -> UIDropdownWPtr;
+    auto open() -> void;
+    auto close() -> void;
 
     auto setPreferredOpenDir(const OpenDir od) -> UIDropdown&;
     auto isOpen() const -> bool;
@@ -40,9 +42,7 @@ private:
     auto onLayout() -> void override;
     auto onEvent(core::UIStatePtr& state) -> void override;
 
-    auto closeDropdown() -> bool;
-    auto isSelectedMyDropdownChildRecursive(const uint32_t selectedId) -> bool;
-    auto isSelectedMyButtonChildRecursive(const uint32_t selectedId) -> UIBaseWPtr;
+    auto getChildIfSelected(const uint32_t selectedId) -> UIBaseWPtr;
 
 protected:
     UIPanePtr optionsHolder_;

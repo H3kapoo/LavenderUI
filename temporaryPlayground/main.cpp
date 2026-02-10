@@ -2,10 +2,12 @@
 #include "LavenderUI/Core/Binders/WindowBinder.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp"
+#include "LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
 #include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
+#include "LavenderUI/Node/UIDropdown.hpp"
 #include "LavenderUI/Node/UILineEdit.hpp"
 #include "LavenderUI/Node/UIListView.hpp"
 #include "LavenderUI/Node/UIPane.hpp"
@@ -121,6 +123,15 @@ int main()
     // window2.lock()->add(le3);
     // app.run();
     // return 0;
+
+    auto dd = window.lock()->findElementByViewId<UIDropdown>("my_dd").lock();
+    auto option = dd->addOption("Hey").lock();
+    option->setColor(utils::hexToVec4("#483ed3ff"));
+    option->listenEvent<core::MouseLeftReleaseEvt>([&log](const auto& e)
+    {
+        (void)e;
+        log.info("clicked me");
+    });
 
     std::vector<uint32_t> data =
         std::views::iota(0u, 200u) |
