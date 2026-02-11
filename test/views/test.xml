@@ -1,4 +1,4 @@
-<App ori="Vertical" launchSize="1270, 720" title="Title Here" align="Centerr">
+<App ori="Vertical" launchSize="1270, 720" launchPos="Center" title="Title Here" align="Centerr">
     <Pane vid="something" ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
         <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>

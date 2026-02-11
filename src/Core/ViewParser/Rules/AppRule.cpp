@@ -68,6 +68,17 @@ auto AppRule::parseAndApply(node::UIBasePtr object,
         {
             win->setViewId(value);
         }
+        else if (key == "launchPos")
+        {
+            if (value == "center" || value == "Center")
+            {
+                win->setPosition(win->getWindowMonitorSize() / 2 - win->getSize() / 2);
+            }
+            else
+            {
+                win->setPosition(ph.toVec2D(value));
+            }
+        }
     }
 }
 } // namespace lav::core

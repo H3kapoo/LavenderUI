@@ -76,11 +76,14 @@ public:
     auto setPollWaitForEvents(const bool wait) -> void;
     auto pollEvents() -> void;
     auto getTime() -> double;
+    auto getPosition(WindowHandle handle) const -> glm::ivec2;
+    auto getMonitorSize(WindowHandle handle) const -> glm::ivec2;
     auto requestEmptyEvent() -> void;
     auto destroyWindow(WindowHandle handle) -> void;
 
     auto setInputCallbacks(WindowHandle handle, const InputCallbacks& cbs) -> void;
     auto setSize(WindowHandle handle, const glm::ivec2 size) -> void;
+    auto setPosition(WindowHandle handle, const glm::ivec2 topLeftPos) -> void;
     auto setFullScreen(WindowHandle handle, const bool fullscreen) -> void;
 
 private:

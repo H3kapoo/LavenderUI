@@ -23,6 +23,7 @@ struct UIState
     glm::ivec2 scrollOffset{0, 0};
     glm::ivec2 windowSize{0, 0};
     glm::ivec2 windowSizeDelta{0, 0};
+    glm::ivec2 monitorSize{0, 0};
     uint32_t currentEventId{0};
     uint32_t prevEventId{0};
     uint32_t clickedId{NOTHING};

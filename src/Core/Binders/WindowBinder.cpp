@@ -272,6 +272,24 @@ auto WindowBinder::getTime() -> double
     return glfwGetTime();
 }
 
+auto WindowBinder::getPosition(WindowHandle handle) const -> glm::ivec2
+{
+    glm::ivec2 pos;
+    glfwGetWindowPos(handle, &pos.x, &pos.y);
+    return pos;
+}
+
+auto WindowBinder::getMonitorSize(WindowHandle handle) const -> glm::ivec2
+{
+    GLFWmonitor* primary = glfwGetPrimaryMonitor();
+    glm::ivec4 wa;
+    glfwGetMonitorWorkarea(primary, &wa.z, &wa.w, &wa.x, &wa.y);
+    /*
+        glfwGetMonitorContentScale(primary, &size.x, &size.y); // this is used to check for DPI (100%/200% etc scaling)
+    */
+    return {wa.x, wa.y};
+}
+
 auto WindowBinder::setUserPointer(WindowHandle handle, void* data) -> void
 {
     glfwSetWindowUserPointer(handle, data);
@@ -365,6 +383,11 @@ auto WindowBinder::setInputCallbacks(WindowHandle handle, const InputCallbacks& 
 auto WindowBinder::setSize(WindowHandle handle, const glm::ivec2 size) -> void
 {
     glfwSetWindowSize(handle, size.x, size.y);
+}
+
+auto WindowBinder::setPosition(WindowHandle handle, const glm::ivec2 topLeftPos) -> void
+{
+    glfwSetWindowPos(handle, topLeftPos.x, topLeftPos.y);
 }
 
 auto WindowBinder::setFullScreen(WindowHandle handle, const bool fullscreen) -> void

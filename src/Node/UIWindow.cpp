@@ -56,8 +56,10 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
 {
     initializeDefaultCursor();
     updateWindowSizeAndProjection(size);
+    uiState_->monitorSize = core::WindowBinder::get().getMonitorSize(window_);
     setupInputCallbacks();
 
+    log_.warn("monitor size {}", uiState_->monitorSize);
     // core::GPUBinder::get().enable(core::GPUBinder::Function::SCISSORS, false);
     // core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
 }
@@ -507,8 +509,8 @@ auto UIWindow::keyButtonSolver(const uint32_t key, const uint32_t, const uint32_
     // Most probably its something to do with adding while iterating in ::App
     else if (castKey == Key::C)
     {
-        // App::get().createWindow("new_frame" + std::to_string(id_), {200, 300});
-        App::get().createWindow("new_frame", {200, 300});
+        const auto win = App::get().createWindow("new_frame", {400, 400}).lock();
+        win->setPosition(getPosition() + getSize() / 2 - win->getSize() / 2);
     }
     else if (castKey == Key::P)
     {
@@ -710,24 +712,55 @@ auto UIWindow::setTitle(std::string title, const bool onlyForShow) -> void
 auto UIWindow::setSize(const glm::ivec2 size) -> void
 {
     core::WindowBinder::get().setSize(window_, size);
-    // updateWindowSizeAndProjection(size);
+}
+
+auto UIWindow::setPosition(const glm::ivec2 topLeftPos) -> void
+{
+    core::WindowBinder::get().setPosition(window_, topLeftPos);
 }
 
 auto UIWindow::setFullScreen(const bool fullscreen) -> void
 {
     core::WindowBinder::get().setFullScreen(window_, fullscreen);
-    // updateWindowSizeAndProjection(size);
 }
 
-auto UIWindow::getTitle() -> std::string { return title_; }
+auto UIWindow::getTitle() -> std::string
+{
+    return title_;
+}
 
-auto UIWindow::getWindow() -> core::WindowHandle { return window_; }
+auto UIWindow::getWindow() -> core::WindowHandle
+{
+    return window_;
+}
 
-auto UIWindow::getDeltaTime() -> double { return deltaTime_; }
+auto UIWindow::getDeltaTime() -> double
+{
+    return deltaTime_;
+}
 
-auto UIWindow::getSize() -> glm::ivec2 { return uiState_->windowSize; }
+auto UIWindow::getSize() const -> glm::ivec2
+{
+    return uiState_->windowSize;
+}
 
-auto UIWindow::isFullScreen() -> bool { return false; }
+auto UIWindow::getPosition() const -> glm::ivec2
+{
+    return core::WindowBinder::get().getPosition(window_);
+}
 
-auto UIWindow::isMainWindow() -> bool { return isMainWindow_; }
+auto UIWindow::getWindowMonitorSize() const -> glm::ivec2
+{
+    return uiState_->monitorSize;
+}
+
+auto UIWindow::isFullScreen() -> bool
+{
+    return false;
+}
+
+auto UIWindow::isMainWindow() -> bool
+{
+    return isMainWindow_;
+}
 } // namespace lav::node
