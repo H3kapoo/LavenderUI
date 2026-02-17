@@ -52,11 +52,11 @@ auto UILineEdit::onRender(const glm::mat4& projection) -> void
 
 auto UILineEdit::onLayout() -> void
 {
-    const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
-        - textHandler_.computeMaxSize() / 2.0f;
-
-    textHandler_.setAnchorPos(p);
-    textHandler_.setStartZIndex(layoutBase_.getZIndex());
+    // const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
+    //     - textHandler_.computeMaxSize() / 2.0f;
+    const glm::ivec2 boundsStart = layoutBase_.getComputedPos();
+    const glm::ivec2 boundsScale =  layoutBase_.getComputedScale();
+    textHandler_.setBounds(boundsStart, boundsScale, layoutBase_.getZIndex());
 }
 
 auto UILineEdit::onEvent(core::UIStatePtr& state) -> void

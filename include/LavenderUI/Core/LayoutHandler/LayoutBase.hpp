@@ -208,6 +208,7 @@ public:
     auto isGrid() const -> bool;
 
     friend auto operator-(const glm::vec2 lhs, const TBLR rhs) -> glm::vec2;
+    friend auto operator!=(const TBLR& lhs, const TBLR& rhs) -> bool;
 
 protected:
     Type layoutType_;
@@ -257,12 +258,6 @@ protected:
 private:
     glm::mat4 transform_;
 };
-
-auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
-auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
-auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;
-auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
-
 } // namespace lav::core
 
 namespace lav
@@ -275,6 +270,12 @@ core::LayoutBase::Scale operator""_fr(unsigned long long value);
 
 core::LayoutBase::Position operator""_abs(unsigned long long value);
 core::LayoutBase::Position operator""_comp(unsigned long long value);
+
+auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
+auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
+auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2;
+auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2;
+
 } // namespace lav
 
 /* Custom formatters */

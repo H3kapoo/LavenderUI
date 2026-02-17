@@ -1,5 +1,12 @@
-<App ori="Vertical" launchSize="1270, 720" launchPos="Center" title="Title Here" align="Centerr">
-    <Pane vid="something" ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
+<App ori="Vertical" launchSize="1270, 720" launchPos="Center" title="Title Here" align="Center">
+    <Pane vid="something" ori="Horizontal" scale="50%, 50%">
+    <!-- <Pane vid="something" ori="Horizontal" scale="50%, 24px"> -->
+        <!-- <Label vid="mylabel" scale="Fill, Fill" text="TpAtgX"></Label> -->
+        <!-- <Label vid="mylabel" scale="Fill, Fill" text="the brown fox jumps over the lazy dog"></Label> -->
+        <Label vid="mylabel" scale="Fill, Fill" text="thebrownfoxjumpsoverthelazydog"></Label>
+    </Pane>
+
+    <!-- <Pane vid="something" ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">
         <Dropdown scale="200px, Fill" text="Menu" dir="Bottom" border="1, 0, 1, 0" color="#f0f0f0ff">
             <Button text="Ceva"/>
             <Button text="Ceva2"/>
@@ -27,7 +34,7 @@
                 </Dropdown>
             </Dropdown>
         </Dropdown>
-    </Pane>
+    </Pane> -->
     <!-- <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
         <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
             <Pane ori="Horizontal" scale="Fill, Fill" color="#be4343ff">
@@ -42,7 +49,7 @@
             </Pane>
         </Pane>
     </Pane> -->
-    <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
+    <!-- <SplitPane scale="Fill, Fill" splits="30%, 40%, 30%">
         <Pane ori="Vertical">
             <LineEdit vid="list_le" scale="Fill, 30px" text="123" color="#6cdf6cff" numeric="true"/>
             <ListView vid="mylist" scale="Fill, Fill"/>
@@ -52,13 +59,13 @@
         </Pane>
         <SplitPane ori="Vertical" scale="Fill, Fill" splits="80%, 20%">
             <Pane>
-                <Slider ori="Horizontal" scale="300px, 30px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+                <Slider ori="Horizontal" scale="300px, 130px" from="20" to="400" color="#B3E0FEFF" kcolor="#0299FDFF"/>
             </Pane>
             <Pane scroll="true">
-                <Label vid="mylabel" scale="100px, 30px" text="some text"></Label>
+                <Label vid="mylabel" scale="45%, 300px" text="some Text hEre vERy ling"></Label>
                 <Img src="assets/textures/awesomeface.png" scale="200px, 300px"/>
                 <Img src="assets/textures/container.jpg" scale="200px, 300px"/>
             </Pane>
         </SplitPane>
-    </SplitPane>
+    </SplitPane> -->
 </App>

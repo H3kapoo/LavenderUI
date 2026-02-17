@@ -40,11 +40,14 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
 
 auto UILabel::onLayout() -> void
 {
-    const glm::vec2 p = layoutBase_.getComputedPos() + layoutBase_.getComputedScale() / 2.0f
-        - textHandler_.computeMaxSize() / 2.0f;
+    const glm::ivec2 padStartPush = glm::ivec2{layoutBase_.getPadding().left, layoutBase_.getPadding().top};
+    const glm::ivec2 padEndPop = glm::ivec2{
+        padStartPush.x + layoutBase_.getPadding().right,
+        padStartPush.y + layoutBase_.getPadding().bot};
+    const glm::ivec2 boundsStart = layoutBase_.getComputedPos() + padStartPush;
+    const glm::ivec2 boundsScale = layoutBase_.getComputedScale() - padEndPop;
 
-    textHandler_.setAnchorPos(p);
-    textHandler_.setStartZIndex(layoutBase_.getZIndex());
+    textHandler_.setBounds(boundsStart, boundsScale, layoutBase_.getZIndex());
 }
 
 auto UILabel::onEvent(core::UIStatePtr& state) -> void
@@ -62,8 +65,34 @@ auto UILabel::setFont(const std::filesystem::path& fontPath) -> void
     textHandler_.setFont(fontPath);
 }
 
+auto UILabel::setTextColor(const glm::vec4& color) -> void
+{
+    textHandler_.setTextColor(color);
+}
+
+auto UILabel::setTextWrap(const bool wrap) -> void
+{
+    textHandler_.setWrapEnabled(wrap);
+}
+
+auto UILabel::setTextAlign(const core::TextOptions::Align align) -> void
+{
+    textHandler_.setTextAlign(align);
+}
+
+auto UILabel::setTextEllipsis(const uint32_t count) -> void
+{
+    textHandler_.setEllipsisEnabled(count);
+}
+
 auto UILabel::getText() const -> std::string
 {
     return textHandler_.getText();
 }
+
+auto UILabel::getTextColor() const -> glm::vec4
+{
+    return textHandler_.getTextColor();
+}
+
 } // namespace src::uinodes

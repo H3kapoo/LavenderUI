@@ -5,6 +5,7 @@
 #include "LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
 #include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
 #include "LavenderUI/Node/UIDropdown.hpp"
@@ -112,6 +113,7 @@ int main()
     if (!app.init()) { return 1; }
     app.enableTitleWithFPS();
     UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test.xml");
+    window.lock()->setColor(utils::hexToVec4("#38455eff"));
 
     // UIWindowWPtr window2 = app.createWindow("myWindow", {860, 480});
     // window2.lock()->setColor(utils::hexToVec4("#38455eff"));
@@ -123,6 +125,17 @@ int main()
     // window2.lock()->add(le3);
     // app.run();
     // return 0;
+
+    auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
+    // label->getBaseLayoutData().setPadding({4});
+    // label->setText("Foarte ciudat this is a certified yapper");
+    label->setTextWrap(true);
+    label->setTextEllipsis();
+    label->setTextAlign(core::TextOptions::Align::CENTER);
+    label->setTextColor(utils::hexToVec4("#f03434ff"));
+
+    app.run();
+    return 0;
 
     auto dd = window.lock()->findElementByViewId<UIDropdown>("my_dd").lock();
     auto option = dd->addOption("Hey").lock();
@@ -149,7 +162,7 @@ int main()
 
     UIListViewPtr rl = window.lock()->findElementByViewId<UIListView>("mylist").lock();
 
-    rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+    // rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
     rl->setAlternatingRowEnabled();
     rl->setScrollSensitivity(15);
     rl->setRowSize(18);
@@ -165,7 +178,6 @@ int main()
             // here we can safely assume "e" it's always of type T
             return true;
         }, true);
-    log.warn("elements size {}", panes.size());
 
     SimpleTreeItemS* root = createTree();
     TreeBasicModel<std::string> treeModel{root};
@@ -190,13 +202,19 @@ int main()
 
     UITreeViewPtr tv = window.lock()->findElementByViewId<UITreeView>("mytree").lock();
     tv->getBaseLayoutData().setScale({1_fill});
-    tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
+    // tv->setModel(std::make_unique<TreeBasicModel<std::string>>(treeModel));
     tv->setAlternatingRowEnabled();
     tv->setScrollSensitivity(15);
     tv->setRowSize(18);
 
-    auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
-    label->setText("Schimbat");
+    // auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
+    // label->getBaseLayoutData().setPadding({4});
+    // label->setText("Foarte ciudat"\
+    //     "this is a certified yapper");
+    // label->setTextWrap(true);
+    // label->setTextEllipsis();
+    // label->setTextAlign(core::TextOptions::Align::CENTER);
+    // label->setTextColor(utils::hexToVec4("#f03434ff"));
 
     // auto pane3 = utils::as<UISplitPane>(window.lock()->getElements()[1]->getElements()[4]);
     // auto pane32 = pane3->getPaneIdx(1);
@@ -219,7 +237,7 @@ int main()
             int32_t num = std::stoi(e.text);
             filterModel.rebuild([num](const uint64_t x) -> bool { return x % num == 0; });
 
-            rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
+            // rl->setModel(std::make_unique<ListFilteredModel>(filterModel));
             WindowBinder::get().requestEmptyEvent();
         } catch(std::exception& ex)
         {

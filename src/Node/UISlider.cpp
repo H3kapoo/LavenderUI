@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include <LavenderUI/Node/UISlider.hpp>
 
 #include <LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp>
@@ -29,6 +30,7 @@ UISlider::UISlider(UIBaseInitData&& initData)
     knobColor_ = utils::hexToVec4("#ca5555ff");
     label_->setColor(utils::hexToVec4("#ffffff00"));
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
+    label_->setTextAlign(core::TextOptions::Align::CENTER);
 
     setScrollFrom(0);
     layoutBase_.setMargin(5);

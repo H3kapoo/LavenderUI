@@ -2,6 +2,7 @@
 
 #include <optional>
 
+#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 
@@ -19,8 +20,13 @@ public:
 
     auto setText(const std::string& text) -> void;
     auto setFont(const std::filesystem::path& fontPath) -> void;
+    auto setTextColor(const glm::vec4& color) -> void;
+    auto setTextAlign(const core::TextOptions::Align align) -> void;
+    auto setTextWrap(const bool wrap = true) -> void;
+    auto setTextEllipsis(const uint32_t count = 3) -> void;
 
     auto getText() const -> std::string;
+    auto getTextColor() const -> glm::vec4;
 
 private:
     virtual auto onRender(const glm::mat4& projection) -> void override;

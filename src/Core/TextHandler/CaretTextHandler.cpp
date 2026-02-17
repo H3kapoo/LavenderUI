@@ -8,7 +8,7 @@ namespace lav::core
 {
 CaretTextHandler::CaretTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
     : BasicTextHandler(vertShaderPath, fragShaderPath)
-    , log_("TextHandler")
+    , log_("CaretTextHandler")
     , blinkIntervalMs_(std::chrono::milliseconds(500))
     , focused_(false)
     , isEditable_(false)
@@ -22,8 +22,8 @@ auto CaretTextHandler::render(const glm::mat4& projection) -> void
     if (!isEditable_ || !focused_) { return; }
 
     glm::ivec2 caretPos_;
-    caretPos_.x = startPos_.x + computeMaxSize().x;
-    caretPos_.y = startPos_.y + computeMaxSize().y / 2.0f - 20 / 2.0f;
+    caretPos_.x = lastCharPos_.x;// + computeMaxSize().x;
+    caretPos_.y = lastCharPos_.y + computeMaxSize().y / 2.0f - 20 / 2.0f;
     CaretHelper::get().setCaretPos(caretPos_);
     CaretHelper::get().render(projection);
 }
@@ -53,6 +53,7 @@ auto CaretTextHandler::simulateMouseAt(const glm::ivec2 pos) -> void
 auto CaretTextHandler::notifyTyping() -> void
 {
     CaretHelper::get().requestKeepAlive();
+    fillRenderBatch();
 }
 
 auto CaretTextHandler::appendAtCaretPos(const char chr) -> void

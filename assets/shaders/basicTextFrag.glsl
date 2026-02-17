@@ -14,5 +14,5 @@ void main()
     int zSliceIndex = uCharIndices[fInstanceId];
     float t = texture(uTextureArray, vec3(fTexCoords, zSliceIndex)).r;
 
-    fragColor = vec4(uColor.xyz, t);
+    fragColor = vec4(uColor.xyz, t + 0.1f);
 }

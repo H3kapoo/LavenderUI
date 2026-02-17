@@ -103,8 +103,10 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
         {
             .glyphCode = uint32_t(i),
             .hAdvance = ftFace->glyph->advance.x,
-            .size = glm::ivec2(ftFace->glyph->bitmap_left + ftFace->glyph->bitmap.width,
-                ftFace->glyph->bitmap_top + ftFace->glyph->bitmap.rows),
+            .size = glm::ivec2(ftFace->glyph->bitmap.width,
+                ftFace->glyph->bitmap.rows),
+            // .size = glm::ivec2(ftFace->glyph->bitmap_left + ftFace->glyph->bitmap.width,
+            //     ftFace->glyph->bitmap_top + ftFace->glyph->bitmap.rows),
             .bearing = glm::ivec2(ftFace->glyph->bitmap_left, ftFace->glyph->bitmap_top)
         };
 

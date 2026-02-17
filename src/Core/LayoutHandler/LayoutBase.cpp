@@ -217,24 +217,12 @@ auto operator-(const glm::vec2 lhs, const LayoutBase::TBLR rhs) -> glm::vec2
     return {lhs.x - (rhs.left + rhs.right), lhs.y - (rhs.top + rhs.bot)};
 }
 
-auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+auto operator!=(const LayoutBase::TBLR& lhs, const LayoutBase::TBLR& rhs) -> bool
 {
-    return {lhs.x + rhs.x, lhs.y + rhs.y};
-}
-
-auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
-{
-    return {lhs.x - rhs.x, lhs.y - rhs.y};
-}
-
-auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2
-{
-    return {lhs.x / rhs, lhs.y / rhs};
-}
-
-auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
-{
-    return {lhs.x / rhs.x, lhs.y / rhs.y};
+    return lhs.left != rhs.left
+        || lhs.top != rhs.top
+        || lhs.right != rhs.right
+        || lhs.bot != rhs.bot;
 }
 } // namespace lav::core
 
@@ -277,5 +265,25 @@ core::LayoutBase::Position operator""_comp(unsigned long long value)
 {
     /* Won't really matter much as computed is the default and anything the user puts here is discared. */
     return core::LayoutBase::Position(value, core::LayoutBase::PositionType::COMPUTED);
+}
+
+auto operator+(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+auto operator-(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+auto operator/(const glm::vec2 lhs, const int32_t rhs) -> glm::vec2
+{
+    return {lhs.x / rhs, lhs.y / rhs};
+}
+
+auto operator/(const glm::vec2 lhs, const glm::ivec2 rhs) -> glm::vec2
+{
+    return {lhs.x / rhs.x, lhs.y / rhs.y};
 }
 } // namespace lav

@@ -59,7 +59,6 @@ UIWindow::UIWindow(const std::string& title, const glm::ivec2& size)
     uiState_->monitorSize = core::WindowBinder::get().getMonitorSize(window_);
     setupInputCallbacks();
 
-    log_.warn("monitor size {}", uiState_->monitorSize);
     // core::GPUBinder::get().enable(core::GPUBinder::Function::SCISSORS, false);
     // core::GPUBinder::get().enable(core::GPUBinder::Function::DEPTH, false);
 }
