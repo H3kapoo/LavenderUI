@@ -1,4 +1,3 @@
-#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include <LavenderUI/Node/UISlider.hpp>
 
 #include <LavenderUI/Core/EventHandler/CoreEvents/MouseDrag.hpp>

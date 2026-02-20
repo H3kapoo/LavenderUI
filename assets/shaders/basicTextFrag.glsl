@@ -2,6 +2,7 @@
 
 uniform sampler2DArray uTextureArray;
 uniform int[128] uCharIndices;
+// uniform int[256] uCharIndices;
 uniform vec4 uColor;
 
 out vec4 fragColor;
@@ -13,6 +14,6 @@ void main()
 {
     int zSliceIndex = uCharIndices[fInstanceId];
     float t = texture(uTextureArray, vec3(fTexCoords, zSliceIndex)).r;
-
-    fragColor = vec4(uColor.xyz, t + 0.1f);
+    if (t == 0.0f) { discard; }
+    fragColor = vec4(uColor.xyz, t + 0.0f);
 }

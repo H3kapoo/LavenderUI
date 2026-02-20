@@ -2,8 +2,9 @@
     <Pane vid="something" ori="Horizontal" scale="50%, 50%">
     <!-- <Pane vid="something" ori="Horizontal" scale="50%, 24px"> -->
         <!-- <Label vid="mylabel" scale="Fill, Fill" text="TpAtgX"></Label> -->
-        <!-- <Label vid="mylabel" scale="Fill, Fill" text="the brown fox jumps over the lazy dog"></Label> -->
-        <Label vid="mylabel" scale="Fill, Fill" text="thebrownfoxjumpsoverthelazydog"></Label>
+        <!-- <Label vid="mylabel" scale="Fill, Fill" text="Xthe brown fox jumps over the lazy dogX"></Label> -->
+        <Label vid="mylabel" scale="Fill, Fill" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec vulputate leo. Duis egestas ante a nibh finibus, eu aeneane XXX Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec vulputate leo. Duis egestas ante a nibh finibus, eu aeneane"></Label>
+        <!-- <Label vid="mylabel2" scale="Fill, Fill" text="Lorem ipsum dolor Ceva PE AICI sit amet, consectetur adipiscing elit. Vivamus nec vulputate leo. Duis egestas ante a nibh finibus, eu aeneane XXX Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec vulputate leo. Duis egestas ante a nibh finibus, eu aeneane"></Label> -->
     </Pane>
 
     <!-- <Pane vid="something" ori="Horizontal" scale="Fill, 25px" border="0, 1, 0, 0">

@@ -81,6 +81,7 @@ function(addSources)
         src/Core/TextHandler/BasicTextHandler.cpp
         src/Core/TextHandler/CaretTextHandler.cpp
         src/Core/TextHandler/CaretHelper.cpp
+        src/Core/TextHandler/TextBatcher.cpp
 
         # UI Nodes
         src/Node/UIBase.cpp

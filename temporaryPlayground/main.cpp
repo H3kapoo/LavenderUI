@@ -5,7 +5,6 @@
 #include "LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
 #include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
-#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
 #include "LavenderUI/Node/UIDropdown.hpp"
@@ -127,12 +126,22 @@ int main()
     // return 0;
 
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
-    // label->getBaseLayoutData().setPadding({4});
+    label->getBaseLayoutData().setPadding({4});
+    // label->getBaseLayoutData().setBorder({4, 4, 4, 4});
+    // label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");
     label->setTextWrap(true);
     label->setTextEllipsis();
     label->setTextAlign(core::TextOptions::Align::CENTER);
     label->setTextColor(utils::hexToVec4("#f03434ff"));
+
+    // auto label2 = window.lock()->findElementByViewId<UILabel>("mylabel2").lock();
+    // label2->getBaseLayoutData().setPadding({4});
+    // // label->setText("Foarte ciudat this is a certified yapper");
+    // label2->setTextWrap(true);
+    // label2->setTextEllipsis();
+    // label2->setTextAlign(core::TextOptions::Align::CENTER);
+    // label2->setTextColor(utils::hexToVec4("#f03434ff"));
 
     app.run();
     return 0;

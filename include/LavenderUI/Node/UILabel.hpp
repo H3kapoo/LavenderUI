@@ -2,7 +2,6 @@
 
 #include <optional>
 
-#include "LavenderUI/Core/TextHandler/TextOptions.hpp"
 #include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 

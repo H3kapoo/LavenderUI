@@ -23,7 +23,7 @@ auto CaretTextHandler::render(const glm::mat4& projection) -> void
 
     glm::ivec2 caretPos_;
     caretPos_.x = lastCharPos_.x;// + computeMaxSize().x;
-    caretPos_.y = lastCharPos_.y + computeMaxSize().y / 2.0f - 20 / 2.0f;
+    caretPos_.y = lastCharPos_.y;// + computeMaxSize().y / 2.0f - 20 / 2.0f;
     CaretHelper::get().setCaretPos(caretPos_);
     CaretHelper::get().render(projection);
 }
@@ -53,7 +53,7 @@ auto CaretTextHandler::simulateMouseAt(const glm::ivec2 pos) -> void
 auto CaretTextHandler::notifyTyping() -> void
 {
     CaretHelper::get().requestKeepAlive();
-    fillRenderBatch();
+    // fillRenderBatch();
 }
 
 auto CaretTextHandler::appendAtCaretPos(const char chr) -> void

@@ -1,3 +1,5 @@
+#include "LavenderUI/Core/TextHandler/Common.hpp"
+#include "LavenderUI/Core/TextHandler/TextBatcher.hpp"
 #include "LavenderUI/Utils/Logger.hpp"
 #include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
 
@@ -13,15 +15,17 @@
 namespace lav::core
 {
 BasicTextHandler::BasicTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
-    : shader_(ShaderLoader::get().load(vertShaderPath, fragShaderPath))
-    // , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
-    , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH, 26))
-    , mesh_(MeshLoader::get().loadQuad())
-    , soaBuffer_()
+    : options_()
     , storedText_()
     , textColor_(utils::hexToVec4("#141414ff"))
-    , batchSize_(200)
-{}
+    , shader_(ShaderLoader::get().load(vertShaderPath, fragShaderPath))
+    , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
+    // , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH, 26))
+    , mesh_(MeshLoader::get().loadQuad())
+    // , batchSize_(128)
+{
+    options_.lineHeight = core::DEFAULT_FONT_SIZE;
+}
 
 auto BasicTextHandler::render(const glm::mat4& projection) -> void
 {
@@ -37,128 +41,127 @@ auto BasicTextHandler::render(const glm::mat4& projection) -> void
     shader_.bind();
     shader_.uploadVec4f("uColor", textColor_);
     shader_.uploadMat4("uMatrixProjection", projection);
-    shader_.uploadMat4v("uModelMatrices", soaBuffer_.glyphModel);
-    shader_.uploadIntv("uCharIndices", soaBuffer_.glyphCode);
     shader_.uploadTexture2DArray("uTextureArray", 0, font_->textureId);
-    core::GPUBinder::get().renderBoundQuadInstanced(storedText_.size());
+
+    utils::Logger log("aci");
+
+    lastCharPos_ = layoutBounds_.pos;
+    TextBatcher::get().reset();
+    while (prepareNextBatch())
+    {
+        renderBatch(projection);
+    }
 }
 
-auto BasicTextHandler::computeMaxSize() -> glm::vec2
+auto BasicTextHandler::prepareNextBatch() -> bool
 {
-    glm::vec2 size{0, 0};
-    for (const uint8_t ch : storedText_)
+    // utils::Logger log("aci");
+    const auto currCount = TextBatcher::get().getTotalCount();
+    if (currCount >= storedText_.size()) { return false; }
+
+    /* Clear previous batch data */
+    TextBatcher::get().clearBuffer();
+
+    const auto batchSize = TextBatcher::get().getLimit();
+    glm::ivec2 pos{0, 0};
+    for (uint32_t batchCharIdx = 0; batchCharIdx < batchSize; ++batchCharIdx)
     {
-        const auto& cp = font_->glyphData[ch];
-        size.x += cp.hAdvance >> 6;
-        size.y = std::max(size.y, (float)cp.bearing.y);
+        uint32_t globalCharIndex = currCount + batchCharIdx;
+        /* Handle last batch which might not be full.*/
+        if (globalCharIndex >= storedText_.size()) { return true; }
+
+        const auto& gd = font_->glyphData[storedText_[globalCharIndex]];
+        const auto nextPos = getNextPosition(gd, lastCharPos_);
+
+        pos.x = nextPos.x + gd.bearing.x;
+        pos.y = nextPos.y - gd.bearing.y + font_->fontSize;
+
+        glm::mat4 model{glm::mat4(1.0f)};
+        model = glm::translate(model, glm::vec3(pos.x, pos.y, layoutBounds_.zIndex + 0.01f));
+        model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
+
+        TextBatcher::get().push(gd.glyphCode, std::move(model));
+
+        /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
+        lastCharPos_ = nextPos + glm::ivec2{(gd.hAdvance >> 6) + gd.bearing.x, 0};
     }
-    return size;
+
+    return true;
+}
+
+auto BasicTextHandler::getNextPosition(const Font::GlyphData& data, glm::ivec2 lcp) -> glm::ivec2
+{
+    glm::ivec2 pos{lcp};
+    pos.x = lcp.x + data.bearing.x;
+    if (options_.wrap && pos.x + data.size.x >= layoutBounds_.pos.x + layoutBounds_.scale.x)
+    {
+        pos.x = layoutBounds_.pos.x;
+        pos.y += options_.lineHeight;
+    }
+
+    return pos;
+}
+
+auto BasicTextHandler::renderBatch(const glm::mat4& projection) -> void
+{
+    shader_.uploadIntv("uCharIndices", TextBatcher::get().getGlyphs());
+    shader_.uploadMat4v("uModelMatrices", TextBatcher::get().getModels());
+    core::GPUBinder::get().renderBoundQuadInstanced(TextBatcher::get().getCurrentBatchSize());
 }
 
 auto BasicTextHandler::layout() -> void
 {
-    if (!dirty_) { return; }
+    // renderBuffer_.glyphModel.clear();
+    // renderBuffer_.glyphModel.reserve(storedText_.size());
 
-    // glm::ivec2 start{startPos_.x, startPos_.y};
-    // const glm::vec2 p = boundsStart_ + boundsScale_ / 2 - ms / 2;
-    // glm::ivec2 nextStartPos{p.x + layout_.padding.left, p.y + layout_.padding.right};
-    // glm::ivec2 start{boundsStart_.x + layout_.padding.left, boundsStart_.y + layout_.padding.right};
-    // glm::ivec2 nextStartPos{p.x, p.y};
-    soaBuffer_.glyphModel.clear();
-    soaBuffer_.glyphModel.reserve(storedText_.size());
+    // glm::ivec2 nextStartPos{layoutBounds_.pos};
+    // glm::ivec2 boundsPosEnd{layoutBounds_.pos + layoutBounds_.scale};
 
-    glm::ivec2 nextStartPos{boundsStart_.x, boundsStart_.y};
-    glm::ivec2 boundsEnd{boundsStart_ + boundsScale_};
+    // glm::ivec2 pos{0, 0};
 
-    float inc = 0.1;
-    glm::ivec2 pos{0, 0};
-    glm::ivec2 textBegin{0, 999999};
-    glm::ivec2 textEnd{0, 0};
+    // renderedTextMinMax_.reset();
 
-    int32_t lowestPoint{0};
-    int32_t highestPoint{9999};
-    int32_t maxBearingY{0};
-    int32_t maxUnderlineY{0};
-    bool wrapped{false};
-
-    utils::Logger log("aici");
-    for (const uint8_t chr : storedText_)
-    {
-        const auto& gd = font_->glyphData[chr];
-        // if (chr == ' ')
-        // {
-        //     nextStartPos.x += (gd.hAdvance >> 6);
-        //     continue;
-        // }
-
-        pos.x = nextStartPos.x + gd.bearing.x;
-        if (isWrapEnabled_ && pos.x + gd.size.x > boundsEnd.x)
-        {
-            nextStartPos.x = boundsStart_.x;
-            nextStartPos.y += font_->fontSize;
-
-            // log.warn("lh {}", lineHeight);
-        }
-
-        pos.x = nextStartPos.x + gd.bearing.x;
-        pos.y = nextStartPos.y - gd.bearing.y;// + ( wrapped ? font_->fontSize : 0);
-
-        highestPoint = std::min(highestPoint, pos.y);
-        lowestPoint = std::max(lowestPoint, pos.y + gd.size.y);
-        maxBearingY = std::max(maxBearingY, gd.bearing.y);
-        maxUnderlineY = std::max(maxUnderlineY, gd.size.y - gd.bearing.y);
-
-        glm::mat4 model{glm::mat4(1.0f)};
-        model = glm::translate(model, glm::vec3(pos.x, pos.y, zIndex_ + inc));
-        model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
-
-        if (textBegin.x == 0)
-        {
-            textBegin.x = pos.x;
-            // textBegin.y = pos.y;
-        }
-
-        // textEnd.x = std::max(textEnd.x, pos.x + gd.size.x);
-        // textEnd.y = std::max(textEnd.y, pos.y + gd.size.y);
-
-        /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
-        nextStartPos.x += (gd.hAdvance >> 6);
-
-        soaBuffer_.glyphModel.emplace_back(std::move(model));
-        inc += 0.1f;
-    }
-
-    /* Push them such that they are top aligned with start bound Y. */
-    // linesHeight = std::max(linesHeight, maxBearingY);
-    // for (int32_t lineChr = lineStart; lineChr < soaBuffer_.glyphModel.size(); lineChr++)
+    // // utils::Logger log("aici");
+    // for (const uint8_t chr : storedText_)
     // {
-    //     auto& mat = soaBuffer_.glyphModel[lineChr];
-    //     // mat[3][1] += maxBearingY;
-    //     mat[3][1] += font_->fontSize;
+    //     const auto& gd = font_->glyphData[chr];
+
+    //     pos.x = nextStartPos.x + gd.bearing.x;
+    //     if (options_.wrap && pos.x + gd.size.x > boundsPosEnd.x)
+    //     {
+    //         nextStartPos.x = layoutBounds_.pos.x;
+    //         nextStartPos.y += options_.lineHeight;
+    //     }
+
+    //     pos.x = nextStartPos.x + gd.bearing.x;
+    //     pos.y = nextStartPos.y - gd.bearing.y;
+
+    //     renderedTextMinMax_.min.x = std::min(renderedTextMinMax_.min.x, pos.x);
+    //     renderedTextMinMax_.max.x = std::max(renderedTextMinMax_.max.x, pos.x + gd.size.x);
+
+    //     renderedTextMinMax_.min.y = std::min(renderedTextMinMax_.min.y, pos.y);
+    //     renderedTextMinMax_.max.y = std::max(renderedTextMinMax_.max.y, pos.y + gd.size.y);
+
+    //     glm::mat4 model{glm::mat4(1.0f)};
+    //     model = glm::translate(model, glm::vec3(pos.x, pos.y, layoutBounds_.zIndex));
+    //     model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
+
+    //     /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
+    //     nextStartPos.x += (gd.hAdvance >> 6);
+
+    //     renderBuffer_.glyphModel.emplace_back(std::move(model));
     // }
-    // lastCharPos_ = textEnd - textBegin;
-    // lastCharPos_.x = textEnd.x - textBegin.x;
-    // lastCharPos_.y = 0;
-    // lastCharPos_.y = maxBearingY + maxUnderlineY;
 
-    for (auto& mat : soaBuffer_.glyphModel)
-    {
-        // mat[3][1] += font_->fontSize;
-        // mat[3][1] += maxBearingY;
-        // mat[3][1] += (highestPoint - boundsStart_.y);
-        mat[3][1] += (boundsStart_.y - highestPoint);
-    }
+    // for (auto& mat : renderBuffer_.glyphModel)
+    // {
+    //     mat[3][1] += (layoutBounds_.pos.y - renderedTextMinMax_.min.y);
+    // }
 
-    // log.warn("highest {} lowest {}", highestPoint, lowestPoint);
-    // log.warn("aa {}", maxUnderlineY + maxBearingY);
-    lastCharPos_.y = lowestPoint - highestPoint;
-    // lastCharPos_.y = maxUnderlineY + maxBearingY;
+    // lastCharPos_.x = renderedTextMinMax_.max.x - renderedTextMinMax_.min.x;
+    // lastCharPos_.y = renderedTextMinMax_.max.y - renderedTextMinMax_.min.y;
 
-    alignText();
-
-    // utils::Logger log("aici");
-    // log.warn("size is {} {}", storedText_, lastCharPos_.x);
-    dirty_ = false;
+    // log.warn("size {} {}", renderBounds_.min.x, renderBounds_.max.x);
+    // alignText();
 }
 
 auto BasicTextHandler::alignText() -> void
@@ -169,12 +172,11 @@ auto BasicTextHandler::alignText() -> void
             break;
         case TextOptions::Align::CENTER:
         {
-            for (auto& mat : soaBuffer_.glyphModel)
-            {
-                // mat[3][0] += static_cast<int32_t>(boundsScale_.x / 2 - lastCharPos_.x / 2);
-                // mat[3][1] += static_cast<int32_t>(boundsScale_.y / 2 - lastCharPos_.y);
-                mat[3][1] += static_cast<int32_t>(boundsScale_.y / 2 - lastCharPos_.y / 2);
-            }
+            // for (auto& mat : renderBuffer_.glyphModel)
+            // {
+            //     mat[3][0] += static_cast<int32_t>(layoutBounds_.scale.x / 2 - lastCharPos_.x / 2);
+            //     mat[3][1] += static_cast<int32_t>(layoutBounds_.scale.y / 2 - lastCharPos_.y / 2);
+            // }
             break;
         }
         case TextOptions::Align::RIGHT:
@@ -182,63 +184,9 @@ auto BasicTextHandler::alignText() -> void
     }
 }
 
-auto BasicTextHandler::fillRenderBatch() -> void
+auto BasicTextHandler::setDisplayBounds(const TextLayoutBounds& bounds) -> void
 {
-    dirty_ = true;
-
-    soaBuffer_.glyphCode.clear();
-    soaBuffer_.glyphCode.reserve(storedText_.size());
-
-    for (const uint8_t chr : storedText_)
-    {
-        const auto& gd = font_->glyphData[chr];
-        soaBuffer_.glyphCode.emplace_back(gd.glyphCode);
-    }
-}
-
-auto BasicTextHandler::updateZIndex() -> void
-{
-    /*
-        In a 4X4 matrix in openGL, scale lives along the matrix diagonal and position lives
-        down the last column:
-
-        S_X NOP NOP P_X
-        NOP S_Y NOP P_Y
-        NOP NOP S_Z P_Z
-        NOP NOP NOP NOP
-
-        However when reading this as opengl wants it, we have to transpose the matrix
-        aka rows become columns and vice versa:
-
-        mat[row][col] -> mat[col][row]
-    */
-    // float inc_ = 0.1;
-    // for (auto& mat : soaBuffer_.glyphModel)
-    // {
-    //     mat[3][2] = startPos_.z + 1 + inc_;
-    //     inc_ += 0.1f;
-    // }
-}
-
-auto BasicTextHandler::clearBufferAndReserve() -> void
-{
-}
-
-auto BasicTextHandler::setBounds(const glm::ivec2 pos, const glm::ivec2 scale,
-    const int32_t zIndex) -> void
-{
-    if (boundsStart_.x != pos.x || boundsStart_.y != pos.y
-        || boundsScale_.x != scale.x || boundsScale_.y != scale.y
-        || zIndex_ != zIndex)
-    {
-            dirty_ = true;
-    }
-
-    boundsStart_ = pos;
-    boundsScale_ = scale;
-    zIndex_ = zIndex;
-
-    layout();
+    layoutBounds_ = bounds;
 }
 
 auto BasicTextHandler::setTextColor(const glm::vec4& color) -> void
@@ -249,7 +197,6 @@ auto BasicTextHandler::setTextColor(const glm::vec4& color) -> void
 auto BasicTextHandler::setText(const std::string& text) -> void
 {
     storedText_ = text; // not efficient, use other means in the future
-    fillRenderBatch();
 }
 
 auto BasicTextHandler::setFont(const fs::path& fontPath, const uint32_t size) -> void
@@ -258,19 +205,14 @@ auto BasicTextHandler::setFont(const fs::path& fontPath, const uint32_t size) ->
     if (wantedFont->textureId) { font_ = wantedFont; }
 }
 
-auto BasicTextHandler::setBatchSize(const uint32_t size) -> void
-{
-    batchSize_ = size;
-}
-
 auto BasicTextHandler::setEllipsisEnabled(const uint32_t count) -> void
 {
-    ellipsisCount_ = count;
+    options_.ellipsis = count;
 }
 
 auto BasicTextHandler::setWrapEnabled(const bool value) -> void
 {
-    isWrapEnabled_ = value;
+    options_.wrap = value;
 }
 
 auto BasicTextHandler::setTextAlign(const core::TextOptions::Align align) -> void

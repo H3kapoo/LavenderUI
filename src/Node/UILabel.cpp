@@ -47,7 +47,7 @@ auto UILabel::onLayout() -> void
     const glm::ivec2 boundsStart = layoutBase_.getComputedPos() + padStartPush;
     const glm::ivec2 boundsScale = layoutBase_.getComputedScale() - padEndPop;
 
-    textHandler_.setBounds(boundsStart, boundsScale, layoutBase_.getZIndex());
+    textHandler_.setDisplayBounds({boundsStart, boundsScale, layoutBase_.getZIndex()});
 }
 
 auto UILabel::onEvent(core::UIStatePtr& state) -> void
