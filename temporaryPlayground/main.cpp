@@ -3,6 +3,7 @@
 #include "LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/MouseLeftRelease.hpp"
+#include "LavenderUI/Core/EventHandler/CoreEvents/Slide.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
 #include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
@@ -11,6 +12,7 @@
 #include "LavenderUI/Node/UILineEdit.hpp"
 #include "LavenderUI/Node/UIListView.hpp"
 #include "LavenderUI/Node/UIPane.hpp"
+#include "LavenderUI/Node/UISlider.hpp"
 #include "LavenderUI/Node/UISplitPane.hpp"
 #include "LavenderUI/Node/UITreeView.hpp"
 #include "LavenderUI/Node/UIWindow.hpp"
@@ -131,8 +133,11 @@ int main()
     // label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");
     label->setTextEllipsis();
-    label->setTextAlign(core::TextOptions::Align::CENTER);
-    label->setScaleToTextSize();
+    // label->setTextAlign(core::TextOptions::Align::CENTER);
+    // label->setFontSize(25);
+    label->setFontSize(27);
+    // label->setFontSize(34);
+    // label->setScaleToTextSize();
     // label->setTextColor(utils::hexToVec4("#f03434ff"));
 
     // auto label2 = window.lock()->findElementByViewId<UILabel>("mylabel2").lock();
@@ -143,6 +148,13 @@ int main()
     // label2->setTextAlign(core::TextOptions::Align::CENTER);
     // label2->setTextColor(utils::hexToVec4("#f03434ff"));
 
+    auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
+    slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
+    {
+        uint32_t fs = static_cast<uint32_t>(e.value);
+        log.info("value {}", fs);
+        label->setFontSize(fs);
+    });
     app.run();
     return 0;
 

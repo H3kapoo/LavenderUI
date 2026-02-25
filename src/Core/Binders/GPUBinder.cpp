@@ -143,6 +143,9 @@ auto GPUBinder::createTexture(const uint32_t width, const uint32_t height, const
     activateTextureSlot(0);
 
     const auto convertedTexType = convertTextureType(texType);
+
+    /* NOTE: It may happen that convertedColorType can't be used for both format and internalFormat.
+        However so far it works. :) */
     const auto convertedColorType = convertColorType(colType);
     if (!convertedTexType || !convertedColorType) { return 0; }
 
@@ -186,6 +189,10 @@ auto GPUBinder::createTexture(const uint32_t width, const uint32_t height, const
 
     /* Warning. This shall be rebound whenever it is needed! */
     glBindTexture(convertedTexType, 0);
+
+    /* Clear the whole texture with zeros. */
+    uint8_t zero{0};
+    glClearTexImage(id, 0, convertedColorType, GL_UNSIGNED_BYTE, &zero);
 
     return id;
 }
@@ -315,10 +322,11 @@ auto GPUBinder::uploadUniformTexture(const uint32_t programId, const std::string
         return false;
     }
 
+    activateTextureSlot(texSlot);
+
     /* Shader needs texture slot location in range from [0..maxSlot], not from [GL_TEXTURE0..maxGL_TEXTURE] */
     uploadUniform(programId, name, texSlot);
 
-    activateTextureSlot(texSlot);
 
     const auto& convertedType = convertTextureType(type);
     glBindTexture(convertedType, texId);

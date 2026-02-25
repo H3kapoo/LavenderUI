@@ -62,9 +62,14 @@ auto UILabel::setText(const std::string& text) -> void
     textHandler_.setText(text);
 }
 
-auto UILabel::setFont(const std::filesystem::path& fontPath) -> void
+auto UILabel::setFont(const std::filesystem::path& fontPath, const uint32_t size) -> void
 {
-    textHandler_.setFont(fontPath);
+    textHandler_.setFont(fontPath, size);
+}
+
+auto UILabel::setFontSize(const uint32_t size) -> void
+{
+    textHandler_.setFontSize(size);
 }
 
 auto UILabel::setTextColor(const glm::vec4& color) -> void
@@ -84,9 +89,11 @@ auto UILabel::setTextEllipsis(const uint32_t count) -> void
 
 auto UILabel::setScaleToTextSize() -> void
 {
-    layoutBase_.setScale({
+    const float lineHeight = textHandler_.getFont().baseVerticalSep;
+    layoutBase_.setScale(
+    {
         layoutBase_.getScale().x,
-        {static_cast<float>(textHandler_.getFont().baseVerticalSep), core::LayoutBase::ScaleType::PX}
+        {lineHeight, core::LayoutBase::ScaleType::PX}
     });
 }
 

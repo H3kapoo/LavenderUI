@@ -28,7 +28,6 @@ FontLoader::~FontLoader()
 
 FontPtr FontLoader::loadFont(const fs::path& fontPath, const int32_t fontSize)
 {
-    // std::string fontKey = fontPath + std::to_string(fontSize);
     std::string fontKey = fontPath.string() + std::to_string(fontSize);
     if (fontPathToObject_.count(fontKey))
     {
@@ -53,7 +52,7 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
         return font;
     }
 
-    FT_Face ftFace;
+    FT_Face ftFace = {0};
     if (FT_New_Face(ftLib_, fontPath.string().c_str(), 0, &ftFace))
     {
         log_.error("Failed to load font: \"{}\". Will keep previous font.", fontPath.string().c_str());
@@ -109,8 +108,6 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
             .hAdvance = ftFace->glyph->advance.x,
             .size = glm::ivec2(ftFace->glyph->bitmap.width,
                 ftFace->glyph->bitmap.rows),
-            // .size = glm::ivec2(ftFace->glyph->bitmap_left + ftFace->glyph->bitmap.width,
-            //     ftFace->glyph->bitmap_top + ftFace->glyph->bitmap.rows),
             .bearing = glm::ivec2(ftFace->glyph->bitmap_left, ftFace->glyph->bitmap_top)
         };
 
@@ -122,6 +119,7 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
 
     /* Unbind texture and free FreeType resources */
     GPUBinder::get().bindIdToTextureType(GPUBinder::TextureType::Array2D, 0);
+    GPUBinder::get().unpackAlignment(4);
     FT_Done_Face(ftFace);
 
     return font;

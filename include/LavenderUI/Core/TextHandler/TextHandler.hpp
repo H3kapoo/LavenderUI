@@ -27,6 +27,7 @@ public:
     auto setTextColor(const glm::vec4& color) -> void;
     auto setText(const std::string& text) -> void;
     auto setFont(const fs::path& fontPath, const uint32_t size = 16) -> void;
+    auto setFontSize(const uint32_t size) -> void;
     auto setTextAlign(const core::TextOptions::Align align) -> void;
 
     auto setEllipsisEnabled(const uint32_t count) -> void;
@@ -35,6 +36,7 @@ public:
     auto getText() const -> std::string;
     auto getTextColor() const -> glm::vec4;
     auto getFont() const -> const Font&;
+    auto getMaxTextBounds() const -> glm::ivec2;
 
 private:
     TextHandler(const TextHandler&) = delete;
@@ -45,8 +47,8 @@ private:
     auto renderBatches() -> void;
     auto renderBatch() -> void;
     auto prepareNextBatch() -> bool;
-    auto getMaxTextBounds() -> glm::ivec2;
     auto alignText() -> void;
+    auto computeMaxTextBounds() -> void;
     auto isPosInsideBounds(const glm::ivec2 pos) -> bool;
 
 protected:
@@ -62,6 +64,5 @@ private:
     Shader shader_;
     FontPtr font_; // why ptr?
     Mesh mesh_;
-    glm::ivec2 rollingPos_;
 };
 } // namespace lav::core

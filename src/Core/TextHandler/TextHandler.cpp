@@ -18,14 +18,13 @@ TextHandler::TextHandler(const fs::path& vertShaderPath, const fs::path& fragSha
     : options_()
     , storedText_()
     , textColor_(utils::hexToVec4("#141414ff"))
+    , lastCharPos_(0, 0)
+    , basePos_(0, 0)
+    , maxTextBounds_(0, 0)
     , shader_(ShaderLoader::get().load(vertShaderPath, fragShaderPath))
     , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
     // , font_(FontLoader::get().loadFont(core::DEFAULT_FONT_PATH, 26))
     , mesh_(MeshLoader::get().loadQuad())
-    , lastCharPos_(0, 0)
-    , basePos_(0, 0)
-    , maxTextBounds_(0, 0)
-    , rollingPos_(0, 0)
 {
     options_.lineHeight = core::DEFAULT_FONT_SIZE;
 }
@@ -127,9 +126,9 @@ auto TextHandler::prepareNextBatch() -> bool
     return true;
 }
 
-auto TextHandler::getMaxTextBounds() -> glm::ivec2
+auto TextHandler::computeMaxTextBounds() -> void
 {
-    glm::ivec2 maxx{0, font_->baseVerticalSep};
+    maxTextBounds_ = glm::ivec2{0, font_->baseVerticalSep};
     glm::ivec2 endPos{layoutBounds_.pos};
     for (const auto& chr : storedText_)
     {
@@ -145,15 +144,13 @@ auto TextHandler::getMaxTextBounds() -> glm::ivec2
             pos = endPos;
             pos.y -= gd.bearing.y;
 
-            maxx.y += font_->baseVerticalSep;
+            maxTextBounds_.y += font_->baseVerticalSep;
         }
 
         /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
         endPos += glm::ivec2{(gd.hAdvance >> 6), 0};
-        maxx.x = std::max(maxx.x, endPos.x - layoutBounds_.pos.x);
+        maxTextBounds_.x = std::max(maxTextBounds_.x, endPos.x - layoutBounds_.pos.x);
     }
-
-    return maxx;
 }
 
 auto TextHandler::isPosInsideBounds(const glm::ivec2 pos) -> bool
@@ -186,7 +183,7 @@ auto TextHandler::setDisplayBounds(const TextLayoutBounds& bounds) -> void
 {
     if (layoutBounds_ != bounds)
     {
-        maxTextBounds_ = getMaxTextBounds();
+        computeMaxTextBounds();
     }
 
     layoutBounds_ = bounds;
@@ -200,13 +197,18 @@ auto TextHandler::setTextColor(const glm::vec4& color) -> void
 auto TextHandler::setText(const std::string& text) -> void
 {
     storedText_ = text; // not efficient, use other means in the future
-    maxTextBounds_ = getMaxTextBounds();
+    computeMaxTextBounds();
 }
 
 auto TextHandler::setFont(const fs::path& fontPath, const uint32_t size) -> void
 {
     const FontPtr wantedFont = FontLoader::get().loadFont(fontPath, size);
-    if (wantedFont->textureId) { font_ = wantedFont; }
+    if (wantedFont->textureId) { font_ = wantedFont; computeMaxTextBounds(); }
+}
+
+auto TextHandler::setFontSize(const uint32_t size) -> void
+{
+    setFont(font_->fontPath, size);
 }
 
 auto TextHandler::setEllipsisEnabled(const uint32_t count) -> void
@@ -237,5 +239,10 @@ auto TextHandler::getTextColor() const -> glm::vec4
 auto TextHandler::getFont() const -> const Font&
 {
     return *font_;
+}
+
+auto TextHandler::getMaxTextBounds() const -> glm::ivec2
+{
+    return maxTextBounds_;
 }
 } // namespace lav::core

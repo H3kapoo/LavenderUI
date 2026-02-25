@@ -18,7 +18,8 @@ public:
     INSERT_ADD_REMOVE_NOT_ALLOWED(UILabel);
 
     auto setText(const std::string& text) -> void;
-    auto setFont(const std::filesystem::path& fontPath) -> void;
+    auto setFont(const std::filesystem::path& fontPath, const uint32_t size = 16) -> void;
+    auto setFontSize(const uint32_t size) -> void;
     auto setTextColor(const glm::vec4& color) -> void;
     auto setTextAlign(const core::TextOptions::Align align) -> void;
     auto setTextEllipsis(const uint32_t count = 3) -> void;
