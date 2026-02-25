@@ -130,10 +130,10 @@ int main()
     // label->getBaseLayoutData().setBorder({4, 4, 4, 4});
     // label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");
-    label->setTextWrap(true);
     label->setTextEllipsis();
     label->setTextAlign(core::TextOptions::Align::CENTER);
-    label->setTextColor(utils::hexToVec4("#f03434ff"));
+    label->setScaleToTextSize();
+    // label->setTextColor(utils::hexToVec4("#f03434ff"));
 
     // auto label2 = window.lock()->findElementByViewId<UILabel>("mylabel2").lock();
     // label2->getBaseLayoutData().setPadding({4});

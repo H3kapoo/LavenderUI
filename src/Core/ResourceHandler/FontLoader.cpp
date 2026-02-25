@@ -79,6 +79,10 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
         return font;
     }
 
+    font->descender = ftFace->size->metrics.descender >> 6;
+    font->ascender = ftFace->size->metrics.ascender >> 6;
+    font->baseVerticalSep = font->ascender - font->descender;
+
     GPUBinder::get().bindIdToTextureType(GPUBinder::TextureType::Array2D, font->textureId);
 
     FT_Int32 load_flags = FT_LOAD_RENDER;

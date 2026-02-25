@@ -1,10 +1,11 @@
-#include "LavenderUI/Core/Config.hpp"
 #include <LavenderUI/Node/UILabel.hpp>
 
 #include <optional>
 
 #include <LavenderUI/Core/Binders/GPUBinder.hpp>
 #include <LavenderUI/Core/EventHandler/IEvent.hpp>
+#include "LavenderUI/Core/Config.hpp"
+#include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
@@ -17,6 +18,7 @@ UILabel::UILabel(UIBaseInitData&& data)
     , overrideColor_(std::nullopt)
 {
     layoutBase_.setScale({200_px, 50_px});
+    textHandler_.setWrapEnabled(true);
     setIgnoreEvents();
 }
 
@@ -70,11 +72,6 @@ auto UILabel::setTextColor(const glm::vec4& color) -> void
     textHandler_.setTextColor(color);
 }
 
-auto UILabel::setTextWrap(const bool wrap) -> void
-{
-    textHandler_.setWrapEnabled(wrap);
-}
-
 auto UILabel::setTextAlign(const core::TextOptions::Align align) -> void
 {
     textHandler_.setTextAlign(align);
@@ -83,6 +80,14 @@ auto UILabel::setTextAlign(const core::TextOptions::Align align) -> void
 auto UILabel::setTextEllipsis(const uint32_t count) -> void
 {
     textHandler_.setEllipsisEnabled(count);
+}
+
+auto UILabel::setScaleToTextSize() -> void
+{
+    layoutBase_.setScale({
+        layoutBase_.getScale().x,
+        {static_cast<float>(textHandler_.getFont().baseVerticalSep), core::LayoutBase::ScaleType::PX}
+    });
 }
 
 auto UILabel::getText() const -> std::string

@@ -8,17 +8,17 @@ namespace lav::core
 {
 /** @brief Common place for defining text oriented utilitary structures.*/
 
-struct MinMaxPos
-{
-    glm::ivec2 min{INT32_MAX, INT32_MAX};
-    glm::ivec2 max{-INT32_MAX, -INT32_MAX};
+// struct MinMaxPos
+// {
+//     glm::ivec2 min{INT32_MAX, INT32_MAX};
+//     glm::ivec2 max{-INT32_MAX, -INT32_MAX};
 
-    inline auto reset() -> void
-    {
-        min = {INT32_MAX, INT32_MAX};
-        max = {-INT32_MAX, -INT32_MAX};
-    }
-};
+//     inline auto reset() -> void
+//     {
+//         min = {INT32_MAX, INT32_MAX};
+//         max = {-INT32_MAX, -INT32_MAX};
+//     }
+// };
 
 struct TextLayoutBounds
 {

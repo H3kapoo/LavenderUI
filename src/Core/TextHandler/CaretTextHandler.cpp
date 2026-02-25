@@ -7,7 +7,7 @@
 namespace lav::core
 {
 CaretTextHandler::CaretTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath)
-    : BasicTextHandler(vertShaderPath, fragShaderPath)
+    : TextHandler(vertShaderPath, fragShaderPath)
     , log_("CaretTextHandler")
     , blinkIntervalMs_(std::chrono::milliseconds(500))
     , focused_(false)
@@ -16,7 +16,7 @@ CaretTextHandler::CaretTextHandler(const fs::path& vertShaderPath, const fs::pat
 
 auto CaretTextHandler::render(const glm::mat4& projection) -> void
 {
-    BasicTextHandler::render(projection);
+    TextHandler::render(projection);
 
     /* Check if caret needs to be displayed. */
     if (!isEditable_ || !focused_) { return; }
@@ -107,7 +107,7 @@ auto CaretTextHandler::setCaretColor(const glm::vec4& color) -> void
 
 auto CaretTextHandler::setText(const std::string& text) -> void
 {
-    BasicTextHandler::setText(text);
+    TextHandler::setText(text);
     notifyTyping();
 }
 

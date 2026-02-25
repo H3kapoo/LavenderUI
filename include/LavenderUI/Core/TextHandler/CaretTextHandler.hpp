@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <LavenderUI/Core/TextHandler/BasicTextHandler.hpp>
+#include <LavenderUI/Core/TextHandler/TextHandler.hpp>
 #include <LavenderUI/Utils/Logger.hpp>
 
 namespace lav::core
@@ -12,7 +12,7 @@ namespace lav::core
     Class that deals with rendering of a piece of text and also of the caret that comes along with
     and editable text zone.
 */
-class CaretTextHandler : public BasicTextHandler
+class CaretTextHandler : public TextHandler
 {
 public:
     CaretTextHandler(const fs::path& vertShaderPath, const fs::path& fragShaderPath);
