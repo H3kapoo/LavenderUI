@@ -39,7 +39,7 @@ auto LineEditRule::parseAndApply(node::UIBasePtr object,
         }
         else if (key == "numeric" && value == "true")
         {
-            le->enableNumbericOnly();
+            le->setNumbericOnly(true);
         }
     }
 }

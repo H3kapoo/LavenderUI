@@ -127,12 +127,14 @@ int main()
     // app.run();
     // return 0;
 
-    auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
-    label->getBaseLayoutData().setPadding({4});
+    auto label = window.lock()->findElementByViewId<UILineEdit>("mylabel").lock();
+    // auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
+    label->setTextWrap(true);
+    // label->getBaseLayoutData().setPadding({4});
     // label->getBaseLayoutData().setBorder({4, 4, 4, 4});
     // label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");
-    label->setTextEllipsis();
+    // label->setTextEllipsis();
     // label->setTextAlign(core::TextOptions::Align::CENTER);
     // label->setFontSize(25);
     label->setFontSize(27);
@@ -148,13 +150,13 @@ int main()
     // label2->setTextAlign(core::TextOptions::Align::CENTER);
     // label2->setTextColor(utils::hexToVec4("#f03434ff"));
 
-    auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
-    slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
-    {
-        uint32_t fs = static_cast<uint32_t>(e.value);
-        log.info("value {}", fs);
-        label->setFontSize(fs);
-    });
+    // auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
+    // slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
+    // {
+    //     uint32_t fs = static_cast<uint32_t>(e.value);
+    //     // log.info("value {}", fs);
+    //     label->setFontSize(fs);
+    // });
     app.run();
     return 0;
 

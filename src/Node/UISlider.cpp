@@ -32,7 +32,6 @@ UISlider::UISlider(UIBaseInitData&& initData)
     label_->setTextAlign(core::TextOptions::Align::CENTER);
 
     setScrollFrom(0);
-    layoutBase_.setMargin(5);
 
     UIBase::add(label_);
 }

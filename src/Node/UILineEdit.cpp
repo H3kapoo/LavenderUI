@@ -11,25 +11,23 @@
 #include <LavenderUI/Core/EventHandler/CoreEvents/FocusGain.hpp>
 #include <LavenderUI/Core/EventHandler/CoreEvents/FocusLost.hpp>
 #include <LavenderUI/Core/LayoutHandler/LayoutBase.hpp>
+#include <LavenderUI/Core/TextHandler/CaretHelper.hpp>
 #include <LavenderUI/Core/Config.hpp>
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {
 UILineEdit::UILineEdit(UIBaseInitData&& data)
-    : UIBase(std::move(data))
-    , textHandler_(
-        core::Config::shadersPath / "basicTextVert.glsl",
-        core::Config::shadersPath / "basicTextFrag.glsl")
+    : UILabel(std::move(data))
     , placeholderText_()
-    , overrideColor_(std::nullopt)
+    , caretColor_(utils::hexToVec4("#333333ff"))
     , numericOnly_(false)
+    , isEditable_(true)
+    , focused_(false)
+    , blinkIntervalMs_(500)
 {
-    textHandler_.setBlinkTime(std::chrono::milliseconds(500));
-    textHandler_.setEditable(true);
-    textHandler_.setTextColor(utils::hexToVec4("#333333ff"));
-    textHandler_.setCaretColor(utils::hexToVec4("#333333ff"));
     layoutBase_.setScale({200_px, 50_px});
+    core::CaretHelper::get().setCaretScale({1, font_->baseVerticalSep});
 }
 
 auto UILineEdit::onRender(const glm::mat4& projection) -> void
@@ -47,14 +45,13 @@ auto UILineEdit::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
-    textHandler_.render(projection);
+    handleText(projection);
+    handleCaretRendering(projection);
 }
 
 auto UILineEdit::onLayout() -> void
 {
-    const glm::ivec2 boundsStart = layoutBase_.getComputedPos();
-    const glm::ivec2 boundsScale =  layoutBase_.getComputedScale();
-    textHandler_.setDisplayBounds({boundsStart, boundsScale, layoutBase_.getZIndex()});
+    UILabel::onLayout();
 }
 
 auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
@@ -69,7 +66,7 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
 
         if (shouldAccept)
         {
-            textHandler_.appendAtCaretPos(recentCp);
+            appendAtCaretPos(recentCp);
 
             core::TextChangedEvt e{getText()};
             eventsMgr_.emitEvent<core::TextChangedEvt>(e);
@@ -85,23 +82,23 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
         }
         else if (state->keyRecent.value() == lav::Key::BACKSPACE)
         {
-            textHandler_.removeAtCaretPos();
+            removeAtCaretPos();
 
             core::TextChangedEvt e{getText()};
             eventsMgr_.emitEvent<core::TextChangedEvt>(e);
         }
         else if (state->keyRecent.value() == lav::Key::LEFT)
         {
-            textHandler_.moveCaretLeft();
+            // moveCaretLeft();
         }
         else if (state->keyRecent.value() == lav::Key::RIGHT)
         {
-            textHandler_.moveCaretRight();
+            // moveCaretRight();
         }
     }
     else if (eId == core::FocusGainEvt::eventId)
     {
-        textHandler_.setFocused(true);
+        setFocused(true);
 
         layoutBase_.setBorder({1});
         setBorderColor(utils::hexToVec4("#505350ff"));
@@ -111,12 +108,50 @@ auto UILineEdit::onEvent(core::UIStatePtr& state) -> void
     }
     else if (eId == core::FocusLostEvt::eventId)
     {
-        textHandler_.setFocused(false);
+        setFocused(false);
 
         layoutBase_.setBorder({0});
         core::FocusLostEvt e;
         eventsMgr_.emitEvent<core::FocusLostEvt>(e);
     }
+}
+
+auto UILineEdit::notifyTyping() -> void
+{
+    core::CaretHelper::get().requestKeepAlive();
+}
+
+auto UILineEdit::appendAtCaretPos(const char chr) -> void
+{
+    if (!isEditable_) { return; }
+    storedText_ += chr;
+    notifyTyping();
+}
+
+auto UILineEdit::removeAtCaretPos() -> void
+{
+    if (!isEditable_ || storedText_.empty()) { return; }
+    storedText_.pop_back();
+    notifyTyping();
+}
+
+auto UILineEdit::setFocused(const bool focused) -> void
+{
+    if (!isEditable_) { return; }
+
+    if (focused)
+    {
+        core::CaretHelper::get().start();
+        core::CaretHelper::get().setBlinkTime(blinkIntervalMs_);
+        core::CaretHelper::get().setCaretColor(caretColor_);
+        core::CaretHelper::get().setCaretScale({1, font_->baseVerticalSep});
+    }
+    else
+    {
+        core::CaretHelper::get().stop();
+    }
+
+    focused_ = focused;
 }
 
 auto UILineEdit::performFiltering(const char codepoint) -> bool
@@ -135,29 +170,35 @@ auto UILineEdit::performFiltering(const char codepoint) -> bool
     return filterPassed;
 }
 
-auto UILineEdit::enableNumbericOnly(const bool enable) -> void
+auto UILineEdit::handleCaretRendering(const glm::mat4& projection) -> void
+{
+    /* Check if caret needs to be displayed. */
+    if (!isEditable_ || !focused_) { return; }
+
+    glm::ivec2 caretPos_;
+    caretPos_.x = basePos_.x;
+    caretPos_.y = basePos_.y - font_->baseVerticalSep - font_->descender;
+    core::CaretHelper::get().setCaretPos(caretPos_);
+    core::CaretHelper::get().render(projection);
+}
+
+auto UILineEdit::setCaretColor(const glm::vec4& color) -> void
+{
+    caretColor_ = color;
+}
+
+auto UILineEdit::setBlinkTime(const std::chrono::milliseconds& ms) -> void
+{
+    blinkIntervalMs_ = ms;
+}
+
+auto UILineEdit::setEditable(const bool editable) -> void
+{
+    isEditable_ = editable;
+}
+
+auto UILineEdit::setNumbericOnly(const bool enable) -> void
 {
     numericOnly_ = enable;
-}
-
-auto UILineEdit::setText(const std::string& text) -> void
-{
-    textHandler_.setText(text);
-}
-
-auto UILineEdit::setFont(const std::filesystem::path& fontPath) -> void
-{
-    textHandler_.setFont(fontPath);
-}
-
-auto UILineEdit::setTextColor(const glm::vec4& color) -> void
-{
-    textHandler_.setTextColor(color);
-    textHandler_.setCaretColor(color);
-}
-
-auto UILineEdit::getText() const -> std::string
-{
-    return textHandler_.getText();
 }
 } // namespace src::uinodes
