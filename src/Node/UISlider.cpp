@@ -30,6 +30,7 @@ UISlider::UISlider(UIBaseInitData&& initData)
     label_->setColor(utils::hexToVec4("#ffffff00"));
     label_->getBaseLayoutData().setScale({1_fill, 1_fill});
     label_->setTextAlign(core::TextOptions::Align::CENTER);
+    label_->setIgnoreEvents();
 
     setScrollFrom(0);
 

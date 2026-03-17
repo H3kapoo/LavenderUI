@@ -3,7 +3,7 @@
 #include <optional>
 
 #include <LavenderUI/Core/ResourceHandler/Font.hpp>
-#include "LavenderUI/Core/TextHandler/Common.hpp"
+#include <LavenderUI/Core/TextHandler/Common.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav::node
@@ -47,6 +47,7 @@ private:
 protected:
     core::TextOptions options_;
     core::TextLayoutBounds layoutBounds_;
+    std::optional<glm::vec4> overrideColor_;
     std::string storedText_;
     glm::vec4 textColor_;
     glm::ivec2 lastCharPos_;
@@ -55,7 +56,6 @@ protected:
 
     core::Shader textShader_;
     core::FontPtr font_; // why ptr?
-    std::optional<glm::vec4> overrideColor_;
 };
 using UILabelPtr = std::shared_ptr<UILabel>;
 using UILabelWPtr = std::weak_ptr<UILabel>;

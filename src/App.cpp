@@ -5,7 +5,7 @@
 
 #include <LavenderUI/Core/Binders/GPUBinder.hpp>
 #include <LavenderUI/Core/Binders/WindowBinder.hpp>
-#include <LavenderUI/Core/ViewParser/LavParser.hpp>
+#include <LavenderUI/ViewParser/LavParser.hpp>
 #include <LavenderUI/Node/UIBase.hpp>
 
 namespace lav

@@ -47,19 +47,19 @@ function(addSources)
         src/Core/Binders/FileResourceBinder.cpp
 
         # Parser
-        src/Core/ViewParser/LavParser.cpp
-        src/Core/ViewParser/ParseHelpers.cpp
-        src/Core/ViewParser/Rules/AppRule.cpp
-        src/Core/ViewParser/Rules/PaneRule.cpp
-        src/Core/ViewParser/Rules/ImageRule.cpp
-        src/Core/ViewParser/Rules/ButtonRule.cpp
-        src/Core/ViewParser/Rules/LabelRule.cpp
-        src/Core/ViewParser/Rules/SliderRule.cpp
-        src/Core/ViewParser/Rules/DropdownRule.cpp
-        src/Core/ViewParser/Rules/SplitPaneRule.cpp
-        src/Core/ViewParser/Rules/ListViewRule.cpp
-        src/Core/ViewParser/Rules/TreeViewRule.cpp
-        src/Core/ViewParser/Rules/LineEditRule.cpp
+        src/ViewParser/LavParser.cpp
+        src/ViewParser/ParseHelpers.cpp
+        src/ViewParser/Rules/AppRule.cpp
+        src/ViewParser/Rules/PaneRule.cpp
+        src/ViewParser/Rules/ImageRule.cpp
+        src/ViewParser/Rules/ButtonRule.cpp
+        src/ViewParser/Rules/LabelRule.cpp
+        src/ViewParser/Rules/SliderRule.cpp
+        src/ViewParser/Rules/DropdownRule.cpp
+        src/ViewParser/Rules/SplitPaneRule.cpp
+        src/ViewParser/Rules/ListViewRule.cpp
+        src/ViewParser/Rules/TreeViewRule.cpp
+        src/ViewParser/Rules/LineEditRule.cpp
 
         # Resource Handlers
         src/Core/ResourceHandler/Mesh.cpp

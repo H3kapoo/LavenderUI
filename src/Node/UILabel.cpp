@@ -17,15 +17,13 @@ namespace lav::node
 UILabel::UILabel(UIBaseInitData&& data)
     : UIBase(std::move(data))
     , textColor_(utils::hexToVec4("#141414ff"))
+    , overrideColor_(std::nullopt)
     , textShader_(core::ShaderLoader::get().load(
         core::Config::shadersPath / "basicTextVert.glsl",
         core::Config::shadersPath / "basicTextFrag.glsl"))
     , font_(core::FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
-    , overrideColor_(std::nullopt)
 {
     layoutBase_.setScale({200_px, 50_px});
-    // textHandler_.setWrapEnabled(true);
-    // setIgnoreEvents(); // TODO: Shall ignore events only when parented to a button
 }
 
 auto UILabel::onRender(const glm::mat4& projection) -> void
@@ -77,8 +75,13 @@ auto UILabel::handleText(const glm::mat4& projection) -> void
     textShader_.uploadMat4("uMatrixProjection", projection);
     textShader_.uploadTexture2DArray("uTextureArray", 0, font_->textureId);
 
-    // alignText();
-
+    alignText();
+    // for now just focus on having one functional line of text that can wrap
+    // and be centered even if it looks like multiple lines
+    // also caretHelper shall be integrated in UILineEdit
+    // actually even better,
+    // simulate in label fake lines like line 1 starts from char 0 to char 4
+    // line 1 from char 5 to 9 and then when doing the layout we center each fake line
     core::TextBatchStore::get().start();
     while (prepareNextBatch())
     {
