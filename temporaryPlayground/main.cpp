@@ -6,6 +6,7 @@
 #include "LavenderUI/Core/EventHandler/CoreEvents/Slide.hpp"
 #include "LavenderUI/Core/EventHandler/CoreEvents/TextChanged.hpp"
 #include "LavenderUI/Core/LayoutHandler/LayoutBase.hpp"
+#include "LavenderUI/Core/TextHandler/Common.hpp"
 #include "LavenderUI/Core/ViewModels/ListModels.hpp"
 #include "LavenderUI/Core/ViewModels/TreeModels.hpp"
 #include "LavenderUI/Node/UIDropdown.hpp"
@@ -113,7 +114,7 @@ int main()
     App& app = App::get();
     if (!app.init()) { return 1; }
     app.enableTitleWithFPS();
-    UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test.xml");
+    UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test2.xml");
     window.lock()->setColor(utils::hexToVec4("#38455eff"));
 
     // UIWindowWPtr window2 = app.createWindow("myWindow", {860, 480});
@@ -129,15 +130,16 @@ int main()
 
     // auto label = window.lock()->findElementByViewId<UILineEdit>("mylabel").lock();
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
-    label->setTextWrap(true);
+    // label->setTextWrap(core::TextOptions::Wrap::CHAR);
+    label->setTextEllipsis(3);
     // label->getBaseLayoutData().setPadding({4});
-    // label->getBaseLayoutData().setBorder({4, 4, 4, 4});
-    // label->setBorderColor(utils::hexToVec4("#c91c1cff"));
+    // label->getBaseLayoutData().setBorder({4});
+    label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");
     // label->setTextEllipsis();
-    label->setTextAlign(core::TextOptions::Align::CENTER);
-    // label->setFontSize(25);
-    label->setFontSize(27);
+    // label->setTextAlign(core::TextOptions::Align::CENTER);
+    label->setFontSize(25);
+    // label->setFontSize(30);
     // label->setFontSize(34);
     // label->setScaleToTextSize();
     // label->setTextColor(utils::hexToVec4("#f03434ff"));
@@ -150,13 +152,13 @@ int main()
     // label2->setTextAlign(core::TextOptions::Align::CENTER);
     // label2->setTextColor(utils::hexToVec4("#f03434ff"));
 
-    // auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
-    // slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
-    // {
-    //     uint32_t fs = static_cast<uint32_t>(e.value);
-    //     // log.info("value {}", fs);
-    //     label->setFontSize(fs);
-    // });
+    auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
+    slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
+    {
+        uint32_t fs = static_cast<uint32_t>(e.value);
+        // log.info("value {}", fs);
+        label->setFontSize(fs);
+    });
     app.run();
     return 0;
 }

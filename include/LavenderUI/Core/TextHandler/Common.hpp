@@ -28,9 +28,16 @@ public:
         LEFT, CENTER, RIGHT
     };
 
-    Align align{Align::LEFT};
+    enum class Wrap
+    {
+        NONE,
+        CHAR,
+        WORD
+    };
+
     uint32_t ellipsis{0};
-    uint32_t lineHeight{0};
-    bool wrap{false};
+    uint32_t lineHeight{1};
+    Align align{Align::LEFT};
+    Wrap wrap{Wrap::NONE};
 };
 } // namespace lav::core

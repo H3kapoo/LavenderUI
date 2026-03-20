@@ -10,6 +10,7 @@
 
 namespace lav::node
 {
+namespace fs = std::filesystem;
 
 /**
     @brief:

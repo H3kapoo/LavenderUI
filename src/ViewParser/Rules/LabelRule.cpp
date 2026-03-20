@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/TextHandler/Common.hpp"
 #include <LavenderUI/ViewParser/Rules/LabelRule.hpp>
 
 #include <LavenderUI/ViewParser/Rules/IRule.hpp>
@@ -32,6 +33,21 @@ auto LabelRule::parseAndApply(node::UIBasePtr object,
         else if (key == "vid")
         {
             label->setViewId(value);
+        }
+        else if (key == "wrap")
+        {
+            if (value == "char" || value == "c")
+            {
+                label->setTextWrap(core::TextOptions::Wrap::CHAR);
+            }
+            else if (value == "word" || value == "w")
+            {
+                label->setTextWrap(core::TextOptions::Wrap::WORD);
+            }
+        }
+        else if (key == "ellipsis")
+        {
+            label->setTextEllipsis(ph.toNumber(value));
         }
     }
 }

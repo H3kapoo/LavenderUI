@@ -45,7 +45,7 @@ auto UILineEdit::onRender(const glm::mat4& projection) -> void
     core::GPUBinder::get().renderBoundQuad();
 
     /* Draw the text */
-    handleText(projection);
+    // handleText(projection);
     handleCaretRendering(projection);
 }
 
@@ -176,8 +176,8 @@ auto UILineEdit::handleCaretRendering(const glm::mat4& projection) -> void
     if (!isEditable_ || !focused_) { return; }
 
     glm::ivec2 caretPos_;
-    caretPos_.x = basePos_.x;
-    caretPos_.y = basePos_.y - font_->baseVerticalSep - font_->descender;
+    // caretPos_.x = basePos_.x;
+    // caretPos_.y = basePos_.y - font_->baseVerticalSep - font_->descender;
     core::CaretHelper::get().setCaretPos(caretPos_);
     core::CaretHelper::get().render(projection);
 }

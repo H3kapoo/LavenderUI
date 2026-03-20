@@ -30,9 +30,9 @@ struct Font
     GlyphData glyphData[MAX_GLYPHS];
     uint32_t textureId{0};
     int32_t fontSize{DEFAULT_FONT_SIZE};
-    int32_t ascender{0};
-    int32_t descender{0};
-    int32_t baseVerticalSep{0};
+    int32_t ascender{0}; /** Recommended max above baseline */
+    int32_t descender{0}; /** Recommended max bellow baseline (negative) */
+    int32_t baseVerticalSep{0}; /* Absolute addition between ascender and descender **/
     fs::path fontPath;
 };
 using FontPtr = std::shared_ptr<Font>;
