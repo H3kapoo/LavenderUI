@@ -107,6 +107,9 @@ protected:
     };
 
 private:
+    using TextModelVec = std::vector<glm::mat4>;
+    using TextGlyphVec = std::vector<int32_t>;
+
     auto renderBatch() -> void;
     auto handleLine(const LineData& ld) -> void;
     auto handleEllipsis(glm::ivec2& basePos) -> void;
@@ -117,6 +120,13 @@ private:
     auto computeInternalData() -> void;
     auto prepareBasePositionForLine(const LineData& ld) -> glm::ivec2;
     auto getMaxBoundPos() const -> glm::ivec2;
+
+    /* Batching */
+    auto startTextBatching() -> void;
+    auto endTextBatching() -> void;
+    auto clearTextBuffer() -> void;
+    auto isTextBatchFull() const -> bool;
+    auto getCurrentBatchSize() const -> uint32_t;
 
 protected:
     core::TextOptions options_;
@@ -130,6 +140,13 @@ protected:
     glm::ivec2 textRenderBoundScale_;
     glm::ivec2 lastCharPos_;
     glm::uvec2 maxLineDataXY_;
+
+private:
+    /* Batching */
+    static TextModelVec glyphModel_;
+    static TextGlyphVec glyphCode_;
+    static uint32_t batchLimit_;
+    static uint32_t batchesCount_;
 };
 using UILabelPtr = std::shared_ptr<UILabel>;
 using UILabelWPtr = std::weak_ptr<UILabel>;

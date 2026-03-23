@@ -12,11 +12,15 @@
 #include "LavenderUI/Core/ResourceHandler/ShaderLoader.hpp"
 #include "LavenderUI/Core/ResourceHandler/FontLoader.hpp"
 #include "LavenderUI/Core/TextHandler/Common.hpp"
-#include "LavenderUI/Core/TextHandler/TextBatchStore.hpp"
 #include <LavenderUI/Utils/Misc.hpp>
 
 namespace lav::node
 {
+UILabel::TextModelVec UILabel::glyphModel_ = {};
+UILabel::TextGlyphVec UILabel::glyphCode_ = {};
+uint32_t UILabel::batchLimit_ = 128;
+uint32_t UILabel::batchesCount_ = 0;
+
 UILabel::UILabel(UIBaseInitData&& data)
     : UIBase(std::move(data))
     , options_({
@@ -58,6 +62,7 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
 
     /* Draw the text. */
     batchText(projection);
+    log_.debug("batches rendered {}", batchesCount_);
 }
 
 auto UILabel::onLayout() -> void
@@ -75,7 +80,7 @@ auto UILabel::onEvent(core::UIStatePtr& state) -> void
     {
         for (const auto ld : lineData_)
         {
-            log_.info("Start {} length {}", ld.startIdx, ld.length);
+            log_.info("Start {} length {}", ld.startIdx, ld.endIdx);
         }
         log_.warn("Max line {}", maxLineDataXY_.x);
     }
@@ -93,14 +98,12 @@ auto UILabel::batchText(const glm::mat4& projection) -> void
     textShader_.uploadMat4("uMatrixProjection", projection);
     textShader_.uploadTexture2DArray("uTextureArray", 0, font_->textureId);
 
-    core::TextBatchStore::get().start();
-
+    startTextBatching();
     for (const LineData& lineData : lineData_)
     {
         handleLine(lineData);
     }
-
-    core::TextBatchStore::get().end();
+    endTextBatching();
 
     /* Save where the last char was placed. */
     // lastCharPos_ = basePos;
@@ -108,14 +111,14 @@ auto UILabel::batchText(const glm::mat4& projection) -> void
 
 auto UILabel::renderBatch() -> void
 {
-    const auto size = core::TextBatchStore::get().getCurrentBatchSize();
+    const auto size = glyphCode_.size();
     if (!size) { return; }
 
     /* Render current batch. */
-    textShader_.uploadIntv("uCharIndices", core::TextBatchStore::get().getGlyphs());
-    textShader_.uploadMat4v("uModelMatrices", core::TextBatchStore::get().getModels());
+    textShader_.uploadIntv("uCharIndices", glyphCode_);
+    textShader_.uploadMat4v("uModelMatrices", glyphModel_);
     core::GPUBinder::get().renderBoundQuadInstanced(size);
-    core::TextBatchStore::get().clearBuffer();
+    clearTextBuffer();
 }
 
 auto UILabel::handleLine(const LineData& ld) -> void
@@ -126,16 +129,17 @@ auto UILabel::handleLine(const LineData& ld) -> void
 
     for (uint32_t idx = ld.startIdx; idx < ld.endIdx; ++idx)
     {
-        if (core::TextBatchStore::get().isFull()) { renderBatch(); }
+        if (isTextBatchFull()) { renderBatch(); }
 
-        core::Font::GlyphData gd = font_->glyphData[storedText_[idx]];
-        if (getMaxBoundPos().x - (basePos.x + (gd.hAdvance >> 6)) <= ellipsisSize)
-        {
-            ellipsisNeeded = true;
-            break;
-        }
-
-        core::TextBatchStore::get().setGlobalOffset(idx);
+        const core::Font::GlyphData& gd = font_->glyphData[storedText_[idx]];
+        // if (getMaxBoundPos().x - (basePos.x + (gd.hAdvance >> 6)) <= ellipsisSize)
+        // {
+        //     if (ld.lineIdx + 1 == lineData_.size())
+        //     {
+        //         ellipsisNeeded = true;
+        //         break;
+        //     }
+        // }
 
         /* Ajust char into position. */
         glm::ivec2 pos = basePos;
@@ -158,11 +162,10 @@ auto UILabel::handleLine(const LineData& ld) -> void
 
 auto UILabel::handleEllipsis(glm::ivec2& basePos) -> void
 {
+    const core::Font::GlyphData& gd = font_->glyphData['.'];
     for (uint32_t el = 0; el < options_.ellipsis; ++el)
     {
-        if (core::TextBatchStore::get().isFull()) { renderBatch(); }
-        core::Font::GlyphData gd = font_->glyphData['.'];
-        gd = font_->glyphData['.'];
+        if (isTextBatchFull()) { renderBatch(); }
 
         /* Ajust char into position. */
         glm::ivec2 pos = basePos;
@@ -180,7 +183,10 @@ auto UILabel::pushCharData(const core::Font::GlyphData& data, const glm::ivec2 p
     model = glm::translate(model, glm::vec3(pos.x, pos.y, layoutBase_.getZIndex() + 0.01f));
     model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
 
-    core::TextBatchStore::get().push(data.glyphCode, std::move(model));
+    glyphCode_.emplace_back(data.glyphCode);
+    glyphModel_.emplace_back(std::move(model));
+
+    if (isTextBatchFull()) { ++batchesCount_; }
 }
 
 auto UILabel::advanceBasePosition(const core::Font::GlyphData& data,
@@ -217,6 +223,15 @@ auto UILabel::computeInternalData() -> void
         glm::ivec2 pos;
         pos.x = rawPos.x + gd.bearing.x;
         pos.y = rawPos.y - gd.bearing.y;
+
+        if (pos.y > getMaxBoundPos().y)
+        {
+            ld.endIdx = idx+1;
+            maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
+            lineData_.push_back(ld);
+            maxLineDataXY_.y = lineData_.size() * font_->baseVerticalSep;
+            return;
+        }
 
         /* If this is true, current char will be placed on a new line. */
         if (options_.wrap == core::TextOptions::Wrap::CHAR
@@ -256,7 +271,7 @@ auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
         case core::TextOptions::Align::LEFT:
             break;
         case core::TextOptions::Align::CENTER:
-            basePos.x += (textRenderBoundScale_.x - ld.length) / 2;
+            basePos.x += (textRenderBoundScale_.x - static_cast<int32_t>(ld.length)) / 2;
             basePos.y += (textRenderBoundScale_.y - static_cast<int32_t>(maxLineDataXY_.y)) / 2;
             break;
         case core::TextOptions::Align::RIGHT:
@@ -271,6 +286,28 @@ auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
 auto UILabel::getMaxBoundPos() const -> glm::ivec2
 {
     return textRenderBoundStart_ + textRenderBoundScale_;
+}
+
+auto UILabel::startTextBatching() -> void
+{
+    batchesCount_ = 0;
+    clearTextBuffer();
+}
+
+auto UILabel::isTextBatchFull() const -> bool
+{
+    return glyphCode_.size() == batchLimit_ && glyphModel_.size() == batchLimit_;
+}
+
+auto UILabel::endTextBatching() -> void
+{
+    batchesCount_ += glyphCode_.empty() || isTextBatchFull() ? 0 : 1;
+}
+
+auto UILabel::clearTextBuffer() -> void
+{
+    glyphCode_.clear();
+    glyphModel_.clear();
 }
 
 auto UILabel::setText(const std::string& text) -> void

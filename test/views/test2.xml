@@ -6,12 +6,12 @@
         <!-- <LineEdit vid="mylabel" scale="Fill, Fill" text="a. Bla bla"/> -->
         <!-- <LineEdit vid="mylabel" scale="Fill, Fill" text="a. Bla bla"/> -->
     <!-- <Pane vid="something" ori="Horizontal" scale="50%, 24px"> -->
-        <Label vid="mylabel" wrap="" ellipsis="3" scale="50%, 50%" text="TpAtgX ceva and some more texggst here porche not"/>
-        <!-- <Label vid="mylabel" scale="50%, 50%" text="TpAtgXcevaandsomemoretexggsthereporchenot"/> -->
-        <!-- <Label vid="mylabel" scale="Fill, Fill" text="TpAtgX ceva and some more texggst here porche not"/> -->
-        <!-- <Label vid="mylabel" scale="Fill, Fill" text="TpAtgX"></Label> -->
-        <!-- <Label vid="mylabel" scale="50%, 50%" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus ne vulputate leo. Duis egestas ante a nibh finibus, eu aenean."/> -->
-        <!-- <Label vid="mylabel" scale="Fill, Fill" text=""/> -->
+        <Label vid="mylabel" align="c" wrap="c" ellipsis="0" scale="50%, 50%" text="
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non elit non tortor rutrum blandit quis quis dolor. Duis id malesuada urna, at pharetra nunc. Duis quis porta sapien. Cras at lorem nec libero vehicula rutrum. Nunc condimentum tristique consectetur. Mauris maximus eros vel massa tincidunt feugiat. Curabitur ut dolor porttitor, aliquet ipsum et, vehicula dolor. Quisque aliquet sollicitudin libero, sit amet elementum tortor eleifend semper. Nam vehicula quam maximus dui gravida pharetra. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Fusce porta auctor varius. Praesent egestas diam ut tortor euismod volutpat. Nullam iaculis vel sapien id euismod. Praesent sem erat, accumsan blandit massa a, lobortis finibus odio. Pellentesque eget malesuada nisi. Nam et fermentum dolor. Sed vitae placerat odio. Nam elementum neque quis tempor efficitur. Proin mollis tellus a lacus finibus, non sagittis dolor finibus. Quisque nisi metus, pretium ut mattis sed, porta sed lacus. In viverra maximus semper.
+Morbi porta arcu vitae velit volutpat maximus eget ut est. Nulla at neque eget enim lobortis iaculis. Nulla vestibulum, leo vel maximus auctor, ante nulla varius lectus, ultricies porttitor lacus tellus congue ex. Ut non pharetra nisl. Mauris posuere urna in mattis pulvinar. Vestibulum eu metus interdum, dignissim felis quis, accumsan arcu. Nunc enim ante, porta et congue quis, mattis a elit. Nulla pharetra ante eget orci fringilla molestie. Nullam consectetur magna ac tortor ultrices, dignissim porta purus consectetur. "/>
+    <!-- <Label vid="mylabel" align="c" wrap="c" ellipsis="0" scale="50%, 50%" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non elit non tortor rutrum blandit " /> -->
+
     <!-- </Pane> -->
     <Slider vid="slid" ori="Horizontal" scale="50%, 20px" from="13" to="78" color="#B3E0FEFF" kcolor="#0299FDFF"/>
 </App>

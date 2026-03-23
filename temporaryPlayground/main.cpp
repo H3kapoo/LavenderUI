@@ -131,7 +131,7 @@ int main()
     // auto label = window.lock()->findElementByViewId<UILineEdit>("mylabel").lock();
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
     // label->setTextWrap(core::TextOptions::Wrap::CHAR);
-    label->setTextEllipsis(3);
+    // label->setTextEllipsis(3);
     // label->getBaseLayoutData().setPadding({4});
     // label->getBaseLayoutData().setBorder({4});
     label->setBorderColor(utils::hexToVec4("#c91c1cff"));

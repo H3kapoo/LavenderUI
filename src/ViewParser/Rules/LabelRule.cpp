@@ -47,7 +47,16 @@ auto LabelRule::parseAndApply(node::UIBasePtr object,
         }
         else if (key == "ellipsis")
         {
-            label->setTextEllipsis(ph.toNumber(value));
+            const int32_t val = ph.toNumber(value);
+            label->setTextEllipsis(val < 2 ? 0 : val);
+        }
+        else if (key == "align")
+        {
+            // TODO: Create custom func
+            if (value == "c")
+            {
+                label->setTextAlign(core::TextOptions::Align::CENTER);
+            }
         }
     }
 }

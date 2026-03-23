@@ -79,7 +79,6 @@ function(addSources)
 
         # Text
         src/Core/TextHandler/CaretHelper.cpp
-        src/Core/TextHandler/TextBatchStore.cpp
 
         # UI Nodes
         src/Node/UIBase.cpp
