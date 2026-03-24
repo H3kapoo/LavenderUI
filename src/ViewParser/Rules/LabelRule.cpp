@@ -1,3 +1,4 @@
+#include "LavenderUI/Core/Config.hpp"
 #include "LavenderUI/Core/TextHandler/Common.hpp"
 #include <LavenderUI/ViewParser/Rules/LabelRule.hpp>
 
@@ -57,6 +58,10 @@ auto LabelRule::parseAndApply(node::UIBasePtr object,
             {
                 label->setTextAlign(core::TextOptions::Align::CENTER);
             }
+        }
+        else if (key == "font")
+        {
+            label->setFont(core::Config::fontsPath / value);
         }
     }
 }

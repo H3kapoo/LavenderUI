@@ -40,6 +40,7 @@ UILabel::UILabel(UIBaseInitData&& data)
     , textRenderBoundScale_(0, 0)
     , lastCharPos_(0, 0)
     , maxLineDataXY_(0, 0)
+    , hasMoreText_(false)
 {
     /* Set runtime defaults */
     layoutBase_.setScale({200_px, 50_px});
@@ -62,7 +63,6 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
 
     /* Draw the text. */
     batchText(projection);
-    log_.debug("batches rendered {}", batchesCount_);
 }
 
 auto UILabel::onLayout() -> void
@@ -104,9 +104,6 @@ auto UILabel::batchText(const glm::mat4& projection) -> void
         handleLine(lineData);
     }
     endTextBatching();
-
-    /* Save where the last char was placed. */
-    // lastCharPos_ = basePos;
 }
 
 auto UILabel::renderBatch() -> void
@@ -123,23 +120,15 @@ auto UILabel::renderBatch() -> void
 
 auto UILabel::handleLine(const LineData& ld) -> void
 {
-    const uint32_t ellipsisSize = (font_->glyphData['.'].hAdvance >> 6) * options_.ellipsis;
     glm::ivec2 basePos{prepareBasePositionForLine(ld)};
     bool ellipsisNeeded{false};
 
     for (uint32_t idx = ld.startIdx; idx < ld.endIdx; ++idx)
     {
-        if (isTextBatchFull()) { renderBatch(); }
-
         const core::Font::GlyphData& gd = font_->glyphData[storedText_[idx]];
-        // if (getMaxBoundPos().x - (basePos.x + (gd.hAdvance >> 6)) <= ellipsisSize)
-        // {
-        //     if (ld.lineIdx + 1 == lineData_.size())
-        //     {
-        //         ellipsisNeeded = true;
-        //         break;
-        //     }
-        // }
+
+        if (isTextBatchFull()) { renderBatch(); }
+        if (ellipsisNeeded = isEllipsisNeeded(isLastLine(ld), gd, basePos); ellipsisNeeded) { break; }
 
         /* Ajust char into position. */
         glm::ivec2 pos = basePos;
@@ -157,7 +146,7 @@ auto UILabel::handleLine(const LineData& ld) -> void
     if (ellipsisNeeded) { handleEllipsis(basePos); };
 
     /* Render last batch. */
-    if (ld.lineIdx + 1 == lineData_.size()) { renderBatch(); }
+    if (isLastLine(ld)) { renderBatch(); }
 }
 
 auto UILabel::handleEllipsis(glm::ivec2& basePos) -> void
@@ -192,8 +181,7 @@ auto UILabel::pushCharData(const core::Font::GlyphData& data, const glm::ivec2 p
 auto UILabel::advanceBasePosition(const core::Font::GlyphData& data,
     glm::ivec2& basePos) -> void
 {
-    /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
-    basePos += glm::ivec2{(data.hAdvance >> 6), 0};
+    basePos += glm::ivec2{getAdvance(data), 0};
 }
 
 auto UILabel::computeAvailableTextBounds() -> void
@@ -224,12 +212,12 @@ auto UILabel::computeInternalData() -> void
         pos.x = rawPos.x + gd.bearing.x;
         pos.y = rawPos.y - gd.bearing.y;
 
-        if (pos.y > getMaxBoundPos().y)
+        /* Stop if line is outside renderable zone. */
+        if (pos.y + gd.size.y > getMaxBoundPos().y - font_->baseVerticalSep)
         {
-            ld.endIdx = idx+1;
             maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
-            lineData_.push_back(ld);
             maxLineDataXY_.y = lineData_.size() * font_->baseVerticalSep;
+            hasMoreText_ = true;
             return;
         }
 
@@ -251,10 +239,11 @@ auto UILabel::computeInternalData() -> void
             ld.lineIdx++;
         }
 
-        rawPos += glm::ivec2{(gd.hAdvance >> 6), 0};
-        ld.length += (gd.hAdvance >> 6);
+        rawPos += glm::ivec2{getAdvance(gd), 0};
+        ld.length += getAdvance(gd);
     }
 
+    hasMoreText_ = false;
     ld.endIdx = storedText_.size();
     maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
     lineData_.push_back(ld);
@@ -271,8 +260,8 @@ auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
         case core::TextOptions::Align::LEFT:
             break;
         case core::TextOptions::Align::CENTER:
-            basePos.x += (textRenderBoundScale_.x - static_cast<int32_t>(ld.length)) / 2;
-            basePos.y += (textRenderBoundScale_.y - static_cast<int32_t>(maxLineDataXY_.y)) / 2;
+            basePos.x += (textRenderBoundScale_.x - ld.length) / 2;
+            basePos.y += (textRenderBoundScale_.y - maxLineDataXY_.y) / 2;
             break;
         case core::TextOptions::Align::RIGHT:
             break;
@@ -286,6 +275,33 @@ auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
 auto UILabel::getMaxBoundPos() const -> glm::ivec2
 {
     return textRenderBoundStart_ + textRenderBoundScale_;
+}
+
+auto UILabel::isEllipsisNeeded(const bool isLast, const core::Font::GlyphData& data,
+    const glm::ivec2& pos) -> bool
+{
+    if (options_.wrap != core::TextOptions::Wrap::NONE && !hasMoreText_) { return false; }
+    if (!isLast) { return false; }
+
+    const int32_t ellipsisSize = getAdvance(data) * options_.ellipsis;
+    const int32_t positionAfterAdvance = pos.x + getAdvance(data);
+    if (getMaxBoundPos().x - positionAfterAdvance <= ellipsisSize)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+auto UILabel::isLastLine(const LineData& ld) -> bool
+{
+    return ld.lineIdx + 1 == lineData_.size();
+}
+
+auto UILabel::getAdvance(const core::Font::GlyphData& data) -> uint32_t
+{
+    /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
+    return font_->glyphData[data.glyphCode].hAdvance >> 6;
 }
 
 auto UILabel::startTextBatching() -> void

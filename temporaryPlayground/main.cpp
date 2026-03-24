@@ -132,7 +132,7 @@ int main()
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
     // label->setTextWrap(core::TextOptions::Wrap::CHAR);
     // label->setTextEllipsis(3);
-    // label->getBaseLayoutData().setPadding({4});
+    // label->getBaseLayoutData().setPadding({10});
     // label->getBaseLayoutData().setBorder({4});
     label->setBorderColor(utils::hexToVec4("#c91c1cff"));
     // label->setText("Foarte ciudat this is a certified yapper");

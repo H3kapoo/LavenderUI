@@ -102,8 +102,8 @@ protected:
     {
         uint32_t startIdx{0};
         uint32_t endIdx{0};
-        uint32_t length{0};
         uint32_t lineIdx{0};
+        int32_t length{0};
     };
 
 private:
@@ -120,6 +120,10 @@ private:
     auto computeInternalData() -> void;
     auto prepareBasePositionForLine(const LineData& ld) -> glm::ivec2;
     auto getMaxBoundPos() const -> glm::ivec2;
+    auto isEllipsisNeeded(const bool isLast, const core::Font::GlyphData& data,
+        const glm::ivec2& pos) -> bool;
+    auto isLastLine(const LineData& ld) -> bool;
+    auto getAdvance(const core::Font::GlyphData& data) -> uint32_t;
 
     /* Batching */
     auto startTextBatching() -> void;
@@ -139,7 +143,8 @@ protected:
     glm::ivec2 textRenderBoundStart_;
     glm::ivec2 textRenderBoundScale_;
     glm::ivec2 lastCharPos_;
-    glm::uvec2 maxLineDataXY_;
+    glm::ivec2 maxLineDataXY_;
+    bool hasMoreText_;
 
 private:
     /* Batching */
