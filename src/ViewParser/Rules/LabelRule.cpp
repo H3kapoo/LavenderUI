@@ -35,6 +35,14 @@ auto LabelRule::parseAndApply(node::UIBasePtr object,
         {
             label->setViewId(value);
         }
+        else if (key == "border")
+        {
+            label->getBaseLayoutData().setBorder(ph.toBorder(value));
+        }
+        else if (key == "bradius")
+        {
+            label->getBaseLayoutData().setBorderRadius(ph.toBorder(value));
+        }
         else if (key == "wrap")
         {
             if (value == "char" || value == "c")

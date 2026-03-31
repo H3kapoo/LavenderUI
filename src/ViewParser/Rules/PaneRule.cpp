@@ -61,6 +61,10 @@ auto PaneRule::parseAndApply(node::UIBasePtr object,
         {
             pane->getBaseLayoutData().setBorder(ph.toBorder(value));
         }
+        else if (key == "bradius")
+        {
+            pane->getBaseLayoutData().setBorderRadius(ph.toBorder(value));
+        }
         else if (key == "align")
         {
             pane->getBaseLayoutData().setAlign(ph.toAlign(value));

@@ -105,7 +105,7 @@ FontPtr FontLoader::loadFontInternal(const fs::path& fontPath, const int32_t fon
         Font::GlyphData ch =
         {
             .glyphCode = uint32_t(i),
-            .hAdvance = ftFace->glyph->advance.x,
+            .hAdvance = ftFace->glyph->advance.x >> 6,
             .size = glm::ivec2(ftFace->glyph->bitmap.width,
                 ftFace->glyph->bitmap.rows),
             .bearing = glm::ivec2(ftFace->glyph->bitmap_left, ftFace->glyph->bitmap_top)

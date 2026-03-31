@@ -117,6 +117,9 @@ int main()
     UIWindowWPtr window = app.loadLavView(core::Config::testViewsPath / "test2.xml");
     window.lock()->setColor(utils::hexToVec4("#38455eff"));
 
+    app.run();
+    return 0;
+
     // UIWindowWPtr window2 = app.createWindow("myWindow", {860, 480});
     // window2.lock()->setColor(utils::hexToVec4("#38455eff"));
     // window2.lock()->getBaseLayoutData().setAlign(LayoutBase::Align::CENTER);
@@ -125,8 +128,6 @@ int main()
     // le3->setText("13456789");
 
     // window2.lock()->add(le3);
-    // app.run();
-    // return 0;
 
     // auto label = window.lock()->findElementByViewId<UILineEdit>("mylabel").lock();
     auto label = window.lock()->findElementByViewId<UILabel>("mylabel").lock();
@@ -134,7 +135,9 @@ int main()
     // label->setTextEllipsis(3);
     // label->getBaseLayoutData().setPadding({10});
     // label->getBaseLayoutData().setBorder({4});
-    label->setBorderColor(utils::hexToVec4("#c91c1cff"));
+    label->setBorderColor(utils::hexToVec4("#000000ff"));
+    label->getBaseLayoutData().setBorder({1});
+    // label->getBaseLayoutData().setPadding({0,0,10,0});
     // label->setText("Foarte ciudat this is a certified yapper");
     // label->setTextEllipsis();
     // label->setTextAlign(core::TextOptions::Align::CENTER);
@@ -153,6 +156,7 @@ int main()
     // label2->setTextColor(utils::hexToVec4("#f03434ff"));
 
     auto slider = window.lock()->findElementByViewId<UISlider>("slid").lock();
+    slider->setScrollSensitivity(1);
     slider->listenEvent<core::SlideEvt>([&log, &label](const auto& e)
     {
         uint32_t fs = static_cast<uint32_t>(e.value);

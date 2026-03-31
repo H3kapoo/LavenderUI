@@ -1,5 +1,7 @@
 #include <LavenderUI/Node/UILabel.hpp>
 
+#include <algorithm>
+#include <functional>
 #include <optional>
 #include <glm/ext/matrix_transform.hpp>
 
@@ -33,14 +35,13 @@ UILabel::UILabel(UIBaseInitData&& data)
         core::Config::shadersPath / "basicTextFrag.glsl"))
     , font_(core::FontLoader::get().loadFont(core::DEFAULT_FONT_PATH))
     , lineData_()
+    , textAvailBounds_()
     , overrideColor_(std::nullopt)
     , storedText_()
     , textColor_(utils::hexToVec4("#141414ff"))
-    , textRenderBoundStart_(0, 0)
-    , textRenderBoundScale_(0, 0)
     , lastCharPos_(0, 0)
     , maxLineDataXY_(0, 0)
-    , hasMoreText_(false)
+    , notAllTextVisible_(false)
 {
     /* Set runtime defaults */
     layoutBase_.setScale({200_px, 50_px});
@@ -67,12 +68,19 @@ auto UILabel::onRender(const glm::mat4& projection) -> void
 
 auto UILabel::onLayout() -> void
 {
-    computeAvailableTextBounds();
-    computeInternalData();
+    /*
+        Compute the bounding box in which the text characters can be arranged.
+        Compute the internal lines which can occur due to wrapping. Data used for alignments.
+        Compute maximum length on each axis for the computed internal lines.
+    */
+    textAvailBounds_ = computeAvailableTextBounds();
+    computeInternalLineData();
+    maxLineDataXY_ = computeInternalLineDataMax();
 }
 
 auto UILabel::onEvent(core::UIStatePtr& state) -> void
 {
+    ss_ = state->windowSize;
     /* Event processing starts here. */
     UIBase::processAndEmitGenericMouseEvents(state);
 
@@ -98,11 +106,12 @@ auto UILabel::batchText(const glm::mat4& projection) -> void
     textShader_.uploadMat4("uMatrixProjection", projection);
     textShader_.uploadTexture2DArray("uTextureArray", 0, font_->textureId);
 
+    /*
+        Each line will be handled separately but one batch could cover more lines. This is done so
+        that we can individualy align lines if wrap is enabled.
+    */
     startTextBatching();
-    for (const LineData& lineData : lineData_)
-    {
-        handleLine(lineData);
-    }
+    for (uint32_t i = 0; i < lineData_.size(); ++i) { handleLine(lineData_[i], i); }
     endTextBatching();
 }
 
@@ -118,56 +127,54 @@ auto UILabel::renderBatch() -> void
     clearTextBuffer();
 }
 
-auto UILabel::handleLine(const LineData& ld) -> void
+auto UILabel::handleLine(const LineData& ld, const uint32_t lineIdx) -> void
 {
-    glm::ivec2 basePos{prepareBasePositionForLine(ld)};
+    const bool isLastLine = lineIdx + 1 == lineData_.size(); 
+    glm::ivec2 lineStart = computeLineStartPos(lineIdx, ld.length);
     bool ellipsisNeeded{false};
 
     for (uint32_t idx = ld.startIdx; idx < ld.endIdx; ++idx)
     {
         const core::Font::GlyphData& gd = font_->glyphData[storedText_[idx]];
 
-        if (isTextBatchFull()) { renderBatch(); }
-        if (ellipsisNeeded = isEllipsisNeeded(isLastLine(ld), gd, basePos); ellipsisNeeded) { break; }
+        if (ellipsisNeeded = isEllipsisNeeded(isLastLine, gd, lineStart); ellipsisNeeded) { break; }
 
         /* Ajust char into position. */
-        glm::ivec2 pos = basePos;
+        glm::ivec2 pos = lineStart;
         pos.x += gd.bearing.x;
         pos.y -= gd.bearing.y;
 
-        advanceBasePosition(gd, basePos);
+        lineStart.x += gd.hAdvance;
 
-        /* Skip rendering any spaces, but take into account the advance. */
-        if (gd.glyphCode == ' ') { continue; }
-
-        pushCharData(gd, pos);
+        pushDataAndRenderIfFull(gd, pos);
     }
 
-    if (ellipsisNeeded) { handleEllipsis(basePos); };
+    if (ellipsisNeeded) { handleEllipsis(lineStart); };
 
     /* Render last batch. */
-    if (isLastLine(ld)) { renderBatch(); }
+    if (isLastLine) { renderBatch(); }
 }
 
-auto UILabel::handleEllipsis(glm::ivec2& basePos) -> void
+auto UILabel::handleEllipsis(glm::ivec2& lineStart) -> void
 {
     const core::Font::GlyphData& gd = font_->glyphData['.'];
     for (uint32_t el = 0; el < options_.ellipsis; ++el)
     {
-        if (isTextBatchFull()) { renderBatch(); }
-
         /* Ajust char into position. */
-        glm::ivec2 pos = basePos;
+        glm::ivec2 pos = lineStart;
         pos.x += gd.bearing.x;
         pos.y -= gd.bearing.y;
 
-        advanceBasePosition(gd, basePos);
-        pushCharData(gd, pos);
+        lineStart.x += gd.hAdvance;
+        pushDataAndRenderIfFull(gd, pos);
     }
 }
 
-auto UILabel::pushCharData(const core::Font::GlyphData& data, const glm::ivec2 pos) -> void
+auto UILabel::pushDataAndRenderIfFull(const core::Font::GlyphData& data, const glm::ivec2 pos) -> void
 {
+    /* Skip rendering any spaces. */
+    if (data.glyphCode == ' ') { return; }
+
     glm::mat4 model{glm::mat4(1.0f)};
     model = glm::translate(model, glm::vec3(pos.x, pos.y, layoutBase_.getZIndex() + 0.01f));
     model = glm::scale(model, glm::vec3(font_->fontSize, font_->fontSize, 1));
@@ -175,16 +182,14 @@ auto UILabel::pushCharData(const core::Font::GlyphData& data, const glm::ivec2 p
     glyphCode_.emplace_back(data.glyphCode);
     glyphModel_.emplace_back(std::move(model));
 
-    if (isTextBatchFull()) { ++batchesCount_; }
+    if (isTextBatchFull())
+    {
+        ++batchesCount_;
+        renderBatch();
+    }
 }
 
-auto UILabel::advanceBasePosition(const core::Font::GlyphData& data,
-    glm::ivec2& basePos) -> void
-{
-    basePos += glm::ivec2{getAdvance(data), 0};
-}
-
-auto UILabel::computeAvailableTextBounds() -> void
+auto UILabel::computeAvailableTextBounds() const -> TextAvailBounds
 {
     const glm::ivec2 padStartPush = {
         layoutBase_.getPadding().left + layoutBase_.getBorder().left,
@@ -192,18 +197,22 @@ auto UILabel::computeAvailableTextBounds() -> void
     const glm::ivec2 padEndPop = {
         padStartPush.x + layoutBase_.getPadding().right + layoutBase_.getBorder().right,
         padStartPush.y + layoutBase_.getPadding().bot + layoutBase_.getBorder().bot};
-    textRenderBoundStart_ = layoutBase_.getComputedPos() + padStartPush;
-    textRenderBoundScale_ = layoutBase_.getComputedScale() - padEndPop;
+
+    TextAvailBounds bounds;
+    bounds.startPos = layoutBase_.getComputedPos() + padStartPush;
+    bounds.scale = layoutBase_.getComputedScale() - padEndPop;
+    bounds.endPos  = bounds.startPos + bounds.scale;
+
+    return bounds;
 }
 
-auto UILabel::computeInternalData() -> void
+auto UILabel::computeInternalLineData() -> void
 {
+    // here we can compute if ellipsis is really needed
     lineData_.clear();
-    maxLineDataXY_ = {0, 0};
 
-    glm::ivec2 rawPos{textRenderBoundStart_};
+    glm::ivec2 rawPos{textAvailBounds_.startPos};
     LineData ld{0, 0};
-    ld.startIdx = 0;
 
     for (uint32_t idx = 0; idx < storedText_.size(); ++idx)
     {
@@ -212,56 +221,59 @@ auto UILabel::computeInternalData() -> void
         pos.x = rawPos.x + gd.bearing.x;
         pos.y = rawPos.y - gd.bearing.y;
 
-        /* Stop if line is outside renderable zone. */
-        if (pos.y + gd.size.y > getMaxBoundPos().y - font_->baseVerticalSep)
-        {
-            maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
-            maxLineDataXY_.y = lineData_.size() * font_->baseVerticalSep;
-            hasMoreText_ = true;
-            return;
-        }
-
         /* If this is true, current char will be placed on a new line. */
         if (options_.wrap == core::TextOptions::Wrap::CHAR
-            && pos.x + gd.size.x > getMaxBoundPos().x)
+            && pos.x + gd.size.x > textAvailBounds_.endPos.x)
         {
-            rawPos.x = textRenderBoundStart_.x;
+            rawPos.x = textAvailBounds_.startPos.x;
             rawPos.y += font_->baseVerticalSep;
             pos = rawPos;
-
-            maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
 
             ld.endIdx = idx;
 
             lineData_.push_back(ld);
             ld.startIdx = idx;
             ld.length = 0;
-            ld.lineIdx++;
         }
 
-        rawPos += glm::ivec2{getAdvance(gd), 0};
-        ld.length += getAdvance(gd);
+        /* Stop if line is outside renderable zone. */
+        if (pos.y + gd.size.y - gd.bearing.y > textAvailBounds_.endPos.y - font_->baseVerticalSep)
+        {
+            notAllTextVisible_ = true;
+            return;
+        }
+
+        rawPos += glm::ivec2{gd.hAdvance, 0};
+        ld.length += gd.hAdvance;
     }
 
-    hasMoreText_ = false;
+    notAllTextVisible_ = false;
     ld.endIdx = storedText_.size();
-    maxLineDataXY_.x = std::max(maxLineDataXY_.x, ld.length);
     lineData_.push_back(ld);
-    maxLineDataXY_.y = lineData_.size() * font_->baseVerticalSep;
 }
 
-auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
+auto UILabel::computeInternalLineDataMax() const -> glm::ivec2
 {
-    glm::ivec2 basePos{textRenderBoundStart_};
-    basePos.y += font_->descender + font_->baseVerticalSep * (ld.lineIdx + 1);
+    if (lineData_.empty()) { return {0, 0}; }
+
+    return {
+        std::ranges::max_element(lineData_, std::ranges::greater{}, &LineData::length)->length,
+        lineData_.size() * font_->baseVerticalSep
+    };
+}
+
+auto UILabel::computeLineStartPos(const uint32_t lineIdx, const int32_t lineLen) -> glm::ivec2
+{
+    glm::ivec2 lineStart{textAvailBounds_.startPos};
+    lineStart.y += font_->descender + font_->baseVerticalSep * (lineIdx + 1);
+    lineStart.y += (textAvailBounds_.scale.y - maxLineDataXY_.y) / 2;
 
     switch (options_.align)
     {
         case core::TextOptions::Align::LEFT:
             break;
         case core::TextOptions::Align::CENTER:
-            basePos.x += (textRenderBoundScale_.x - ld.length) / 2;
-            basePos.y += (textRenderBoundScale_.y - maxLineDataXY_.y) / 2;
+            lineStart.x += (textAvailBounds_.scale.x - lineLen) / 2;
             break;
         case core::TextOptions::Align::RIGHT:
             break;
@@ -269,39 +281,25 @@ auto UILabel::prepareBasePositionForLine(const LineData& ld) -> glm::ivec2
             log_.warn("Could not align!");
     }
 
-    return basePos;
-}
-
-auto UILabel::getMaxBoundPos() const -> glm::ivec2
-{
-    return textRenderBoundStart_ + textRenderBoundScale_;
+    return lineStart;
 }
 
 auto UILabel::isEllipsisNeeded(const bool isLast, const core::Font::GlyphData& data,
     const glm::ivec2& pos) -> bool
 {
-    if (options_.wrap != core::TextOptions::Wrap::NONE && !hasMoreText_) { return false; }
+    if (options_.ellipsis <= 0) { return false; }
+    if (options_.wrap != core::TextOptions::Wrap::NONE && !notAllTextVisible_) { return false; }
     if (!isLast) { return false; }
 
-    const int32_t ellipsisSize = getAdvance(data) * options_.ellipsis;
-    const int32_t positionAfterAdvance = pos.x + getAdvance(data);
-    if (getMaxBoundPos().x - positionAfterAdvance <= ellipsisSize)
+    const uint32_t dotAdvance = font_->glyphData['.'].hAdvance;
+    const int32_t ellipsisSize = dotAdvance * options_.ellipsis;
+    const int32_t positionAfterAdvance = pos.x + data.hAdvance;
+    if (textAvailBounds_.endPos.x - positionAfterAdvance <= ellipsisSize)
     {
         return true;
     }
 
     return false;
-}
-
-auto UILabel::isLastLine(const LineData& ld) -> bool
-{
-    return ld.lineIdx + 1 == lineData_.size();
-}
-
-auto UILabel::getAdvance(const core::Font::GlyphData& data) -> uint32_t
-{
-    /* Advance is stored in 1/64ths of a pixel by FT lib for some reason. Need to bitshift right. */
-    return font_->glyphData[data.glyphCode].hAdvance >> 6;
 }
 
 auto UILabel::startTextBatching() -> void

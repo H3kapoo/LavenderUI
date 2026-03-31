@@ -2,13 +2,15 @@
 
 uniform vec4 uColor = vec4(0.3, 0.1, 0.4, 1.0);
 uniform vec4 uBorderColor = vec4(0.0, 0.0, 1.0, 1.0);
-uniform vec4 uBorderSize = vec4(0);
-uniform vec4 uBorderRadii = vec4(0);
+uniform vec4 uBorderSize = vec4(0); // TBLR
+uniform vec4 uBorderRadii = vec4(0); // TL TR BL BR
 uniform vec2 uResolution;
+uniform vec2 uBotLeft;
 uniform int uUseTexture = 0;
 uniform sampler2D uTexture;
 
 in vec2 vTexCoords;
+in mat4 vProjection;
 out vec4 fragColor;
 
 /**
@@ -25,51 +27,37 @@ float roundedBoxSDF(vec2 uv, vec2 halfSize, vec4 radii)
     return length(max(absPos + radius, 0.0)) - radius;
 }
 
+float box(vec2 p, vec2 b)
+{
+    vec2 d = abs(p) - b;
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+
 void main()
 {
-    vec2 p = vTexCoords;
-    p.x *= uResolution.x;
-    p.y *= uResolution.y;
-    p -= vec2(uResolution.x / 2.0, uResolution.y / 2.0);
+    vec2 uv = vTexCoords * uResolution;
+    uv = floor(uv) + 0.5;
+    // uv -= vec2(uResolution * 0.5);
 
-    /* Wanted size of the outside box. */
-    vec2 outerBoxSize = vec2(uResolution.x, uResolution.y);
+    vec2 halfSize = 0.5 * (uResolution);
 
-    /* Size of the content after the borders are in place. */
-    vec2 contentSize = vec2(uResolution.x, uResolution.y);
-    contentSize -= vec2(uBorderSize.z + uBorderSize.w, uBorderSize.x + uBorderSize.y);
+    float d = box(uv, halfSize);
 
-    /* Center of the inner box aka the box formed after applying the border sizes for the outer box.*/
-    vec2 innerBoxCenter = vec2(
-        ((uBorderSize.z + uBorderSize.w) * 0.5) - uBorderSize.w - 0,
-        ((uBorderSize.x + uBorderSize.y) * 0.5) - uBorderSize.y);
+    float border = step(-1.0, d) - step(0.0, d);
 
-    /* Invert inner border radius..for some reason. */
-    vec4 innerBorderRadius = uBorderRadii;
-    float temp = innerBorderRadius.z;
-    innerBorderRadius.z = innerBorderRadius.x;
-    innerBorderRadius.x = temp;
+    // fragColor = vec4(border, 0.0, 0.0, 1.0);
+    // fragColor = vec4(d, 0.0, 0.0, 1.0);
+    // if (d == -1.0)
+//     if (uv.x == 0.0)
+//     {
+//         fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+//     }
+//     else
+//     {
+//         fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+//     }
 
-    temp = innerBorderRadius.w;
-    innerBorderRadius.w = innerBorderRadius.y;
-    innerBorderRadius.y = temp;
-
-    float outerBoxDist = roundedBoxSDF(p, (outerBoxSize / 2.0), uBorderRadii);
-    float innerBoxDist = roundedBoxSDF((innerBoxCenter) - p, (contentSize / 2.0), innerBorderRadius / 2.0f);
-
-    float outerBoxSdf = step(0.0001, outerBoxDist);
-    float innerBoxSdf = step(0.0001, innerBoxDist);
-    float inOutDiffSdf = innerBoxSdf - outerBoxSdf;
-
-    if (outerBoxSdf >= 1) { discard; }
-
-    /* Set the color of the inner content */
-    vec4 finalColor = uUseTexture > 0
-        ? mix(uColor, vec4(0.0), innerBoxSdf) * texture(uTexture, vTexCoords)
-        : mix(uColor, vec4(0.0), innerBoxSdf);
-
-    /* Set the color of the border */
-    finalColor += mix(vec4(0.0), uBorderColor, inOutDiffSdf);
-
-    fragColor = finalColor;
+    // fragColor = vec4(border, 0.0, 0.0, 1.0);
+    fragColor = vec4(uv.x == 0.5 ? 1.0 : 0.0, 0.0, 0.0, 1.0);
+    // fragColor = vec4(fract(uv.x), 0.0, 0.0, 1.0);
 }

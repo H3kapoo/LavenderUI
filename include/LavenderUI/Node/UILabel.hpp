@@ -102,28 +102,31 @@ protected:
     {
         uint32_t startIdx{0};
         uint32_t endIdx{0};
-        uint32_t lineIdx{0};
         int32_t length{0};
+    };
+
+    struct TextAvailBounds
+    {
+        glm::ivec2 startPos{0, 0};
+        glm::ivec2 endPos{0, 0};
+        glm::ivec2 scale{0, 0};
     };
 
 private:
     using TextModelVec = std::vector<glm::mat4>;
     using TextGlyphVec = std::vector<int32_t>;
+    using LineDataVec  = std::vector<LineData>;
 
     auto renderBatch() -> void;
-    auto handleLine(const LineData& ld) -> void;
+    auto handleLine(const LineData& ld, const uint32_t lineIdx) -> void;
     auto handleEllipsis(glm::ivec2& basePos) -> void;
-    auto pushCharData(const core::Font::GlyphData& data, const glm::ivec2 pos) -> void;
-    auto advanceBasePosition(const core::Font::GlyphData& data,
-        glm::ivec2& basePos) -> void;
-    auto computeAvailableTextBounds() -> void;
-    auto computeInternalData() -> void;
-    auto prepareBasePositionForLine(const LineData& ld) -> glm::ivec2;
-    auto getMaxBoundPos() const -> glm::ivec2;
+    auto pushDataAndRenderIfFull(const core::Font::GlyphData& data, const glm::ivec2 pos) -> void;
+    auto computeAvailableTextBounds() const -> TextAvailBounds;
+    auto computeInternalLineData() -> void;
+    auto computeInternalLineDataMax() const -> glm::ivec2;
+    auto computeLineStartPos(const uint32_t lineIdx, const int32_t lineLen) -> glm::ivec2;
     auto isEllipsisNeeded(const bool isLast, const core::Font::GlyphData& data,
         const glm::ivec2& pos) -> bool;
-    auto isLastLine(const LineData& ld) -> bool;
-    auto getAdvance(const core::Font::GlyphData& data) -> uint32_t;
 
     /* Batching */
     auto startTextBatching() -> void;
@@ -136,15 +139,14 @@ protected:
     core::TextOptions options_;
     core::Shader textShader_;
     core::FontPtr font_;
-    std::vector<LineData> lineData_;
+    LineDataVec lineData_;
+    TextAvailBounds textAvailBounds_;
     std::optional<glm::vec4> overrideColor_;
     std::string storedText_;
     glm::vec4 textColor_;
-    glm::ivec2 textRenderBoundStart_;
-    glm::ivec2 textRenderBoundScale_;
     glm::ivec2 lastCharPos_;
     glm::ivec2 maxLineDataXY_;
-    bool hasMoreText_;
+    bool notAllTextVisible_;
 
 private:
     /* Batching */
@@ -152,6 +154,7 @@ private:
     static TextGlyphVec glyphCode_;
     static uint32_t batchLimit_;
     static uint32_t batchesCount_;
+    glm::ivec2 ss_;
 };
 using UILabelPtr = std::shared_ptr<UILabel>;
 using UILabelWPtr = std::weak_ptr<UILabel>;

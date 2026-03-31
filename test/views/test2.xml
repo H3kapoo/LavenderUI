@@ -1,5 +1,10 @@
 <App ori="Vertical" launchSize="1270, 720" launchPos="Center" title="Title Here" align="Center">
-    <!-- <Pane vid="something" ori="Horizontal" scale="50%, 50%" color="#da5ddaff"> -->
+        <!-- ori="Horizontal" scale="55%, 50%" border="1,1,1,1" -->
+    <Pane vid="something"
+        bcolor="#ffeeffff"
+        ori="Horizontal" scale="599px, 601px" border="1,1,1,1"
+        color="#da5ddaff"/>
+        <!-- ori="Horizontal" scale="50%, 50%" border="1,1,1,1" bradius="30,30,30,30" -->
     <!-- <Pane vid="something" ori="Horizontal" scale="600px, 24px" color="#da5ddaff"> -->
     <!-- <Pane vid="something" ori="Horizontal" scale="Fill, Fill"> -->
         <!-- <LineEdit vid="mylabel" scale="Fill, Fill" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi placerat dignissim velit, id bibendum purus dictum in. Ceva ca sa increasuie lungimea. Bla bla"/> -->
@@ -12,9 +17,10 @@ Fusce porta auctor varius. Praesent egestas diam ut tortor euismod volutpat. Nul
 Morbi porta arcu vitae velit volutpat maximus eget ut est. Nulla at neque eget enim lobortis iaculis. Nulla vestibulum, leo vel maximus auctor, ante nulla varius lectus, ultricies porttitor lacus tellus congue ex. Ut non pharetra nisl. Mauris posuere urna in mattis pulvinar. Vestibulum eu metus interdum, dignissim felis quis, accumsan arcu. Nunc enim ante, porta et congue quis, mattis a elit. Nulla pharetra ante eget orci fringilla molestie. Nullam consectetur magna ac tortor ultrices, dignissim porta purus consectetur. "/> -->
     <!-- <Label vid="mylabel" align="c" wrap="c" ellipsis="0" scale="50%, 50%" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque non elit non tortor rutrum blandit " /> -->
 
-    <Label vid="mylabel" align="c" wrap="c" ellipsis="3" font="LiberationSerif-Regular.ttf" scale="50%, 25%"
+    <!-- </Pane> -->
+    <!-- <Label vid="mylabel" align="ca" wrap="ca" ellipsis="3"
+        font="LiberationSerif-Regular.ttf" scale="50%, 24px"
         text="/home/hekapoo/Documents/probe/LavenderUI/src/Node/UILineEdit.cpp" />
 
-    <!-- </Pane> -->
-    <Slider vid="slid" ori="Horizontal" scale="50%, 20px" from="13" to="78" color="#B3E0FEFF" kcolor="#0299FDFF"/>
+    <Slider vid="slid" ori="Horizontal" scale="50%, 20px" from="13" to="78" color="#B3E0FEFF" kcolor="#0299FDFF"/> -->
 </App>
